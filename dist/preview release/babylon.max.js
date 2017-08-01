@@ -7448,7 +7448,7 @@ var BABYLON;
             this.renderEvenInBackground = true;
             this.preventCacheWipeBetweenFrames = false;
             // To enable/disable IDB support and avoid XHR on .manifest
-            this.enableOfflineSupport = BABYLON.Database;
+            this.enableOfflineSupport = false;
             this.scenes = new Array();
             // Observables
             /**
@@ -7740,15 +7740,16 @@ var BABYLON;
             for (var i = 0; i < this._caps.maxVertexAttribs; i++) {
                 this._currentBufferPointers[i] = new BufferPointer();
             }
-            //Load WebVR Devices
+            // Load WebVR Devices
             if (options.autoEnableWebVR) {
                 this.initWebVR();
             }
-            //Detect if we are running on a faulty buggy OS.
+            // Detect if we are running on a faulty buggy OS.
             this._badOS = /iPad/i.test(navigator.userAgent) || /iPhone/i.test(navigator.userAgent);
-            //Detect if we are running on a faulty buggy desktop OS.
+            // Detect if we are running on a faulty buggy desktop OS.
             this._badDesktopOS = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
             BABYLON.Tools.Log("Babylon.js engine (v" + Engine.Version + ") launched");
+            this.enableOfflineSupport = (BABYLON.Database !== undefined);
         }
         Object.defineProperty(Engine, "LastCreatedEngine", {
             get: function () {
@@ -15436,11 +15437,14 @@ var BABYLON;
                 this._renderTransparent(this._transparentSubMeshes);
                 engine.setAlphaMode(BABYLON.Engine.ALPHA_DISABLE);
             }
-            engine.setStencilBuffer(stencilState);
+            // Set back stencil to false in case it changes before the edge renderer.
+            engine.setStencilBuffer(false);
             // Edges
             for (var edgesRendererIndex = 0; edgesRendererIndex < this._edgesRenderers.length; edgesRendererIndex++) {
                 this._edgesRenderers.data[edgesRendererIndex].render();
             }
+            // Restore Stencil state.
+            engine.setStencilBuffer(stencilState);
         };
         /**
          * Renders the opaque submeshes in the order from the opaqueSortCompareFn.
@@ -22928,6 +22932,9 @@ var BABYLON;
         });
         BaseSubMesh.prototype.setEffect = function (effect, defines) {
             if (this._materialEffect === effect) {
+                if (!effect) {
+                    this._materialDefines = undefined;
+                }
                 return;
             }
             this._materialDefines = defines;
@@ -23004,9 +23011,7 @@ var BABYLON;
                 var effectiveMaterial = multiMaterial.getSubMaterial(this.materialIndex);
                 if (this._currentMaterial !== effectiveMaterial) {
                     this._currentMaterial = effectiveMaterial;
-                    if (this._materialDefines) {
-                        this._materialDefines.markAllAsDirty();
-                    }
+                    this._materialDefines = undefined;
                 }
                 return effectiveMaterial;
             }
@@ -24908,7 +24913,7 @@ var BABYLON;
                         continue;
                     }
                     if (!subMesh._materialDefines) {
-                        return;
+                        continue;
                     }
                     func(subMesh._materialDefines);
                 }
@@ -66169,12 +66174,16 @@ var BABYLON;
     BABYLON.MergeMeshesOptimization = MergeMeshesOptimization;
     // Options
     var SceneOptimizerOptions = (function () {
-        function SceneOptimizerOptions(targetFrameRate, trackerDuration) {
+        function SceneOptimizerOptions(targetFrameRate, trackerDuration, starterPriority) {
             if (targetFrameRate === void 0) { targetFrameRate = 60; }
             if (trackerDuration === void 0) { trackerDuration = 2000; }
+            if (starterPriority === void 0) { starterPriority = 0; }
             this.targetFrameRate = targetFrameRate;
             this.trackerDuration = trackerDuration;
+            this.starterPriority = starterPriority;
             this.optimizations = new Array();
+            console.log(starterPriority);
+            console.log("22");
         }
         SceneOptimizerOptions.LowDegradationAllowed = function (targetFrameRate) {
             var result = new SceneOptimizerOptions(targetFrameRate);
