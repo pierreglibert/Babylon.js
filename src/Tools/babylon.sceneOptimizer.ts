@@ -345,14 +345,16 @@
     // class to controle optimizations
     export class renderGradingSceneOptimizer {
 
-      // grade : option to optimize scene (ex : low, medium, hight)
+      // grade : preset options to optimize scene (ex : low, medium, hight)
       public grades: Array<any> = new Array();
 
-      // to know on wich priority we are.
-      private _currentPriority: number = 0;
+      // to know on wich grade we are.
+      private _currentGrade: number = 0;
 
-      // to know the step of evaluation : upgrading or dowgrading
-      private _currentGrading: string = "upGrading";
+      // to know the step of evaluation :
+      // 1. try to upgrading.
+      // 2. if fps not reached, dowgrading.
+      private _currentGradingStep: string = "upGrading";
 
       // result of all fps evaluation to set a level of hardware performance
       private _hardwareEval: number = 0;
@@ -366,7 +368,7 @@
        */
       constructor (scene : Scene, public frameToReach: number = 59, public trackerDuration: number = 1000, private starterGrade: string, private autoRunDelay: number = 0) {
 
-        // update scene with priorityStarter before render
+        // update scene with starterGrade before render
         scene.registerBeforeRender(() => {
           this.updateSceneByGrade(starterGrade);
         });
@@ -387,7 +389,7 @@
 
       }
 
-      // forcing downgrade by 1
+      // force downgrade by 1
       public downgrade() {
 
       }
@@ -424,32 +426,32 @@
 
       /**
        * @param name : name of grade
-       * @param activeDynamicAssetsLoad : active dynamic loading
-       * @param upGradingTask : task to do when this grade is actived
+       * @param upGradingTask : task to do when this grade is enabled
        * @param downGradingTask : task to do when this grade is desabled
+       * @param activeDynamicAssetsLoad : active dynamic loading
        */
       constructor (public name: string, public upGradingTask: Function, public downGradingTask: Function, public activeDynamicGradingAssetsLoad: boolean = false) {
 
       }
 
-      // add asset we need to show in scene for this grade
+      // add grading asset we need to show in scene for this grade
       public addGradingAsset(gradingAsset: gradingAsset) {
         this.gradingAssets.push(gradingAsset);
       }
 
-      // export & split asset in separate file ( if node server )
-      public exportAsset() {
+      // export & split original file, by gradingAsset, in separate file ( usefull on node server )
+      public splitAsset() {
 
       }
-    }
 
-    // exemple of new postProcessing optimization
-    export class postProcessingGradingOptimization {
-      static downGrade(scene : Scene) {
-        scene.postProcessesEnabled = false;
+      // add asset to scene
+      private _upgradeAsset() {
+
       }
-      static upGrade(scene : Scene) {
-        scene.postProcessesEnabled = true;
+
+      // remove asset to scene
+      private _downgradeAsset() {
+
       }
     }
 
