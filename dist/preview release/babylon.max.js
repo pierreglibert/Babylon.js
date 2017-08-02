@@ -66253,16 +66253,12 @@ var BABYLON;
     BABYLON.MergeMeshesOptimization = MergeMeshesOptimization;
     // Options
     var SceneOptimizerOptions = (function () {
-        function SceneOptimizerOptions(targetFrameRate, trackerDuration, starterPriority) {
+        function SceneOptimizerOptions(targetFrameRate, trackerDuration) {
             if (targetFrameRate === void 0) { targetFrameRate = 60; }
             if (trackerDuration === void 0) { trackerDuration = 2000; }
-            if (starterPriority === void 0) { starterPriority = 0; }
             this.targetFrameRate = targetFrameRate;
             this.trackerDuration = trackerDuration;
-            this.starterPriority = starterPriority;
             this.optimizations = new Array();
-            console.log(starterPriority);
-            console.log("22");
         }
         SceneOptimizerOptions.LowDegradationAllowed = function (targetFrameRate) {
             var result = new SceneOptimizerOptions(targetFrameRate);
@@ -66378,6 +66374,152 @@ var BABYLON;
         return SceneOptimizer;
     }());
     BABYLON.SceneOptimizer = SceneOptimizer;
+    /**
+     * ***********************************
+     * New proposition for scene optimizer
+     * ***********************************
+     */
+    // class to controle optimizations
+    var renderGradingSceneOptimizer = (function () {
+        /**
+         * @param scene : BABYLON.Scene
+         * @param frameToReach : fps to reach
+         * @param trackerDuration : duration between two fps evaluation
+         * @param starterGrade : on wich grade renderGradingSceneOptimizer need to start.
+         * @param autoRunDelay : run automaticaly fps evaluation every 'x' ms. 0 mean desactived
+         */
+        function renderGradingSceneOptimizer(scene, frameToReach, trackerDuration, starterGrade, autoRunDelay) {
+            if (frameToReach === void 0) { frameToReach = 59; }
+            if (trackerDuration === void 0) { trackerDuration = 1000; }
+            if (autoRunDelay === void 0) { autoRunDelay = 0; }
+            var _this = this;
+            this.frameToReach = frameToReach;
+            this.trackerDuration = trackerDuration;
+            this.starterGrade = starterGrade;
+            this.autoRunDelay = autoRunDelay;
+            // grade : preset options to optimize scene (ex : low, medium, hight)
+            this.grades = new Array();
+            // to know on wich grade we are.
+            this._currentGrade = 0;
+            // to know the step of evaluation :
+            // 1. try to upgrading.
+            // 2. if fps not reached, dowgrading.
+            this._currentGradingStep = "upGrading";
+            // result of all fps evaluation to set a level of hardware performance
+            this._hardwareEval = 0;
+            // update scene with starterGrade before render
+            scene.registerBeforeRender(function () {
+                _this.updateSceneByGrade(starterGrade);
+            });
+        }
+        // add a new grade to renderGradingSceneOptimizer
+        renderGradingSceneOptimizer.prototype.addGrade = function (newGrade) {
+            this.grades.push(newGrade);
+        };
+        // start to evaluate fps and update scene if necessary
+        renderGradingSceneOptimizer.prototype.run = function (scene) {
+        };
+        // update scene by render grade name
+        renderGradingSceneOptimizer.prototype.updateSceneByGrade = function (gradeName) {
+        };
+        // force downgrade by 1
+        renderGradingSceneOptimizer.prototype.downgrade = function () {
+        };
+        // force upgrade by 1
+        renderGradingSceneOptimizer.prototype.upgrade = function () {
+        };
+        // get hardware evaluation
+        renderGradingSceneOptimizer.prototype.getHardwareEvaluation = function (scene) {
+            // get fps
+            var fps = scene.getEngine().getFps();
+            if (fps <= this.frameToReach) {
+            }
+        };
+        return renderGradingSceneOptimizer;
+    }());
+    BABYLON.renderGradingSceneOptimizer = renderGradingSceneOptimizer;
+    // class to customize grade
+    var grade = (function () {
+        /**
+         * @param name : name of grade
+         * @param upGradingTask : task to do when this grade is enabled
+         * @param downGradingTask : task to do when this grade is desabled
+         * @param activeDynamicAssetsLoad : active dynamic loading
+         */
+        function grade(name, upGradingTask, downGradingTask, activeDynamicGradingAssetsLoad) {
+            if (activeDynamicGradingAssetsLoad === void 0) { activeDynamicGradingAssetsLoad = false; }
+            this.name = name;
+            this.upGradingTask = upGradingTask;
+            this.downGradingTask = downGradingTask;
+            this.activeDynamicGradingAssetsLoad = activeDynamicGradingAssetsLoad;
+            // asset we need for dynamic loading by grade and distance if AssetGeolocalisation is enabled in gradingAsset class
+            this.gradingAssets = new Array();
+        }
+        // add grading asset we need to show in scene for this grade
+        grade.prototype.addGradingAsset = function (gradingAsset) {
+            this.gradingAssets.push(gradingAsset);
+        };
+        // export & split original file, by gradingAsset, in separate file ( usefull on node server )
+        grade.prototype.splitAsset = function () {
+        };
+        // add asset to scene
+        grade.prototype._upgradeAsset = function () {
+        };
+        // remove asset to scene
+        grade.prototype._downgradeAsset = function () {
+        };
+        return grade;
+    }());
+    BABYLON.grade = grade;
+    // asset to load by grade and distance
+    var gradingAsset = (function () {
+        function gradingAsset(name, url, type, AssetGeolocalisation) {
+            this.name = name;
+            this.url = url;
+            this.type = type;
+            this.AssetGeolocalisation = AssetGeolocalisation;
+        }
+        return gradingAsset;
+    }());
+    BABYLON.gradingAsset = gradingAsset;
+    // exemple of asset type mesh
+    var meshGradingAsset = (function (_super) {
+        __extends(meshGradingAsset, _super);
+        function meshGradingAsset(name, url, meshAssetGeolocalisation) {
+            var _this = _super.call(this, name, url, 'mesh', meshAssetGeolocalisation) || this;
+            _this.name = name;
+            _this.url = url;
+            _this.meshAssetGeolocalisation = meshAssetGeolocalisation;
+            return _this;
+        }
+        return meshGradingAsset;
+    }(gradingAsset));
+    BABYLON.meshGradingAsset = meshGradingAsset;
+    // place asset on scene by grade enabled and with camera frustrum distance
+    var assetGeolocalisation = (function () {
+        function assetGeolocalisation(position, boundingBox) {
+            this.position = position;
+            this.boundingBox = boundingBox;
+        }
+        return assetGeolocalisation;
+    }());
+    BABYLON.assetGeolocalisation = assetGeolocalisation;
+    // exemple of mesh geolocalisation
+    var meshAssetGeolocalisation = (function (_super) {
+        __extends(meshAssetGeolocalisation, _super);
+        function meshAssetGeolocalisation(position, boundingBox, rotation, scale) {
+            if (rotation === void 0) { rotation = new BABYLON.Vector3(1, 1, 1); }
+            if (scale === void 0) { scale = new BABYLON.Vector3(1, 1, 1); }
+            var _this = _super.call(this, position, boundingBox) || this;
+            _this.position = position;
+            _this.boundingBox = boundingBox;
+            _this.rotation = rotation;
+            _this.scale = scale;
+            return _this;
+        }
+        return meshAssetGeolocalisation;
+    }(assetGeolocalisation));
+    BABYLON.meshAssetGeolocalisation = meshAssetGeolocalisation;
 })(BABYLON || (BABYLON = {}));
 
 //# sourceMappingURL=babylon.sceneOptimizer.js.map
