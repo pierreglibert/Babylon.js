@@ -331,4 +331,158 @@
             });
         }
     }
-} 
+
+
+
+    /**
+     * ***********************************
+     * New proposition for scene optimizer
+     * ***********************************
+     */
+
+
+
+    // class to controle optimizations
+    export class renderGradingSceneOptimizer {
+
+      // grade : option to optimize scene (ex : low, medium, hight)
+      public grades: Array<any> = new Array();
+
+      // to know on wich priority we are.
+      private _currentPriority: number = 0;
+
+      // to know the step of evaluation : upgrading or dowgrading
+      private _currentGrading: string = "upGrading";
+
+      // result of all fps evaluation to set a level of hardware performance
+      private _hardwareEval: number = 0;
+
+      /**
+       * @param scene : BABYLON.Scene
+       * @param frameToReach : fps to reach
+       * @param trackerDuration : duration between two fps evaluation
+       * @param starterGrade : on wich grade renderGradingSceneOptimizer need to start.
+       * @param autoRunDelay : run automaticaly fps evaluation every 'x' ms. 0 mean desactived
+       */
+      constructor (scene : Scene, public frameToReach: number = 59, public trackerDuration: number = 1000, private starterGrade: string, private autoRunDelay: number = 0) {
+
+        // update scene with priorityStarter before render
+        scene.registerBeforeRender(() => {
+          this.updateSceneByGrade(starterGrade);
+        });
+      }
+
+      // add a new grade to renderGradingSceneOptimizer
+      public addGrade(newGrade: grade) {
+        this.grades.push(newGrade);
+      }
+
+      // start to evaluate fps and update scene if necessary
+      public run(scene : Scene) {
+
+      }
+
+      // update scene by render grade name
+      public updateSceneByGrade(gradeName : string) {
+
+      }
+
+      // forcing downgrade by 1
+      public downgrade() {
+
+      }
+
+      // force upgrade by 1
+      public upgrade() {
+
+      }
+
+      // get hardware evaluation
+      public getHardwareEvaluation(scene: Scene) {
+
+        // get fps
+        var fps = scene.getEngine().getFps();
+
+        if (fps <= this.frameToReach) {
+
+        }
+      }
+
+    }
+
+
+
+    // class to customize grade
+    export class grade {
+
+      // asset we need for dynamic loading by grade and distance if AssetGeolocalisation is enabled in gradingAsset class
+      public gradingAssets: Array<gradingAsset> = new Array();
+
+      // priority of grade
+      private _priority: number;
+
+
+      /**
+       * @param name : name of grade
+       * @param activeDynamicAssetsLoad : active dynamic loading
+       * @param upGradingTask : task to do when this grade is actived
+       * @param downGradingTask : task to do when this grade is desabled
+       */
+      constructor (public name: string, public upGradingTask: Function, public downGradingTask: Function, public activeDynamicGradingAssetsLoad: boolean = false) {
+
+      }
+
+      // add asset we need to show in scene for this grade
+      public addGradingAsset(gradingAsset: gradingAsset) {
+        this.gradingAssets.push(gradingAsset);
+      }
+
+      // export & split asset in separate file ( if node server )
+      public exportAsset() {
+
+      }
+    }
+
+    // exemple of new postProcessing optimization
+    export class postProcessingGradingOptimization {
+      static downGrade(scene : Scene) {
+        scene.postProcessesEnabled = false;
+      }
+      static upGrade(scene : Scene) {
+        scene.postProcessesEnabled = true;
+      }
+    }
+
+
+
+    // asset to load by grade and distance
+    export class gradingAsset {
+      constructor (public name: string, public url: string, public type: 'scene' | 'mesh' | 'texture' | 'animation', public AssetGeolocalisation?: assetGeolocalisation) {
+
+      }
+    }
+
+    // exemple of asset type mesh
+    export class meshGradingAsset extends gradingAsset {
+      constructor (public name: string, public url: string, public meshAssetGeolocalisation?: meshAssetGeolocalisation) {
+        super(name, url, 'mesh', meshAssetGeolocalisation);
+      }
+    }
+
+
+
+    // place asset on scene by grade enabled and with camera frustrum distance
+    export class assetGeolocalisation {
+      constructor (public position: Vector3, public boundingBox?: BoundingBox) {
+
+      }
+    }
+
+    // exemple of mesh geolocalisation
+    export class meshAssetGeolocalisation extends assetGeolocalisation{
+      constructor (public position: Vector3, public boundingBox?: BoundingBox, public rotation: Vector3 = new Vector3(1, 1, 1), public scale: Vector3 = new Vector3(1, 1, 1)) {
+        super(position, boundingBox);
+      }
+    }
+
+}
