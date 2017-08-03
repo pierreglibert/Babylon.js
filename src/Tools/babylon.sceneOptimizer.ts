@@ -434,13 +434,18 @@
 
       }
 
-      // add grading asset we need to show in scene for this grade
-      public addGradingAsset(gradingAsset: gradingAsset) {
-        this.gradingAssets.push(gradingAsset);
+      // add entire scene asset we need to show in scene for this grade
+      public addSceneGradingAsset(sceneGradingAsset: sceneGradingAsset) {
+        this.gradingAssets.push(sceneGradingAsset);
       }
 
-      // export & split original file, by gradingAsset, in separate file ( usefull on node server )
-      public splitAsset() {
+      // add mesh grading asset we need to show in scene for this grade
+      public addMeshGradingAsset(meshGradingAsset: meshGradingAsset) {
+        this.gradingAssets.push(meshGradingAsset);
+      }
+
+      // export & split original file, by gradingAsset, in separate file ( usefull to generate file on node server )
+      public splitAsset(sceneAndMeshExtention: 'babylon' | 'gltf', textureExtention : 'webFormat' | 'GPUFormat', zipCompression? : boolean) {
 
       }
 
@@ -457,33 +462,56 @@
 
 
 
-    // asset to load by grade and distance
-    export class gradingAsset {
-      constructor (public name: string, public url: string, public type: 'scene' | 'mesh' | 'texture' | 'animation', public AssetGeolocalisation?: assetGeolocalisation) {
+    // exemple of mesh asset to load by grade and distance
+    export class meshGradingAsset {
+
+      // list of LOD meshes
+      public LODMeshes: Array<any>;
+
+      // list of LOD textures
+      public LODTextures: Array<any>;
+
+      // list of LOD animation > exemple : load light version with 12key/s then add all other key to make a 60key/s animation.
+      public LODAnimation: Array<any>;
+
+
+      /**
+       * @param name : name of asset
+       * @param url : link
+       * @param onloading : on loading callback
+       * @param onloaded : on loaded callback
+       * @param bundingBox : if dynamic load is actived on grade class, load this asset when BoundingBox is in frustrum of the camera.
+       *                     ps : not calculate on distance between center of two object because it's not the good way for big object. That's why we need a virtual box (BoundingBox)
+       * @param meshAssetGeolocalisation : list of all copy of this asset/
+       */
+      constructor (public name: string, public url: string, onloading: Function, onloaded: Function, public bundingBox?: BoundingBox, public meshAssetGeolocalisation?: Array<duplicatedAssetGeolocalisation>) {
+      }
+
+      // add LOD animation
+      addLODAnimationAsset(url: string, extention: 'babylon' | 'gltf', distance: number, zipCompression? : boolean) {
+
+      }
+
+      // add LOD mesh version
+      addLODMesh(url: string, extention: 'babylon' | 'gltf', distance: number, zipCompression? : boolean) {
+
+      }
+
+      // add LOD texture version
+      addLODTextureAsset(url: string, extention: 'webFormat' | 'GPUFormat', distance: number, zipCompression? : boolean) {
 
       }
     }
 
-    // exemple of asset type mesh
-    export class meshGradingAsset extends gradingAsset {
-      constructor (public name: string, public url: string, public meshAssetGeolocalisation?: meshAssetGeolocalisation) {
-        super(name, url, 'mesh', meshAssetGeolocalisation);
-      }
-    }
 
 
+    // duplicate and place mesh or scene asset and apply transform.
+    export class duplicatedAssetGeolocalisation {
 
-    // place asset on scene by grade enabled and with camera frustrum distance
-    export class assetGeolocalisation {
-      constructor (public position: Vector3, public boundingBox?: BoundingBox) {
-
-      }
-    }
-
-    // exemple of mesh geolocalisation
-    export class meshAssetGeolocalisation extends assetGeolocalisation{
-      constructor (public position: Vector3, public boundingBox?: BoundingBox, public rotation: Vector3 = new Vector3(1, 1, 1), public scale: Vector3 = new Vector3(1, 1, 1)) {
-        super(position, boundingBox);
+      /**
+       * @param copyType : create an instance or clone
+       */
+      constructor (public copyType : 'clone' | 'instance', public position: Vector3 = new Vector3(0, 0, 0), public rotation: Vector3 = new Vector3(1, 1, 1), public scale: Vector3 = new Vector3(1, 1, 1)) {
       }
     }
 
