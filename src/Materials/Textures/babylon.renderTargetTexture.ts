@@ -327,7 +327,7 @@
             let camera: Camera;
             if (this.activeCamera) {
                 camera = this.activeCamera;
-                engine.setViewport(this.activeCamera.viewport);
+                engine.setViewport(this.activeCamera.viewport, this._size, this._size);
 
                 if (this.activeCamera !== scene.activeCamera)
                 {
@@ -336,7 +336,7 @@
             }
             else {
                 camera = scene.activeCamera;
-                engine.setViewport(scene.activeCamera.viewport);
+                engine.setViewport(scene.activeCamera.viewport, this._size, this._size);
             }
 
             // Prepare renderingManager
@@ -559,6 +559,8 @@
             }
 
             this.clearPostProcesses(true);
+
+            this.renderList = null;
 
             // Remove from custom render targets
             var scene = this.getScene();

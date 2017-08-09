@@ -516,13 +516,19 @@
             return result;
         }
 
-        // Force shader compilation including textures ready check
+        /**
+         * Force shader compilation including textures ready check
+         */
         public forceCompilation(mesh: AbstractMesh, onCompiled: (material: Material) => void, options?: { alphaTest: boolean, clipPlane: boolean }): void {
             var subMesh = new BaseSubMesh();
             var scene = this.getScene();
             var engine = scene.getEngine();
 
             var checkReady = () => {
+                if (!this._scene || !this._scene.getEngine()) {
+                    return;
+                }
+
                 if (subMesh._materialDefines) {
                     subMesh._materialDefines._renderId = -1;
                 }
@@ -532,7 +538,7 @@
 
                 engine.setAlphaTesting(options ? options.alphaTest : this.needAlphaTesting());
 
-                if (options.clipPlane) {
+                if (options && options.clipPlane) {
                     scene.clipPlane = new Plane(0, 0, 0, 1);
                 }
 
@@ -553,12 +559,12 @@
                     }
                     else {
                         setTimeout(checkReady, 16);
-                    }                    
+                    }
                 }
 
                 engine.setAlphaTesting(alphaTestState);
 
-                if (options.clipPlane) {
+                if (options && options.clipPlane) {
                     scene.clipPlane = clipPlaneState;
                 }
             };
