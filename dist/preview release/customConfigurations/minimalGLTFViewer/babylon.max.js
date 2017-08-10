@@ -8434,8 +8434,8 @@ var BABYLON;
          * @param {number} [requiredHeight] - the height required for rendering. If not provided the rendering canvas' height is used.
          */
         Engine.prototype.setViewport = function (viewport, requiredWidth, requiredHeight) {
-            var width = requiredWidth || (navigator.isCocoonJS ? window.innerWidth : this.getRenderWidth());
-            var height = requiredHeight || (navigator.isCocoonJS ? window.innerHeight : this.getRenderHeight());
+            var width = requiredWidth || this.getRenderWidth();
+            var height = requiredHeight || this.getRenderHeight();
             var x = viewport.x || 0;
             var y = viewport.y || 0;
             this._cachedViewport = viewport;
@@ -8580,7 +8580,12 @@ var BABYLON;
             if (texture.isCube) {
                 gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture, 0);
             }
-            gl.viewport(0, 0, requiredWidth || texture._width, requiredHeight || texture._height);
+            if (this._cachedViewport) {
+                this.setViewport(this._cachedViewport, requiredWidth, requiredHeight);
+            }
+            else {
+                gl.viewport(0, 0, requiredWidth || texture._width, requiredHeight || texture._height);
+            }
             this.wipeCaches();
         };
         Engine.prototype.bindUnboundFramebuffer = function (framebuffer) {
@@ -18365,7 +18370,10 @@ var BABYLON;
                 var mat = BABYLON.Matrix.Invert(listeningCamera.getViewMatrix());
                 var cameraDirection = BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(0, 0, -1), mat);
                 cameraDirection.normalize();
-                audioEngine.audioContext.listener.setOrientation(cameraDirection.x, cameraDirection.y, cameraDirection.z, 0, 1, 0);
+                // To avoid some errors on GearVR
+                if (!isNaN(cameraDirection.x) && !isNaN(cameraDirection.y) && !isNaN(cameraDirection.z)) {
+                    audioEngine.audioContext.listener.setOrientation(cameraDirection.x, cameraDirection.y, cameraDirection.z, 0, 1, 0);
+                }
                 var i;
                 for (i = 0; i < this.mainSoundTrack.soundCollection.length; i++) {
                     var sound = this.mainSoundTrack.soundCollection[i];
@@ -19988,12 +19996,20 @@ var BABYLON;
         };
         Texture.prototype.getReflectionTextureMatrix = function () {
             var _this = this;
+            var scene = this.getScene();
             if (this.uOffset === this._cachedUOffset &&
                 this.vOffset === this._cachedVOffset &&
                 this.uScale === this._cachedUScale &&
                 this.vScale === this._cachedVScale &&
                 this.coordinatesMode === this._cachedCoordinatesMode) {
-                return this._cachedTextureMatrix;
+                if (this.coordinatesMode === Texture.PROJECTION_MODE) {
+                    if (this._cachedProjectionMatrixId === scene.getProjectionMatrix().updateFlag) {
+                        return this._cachedTextureMatrix;
+                    }
+                }
+                else {
+                    return this._cachedTextureMatrix;
+                }
             }
             if (!this._cachedTextureMatrix) {
                 this._cachedTextureMatrix = BABYLON.Matrix.Zero();
@@ -20021,13 +20037,15 @@ var BABYLON;
                     this._projectionModeMatrix.m[13] = 0.5;
                     this._projectionModeMatrix.m[14] = 1.0;
                     this._projectionModeMatrix.m[15] = 1.0;
-                    this.getScene().getProjectionMatrix().multiplyToRef(this._projectionModeMatrix, this._cachedTextureMatrix);
+                    var projectionMatrix = scene.getProjectionMatrix();
+                    this._cachedProjectionMatrixId = projectionMatrix.updateFlag;
+                    projectionMatrix.multiplyToRef(this._projectionModeMatrix, this._cachedTextureMatrix);
                     break;
                 default:
                     BABYLON.Matrix.IdentityToRef(this._cachedTextureMatrix);
                     break;
             }
-            this.getScene().markAllMaterialsAsDirty(BABYLON.Material.TextureDirtyFlag, function (mat) {
+            scene.markAllMaterialsAsDirty(BABYLON.Material.TextureDirtyFlag, function (mat) {
                 return (mat.getActiveTextures().indexOf(_this) !== -1);
             });
             return this._cachedTextureMatrix;
