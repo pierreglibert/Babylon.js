@@ -3,8 +3,14 @@
 ## Major updates
 - Added support for non-pow2 textures when in WebGL2 mode ([deltakosh](https://github.com/deltakosh))
 - Engine can now be initialized with an existing webgl context ([deltakosh](https://github.com/deltakosh))
+- Introduced behaviors. (Doc here)[http://doc.babylonjs.com/overviews/behaviors] ([deltakosh](https://github.com/deltakosh))
+- New behaviors for ArcRotateCamera:
+ - AutoRotation ([deltakosh](https://github.com/deltakosh))
+ - Framing ([deltakosh](https://github.com/deltakosh))
+ - Bouncing ([deltakosh](https://github.com/deltakosh))
 
 ## Updates
+- POW2 textures rescale is now done by shaders (It was done using canvas before) ([deltakosh](https://github.com/deltakosh))
 - Added `SceneLoader.CleanBoneMatrixWeights` to force the loader to normalize matrix weights when loading bones (off by default) ([deltakosh](https://github.com/deltakosh)) 
 - Added `camera.onViewMatrixChangedObservable` and `camera.onProjectionMatrixChangedObservable` ([deltakosh](https://github.com/deltakosh))
 - Added support for folders when drag'n'dropping into the sandbox ([deltakosh](https://github.com/deltakosh))

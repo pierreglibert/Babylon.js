@@ -470,6 +470,11 @@
 
         protected _afterBind(mesh: Mesh): void {
             this._scene._cachedMaterial = this;
+            if (mesh) {
+                this._scene._cachedVisibility = mesh.visibility;
+            } else {
+                this._scene._cachedVisibility = 1;
+            }
 
             this.onBindObservable.notifyObservers(mesh);
 
