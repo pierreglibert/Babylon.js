@@ -529,6 +529,7 @@
         // To enable/disable IDB support and avoid XHR on .manifest
         public enableOfflineSupport = false;
         public scenes = new Array<Scene>();
+        public postProcesses = new Array<PostProcess>();
 
         // Observables
 
@@ -555,7 +556,11 @@
         private _vrAnimationFrameHandler: number;
 
         // Uniform buffers list
+        public disableUniformBuffers = false;
         public _uniformBuffers = new Array<UniformBuffer>();
+        public get supportsUniformBuffers(): boolean {
+            return this.webGLVersion > 1 && !this.disableUniformBuffers;
+        }
 
         // Private Members
         private _gl: WebGLRenderingContext;
@@ -584,7 +589,7 @@
         private _onFocus: () => void;
         private _onFullscreenChange: () => void;
         private _onPointerLockChange: () => void;
-        
+
         private _onVRDisplayPointerRestricted: () => void;
         private _onVRDisplayPointerUnrestricted: () => void;
 
@@ -612,6 +617,8 @@
         private _lockstepMaxSteps: number = 4;
 
         // Lost context
+        public onContextLostObservable = new Observable<Engine>();
+        public onContextRestoredObservable = new Observable<Engine>();
         private _onContextLost: (evt: Event) => void;
         private _onContextRestored: (evt: Event) => void;
         private _contextWasLost = false;
@@ -813,6 +820,8 @@
                     evt.preventDefault();
                     this._contextWasLost = true;
                     Tools.Warn("WebGL context lost.");
+
+                    this.onContextLostObservable.notifyObservers(this);
                 };
 
                 this._onContextRestored = (evt: Event) => {
@@ -827,26 +836,28 @@
 
                     // Rebuild buffers
                     this._rebuildBuffers();
-                    
+
                     // Cache
                     this.wipeCaches(true);
 
                     Tools.Warn("WebGL context successfully restored.");
-                
+
+                    this.onContextRestoredObservable.notifyObservers(this);
+
                     this._contextWasLost = false;
                 };
 
                 canvas.addEventListener("webglcontextlost", this._onContextLost, false);
                 canvas.addEventListener("webglcontextrestored", this._onContextRestored, false);
             }
-            
+
             // Viewport
             var limitDeviceRatio = options.limitDeviceRatio || window.devicePixelRatio || 1.0;
             this._hardwareScalingLevel = adaptToDeviceRatio ? 1.0 / Math.min(limitDeviceRatio, window.devicePixelRatio || 1.0) : 1.0;
             this.resize();
 
             this._isStencilEnable = options.stencil;
-            this._initGLContext();            
+            this._initGLContext();
 
             if (canvas) {
                 // Fullscreen
@@ -902,7 +913,7 @@
                 }
 
                 window.addEventListener('vrdisplaypointerrestricted', this._onVRDisplayPointerRestricted, false);
-                window.addEventListener('vrdisplaypointerunrestricted', this._onVRDisplayPointerUnrestricted, false);  
+                window.addEventListener('vrdisplaypointerunrestricted', this._onVRDisplayPointerUnrestricted, false);
             }
 
             if (options.audioEngine && AudioEngine && !Engine.audioEngine) {
@@ -962,7 +973,7 @@
             }
         }
 
-        private _initGLContext(): void {            
+        private _initGLContext(): void {
             // Caps
             this._caps = new EngineCapabilities();
             this._caps.maxTexturesImageUnits = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS);
@@ -1295,27 +1306,25 @@
         }
 
         public _renderLoop(): void {
-            if (this._contextWasLost) {
-                return;
-            }
-
-            var shouldRender = true;
-            if (!this.renderEvenInBackground && this._windowIsBackground) {
-                shouldRender = false;
-            }
-
-            if (shouldRender) {
-                // Start new frame
-                this.beginFrame();
-
-                for (var index = 0; index < this._activeRenderLoops.length; index++) {
-                    var renderFunction = this._activeRenderLoops[index];
-
-                    renderFunction();
+            if (!this._contextWasLost) {
+                var shouldRender = true;
+                if (!this.renderEvenInBackground && this._windowIsBackground) {
+                    shouldRender = false;
                 }
 
-                // Present
-                this.endFrame();
+                if (shouldRender) {
+                    // Start new frame
+                    this.beginFrame();
+
+                    for (var index = 0; index < this._activeRenderLoops.length; index++) {
+                        var renderFunction = this._activeRenderLoops[index];
+
+                        renderFunction();
+                    }
+
+                    // Present
+                    this.endFrame();
+                }  
             }
 
             if (this._activeRenderLoops.length > 0) {
@@ -1576,17 +1585,14 @@
 
         private _getVRDisplays() {
             var getWebVRDevices = (devices: Array<any>) => {
-                var size = devices.length;
-                var i = 0;
 
                 this._vrDisplays = devices.filter(function (device) {
-                    return devices[i] instanceof VRDisplay;
+                    return device instanceof VRDisplay;
                 });
 
                 return this._vrDisplays;
             }
 
-            //using a key due to typescript
             if (navigator.getVRDisplays) {
                 this.vrDisplaysPromise = navigator.getVRDisplays().then(getWebVRDevices);
             }
@@ -2785,10 +2791,10 @@
                     if (buffer instanceof HTMLImageElement) {
                         onload(buffer);
                     } else {
-                        Tools.LoadImage(url, onload, onerror, scene ? scene.database: null);
+                        Tools.LoadImage(url, onload, onerror, scene ? scene.database : null);
                     }
                 else if (buffer instanceof Array || typeof buffer === "string")
-                    Tools.LoadImage(buffer, onload, onerror, scene ? scene.database: null);
+                    Tools.LoadImage(buffer, onload, onerror, scene ? scene.database : null);
                 else
                     onload(buffer);
             }
@@ -2895,7 +2901,7 @@
             texture.samplingMode = samplingMode;
             texture.invertY = invertY;
             texture._compression = compression;
-            
+
             if (!this._doNotHandleContextLost) {
                 texture._bufferView = data;
             }
@@ -3042,7 +3048,7 @@
                 fullOptions.generateMipMaps = options.generateMipMaps;
                 fullOptions.generateDepthBuffer = options.generateDepthBuffer === undefined ? true : options.generateDepthBuffer;
                 fullOptions.generateStencilBuffer = fullOptions.generateDepthBuffer && options.generateStencilBuffer;
-                fullOptions.type = options.type === undefined ? Engine.TEXTURETYPE_UNSIGNED_INT : options.type ;
+                fullOptions.type = options.type === undefined ? Engine.TEXTURETYPE_UNSIGNED_INT : options.type;
                 fullOptions.samplingMode = options.samplingMode === undefined ? Texture.TRILINEAR_SAMPLINGMODE : options.samplingMode;
             } else {
                 fullOptions.generateMipMaps = <boolean>options;
@@ -3654,6 +3660,12 @@
         }
 
         public updateRawCubeTexture(texture: InternalTexture, data: ArrayBufferView[], format: number, type: number, invertY: boolean, compression: string = null, level = 0): void {
+            texture._bufferViewArray = data;
+            texture.format = format;
+            texture.type = type;
+            texture.invertY = invertY;
+            texture._compression = compression;
+
             var gl = this._gl;
             var textureType = this._getWebGLTextureType(type);
             var internalFormat = this._getInternalFormat(format);
@@ -3703,6 +3715,9 @@
             texture.generateMipMaps = generateMipMaps;
             texture.format = format;
             texture.type = type;
+            if (!this._doNotHandleContextLost) {
+                texture._bufferViewArray = data;
+            }
 
             var textureType = this._getWebGLTextureType(type);
             var internalFormat = this._getInternalFormat(format);
@@ -3726,7 +3741,7 @@
                 generateMipMaps = false;
             }
 
-            // Upload data if needed. The texture won t be ready until then.
+            // Upload data if needed. The texture won't be ready until then.
             if (data) {
                 this.updateRawCubeTexture(texture, data, format, type, invertY, compression);
             }
@@ -4250,6 +4265,11 @@
 
             this.stopRenderLoop();
 
+            // Release postProcesses
+            while (this.postProcesses.length) {
+                this.postProcesses[0].dispose();
+            }
+
             // Empty texture
             if (this._emptyTexture) {
                 this._releaseTexture(this._emptyTexture);
@@ -4294,12 +4314,12 @@
             window.removeEventListener("blur", this._onBlur);
             window.removeEventListener("focus", this._onFocus);
             window.removeEventListener('vrdisplaypointerrestricted', this._onVRDisplayPointerRestricted);
-            window.removeEventListener('vrdisplaypointerunrestricted', this._onVRDisplayPointerUnrestricted);              
+            window.removeEventListener('vrdisplaypointerunrestricted', this._onVRDisplayPointerUnrestricted);
             this._renderingCanvas.removeEventListener("pointerout", this._onCanvasBlur);
 
             if (!this._doNotHandleContextLost) {
                 this._renderingCanvas.removeEventListener("webglcontextlost", this._onContextLost);
-                this._renderingCanvas.removeEventListener("webglcontextrestored", this._onContextRestored);            
+                this._renderingCanvas.removeEventListener("webglcontextrestored", this._onContextRestored);
             }
             document.removeEventListener("fullscreenchange", this._onFullscreenChange);
             document.removeEventListener("mozfullscreenchange", this._onFullscreenChange);
