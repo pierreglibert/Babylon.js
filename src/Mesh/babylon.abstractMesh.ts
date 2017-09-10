@@ -1533,7 +1533,7 @@
             }
         }
 
-        public moveWithCollisions(direction: Vector3): AbstractMesh {
+        public moveWithCollisions(displacement: Vector3): AbstractMesh {
             var globalPosition = this.getAbsolutePosition();
 
             globalPosition.subtractFromFloatsToRef(0, this.ellipsoid.y, 0, this._oldPositionForCollisions);
@@ -1545,7 +1545,7 @@
 
             this._collider.radius = this.ellipsoid;
 
-            this.getScene().collisionCoordinator.getNewPosition(this._oldPositionForCollisions, direction, this._collider, 3, this, this._onCollisionPositionChange, this.uniqueId);
+            this.getScene().collisionCoordinator.getNewPosition(this._oldPositionForCollisions, displacement, this._collider, 3, this, this._onCollisionPositionChange, this.uniqueId);
             return this;
         }
 
@@ -1995,41 +1995,13 @@
 
             } else {
 
-                var rotation = Tmp.Quaternion[0];
                 var position = Tmp.Vector3[0];
-                var scale = Tmp.Vector3[1];
                 var m1 = Tmp.Matrix[0];
-                var m2 = Tmp.Matrix[1];
 
-                parent.getWorldMatrix().decompose(scale, rotation, position);
+                parent.getWorldMatrix().invertToRef(m1);
+                Vector3.TransformCoordinatesToRef(child.position, m1, position);
 
-                rotation.toRotationMatrix(m1);
-                m2.setTranslation(position);
-
-                m2.multiplyToRef(m1, m1);
-
-                var invParentMatrix = Matrix.Invert(m1);
-
-                var m = child.getWorldMatrix().multiply(invParentMatrix);
-
-                m.decompose(scale, rotation, position);
-
-                if (child.rotationQuaternion) {
-                    child.rotationQuaternion.copyFrom(rotation);
-                } else {
-                    rotation.toEulerAnglesToRef(child.rotation);
-                }
-
-                invParentMatrix = Matrix.Invert(parent.getWorldMatrix());
-
-                var m = child.getWorldMatrix().multiply(invParentMatrix);
-
-                m.decompose(scale, rotation, position);
-
-                child.position.x = position.x;
-                child.position.y = position.y;
-                child.position.z = position.z;
-
+                child.position.copyFrom(position);
             }
             child.parent = parent;
             return this;
