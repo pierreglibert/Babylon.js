@@ -57,7 +57,10 @@ module BABYLON {
         public inertialPanningY: number = 0;
 
         @serialize()
-        public pinchToPanMaxDistance: number = 2;
+        public pinchToPanMaxDistance: number = 3;
+
+        @serialize()
+        public panMaxFingersDistance: number = 100;
 
         @serialize()
         public panningDistanceLimit: number = null;
@@ -382,7 +385,7 @@ module BABYLON {
             this.alpha = this._storedAlpha;
             this.beta = this._storedBeta;
             this.radius = this._storedRadius;
-            this.setTarget(this._storedTarget);
+            this.setTarget(this._storedTarget.clone());
 
             this.inertialAlphaOffset = 0;
             this.inertialBetaOffset = 0;

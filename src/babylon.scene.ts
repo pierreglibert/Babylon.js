@@ -684,10 +684,18 @@
         public _proceduralTextures = new Array<ProceduralTexture>();
 
         // Sound Tracks
-        public mainSoundTrack: SoundTrack;
+        private _mainSoundTrack: SoundTrack;
         public soundTracks = new Array<SoundTrack>();
         private _audioEnabled = true;
         private _headphone = false;
+
+        public get mainSoundTrack(): SoundTrack {
+            if (!this._mainSoundTrack) {
+                this._mainSoundTrack = new SoundTrack(this, { mainTrack: true });
+            }
+
+            return this._mainSoundTrack;
+        }
 
         // VR Helper
         public VRHelper: VRExperienceHelper;
@@ -814,10 +822,6 @@
             }
 
             this.attachControl();
-
-            if (SoundTrack) {
-                this.mainSoundTrack = new SoundTrack(this, { mainTrack: true });
-            }
 
             //simplification queue
             if (SimplificationQueue) {
@@ -2829,13 +2833,14 @@
                 throw new Error("Active camera not set");
 
             Tools.StartPerformanceCounter("Rendering camera " + this.activeCamera.name);
-
+           
             // Viewport
             engine.setViewport(this.activeCamera.viewport);
 
             // Camera
             this.resetCachedMaterial();
             this._renderId++;
+            this.activeCamera.update();
             this.updateTransformMatrix();
 
             if (camera._alternateCamera) {
@@ -3003,10 +3008,7 @@
 
             // Finalize frame
             this.postProcessManager._finalizeFrame(camera.isIntermediate);
-
-            // Update camera
-            this.activeCamera._updateFromScene();
-
+           
             // Reset some special arrays
             this._renderTargets.reset();
 
@@ -3023,6 +3025,9 @@
                 return;
             }
 
+            // Update camera
+            this.activeCamera.update();
+            
             // rig cameras
             for (var index = 0; index < camera._rigCameras.length; index++) {
                 this._renderForCamera(camera._rigCameras[index]);
@@ -3030,9 +3035,6 @@
 
             this.activeCamera = camera;
             this.setTransformMatrix(this.activeCamera.getViewMatrix(), this.activeCamera.getProjectionMatrix());
-
-            // Update camera
-            this.activeCamera._updateFromScene();
         }
 
         private _checkIntersections(): void {
@@ -3307,7 +3309,7 @@
         }
 
         private _updateAudioParameters() {
-            if (!this.audioEnabled || (this.mainSoundTrack.soundCollection.length === 0 && this.soundTracks.length === 1)) {
+            if (!this.audioEnabled || !this._mainSoundTrack || (this._mainSoundTrack.soundCollection.length === 0 && this.soundTracks.length === 1)) {
                 return;
             }
 
@@ -3645,6 +3647,10 @@
 
         // Release sounds & sounds tracks
         public disposeSounds() {
+            if (!this._mainSoundTrack) {
+                return;
+            }
+
             this.mainSoundTrack.dispose();
 
             for (var scIndex = 0; scIndex < this.soundTracks.length; scIndex++) {
@@ -3658,6 +3664,10 @@
             var max = new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
             for (var index = 0; index < this.meshes.length; index++) {
                 var mesh = this.meshes[index];
+
+                if (!mesh.subMeshes || mesh.subMeshes.length === 0) {
+                    continue;
+                }
 
                 mesh.computeWorldMatrix(true);
                 var minBox = mesh.getBoundingInfo().boundingBox.minimumWorld;

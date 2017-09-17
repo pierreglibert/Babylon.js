@@ -45,6 +45,10 @@ module BABYLON {
             this._pointerInput = (p, s) => {
                 var evt = <PointerEvent>p.event;
 
+                if (engine.isInVRExclusivePointerMode) {
+                    return;
+                }
+
                 if (p.type !== PointerEventTypes.POINTERMOVE && this.buttons.indexOf(evt.button) === -1) {
                     return;
                 }
@@ -57,7 +61,7 @@ module BABYLON {
                     }
 
                     // Manage panning with pan button click
-                    this._isPanClick = evt.button === this.camera._panningMouseButton;
+                    this._isPanClick = evt.button === this.camera._panningMouseButton && evt.pointerType !== "mouse";
 
                     // manage pointers
                     cacheSoloPointer = { x: evt.clientX, y: evt.clientY, pointerId: evt.pointerId, type: evt.pointerType };
@@ -135,7 +139,7 @@ module BABYLON {
                             return;
                         }
 
-                        if (Math.abs(pinchDistance - previousPinchDistance) > this.camera.pinchToPanMaxDistance) {
+                        if (pinchDistance > this.camera.panMaxFingersDistance || Math.abs(pinchDistance - previousPinchDistance) > this.camera.pinchToPanMaxDistance) {
                             this.camera
                                 .inertialRadiusOffset += (pinchSquaredDistance - previousPinchSquaredDistance) /
                                 (this.pinchPrecision *

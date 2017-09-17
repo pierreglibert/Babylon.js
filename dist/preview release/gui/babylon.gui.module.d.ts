@@ -1,3 +1,6 @@
+export = BABYLON.GUI;
+export as namespace BABYLON.GUI;
+
 /// <reference path="../../dist/preview release/babylon.d.ts" />
 declare module BABYLON.GUI {
     interface IFocusableControl {
@@ -48,6 +51,7 @@ declare module BABYLON.GUI {
         private _doPicking(x, y, type);
         attach(): void;
         attachToMesh(mesh: AbstractMesh, supportPointerMove?: boolean): void;
+        private _manageFocus();
         private _attachToOnPointerOut(scene);
         static CreateForMesh(mesh: AbstractMesh, width?: number, height?: number, supportPointerMove?: boolean): AdvancedDynamicTexture;
         static CreateFullscreenUI(name: string, foreground?: boolean, scene?: Scene): AdvancedDynamicTexture;
@@ -127,6 +131,7 @@ declare module BABYLON.GUI {
         _host: AdvancedDynamicTexture;
         _currentMeasure: Measure;
         private _fontFamily;
+        private _fontStyle;
         private _fontSize;
         private _font;
         _width: ValueAndUnit;
@@ -213,6 +218,7 @@ declare module BABYLON.GUI {
         width: string | number;
         height: string | number;
         fontFamily: string;
+        fontStyle: string;
         fontSize: string | number;
         color: string;
         zIndex: number;
@@ -669,5 +675,3 @@ declare module BABYLON.GUI {
         static CreateDefaultLayout(): VirtualKeyboard;
     }
 }
-
-export = BABYLON.GUI;
