@@ -1,6 +1,6 @@
-declare var HMDVRDevice;
-declare var VRDisplay;
-declare var VRFrameData;
+declare var HMDVRDevice: any;
+declare var VRDisplay: any;
+declare var VRFrameData: any;
 
 module BABYLON {
     /**
@@ -26,7 +26,7 @@ module BABYLON {
         deviceRotationQuaternion: Quaternion;
         rawPose: DevicePose;
         deviceScaleFactor: number;
-        updateFromDevice(poseData: DevicePose);
+        updateFromDevice(poseData: DevicePose): void;
     }
 
     export interface WebVROptions {
@@ -38,7 +38,7 @@ module BABYLON {
     }
 
     export class WebVRFreeCamera extends FreeCamera implements PoseControlled {
-        public _vrDevice = null;
+        public _vrDevice: any = null;
         public rawPose: DevicePose = null;
         private _onVREnabled: (success: boolean) => void;
         private _specsVersion: string = "1.1";
@@ -47,7 +47,7 @@ module BABYLON {
         private _oldSize: BABYLON.Size;
         private _oldHardwareScaleFactor: number;
 
-        private _frameData;
+        private _frameData: any;
 
         private _quaternionCache: Quaternion;
 
@@ -56,11 +56,12 @@ module BABYLON {
         protected _descendants: Array<Node> = [];
 
         public devicePosition = Vector3.Zero();
-        public deviceRotationQuaternion;
+        public deviceRotationQuaternion: Quaternion;
         public deviceScaleFactor: number = 1;
 
         public controllers: Array<WebVRController> = [];
         public onControllersAttachedObservable = new Observable<Array<WebVRController>>();
+        public onControllerMeshLoadedObservable = new Observable<WebVRController>();
 
         public rigParenting: boolean = true; // should the rig cameras be used as parent instead of this camera.
 
@@ -99,7 +100,7 @@ module BABYLON {
             this._onVREnabled = (success: boolean) => { if (success) { this.initControllers(); } };
             engine.onVRRequestPresentComplete.add(this._onVREnabled);
             engine.initWebVR().add((event: IDisplayChangedEventArgs) => {
-                if (this._vrDevice === event.vrDisplay) {
+                if (!event.vrDisplay || this._vrDevice === event.vrDisplay) {
                     return;
                 }
 
@@ -108,7 +109,7 @@ module BABYLON {
                 //reset the rig parameters.
                 this.setCameraRigMode(Camera.RIG_MODE_WEBVR, { parentCamera: this, vrDisplay: this._vrDevice, frameData: this._frameData, specs: this._specsVersion });
 
-                if (this._attached && this._vrDevice) {
+                if (this._attached) {
                     this.getEngine().enableVR();
                 }
             });
@@ -359,6 +360,7 @@ module BABYLON {
                         } else {
                             // Load the meshes
                             webVrController.initControllerMesh(this.getScene(), (loadedMesh) => {
+                                this.onControllerMeshLoadedObservable.notifyObservers(webVrController);
                                 if (this.webVROptions.defaultLightingOnControllers) {
                                     if (!this._lightOnControllers) {
                                         this._lightOnControllers = new BABYLON.HemisphericLight("vrControllersLight", new BABYLON.Vector3(0, 1, 0), this.getScene());

@@ -37,7 +37,7 @@ module BABYLON {
         public _waitingParentId: string;
 
         private _scene: Scene;
-        public _cache;
+        public _cache: any;
 
         private _parentNode: Node;
         private _children: Node[];
@@ -95,6 +95,7 @@ module BABYLON {
             this.name = name;
             this.id = name;
             this._scene = scene || Engine.LastCreatedScene;
+            this.uniqueId = this._scene.getUniqueId();
             this._initCache();
         }
 
@@ -302,7 +303,7 @@ module BABYLON {
          * @return {BABYLON.Node[]} all children nodes of all types.
          */
         public getDescendants(directDescendantsOnly?: boolean, predicate?: (node: Node) => boolean): Node[] {
-            var results = [];
+            var results = new Array<Node>();
 
             this._getDescendants(results, directDescendantsOnly, predicate);
 

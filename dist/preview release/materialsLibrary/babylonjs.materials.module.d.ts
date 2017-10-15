@@ -472,6 +472,10 @@ declare module BABYLON {
          */
         gridRatio: number;
         /**
+         * Allows setting an offset for the grid lines.
+         */
+        gridOffset: Vector3;
+        /**
          * The frequency of thicker lines.
          */
         majorUnitFrequency: number;
@@ -803,7 +807,7 @@ declare module BABYLON {
         constructor();
     }
     class StandardShaderVersions {
-        static Ver3_0: any;
+        static Ver3_0: string;
     }
     class CustomMaterial extends StandardMaterial_OldVer {
         static ShaderIndexer: number;

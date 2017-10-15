@@ -28,7 +28,7 @@
             var box = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            box.sideOrientation = options.sideOrientation;
+            box._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateBox(options);
 
@@ -54,7 +54,7 @@
             var sphere = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            sphere.sideOrientation = options.sideOrientation;
+            sphere._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateSphere(options);
 
@@ -78,7 +78,7 @@
             var disc = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            disc.sideOrientation = options.sideOrientation;
+            disc._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateDisc(options);
 
@@ -103,7 +103,7 @@
             var sphere = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            sphere.sideOrientation = options.sideOrientation;
+            sphere._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateIcoSphere(options);
 
@@ -148,10 +148,10 @@
                 // only pathArray and sideOrientation parameters are taken into account for positions update
                 Vector3.FromFloatsToRef(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Tmp.Vector3[0]);         // minimum
                 Vector3.FromFloatsToRef(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, Tmp.Vector3[1]);
-                var positionFunction = positions => {
+                var positionFunction = (positions: number[] | Float32Array) => {
                     var minlg = pathArray[0].length;
                     var i = 0;
-                    var ns = (instance.sideOrientation === Mesh.DOUBLESIDE) ? 2 : 1;
+                    var ns = (instance._originalBuilderSideOrientation === Mesh.DOUBLESIDE) ? 2 : 1;
                     for (var si = 1; si <= ns; si++) {
                         for (var p = 0; p < pathArray.length; p++) {
                             var path = pathArray[p];
@@ -250,7 +250,7 @@
             else {  // new ribbon creation
 
                 var ribbon = new Mesh(name, scene);
-                ribbon.sideOrientation = sideOrientation;
+                ribbon._originalBuilderSideOrientation = sideOrientation;
 
                 var vertexData = VertexData.CreateRibbon(options);
                 if (closePath) {
@@ -293,7 +293,7 @@
             var cylinder = new Mesh(name, scene);
             
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            cylinder.sideOrientation = options.sideOrientation;
+            cylinder._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateCylinder(options);
 
@@ -317,7 +317,7 @@
             var torus = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            torus.sideOrientation = options.sideOrientation;
+            torus._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateTorus(options);
 
@@ -342,7 +342,7 @@
             var torusKnot = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            torusKnot.sideOrientation = options.sideOrientation;
+            torusKnot._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreateTorusKnot(options);
 
@@ -368,7 +368,7 @@
             var lines = options.lines;
 
             if (instance) { // lines update
-                var positionFunction = positions => {
+                var positionFunction = (positions: number[] | Float32Array) => {
                     var i = 0;
                     for (var l = 0; l < lines.length; l++) {
                         var points = lines[l];
@@ -637,7 +637,7 @@
             var plane = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            plane.sideOrientation = options.sideOrientation;
+            plane._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreatePlane(options);
 
@@ -744,7 +744,7 @@
 
             ground._setReady(false);
 
-            var onload = img => {
+            var onload = (img: HTMLImageElement) => {
                 // Getting height map data
                 var canvas = document.createElement("canvas");
                 var context = canvas.getContext("2d");
@@ -814,7 +814,7 @@
 				polygonTriangulation.addHole(hole);
 			}
 			var polygon = polygonTriangulation.build(options.updatable, depth);
-            polygon.sideOrientation = options.sideOrientation;
+            polygon._originalBuilderSideOrientation = options.sideOrientation;
 			var vertexData = VertexData.CreatePolygon(polygon, options.sideOrientation, options.faceUV, options.faceColors, options.frontUVs, options.backUVs);
             vertexData.applyToMesh(polygon, options.updatable);			
 			
@@ -876,7 +876,8 @@
             options.arc = (options.arc <= 0.0 || options.arc > 1.0) ? 1.0 : options.arc || 1.0;
 
             // tube geometry
-            var tubePathArray = (path, path3D, circlePaths, radius, tessellation, radiusFunction, cap, arc) => {
+            var tubePathArray = (path: Vector3[], path3D: Path3D, circlePaths: Vector3[][], radius: number, tessellation: number, 
+                                radiusFunction: { (i: number, distance: number): number; }, cap: number, arc: number) => {
                 var tangents = path3D.getTangents();
                 var normals = path3D.getNormals();
                 var distances = path3D.getDistances();
@@ -906,7 +907,7 @@
                     index++;
                 }
                 // cap
-                var capPath = (nbPoints, pathIndex) => {
+                var capPath = (nbPoints: number, pathIndex: number): Array<Vector3> => {
                     var pointCap = Array<Vector3>();
                     for (var i = 0; i < nbPoints; i++) {
                         pointCap.push(path[pathIndex]);
@@ -989,7 +990,7 @@
             var polyhedron = new Mesh(name, scene);
 
             options.sideOrientation = MeshBuilder.updateSideOrientation(options.sideOrientation, scene);
-            polyhedron.sideOrientation = options.sideOrientation;
+            polyhedron._originalBuilderSideOrientation = options.sideOrientation;
             
             var vertexData = VertexData.CreatePolyhedron(options);
 
@@ -1216,7 +1217,8 @@
         // Privates
         private static _ExtrudeShapeGeneric(name: string, shape: Vector3[], curve: Vector3[], scale: number, rotation: number, scaleFunction: { (i: number, distance: number): number; }, rotateFunction: { (i: number, distance: number): number; }, rbCA: boolean, rbCP: boolean, cap: number, custom: boolean, scene: Scene, updtbl: boolean, side: number, instance: Mesh, invertUV: boolean, frontUVs: Vector4, backUVs: Vector4): Mesh {
             // extrusion geometry
-            var extrusionPathArray = (shape, curve, path3D, shapePaths, scale, rotation, scaleFunction, rotateFunction, cap, custom) => {
+            var extrusionPathArray = (shape: Vector3[], curve: Vector3[], path3D: Path3D, shapePaths: Vector3[][], scale: number, rotation: number, 
+                                        scaleFunction:{ (i: number, distance: number): number; } , rotateFunction:{ (i: number, distance: number): number; } , cap: number, custom: boolean) => {
                 var tangents = path3D.getTangents();
                 var normals = path3D.getNormals();
                 var binormals = path3D.getBinormals();
@@ -1247,7 +1249,7 @@
                     index++;
                 }
                 // cap
-                var capPath = shapePath => {
+                var capPath = (shapePath: Vector3[])  => {
                     var pointCap = Array<Vector3>();
                     var barycenter = Vector3.Zero();
                     var i: number;

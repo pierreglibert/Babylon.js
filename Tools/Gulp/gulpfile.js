@@ -45,7 +45,8 @@ var tsConfig = {
     declarationFiles: true,
     typescript: require('typescript'),
     experimentalDecorators: true,
-    isolatedModules: false
+    isolatedModules: false,
+    noImplicitAny: true
 };
 var tsProject = typescript.createProject(tsConfig);
 
@@ -55,7 +56,8 @@ var externalTsConfig = {
     declarationFiles: true,
     typescript: require('typescript'),
     experimentalDecorators: true,
-    isolatedModules: false
+    isolatedModules: false,
+    noImplicitAny: true
 };
 
 function processDependency(kind, dependency, filesToLoad) {
@@ -513,7 +515,7 @@ gulp.task('run', ['watch', 'webserver'], function () {
 
 gulp.task("zip-blender", function () {
     return gulp.src('../../Exporters/Blender/src/**')
-        .pipe(zip('Blender2Babylon-5.3.zip'))
+        .pipe(zip('Blender2Babylon-5.4.zip'))
         .pipe(gulp.dest('../../Exporters/Blender'));
 });
 

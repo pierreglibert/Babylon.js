@@ -1,3 +1,4 @@
+declare function Split(elements: HTMLDivElement[], options: any): void;
 module INSPECTOR{
     
     /**
@@ -100,6 +101,7 @@ module INSPECTOR{
                     node.active(false);
                 }
             }
+            item.getDiv().scrollIntoView();
             item.active(true);
         }
         
