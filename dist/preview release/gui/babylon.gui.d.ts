@@ -132,6 +132,7 @@ declare module BABYLON.GUI {
         private _zIndex;
         _root: Container;
         _host: AdvancedDynamicTexture;
+        parent: Container;
         _currentMeasure: Measure;
         private _fontFamily;
         private _fontStyle;
@@ -139,7 +140,6 @@ declare module BABYLON.GUI {
         private _font;
         _width: ValueAndUnit;
         _height: ValueAndUnit;
-        private _lastMeasuredFont;
         protected _fontOffset: {
             ascent: number;
             height: number;
@@ -277,11 +277,11 @@ declare module BABYLON.GUI {
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         contains(x: number, y: number): boolean;
         _processPicking(x: number, y: number, type: number, buttonIndex: number): boolean;
-        protected _onPointerMove(coordinates: Vector2): void;
-        protected _onPointerEnter(): boolean;
-        _onPointerOut(): void;
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
-        protected _onPointerUp(coordinates: Vector2, buttonIndex: number): void;
+        _onPointerMove(target: Control, coordinates: Vector2): void;
+        _onPointerEnter(target: Control): boolean;
+        _onPointerOut(target: Control): void;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerUp(target: Control, coordinates: Vector2, buttonIndex: number): void;
         forcePointerUp(): void;
         _processObservables(type: number, x: number, y: number, buttonIndex: number): boolean;
         private _prepareFont();
@@ -395,7 +395,6 @@ declare module BABYLON.GUI {
     class Line extends Control {
         name: string;
         private _lineWidth;
-        private _background;
         private _x1;
         private _y1;
         private _x2;
@@ -449,9 +448,9 @@ declare module BABYLON.GUI {
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         private _pointerIsDown;
         private _updateValueFromPointer(x);
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
-        protected _onPointerMove(coordinates: Vector2): void;
-        protected _onPointerUp(coordinates: Vector2, buttonIndex: number): void;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerMove(target: Control, coordinates: Vector2): void;
+        _onPointerUp(target: Control, coordinates: Vector2, buttonIndex: number): void;
     }
 }
 
@@ -471,7 +470,7 @@ declare module BABYLON.GUI {
         constructor(name?: string);
         protected _getTypeName(): string;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
     }
 }
 
@@ -492,7 +491,7 @@ declare module BABYLON.GUI {
         constructor(name?: string);
         protected _getTypeName(): string;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
     }
 }
 
@@ -501,12 +500,10 @@ declare module BABYLON.GUI {
     class TextBlock extends Control {
         name: string;
         private _text;
-        private _textY;
         private _textWrapping;
         private _textHorizontalAlignment;
         private _textVerticalAlignment;
         private _lines;
-        private _totalHeight;
         private _resizeToFit;
         /**
         * An event triggered after the text is changed
@@ -581,10 +578,10 @@ declare module BABYLON.GUI {
         constructor(name?: string);
         protected _getTypeName(): string;
         _processPicking(x: number, y: number, type: number, buttonIndex: number): boolean;
-        protected _onPointerEnter(): boolean;
-        _onPointerOut(): void;
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
-        protected _onPointerUp(coordinates: Vector2, buttonIndex: number): void;
+        _onPointerEnter(target: Control): boolean;
+        _onPointerOut(target: Control): void;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerUp(target: Control, coordinates: Vector2, buttonIndex: number): void;
         static CreateImageButton(name: string, text: string, imageUrl: string): Button;
         static CreateImageOnlyButton(name: string, imageUrl: string): Button;
         static CreateSimpleButton(name: string, text: string): Button;
@@ -625,9 +622,9 @@ declare module BABYLON.GUI {
         private _updateValueFromPointer(x, y);
         private _isPointOnSquare(coordinates);
         private _isPointOnWheel(coordinates);
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
-        protected _onPointerMove(coordinates: Vector2): void;
-        protected _onPointerUp(coordinates: Vector2, buttonIndex: number): void;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerMove(target: Control, coordinates: Vector2): void;
+        _onPointerUp(target: Control, coordinates: Vector2, buttonIndex: number): void;
     }
 }
 
@@ -673,8 +670,8 @@ declare module BABYLON.GUI {
         processKey(keyCode: number, key?: string): void;
         processKeyboard(evt: KeyboardEvent): void;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
-        protected _onPointerDown(coordinates: Vector2, buttonIndex: number): boolean;
-        protected _onPointerUp(coordinates: Vector2, buttonIndex: number): void;
+        _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
+        _onPointerUp(target: Control, coordinates: Vector2, buttonIndex: number): void;
         dispose(): void;
     }
 }

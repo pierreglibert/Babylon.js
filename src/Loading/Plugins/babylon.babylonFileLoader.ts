@@ -54,10 +54,10 @@
                     meshesNames = [meshesNames];
                 }
 
+                var hierarchyIds = new Array<number>();
                 if (parsedData.meshes !== undefined && parsedData.meshes !== null) {
                     var loadedSkeletonsIds = [];
                     var loadedMaterialsIds = [];
-                    var hierarchyIds = new Array<number>();
                     var index: number;
                     var cache: number;
                     for (index = 0, cache = parsedData.meshes.length; index < cache; index++) {
@@ -180,7 +180,7 @@
                         currentMesh = scene.meshes[index];
                         if (currentMesh._waitingParentId) {
                             currentMesh.parent = scene.getLastEntryByID(currentMesh._waitingParentId);
-                            currentMesh._waitingParentId = undefined;
+                            currentMesh._waitingParentId = null;
                         }
                     }
 
@@ -189,7 +189,7 @@
                         currentMesh = scene.meshes[index];
                         if (currentMesh._waitingFreezeWorldMatrix) {
                             currentMesh.freezeWorldMatrix();
-                            currentMesh._waitingFreezeWorldMatrix = undefined;
+                            currentMesh._waitingFreezeWorldMatrix = null;
                         } else {
                             currentMesh.computeWorldMatrix(true);
                         }
@@ -214,7 +214,6 @@
                     onError(msg, err);
                 } else {
                     Tools.Log(msg);
-                    log = null;
                     throw err;
                 }
             } finally {
@@ -222,6 +221,8 @@
                     Tools.Log(logOperation("importMesh", parsedData ? parsedData.producer : "Unknown") + (SceneLoader.loggingLevel !== SceneLoader.MINIMAL_LOGGING ? log : ""));
                 }
             }
+
+            return false;
         },
         load: (scene: Scene, data: string, rootUrl: string, onError?: (message: string, exception?: any) => void): boolean => {
             // Entire method running in try block, so ALWAYS logs as far as it got, only actually writes details
@@ -299,8 +300,10 @@
                     for (index = 0, cache = parsedData.lights.length; index < cache; index++) {
                         var parsedLight = parsedData.lights[index];
                         var light = Light.Parse(parsedLight, scene);
-                        log += (index === 0 ? "\n\tLights:" : "");
-                        log += "\n\t\t" + light.toString(fullDetails);
+                        if (light) {
+                            log += (index === 0 ? "\n\tLights:" : "");
+                            log += "\n\t\t" + light.toString(fullDetails);
+                        }
                     }
                 }
 
@@ -341,7 +344,7 @@
                 // Morph targets
                 if (parsedData.morphTargetManagers !== undefined && parsedData.morphTargetManagers !== null) {
                     for (var managerData of parsedData.morphTargetManagers) {
-                        var parsedManager = MorphTargetManager.Parse(managerData, scene);
+                        MorphTargetManager.Parse(managerData, scene);
                     }
                 }
 
@@ -459,15 +462,15 @@
                     var camera = scene.cameras[index];
                     if (camera._waitingParentId) {
                         camera.parent = scene.getLastEntryByID(camera._waitingParentId);
-                        camera._waitingParentId = undefined;
+                        camera._waitingParentId = null;
                     }
                 }
 
                 for (index = 0, cache = scene.lights.length; index < cache; index++) {
-                    var light = scene.lights[index];
-                    if (light._waitingParentId) {
+                    let light = scene.lights[index];
+                    if (light && light._waitingParentId) {
                         light.parent = scene.getLastEntryByID(light._waitingParentId);
-                        light._waitingParentId = undefined;
+                        light._waitingParentId = null;
                     }
                 }
 
@@ -487,7 +490,7 @@
                                 Sound.Parse(parsedSound, scene, rootUrl, loadedSounds[parsedSound.url]);
                             }
                         } else {
-                            var emptySound = new Sound(parsedSound.name, null, scene);
+                            new Sound(parsedSound.name, null, scene);
                         }
                     }
                 }
@@ -499,11 +502,11 @@
                     var mesh = scene.meshes[index];
                     if (mesh._waitingParentId) {
                         mesh.parent = scene.getLastEntryByID(mesh._waitingParentId);
-                        mesh._waitingParentId = undefined;
+                        mesh._waitingParentId = null;
                     }
                     if (mesh._waitingActions) {
                         ActionManager.Parse(mesh._waitingActions, mesh, scene);
-                        mesh._waitingActions = undefined;
+                        mesh._waitingActions = null;
                     }
                 }
 
@@ -512,7 +515,7 @@
                     var currentMesh = scene.meshes[index];
                     if (currentMesh._waitingFreezeWorldMatrix) {
                         currentMesh.freezeWorldMatrix();
-                        currentMesh._waitingFreezeWorldMatrix = undefined;
+                        currentMesh._waitingFreezeWorldMatrix = null;
                     } else {
                         currentMesh.computeWorldMatrix(true);
                     }
@@ -544,7 +547,7 @@
 
                 // Lights exclusions / inclusions
                 for (index = 0, cache = scene.lights.length; index < cache; index++) {
-                    var light = scene.lights[index];
+                    let light = scene.lights[index];
                     // Excluded check
                     if (light._excludedMeshesIds.length > 0) {
                         for (var excludedIndex = 0; excludedIndex < light._excludedMeshesIds.length; excludedIndex++) {
@@ -586,7 +589,6 @@
                     onError(msg, err);
                 } else {
                     Tools.Log(msg);
-                    log = null;
                     throw err;
                 }
             } finally {
@@ -594,6 +596,8 @@
                     Tools.Log(logOperation("importScene", parsedData ? parsedData.producer : "Unknown") + (SceneLoader.loggingLevel !== SceneLoader.MINIMAL_LOGGING ? log : ""));
                 }
             }
+
+            return false;
         }
     });
 }

@@ -25,6 +25,8 @@
                         (<any>destination)[property] = sourceProperty;
                         break;
                     case 1:     // Texture
+                        (<any>destination)[property] = (instanciate||sourceProperty.isRenderTarget)?sourceProperty:sourceProperty.clone();
+                        break;
                     case 2:     // Color3
                     case 3:     // FresnelParameters
                     case 4:     // Vector2
@@ -110,7 +112,7 @@
         }
     }
 
-    function generateExpandMember(setCallback: string, targetKey: string) {
+    function generateExpandMember(setCallback: string, targetKey: Nullable<string> = null) {
         return (target: any, propertyKey: string) => {
             var key = targetKey || ("_" + propertyKey);
             Object.defineProperty(target, propertyKey, {
@@ -131,7 +133,7 @@
         }
     }
 
-    export function expandToProperty(callback: string, targetKey?: string) {
+    export function expandToProperty(callback: string, targetKey: Nullable<string> = null) {
         return generateExpandMember(callback, targetKey);
     }
 
@@ -236,7 +238,7 @@
             return serializationObject;
         }
 
-        public static Parse<T>(creationFunction: () => T, source: any, scene: Scene, rootUrl?: string): T {
+        public static Parse<T>(creationFunction: () => T, source: any, scene: Nullable<Scene>, rootUrl: string = ""): T {
             var destination = creationFunction();
 
             // Tags
@@ -259,7 +261,9 @@
                             dest[property] = sourceProperty;
                             break;
                         case 1:     // Texture
-                            dest[property] = Texture.Parse(sourceProperty, scene, rootUrl);
+                            if (scene) {
+                                dest[property] = Texture.Parse(sourceProperty, scene, rootUrl);
+                            }
                             break;
                         case 2:     // Color3
                             dest[property] = Color3.FromArray(sourceProperty);
@@ -274,7 +278,9 @@
                             dest[property] = Vector3.FromArray(sourceProperty);
                             break;
                         case 6:     // Mesh reference
-                            dest[property] = scene.getLastMeshByID(sourceProperty);
+                            if (scene) {
+                                dest[property] = scene.getLastMeshByID(sourceProperty);
+                            }
                             break;
                         case 7:     // Color Curves
                             dest[property] = ColorCurves.Parse(sourceProperty);

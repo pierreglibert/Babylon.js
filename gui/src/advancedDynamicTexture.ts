@@ -282,7 +282,6 @@ module BABYLON.GUI {
         }
 
         private _render(): void {
-            var engine = this.getScene().getEngine();
             var textureSize = this.getSize();
             var renderWidth = textureSize.width;
             var renderHeight = textureSize.height;
@@ -323,7 +322,7 @@ module BABYLON.GUI {
 
                 if (type === BABYLON.PointerEventTypes.POINTERMOVE) {
                     if (this._lastControlOver) {
-                        this._lastControlOver._onPointerOut();
+                        this._lastControlOver._onPointerOut(this._lastControlOver);
                     }
                     
                     this._lastControlOver = null;
@@ -379,7 +378,7 @@ module BABYLON.GUI {
                     this.focusedControl = null;
                 } else if (pi.type === BABYLON.PointerEventTypes.POINTERMOVE) {
                     if (this._lastControlOver) {
-                        this._lastControlOver._onPointerOut();
+                        this._lastControlOver._onPointerOut(this._lastControlOver);
                     }              
                     this._lastControlOver = null;
                 }
@@ -417,7 +416,7 @@ module BABYLON.GUI {
         private _attachToOnPointerOut(scene: Scene): void {
             this._canvasPointerOutObserver = scene.getEngine().onCanvasPointerOutObservable.add(() => {
                 if (this._lastControlOver) {
-                    this._lastControlOver._onPointerOut();
+                    this._lastControlOver._onPointerOut(this._lastControlOver);
                 }            
                 this._lastControlOver = null;
 

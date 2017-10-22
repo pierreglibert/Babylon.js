@@ -10,7 +10,7 @@
 
         public gravity: Vector3;
 
-        constructor(gravity?: Vector3, private _physicsPlugin: IPhysicsEnginePlugin = new CannonJSPlugin()) {
+        constructor(gravity: Nullable<Vector3>, private _physicsPlugin: IPhysicsEnginePlugin = new CannonJSPlugin()) {
             if (!this._physicsPlugin.isSupported()) {
                 throw new Error("Physics Engine " + this._physicsPlugin.name + " cannot be found. "
                     + "Please make sure it is included.")
@@ -147,20 +147,24 @@
             return this._physicsPlugin;
         }
 
-        public getImpostorForPhysicsObject(object: IPhysicsEnabledObject) {
+        public getImpostorForPhysicsObject(object: IPhysicsEnabledObject): Nullable<PhysicsImpostor> {
             for (var i = 0; i < this._impostors.length; ++i) {
                 if (this._impostors[i].object === object) {
                     return this._impostors[i];
                 }
             }
+
+            return null;
         }
 
-        public getImpostorWithPhysicsBody(body: any): PhysicsImpostor {
+        public getImpostorWithPhysicsBody(body: any): Nullable<PhysicsImpostor> {
             for (var i = 0; i < this._impostors.length; ++i) {
                 if (this._impostors[i].physicsBody === body) {
                     return this._impostors[i];
                 }
             }
+
+            return null;
         }
     }
 

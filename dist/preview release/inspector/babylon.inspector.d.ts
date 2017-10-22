@@ -6,8 +6,6 @@ declare module INSPECTOR {
         /** The div containing the content of the active tab */
         private _tabPanel;
         /** The panel containing the list if items */
-        /** The list if tree items displayed in the tree panel. */
-        private _items;
         private _tabbar;
         private _scene;
         /** The HTML document relative to this inspector (the window or the popup depending on its mode) */
@@ -140,9 +138,6 @@ declare module INSPECTOR {
             type: typeof BABYLON.Texture;
             properties: string[];
             format: (tex: BABYLON.Texture) => string;
-        };
-        'MapTexture': {
-            type: typeof BABYLON.MapTexture;
         };
         'RenderTargetTexture': {
             type: typeof BABYLON.RenderTargetTexture;
@@ -519,8 +514,6 @@ declare module INSPECTOR {
         private _onMouseDownHandler;
         private _onMouseDragHandler;
         private _onMouseUpHandler;
-        private _sliderfill;
-        private _slidertrack;
         private _textValue;
         /** Save previous Y mouse position */
         private _prevY;
@@ -577,10 +570,6 @@ declare module INSPECTOR {
          * If this property is complex, update its child, otherwise update its text content
          */
         update(): void;
-        /**
-         * Returns true if the given instance is a simple type
-         */
-        private static _IS_TYPE_SIMPLE(inst);
         /**
          * Returns true if the type of this property is simple, false otherwise.
          * Returns true if the value is null
