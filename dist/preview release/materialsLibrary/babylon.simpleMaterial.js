@@ -17,7 +17,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var BABYLON;
 (function (BABYLON) {
-    var SimpleMaterialDefines = /** @class */ (function (_super) {
+    var SimpleMaterialDefines = (function (_super) {
         __extends(SimpleMaterialDefines, _super);
         function SimpleMaterialDefines() {
             var _this = _super.call(this) || this;
@@ -40,7 +40,7 @@ var BABYLON;
         }
         return SimpleMaterialDefines;
     }(BABYLON.MaterialDefines));
-    var SimpleMaterial = /** @class */ (function (_super) {
+    var SimpleMaterial = (function (_super) {
         __extends(SimpleMaterial, _super);
         function SimpleMaterial(name, scene) {
             var _this = _super.call(this, name, scene) || this;
@@ -253,29 +253,29 @@ var BABYLON;
         SimpleMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new SimpleMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serializeAsTexture("diffuseTexture")
-        ], SimpleMaterial.prototype, "_diffuseTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], SimpleMaterial.prototype, "diffuseTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("diffuse")
-        ], SimpleMaterial.prototype, "diffuseColor", void 0);
-        __decorate([
-            BABYLON.serialize("disableLighting")
-        ], SimpleMaterial.prototype, "_disableLighting", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], SimpleMaterial.prototype, "disableLighting", void 0);
-        __decorate([
-            BABYLON.serialize("maxSimultaneousLights")
-        ], SimpleMaterial.prototype, "_maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], SimpleMaterial.prototype, "maxSimultaneousLights", void 0);
         return SimpleMaterial;
     }(BABYLON.PushMaterial));
+    __decorate([
+        BABYLON.serializeAsTexture("diffuseTexture")
+    ], SimpleMaterial.prototype, "_diffuseTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], SimpleMaterial.prototype, "diffuseTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("diffuse")
+    ], SimpleMaterial.prototype, "diffuseColor", void 0);
+    __decorate([
+        BABYLON.serialize("disableLighting")
+    ], SimpleMaterial.prototype, "_disableLighting", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], SimpleMaterial.prototype, "disableLighting", void 0);
+    __decorate([
+        BABYLON.serialize("maxSimultaneousLights")
+    ], SimpleMaterial.prototype, "_maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], SimpleMaterial.prototype, "maxSimultaneousLights", void 0);
     BABYLON.SimpleMaterial = SimpleMaterial;
 })(BABYLON || (BABYLON = {}));
 

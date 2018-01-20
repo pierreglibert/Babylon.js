@@ -17,7 +17,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var BABYLON;
 (function (BABYLON) {
-    var NormalMaterialDefines = /** @class */ (function (_super) {
+    var NormalMaterialDefines = (function (_super) {
         __extends(NormalMaterialDefines, _super);
         function NormalMaterialDefines() {
             var _this = _super.call(this) || this;
@@ -73,7 +73,7 @@ var BABYLON;
         }
         return NormalMaterialDefines;
     }(BABYLON.MaterialDefines));
-    var NormalMaterial = /** @class */ (function (_super) {
+    var NormalMaterial = (function (_super) {
         __extends(NormalMaterial, _super);
         function NormalMaterial(name, scene) {
             var _this = _super.call(this, name, scene) || this;
@@ -286,29 +286,29 @@ var BABYLON;
         NormalMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new NormalMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serializeAsTexture("diffuseTexture")
-        ], NormalMaterial.prototype, "_diffuseTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], NormalMaterial.prototype, "diffuseTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], NormalMaterial.prototype, "diffuseColor", void 0);
-        __decorate([
-            BABYLON.serialize("disableLighting")
-        ], NormalMaterial.prototype, "_disableLighting", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], NormalMaterial.prototype, "disableLighting", void 0);
-        __decorate([
-            BABYLON.serialize("maxSimultaneousLights")
-        ], NormalMaterial.prototype, "_maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], NormalMaterial.prototype, "maxSimultaneousLights", void 0);
         return NormalMaterial;
     }(BABYLON.PushMaterial));
+    __decorate([
+        BABYLON.serializeAsTexture("diffuseTexture")
+    ], NormalMaterial.prototype, "_diffuseTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], NormalMaterial.prototype, "diffuseTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], NormalMaterial.prototype, "diffuseColor", void 0);
+    __decorate([
+        BABYLON.serialize("disableLighting")
+    ], NormalMaterial.prototype, "_disableLighting", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], NormalMaterial.prototype, "disableLighting", void 0);
+    __decorate([
+        BABYLON.serialize("maxSimultaneousLights")
+    ], NormalMaterial.prototype, "_maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], NormalMaterial.prototype, "maxSimultaneousLights", void 0);
     BABYLON.NormalMaterial = NormalMaterial;
 })(BABYLON || (BABYLON = {}));
 

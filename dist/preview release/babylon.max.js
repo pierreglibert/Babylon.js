@@ -21,7 +21,7 @@ var __extends = (this && this.__extends) || (function () {
 
 var BABYLON;
 (function (BABYLON) {
-    var KeyboardEventTypes = /** @class */ (function () {
+    var KeyboardEventTypes = (function () {
         function KeyboardEventTypes() {
         }
         Object.defineProperty(KeyboardEventTypes, "KEYDOWN", {
@@ -38,12 +38,12 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        KeyboardEventTypes._KEYDOWN = 0x01;
-        KeyboardEventTypes._KEYUP = 0x02;
         return KeyboardEventTypes;
     }());
+    KeyboardEventTypes._KEYDOWN = 0x01;
+    KeyboardEventTypes._KEYUP = 0x02;
     BABYLON.KeyboardEventTypes = KeyboardEventTypes;
-    var KeyboardInfo = /** @class */ (function () {
+    var KeyboardInfo = (function () {
         function KeyboardInfo(type, event) {
             this.type = type;
             this.event = event;
@@ -55,7 +55,7 @@ var BABYLON;
      * This class is used to store keyboard related info for the onPreKeyboardObservable event.
      * Set the skipOnKeyboardObservable property to true if you want the engine to stop any process after this event is triggered, even not calling onKeyboardObservable
      */
-    var KeyboardInfoPre = /** @class */ (function (_super) {
+    var KeyboardInfoPre = (function (_super) {
         __extends(KeyboardInfoPre, _super);
         function KeyboardInfoPre(type, event) {
             var _this = _super.call(this, type, event) || this;
@@ -72,7 +72,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PointerEventTypes = /** @class */ (function () {
+    var PointerEventTypes = (function () {
         function PointerEventTypes() {
         }
         Object.defineProperty(PointerEventTypes, "POINTERDOWN", {
@@ -124,17 +124,17 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        PointerEventTypes._POINTERDOWN = 0x01;
-        PointerEventTypes._POINTERUP = 0x02;
-        PointerEventTypes._POINTERMOVE = 0x04;
-        PointerEventTypes._POINTERWHEEL = 0x08;
-        PointerEventTypes._POINTERPICK = 0x10;
-        PointerEventTypes._POINTERTAP = 0x20;
-        PointerEventTypes._POINTERDOUBLETAP = 0x40;
         return PointerEventTypes;
     }());
+    PointerEventTypes._POINTERDOWN = 0x01;
+    PointerEventTypes._POINTERUP = 0x02;
+    PointerEventTypes._POINTERMOVE = 0x04;
+    PointerEventTypes._POINTERWHEEL = 0x08;
+    PointerEventTypes._POINTERPICK = 0x10;
+    PointerEventTypes._POINTERTAP = 0x20;
+    PointerEventTypes._POINTERDOUBLETAP = 0x40;
     BABYLON.PointerEventTypes = PointerEventTypes;
-    var PointerInfoBase = /** @class */ (function () {
+    var PointerInfoBase = (function () {
         function PointerInfoBase(type, event) {
             this.type = type;
             this.event = event;
@@ -146,7 +146,7 @@ var BABYLON;
      * This class is used to store pointer related info for the onPrePointerObservable event.
      * Set the skipOnPointerObservable property to true if you want the engine to stop any process after this event is triggered, even not calling onPointerObservable
      */
-    var PointerInfoPre = /** @class */ (function (_super) {
+    var PointerInfoPre = (function (_super) {
         __extends(PointerInfoPre, _super);
         function PointerInfoPre(type, event, localX, localY) {
             var _this = _super.call(this, type, event) || this;
@@ -161,7 +161,7 @@ var BABYLON;
      * This type contains all the data related to a pointer event in Babylon.js.
      * The event member is an instance of PointerEvent for all types except PointerWheel and is of type MouseWheelEvent when type equals PointerWheel. The different event types can be found in the PointerEventTypes class.
      */
-    var PointerInfo = /** @class */ (function (_super) {
+    var PointerInfo = (function (_super) {
         __extends(PointerInfo, _super);
         function PointerInfo(type, event, pickInfo) {
             var _this = _super.call(this, type, event) || this;
@@ -180,7 +180,7 @@ var BABYLON;
     BABYLON.ToGammaSpace = 1 / 2.2;
     BABYLON.ToLinearSpace = 2.2;
     BABYLON.Epsilon = 0.001;
-    var Color3 = /** @class */ (function () {
+    var Color3 = (function () {
         /**
          * Creates a new Color3 object from red, green, blue values, all between 0 and 1.
          */
@@ -454,7 +454,7 @@ var BABYLON;
         return Color3;
     }());
     BABYLON.Color3 = Color3;
-    var Color4 = /** @class */ (function () {
+    var Color4 = (function () {
         /**
          * Creates a new Color4 object from the passed float values ( < 1) : red, green, blue, alpha.
          */
@@ -731,7 +731,7 @@ var BABYLON;
         return Color4;
     }());
     BABYLON.Color4 = Color4;
-    var Vector2 = /** @class */ (function () {
+    var Vector2 = (function () {
         /**
          * Creates a new Vector2 from the passed x and y coordinates.
          */
@@ -1141,7 +1141,7 @@ var BABYLON;
         return Vector2;
     }());
     BABYLON.Vector2 = Vector2;
-    var Vector3 = /** @class */ (function () {
+    var Vector3 = (function () {
         /**
          * Creates a new Vector3 object from the passed x, y, z (floats) coordinates.
          * A Vector3 is the main object used in 3D geometry.
@@ -1836,7 +1836,7 @@ var BABYLON;
     }());
     BABYLON.Vector3 = Vector3;
     //Vector4 class created for EulerAngle class conversion to Quaternion
-    var Vector4 = /** @class */ (function () {
+    var Vector4 = (function () {
         /**
          * Creates a Vector4 object from the passed floats.
          */
@@ -2300,7 +2300,7 @@ var BABYLON;
         return Vector4;
     }());
     BABYLON.Vector4 = Vector4;
-    var Size = /** @class */ (function () {
+    var Size = (function () {
         /**
          * Creates a Size object from the passed width and height (floats).
          */
@@ -2412,7 +2412,7 @@ var BABYLON;
         return Size;
     }());
     BABYLON.Size = Size;
-    var Quaternion = /** @class */ (function () {
+    var Quaternion = (function () {
         /**
          * Creates a new Quaternion from the passed floats.
          */
@@ -2880,7 +2880,7 @@ var BABYLON;
         return Quaternion;
     }());
     BABYLON.Quaternion = Quaternion;
-    var Matrix = /** @class */ (function () {
+    var Matrix = (function () {
         function Matrix() {
             this._isIdentity = false;
             this._isIdentityDirty = true;
@@ -4044,16 +4044,16 @@ var BABYLON;
             result.m[15] = 1.0;
             result._markAsUpdated();
         };
-        Matrix._tempQuaternion = new Quaternion();
-        Matrix._xAxis = Vector3.Zero();
-        Matrix._yAxis = Vector3.Zero();
-        Matrix._zAxis = Vector3.Zero();
-        Matrix._updateFlagSeed = 0;
-        Matrix._identityReadOnly = Matrix.Identity();
         return Matrix;
     }());
+    Matrix._tempQuaternion = new Quaternion();
+    Matrix._xAxis = Vector3.Zero();
+    Matrix._yAxis = Vector3.Zero();
+    Matrix._zAxis = Vector3.Zero();
+    Matrix._updateFlagSeed = 0;
+    Matrix._identityReadOnly = Matrix.Identity();
     BABYLON.Matrix = Matrix;
-    var Plane = /** @class */ (function () {
+    var Plane = (function () {
         /**
          * Creates a Plane object according to the passed floats a, b, c, d and the plane equation : ax + by + cz + d = 0
          */
@@ -4202,7 +4202,7 @@ var BABYLON;
         return Plane;
     }());
     BABYLON.Plane = Plane;
-    var Viewport = /** @class */ (function () {
+    var Viewport = (function () {
         /**
          * Creates a Viewport object located at (x, y) and sized (width, height).
          */
@@ -4229,7 +4229,7 @@ var BABYLON;
         return Viewport;
     }());
     BABYLON.Viewport = Viewport;
-    var Frustum = /** @class */ (function () {
+    var Frustum = (function () {
         function Frustum() {
         }
         /**
@@ -4311,17 +4311,17 @@ var BABYLON;
         Space[Space["WORLD"] = 1] = "WORLD";
         Space[Space["BONE"] = 2] = "BONE";
     })(Space = BABYLON.Space || (BABYLON.Space = {}));
-    var Axis = /** @class */ (function () {
+    var Axis = (function () {
         function Axis() {
         }
-        Axis.X = new Vector3(1.0, 0.0, 0.0);
-        Axis.Y = new Vector3(0.0, 1.0, 0.0);
-        Axis.Z = new Vector3(0.0, 0.0, 1.0);
         return Axis;
     }());
+    Axis.X = new Vector3(1.0, 0.0, 0.0);
+    Axis.Y = new Vector3(0.0, 1.0, 0.0);
+    Axis.Z = new Vector3(0.0, 0.0, 1.0);
     BABYLON.Axis = Axis;
     ;
-    var BezierCurve = /** @class */ (function () {
+    var BezierCurve = (function () {
         function BezierCurve() {
         }
         /**
@@ -4354,7 +4354,7 @@ var BABYLON;
         Orientation[Orientation["CW"] = 0] = "CW";
         Orientation[Orientation["CCW"] = 1] = "CCW";
     })(Orientation = BABYLON.Orientation || (BABYLON.Orientation = {}));
-    var Angle = /** @class */ (function () {
+    var Angle = (function () {
         /**
          * Creates an Angle object of "radians" radians (float).
          */
@@ -4395,7 +4395,7 @@ var BABYLON;
         return Angle;
     }());
     BABYLON.Angle = Angle;
-    var Arc2 = /** @class */ (function () {
+    var Arc2 = (function () {
         /**
          * Creates an Arc object from the three passed points : start, middle and end.
          */
@@ -4428,7 +4428,7 @@ var BABYLON;
         return Arc2;
     }());
     BABYLON.Arc2 = Arc2;
-    var Path2 = /** @class */ (function () {
+    var Path2 = (function () {
         /**
          * Creates a Path2 object from the starting 2D coordinates x and y.
          */
@@ -4540,7 +4540,7 @@ var BABYLON;
         return Path2;
     }());
     BABYLON.Path2 = Path2;
-    var Path3D = /** @class */ (function () {
+    var Path3D = (function () {
         /**
         * new Path3D(path, normal, raw)
         * Creates a Path3D. A Path3D is a logical math object, so not a mesh.
@@ -4717,7 +4717,7 @@ var BABYLON;
         return Path3D;
     }());
     BABYLON.Path3D = Path3D;
-    var Curve3 = /** @class */ (function () {
+    var Curve3 = (function () {
         /**
          * A Curve3 object is a logical object, so not a mesh, to handle curves in the 3D geometric space.
          * A Curve3 is designed from a series of successive Vector3.
@@ -4845,7 +4845,7 @@ var BABYLON;
     }());
     BABYLON.Curve3 = Curve3;
     // Vertex formats
-    var PositionNormalVertex = /** @class */ (function () {
+    var PositionNormalVertex = (function () {
         function PositionNormalVertex(position, normal) {
             if (position === void 0) { position = Vector3.Zero(); }
             if (normal === void 0) { normal = Vector3.Up(); }
@@ -4858,7 +4858,7 @@ var BABYLON;
         return PositionNormalVertex;
     }());
     BABYLON.PositionNormalVertex = PositionNormalVertex;
-    var PositionNormalTextureVertex = /** @class */ (function () {
+    var PositionNormalTextureVertex = (function () {
         function PositionNormalTextureVertex(position, normal, uv) {
             if (position === void 0) { position = Vector3.Zero(); }
             if (normal === void 0) { normal = Vector3.Up(); }
@@ -4877,38 +4877,38 @@ var BABYLON;
     // usage in any internal function :
     // var tmp = Tmp.Vector3[0];   <= gets access to the first pre-created Vector3
     // There's a Tmp array per object type : int, float, Vector2, Vector3, Vector4, Quaternion, Matrix
-    var Tmp = /** @class */ (function () {
+    var Tmp = (function () {
         function Tmp() {
         }
-        Tmp.Color3 = [Color3.Black(), Color3.Black(), Color3.Black()];
-        Tmp.Vector2 = [Vector2.Zero(), Vector2.Zero(), Vector2.Zero()]; // 3 temp Vector2 at once should be enough
-        Tmp.Vector3 = [Vector3.Zero(), Vector3.Zero(), Vector3.Zero(),
-            Vector3.Zero(), Vector3.Zero(), Vector3.Zero(), Vector3.Zero(), Vector3.Zero(), Vector3.Zero()]; // 9 temp Vector3 at once should be enough
-        Tmp.Vector4 = [Vector4.Zero(), Vector4.Zero(), Vector4.Zero()]; // 3 temp Vector4 at once should be enough
-        Tmp.Quaternion = [Quaternion.Zero(), Quaternion.Zero()]; // 2 temp Quaternion at once should be enough
-        Tmp.Matrix = [Matrix.Zero(), Matrix.Zero(),
-            Matrix.Zero(), Matrix.Zero(),
-            Matrix.Zero(), Matrix.Zero(),
-            Matrix.Zero(), Matrix.Zero()]; // 6 temp Matrices at once should be enough
         return Tmp;
     }());
+    Tmp.Color3 = [Color3.Black(), Color3.Black(), Color3.Black()];
+    Tmp.Vector2 = [Vector2.Zero(), Vector2.Zero(), Vector2.Zero()]; // 3 temp Vector2 at once should be enough
+    Tmp.Vector3 = [Vector3.Zero(), Vector3.Zero(), Vector3.Zero(),
+        Vector3.Zero(), Vector3.Zero(), Vector3.Zero(), Vector3.Zero(), Vector3.Zero(), Vector3.Zero()]; // 9 temp Vector3 at once should be enough
+    Tmp.Vector4 = [Vector4.Zero(), Vector4.Zero(), Vector4.Zero()]; // 3 temp Vector4 at once should be enough
+    Tmp.Quaternion = [Quaternion.Zero(), Quaternion.Zero()]; // 2 temp Quaternion at once should be enough
+    Tmp.Matrix = [Matrix.Zero(), Matrix.Zero(),
+        Matrix.Zero(), Matrix.Zero(),
+        Matrix.Zero(), Matrix.Zero(),
+        Matrix.Zero(), Matrix.Zero()]; // 6 temp Matrices at once should be enough
     BABYLON.Tmp = Tmp;
     // Same as Tmp but not exported to keep it onyl for math functions to avoid conflicts
-    var MathTmp = /** @class */ (function () {
+    var MathTmp = (function () {
         function MathTmp() {
         }
-        MathTmp.Vector3 = [Vector3.Zero()];
-        MathTmp.Matrix = [Matrix.Zero(), Matrix.Zero()];
-        MathTmp.Quaternion = [Quaternion.Zero()];
         return MathTmp;
     }());
+    MathTmp.Vector3 = [Vector3.Zero()];
+    MathTmp.Matrix = [Matrix.Zero(), Matrix.Zero()];
+    MathTmp.Quaternion = [Quaternion.Zero()];
 })(BABYLON || (BABYLON = {}));
 
 //# sourceMappingURL=babylon.math.js.map
 
 var BABYLON;
 (function (BABYLON) {
-    var Scalar = /** @class */ (function () {
+    var Scalar = (function () {
         function Scalar() {
         }
         /**
@@ -5139,17 +5139,17 @@ var BABYLON;
             if (sourceProperty !== undefined && sourceProperty !== null) {
                 switch (propertyType) {
                     case 0: // Value
-                    case 6:// Mesh reference
+                    case 6:
                         destination[property] = sourceProperty;
                         break;
-                    case 1:// Texture
+                    case 1:
                         destination[property] = (instanciate || sourceProperty.isRenderTarget) ? sourceProperty : sourceProperty.clone();
                         break;
                     case 2: // Color3
                     case 3: // FresnelParameters
                     case 4: // Vector2
                     case 5: // Vector3
-                    case 7:// Color Curves
+                    case 7:
                         destination[property] = instanciate ? sourceProperty : sourceProperty.clone();
                         break;
                 }
@@ -5276,7 +5276,7 @@ var BABYLON;
         return generateSerializableMember(9, sourceName); // image processing
     }
     BABYLON.serializeAsImageProcessingConfiguration = serializeAsImageProcessingConfiguration;
-    var SerializationHelper = /** @class */ (function () {
+    var SerializationHelper = (function () {
         function SerializationHelper() {
         }
         SerializationHelper.Serialize = function (entity, serializationObject) {
@@ -5296,34 +5296,34 @@ var BABYLON;
                 var sourceProperty = entity[property];
                 if (sourceProperty !== undefined && sourceProperty !== null) {
                     switch (propertyType) {
-                        case 0:// Value
+                        case 0:
                             serializationObject[targetPropertyName] = sourceProperty;
                             break;
-                        case 1:// Texture
+                        case 1:
                             serializationObject[targetPropertyName] = sourceProperty.serialize();
                             break;
-                        case 2:// Color3
+                        case 2:
                             serializationObject[targetPropertyName] = sourceProperty.asArray();
                             break;
-                        case 3:// FresnelParameters
+                        case 3:
                             serializationObject[targetPropertyName] = sourceProperty.serialize();
                             break;
-                        case 4:// Vector2
+                        case 4:
                             serializationObject[targetPropertyName] = sourceProperty.asArray();
                             break;
-                        case 5:// Vector3
+                        case 5:
                             serializationObject[targetPropertyName] = sourceProperty.asArray();
                             break;
-                        case 6:// Mesh reference
+                        case 6:
                             serializationObject[targetPropertyName] = sourceProperty.id;
                             break;
-                        case 7:// Color Curves
+                        case 7:
                             serializationObject[targetPropertyName] = sourceProperty.serialize();
                             break;
-                        case 8:// Color 4
+                        case 8:
                             serializationObject[targetPropertyName] = sourceProperty.asArray();
                             break;
-                        case 9:// Image Processing
+                        case 9:
                             serializationObject[targetPropertyName] = sourceProperty.serialize();
                             break;
                     }
@@ -5350,38 +5350,38 @@ var BABYLON;
                 if (sourceProperty !== undefined && sourceProperty !== null) {
                     var dest = destination;
                     switch (propertyType) {
-                        case 0:// Value
+                        case 0:
                             dest[property] = sourceProperty;
                             break;
-                        case 1:// Texture
+                        case 1:
                             if (scene) {
                                 dest[property] = BABYLON.Texture.Parse(sourceProperty, scene, rootUrl);
                             }
                             break;
-                        case 2:// Color3
+                        case 2:
                             dest[property] = BABYLON.Color3.FromArray(sourceProperty);
                             break;
-                        case 3:// FresnelParameters
+                        case 3:
                             dest[property] = BABYLON.FresnelParameters.Parse(sourceProperty);
                             break;
-                        case 4:// Vector2
+                        case 4:
                             dest[property] = BABYLON.Vector2.FromArray(sourceProperty);
                             break;
-                        case 5:// Vector3
+                        case 5:
                             dest[property] = BABYLON.Vector3.FromArray(sourceProperty);
                             break;
-                        case 6:// Mesh reference
+                        case 6:
                             if (scene) {
                                 dest[property] = scene.getLastMeshByID(sourceProperty);
                             }
                             break;
-                        case 7:// Color Curves
+                        case 7:
                             dest[property] = BABYLON.ColorCurves.Parse(sourceProperty);
                             break;
-                        case 8:// Color 4
+                        case 8:
                             dest[property] = BABYLON.Color4.FromArray(sourceProperty);
                             break;
-                        case 9:// Image Processing
+                        case 9:
                             dest[property] = BABYLON.ImageProcessingConfiguration.Parse(sourceProperty);
                             break;
                     }
@@ -5407,7 +5407,7 @@ var BABYLON;
     /**
      * A class serves as a medium between the observable and its observers
      */
-    var EventState = /** @class */ (function () {
+    var EventState = (function () {
         /**
         * If the callback of a given Observer set skipNextObservers to true the following observers will be ignored
         */
@@ -5429,7 +5429,7 @@ var BABYLON;
     /**
      * Represent an Observer registered to a given Observable object.
      */
-    var Observer = /** @class */ (function () {
+    var Observer = (function () {
         function Observer(callback, mask, scope) {
             if (scope === void 0) { scope = null; }
             this.callback = callback;
@@ -5442,7 +5442,7 @@ var BABYLON;
     /**
      * Represent a list of observers registered to multiple Observables object.
      */
-    var MultiObserver = /** @class */ (function () {
+    var MultiObserver = (function () {
         function MultiObserver() {
         }
         MultiObserver.prototype.dispose = function () {
@@ -5479,7 +5479,7 @@ var BABYLON;
      * For instance you may have a given Observable that have four different types of notifications: Move (mask = 0x01), Stop (mask = 0x02), Turn Right (mask = 0X04), Turn Left (mask = 0X08).
      * A given observer can register itself with only Move and Stop (mask = 0x03), then it will only be notified when one of these two occurs and will never be for Turn Left/Right.
      */
-    var Observable = /** @class */ (function () {
+    var Observable = (function () {
         function Observable(onObserverAdded) {
             this._observers = new Array();
             this._eventState = new EventState(0);
@@ -5627,7 +5627,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SmartArray = /** @class */ (function () {
+    var SmartArray = (function () {
         function SmartArray(capacity) {
             this.length = 0;
             this._duplicateId = 0;
@@ -5703,10 +5703,10 @@ var BABYLON;
         SmartArray.prototype.contains = function (value) {
             return this.data.indexOf(value) !== -1;
         };
-        // Statics
-        SmartArray._GlobalId = 0;
         return SmartArray;
     }());
+    // Statics
+    SmartArray._GlobalId = 0;
     BABYLON.SmartArray = SmartArray;
 })(BABYLON || (BABYLON = {}));
 
@@ -5730,7 +5730,7 @@ var BABYLON;
         }
         return null;
     };
-    var Tools = /** @class */ (function () {
+    var Tools = (function () {
         function Tools() {
         }
         ;
@@ -6853,37 +6853,37 @@ var BABYLON;
             }
             return hash;
         };
-        Tools.BaseUrl = "";
-        Tools.CorsBehavior = "anonymous";
-        Tools.UseFallbackTexture = true;
-        /**
-         * Use this object to register external classes like custom textures or material
-         * to allow the laoders to instantiate them
-         */
-        Tools.RegisteredExternalClasses = {};
-        // Used in case of a texture loading problem 
-        Tools.fallbackTexture = "data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QBmRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAAQAAAATgAAAAAAAABgAAAAAQAAAGAAAAABcGFpbnQubmV0IDQuMC41AP/bAEMABAIDAwMCBAMDAwQEBAQFCQYFBQUFCwgIBgkNCw0NDQsMDA4QFBEODxMPDAwSGBITFRYXFxcOERkbGRYaFBYXFv/bAEMBBAQEBQUFCgYGChYPDA8WFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFv/AABEIAQABAAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APH6KKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FCiiigD6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++gooooA+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gUKKKKAPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76CiiigD5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BQooooA+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/voKKKKAPl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FCiiigD6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++gooooA+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gUKKKKAPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76CiiigD5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BQooooA+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/voKKKKAPl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FCiiigD6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++gooooA+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gUKKKKAPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76P//Z";
-        Tools.PreprocessUrl = function (url) {
-            return url;
-        };
-        // Logs
-        Tools._NoneLogLevel = 0;
-        Tools._MessageLogLevel = 1;
-        Tools._WarningLogLevel = 2;
-        Tools._ErrorLogLevel = 4;
-        Tools._LogCache = "";
-        Tools.errorsCount = 0;
-        Tools.Log = Tools._LogEnabled;
-        Tools.Warn = Tools._WarnEnabled;
-        Tools.Error = Tools._ErrorEnabled;
-        // Performances
-        Tools._PerformanceNoneLogLevel = 0;
-        Tools._PerformanceUserMarkLogLevel = 1;
-        Tools._PerformanceConsoleLogLevel = 2;
-        Tools.StartPerformanceCounter = Tools._StartPerformanceCounterDisabled;
-        Tools.EndPerformanceCounter = Tools._EndPerformanceCounterDisabled;
         return Tools;
     }());
+    Tools.BaseUrl = "";
+    Tools.CorsBehavior = "anonymous";
+    Tools.UseFallbackTexture = true;
+    /**
+     * Use this object to register external classes like custom textures or material
+     * to allow the laoders to instantiate them
+     */
+    Tools.RegisteredExternalClasses = {};
+    // Used in case of a texture loading problem 
+    Tools.fallbackTexture = "data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QBmRXhpZgAATU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAAExAAIAAAAQAAAATgAAAAAAAABgAAAAAQAAAGAAAAABcGFpbnQubmV0IDQuMC41AP/bAEMABAIDAwMCBAMDAwQEBAQFCQYFBQUFCwgIBgkNCw0NDQsMDA4QFBEODxMPDAwSGBITFRYXFxcOERkbGRYaFBYXFv/bAEMBBAQEBQUFCgYGChYPDA8WFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFv/AABEIAQABAAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APH6KKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FCiiigD6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++gooooA+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gUKKKKAPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76CiiigD5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BQooooA+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/voKKKKAPl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FCiiigD6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++gooooA+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gUKKKKAPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76CiiigD5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BQooooA+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/voKKKKAPl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FCiiigD6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++gooooA+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gUKKKKAPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76Pl+iiivuj+BT6gooor4U/vo+X6KKK+6P4FPqCiiivhT++j5fooor7o/gU+oKKKK+FP76P//Z";
+    Tools.PreprocessUrl = function (url) {
+        return url;
+    };
+    // Logs
+    Tools._NoneLogLevel = 0;
+    Tools._MessageLogLevel = 1;
+    Tools._WarningLogLevel = 2;
+    Tools._ErrorLogLevel = 4;
+    Tools._LogCache = "";
+    Tools.errorsCount = 0;
+    Tools.Log = Tools._LogEnabled;
+    Tools.Warn = Tools._WarnEnabled;
+    Tools.Error = Tools._ErrorEnabled;
+    // Performances
+    Tools._PerformanceNoneLogLevel = 0;
+    Tools._PerformanceUserMarkLogLevel = 1;
+    Tools._PerformanceConsoleLogLevel = 2;
+    Tools.StartPerformanceCounter = Tools._StartPerformanceCounterDisabled;
+    Tools.EndPerformanceCounter = Tools._EndPerformanceCounterDisabled;
     BABYLON.Tools = Tools;
     /**
      * This class is used to track a performance counter which is number based.
@@ -6893,7 +6893,7 @@ var BABYLON;
      * For time you can optionally call fetchNewFrame() to notify the start of a new frame to monitor, then call beginMonitoring() to start and endMonitoring() to record the lapsed time. endMonitoring takes a newFrame parameter for you to specify if the monitored time should be set for a new frame or accumulated to the current frame being monitored.
      * For count you first have to call fetchNewFrame() to notify the start of a new frame to monitor, then call addCount() how many time required to increment the count value you monitor.
      */
-    var PerfCounter = /** @class */ (function () {
+    var PerfCounter = (function () {
         function PerfCounter() {
             this._startMonitoringTime = 0;
             this._min = 0;
@@ -7037,9 +7037,9 @@ var BABYLON;
                 this._lastSecValueCount = 0;
             }
         };
-        PerfCounter.Enabled = true;
         return PerfCounter;
     }());
+    PerfCounter.Enabled = true;
     BABYLON.PerfCounter = PerfCounter;
     /**
      * Use this className as a decorator on a given class definition to add it a name and optionally its module.
@@ -7058,7 +7058,7 @@ var BABYLON;
     /**
     * An implementation of a loop for asynchronous functions.
     */
-    var AsyncLoop = /** @class */ (function () {
+    var AsyncLoop = (function () {
         /**
          * Constroctor.
          * @param iterations the number of iterations.
@@ -7147,7 +7147,7 @@ var BABYLON;
 (function (BABYLON) {
     var Internals;
     (function (Internals) {
-        var _AlphaState = /** @class */ (function () {
+        var _AlphaState = (function () {
             /**
              * Initializes the state.
              */
@@ -7277,7 +7277,7 @@ var BABYLON;
 (function (BABYLON) {
     var Internals;
     (function (Internals) {
-        var _DepthCullingState = /** @class */ (function () {
+        var _DepthCullingState = (function () {
             /**
              * Initializes the state.
              */
@@ -7458,7 +7458,7 @@ var BABYLON;
 (function (BABYLON) {
     var Internals;
     (function (Internals) {
-        var _StencilState = /** @class */ (function () {
+        var _StencilState = (function () {
             function _StencilState() {
                 this._isStencilTestDirty = false;
                 this._isStencilMaskDirty = false;
@@ -7789,12 +7789,12 @@ var BABYLON;
             partialLoad(files[index], index, loadedImages, scene, onfinish, onError);
         }
     };
-    var BufferPointer = /** @class */ (function () {
+    var BufferPointer = (function () {
         function BufferPointer() {
         }
         return BufferPointer;
     }());
-    var InstancingAttributeInfo = /** @class */ (function () {
+    var InstancingAttributeInfo = (function () {
         function InstancingAttributeInfo() {
         }
         return InstancingAttributeInfo;
@@ -7803,7 +7803,7 @@ var BABYLON;
     /**
      * Define options used to create a render target texture
      */
-    var RenderTargetCreationOptions = /** @class */ (function () {
+    var RenderTargetCreationOptions = (function () {
         function RenderTargetCreationOptions() {
         }
         return RenderTargetCreationOptions;
@@ -7812,7 +7812,7 @@ var BABYLON;
     /**
      * Regroup several parameters relative to the browser in use
      */
-    var EngineCapabilities = /** @class */ (function () {
+    var EngineCapabilities = (function () {
         function EngineCapabilities() {
         }
         return EngineCapabilities;
@@ -7821,7 +7821,7 @@ var BABYLON;
     /**
      * The engine class is responsible for interfacing with all lower-level APIs such as WebGL and Audio.
      */
-    var Engine = /** @class */ (function () {
+    var Engine = (function () {
         /**
          * @constructor
          * @param {HTMLCanvasElement | WebGLRenderingContext} canvasOrContext - the canvas or the webgl context to be used for rendering
@@ -12088,58 +12088,58 @@ var BABYLON;
                 return false;
             }
         };
-        Engine.Instances = new Array();
-        // Const statics
-        Engine._ALPHA_DISABLE = 0;
-        Engine._ALPHA_ADD = 1;
-        Engine._ALPHA_COMBINE = 2;
-        Engine._ALPHA_SUBTRACT = 3;
-        Engine._ALPHA_MULTIPLY = 4;
-        Engine._ALPHA_MAXIMIZED = 5;
-        Engine._ALPHA_ONEONE = 6;
-        Engine._ALPHA_PREMULTIPLIED = 7;
-        Engine._ALPHA_PREMULTIPLIED_PORTERDUFF = 8;
-        Engine._ALPHA_INTERPOLATE = 9;
-        Engine._ALPHA_SCREENMODE = 10;
-        Engine._DELAYLOADSTATE_NONE = 0;
-        Engine._DELAYLOADSTATE_LOADED = 1;
-        Engine._DELAYLOADSTATE_LOADING = 2;
-        Engine._DELAYLOADSTATE_NOTLOADED = 4;
-        Engine._TEXTUREFORMAT_ALPHA = 0;
-        Engine._TEXTUREFORMAT_LUMINANCE = 1;
-        Engine._TEXTUREFORMAT_LUMINANCE_ALPHA = 2;
-        Engine._TEXTUREFORMAT_RGB = 4;
-        Engine._TEXTUREFORMAT_RGBA = 5;
-        Engine._TEXTURETYPE_UNSIGNED_INT = 0;
-        Engine._TEXTURETYPE_FLOAT = 1;
-        Engine._TEXTURETYPE_HALF_FLOAT = 2;
-        // Depht or Stencil test Constants.
-        Engine._NEVER = 0x0200; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will never pass. i.e. Nothing will be drawn.
-        Engine._ALWAYS = 0x0207; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will always pass. i.e. Pixels will be drawn in the order they are drawn.
-        Engine._LESS = 0x0201; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than the stored value.
-        Engine._EQUAL = 0x0202; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is equals to the stored value.
-        Engine._LEQUAL = 0x0203; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than or equal to the stored value.
-        Engine._GREATER = 0x0204; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than the stored value.
-        Engine._GEQUAL = 0x0206; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than or equal to the stored value.
-        Engine._NOTEQUAL = 0x0205; //  Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is not equal to the stored value.
-        // Stencil Actions Constants.
-        Engine._KEEP = 0x1E00;
-        Engine._REPLACE = 0x1E01;
-        Engine._INCR = 0x1E02;
-        Engine._DECR = 0x1E03;
-        Engine._INVERT = 0x150A;
-        Engine._INCR_WRAP = 0x8507;
-        Engine._DECR_WRAP = 0x8508;
-        // Texture rescaling mode
-        Engine._SCALEMODE_FLOOR = 1;
-        Engine._SCALEMODE_NEAREST = 2;
-        Engine._SCALEMODE_CEILING = 3;
-        // Updatable statics so stick with vars here
-        Engine.CollisionsEpsilon = 0.001;
-        Engine.CodeRepository = "src/";
-        Engine.ShadersRepository = "src/Shaders/";
         return Engine;
     }());
+    Engine.Instances = new Array();
+    // Const statics
+    Engine._ALPHA_DISABLE = 0;
+    Engine._ALPHA_ADD = 1;
+    Engine._ALPHA_COMBINE = 2;
+    Engine._ALPHA_SUBTRACT = 3;
+    Engine._ALPHA_MULTIPLY = 4;
+    Engine._ALPHA_MAXIMIZED = 5;
+    Engine._ALPHA_ONEONE = 6;
+    Engine._ALPHA_PREMULTIPLIED = 7;
+    Engine._ALPHA_PREMULTIPLIED_PORTERDUFF = 8;
+    Engine._ALPHA_INTERPOLATE = 9;
+    Engine._ALPHA_SCREENMODE = 10;
+    Engine._DELAYLOADSTATE_NONE = 0;
+    Engine._DELAYLOADSTATE_LOADED = 1;
+    Engine._DELAYLOADSTATE_LOADING = 2;
+    Engine._DELAYLOADSTATE_NOTLOADED = 4;
+    Engine._TEXTUREFORMAT_ALPHA = 0;
+    Engine._TEXTUREFORMAT_LUMINANCE = 1;
+    Engine._TEXTUREFORMAT_LUMINANCE_ALPHA = 2;
+    Engine._TEXTUREFORMAT_RGB = 4;
+    Engine._TEXTUREFORMAT_RGBA = 5;
+    Engine._TEXTURETYPE_UNSIGNED_INT = 0;
+    Engine._TEXTURETYPE_FLOAT = 1;
+    Engine._TEXTURETYPE_HALF_FLOAT = 2;
+    // Depht or Stencil test Constants.
+    Engine._NEVER = 0x0200; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will never pass. i.e. Nothing will be drawn.
+    Engine._ALWAYS = 0x0207; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will always pass. i.e. Pixels will be drawn in the order they are drawn.
+    Engine._LESS = 0x0201; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than the stored value.
+    Engine._EQUAL = 0x0202; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is equals to the stored value.
+    Engine._LEQUAL = 0x0203; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than or equal to the stored value.
+    Engine._GREATER = 0x0204; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than the stored value.
+    Engine._GEQUAL = 0x0206; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than or equal to the stored value.
+    Engine._NOTEQUAL = 0x0205; //  Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is not equal to the stored value.
+    // Stencil Actions Constants.
+    Engine._KEEP = 0x1E00;
+    Engine._REPLACE = 0x1E01;
+    Engine._INCR = 0x1E02;
+    Engine._DECR = 0x1E03;
+    Engine._INVERT = 0x150A;
+    Engine._INCR_WRAP = 0x8507;
+    Engine._DECR_WRAP = 0x8508;
+    // Texture rescaling mode
+    Engine._SCALEMODE_FLOOR = 1;
+    Engine._SCALEMODE_NEAREST = 2;
+    Engine._SCALEMODE_CEILING = 3;
+    // Updatable statics so stick with vars here
+    Engine.CollisionsEpsilon = 0.001;
+    Engine.CodeRepository = "src/";
+    Engine.ShadersRepository = "src/Shaders/";
     BABYLON.Engine = Engine;
 })(BABYLON || (BABYLON = {}));
 
@@ -12151,7 +12151,7 @@ var BABYLON;
     /**
      * Node is the basic class for all scene objects (Mesh, Light Camera).
      */
-    var Node = /** @class */ (function () {
+    var Node = (function () {
         /**
          * @constructor
          * @param {string} name - the name and id to be given to this node
@@ -12492,23 +12492,23 @@ var BABYLON;
                 }
             }
         };
-        __decorate([
-            BABYLON.serialize()
-        ], Node.prototype, "name", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Node.prototype, "id", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Node.prototype, "uniqueId", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Node.prototype, "state", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Node.prototype, "metadata", void 0);
         return Node;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], Node.prototype, "name", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Node.prototype, "id", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Node.prototype, "uniqueId", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Node.prototype, "state", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Node.prototype, "metadata", void 0);
     BABYLON.Node = Node;
 })(BABYLON || (BABYLON = {}));
 
@@ -12516,7 +12516,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BoundingSphere = /** @class */ (function () {
+    var BoundingSphere = (function () {
         function BoundingSphere(minimum, maximum) {
             this.minimum = minimum;
             this.maximum = maximum;
@@ -12568,7 +12568,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BoundingBox = /** @class */ (function () {
+    var BoundingBox = (function () {
         function BoundingBox(minimum, maximum) {
             this.minimum = minimum;
             this.maximum = maximum;
@@ -12736,7 +12736,7 @@ var BABYLON;
         var result1 = computeBoxExtents(axis, box1);
         return extentsOverlap(result0.min, result0.max, result1.min, result1.max);
     };
-    var BoundingInfo = /** @class */ (function () {
+    var BoundingInfo = (function () {
         function BoundingInfo(minimum, maximum) {
             this.minimum = minimum;
             this.maximum = maximum;
@@ -12854,7 +12854,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var AbstractMesh = /** @class */ (function (_super) {
+    var AbstractMesh = (function (_super) {
         __extends(AbstractMesh, _super);
         // Constructor
         function AbstractMesh(name, scene) {
@@ -15115,21 +15115,21 @@ var BABYLON;
             engine.endOcclusionQuery(this.occlusionQueryAlgorithmType);
             this._isOcclusionQueryInProgress = true;
         };
-        // Statics
-        AbstractMesh._BILLBOARDMODE_NONE = 0;
-        AbstractMesh._BILLBOARDMODE_X = 1;
-        AbstractMesh._BILLBOARDMODE_Y = 2;
-        AbstractMesh._BILLBOARDMODE_Z = 4;
-        AbstractMesh._BILLBOARDMODE_ALL = 7;
-        AbstractMesh.OCCLUSION_TYPE_NONE = 0;
-        AbstractMesh.OCCLUSION_TYPE_OPTIMISTIC = 1;
-        AbstractMesh.OCCLUSION_TYPE_STRICT = 2;
-        AbstractMesh.OCCLUSION_ALGORITHM_TYPE_ACCURATE = 0;
-        AbstractMesh.OCCLUSION_ALGORITHM_TYPE_CONSERVATIVE = 1;
-        AbstractMesh._rotationAxisCache = new BABYLON.Quaternion();
-        AbstractMesh._lookAtVectorCache = new BABYLON.Vector3(0, 0, 0);
         return AbstractMesh;
     }(BABYLON.Node));
+    // Statics
+    AbstractMesh._BILLBOARDMODE_NONE = 0;
+    AbstractMesh._BILLBOARDMODE_X = 1;
+    AbstractMesh._BILLBOARDMODE_Y = 2;
+    AbstractMesh._BILLBOARDMODE_Z = 4;
+    AbstractMesh._BILLBOARDMODE_ALL = 7;
+    AbstractMesh.OCCLUSION_TYPE_NONE = 0;
+    AbstractMesh.OCCLUSION_TYPE_OPTIMISTIC = 1;
+    AbstractMesh.OCCLUSION_TYPE_STRICT = 2;
+    AbstractMesh.OCCLUSION_ALGORITHM_TYPE_ACCURATE = 0;
+    AbstractMesh.OCCLUSION_ALGORITHM_TYPE_CONSERVATIVE = 1;
+    AbstractMesh._rotationAxisCache = new BABYLON.Quaternion();
+    AbstractMesh._lookAtVectorCache = new BABYLON.Vector3(0, 0, 0);
     BABYLON.AbstractMesh = AbstractMesh;
 })(BABYLON || (BABYLON = {}));
 
@@ -15139,7 +15139,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Light = /** @class */ (function (_super) {
+    var Light = (function (_super) {
         __extends(Light, _super);
         /**
          * Creates a Light object in the scene.
@@ -15759,59 +15759,59 @@ var BABYLON;
             }
             this.getScene().sortLightsByPriority();
         };
-        //lightmapMode Consts
-        Light._LIGHTMAP_DEFAULT = 0;
-        Light._LIGHTMAP_SPECULAR = 1;
-        Light._LIGHTMAP_SHADOWSONLY = 2;
-        // Intensity Mode Consts
-        Light._INTENSITYMODE_AUTOMATIC = 0;
-        Light._INTENSITYMODE_LUMINOUSPOWER = 1;
-        Light._INTENSITYMODE_LUMINOUSINTENSITY = 2;
-        Light._INTENSITYMODE_ILLUMINANCE = 3;
-        Light._INTENSITYMODE_LUMINANCE = 4;
-        // Light types ids const.
-        Light._LIGHTTYPEID_POINTLIGHT = 0;
-        Light._LIGHTTYPEID_DIRECTIONALLIGHT = 1;
-        Light._LIGHTTYPEID_SPOTLIGHT = 2;
-        Light._LIGHTTYPEID_HEMISPHERICLIGHT = 3;
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], Light.prototype, "diffuse", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], Light.prototype, "specular", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Light.prototype, "intensity", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Light.prototype, "range", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Light.prototype, "intensityMode", null);
-        __decorate([
-            BABYLON.serialize()
-        ], Light.prototype, "radius", null);
-        __decorate([
-            BABYLON.serialize()
-        ], Light.prototype, "_renderPriority", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_reorderLightsInScene")
-        ], Light.prototype, "renderPriority", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Light.prototype, "shadowEnabled", void 0);
-        __decorate([
-            BABYLON.serialize("excludeWithLayerMask")
-        ], Light.prototype, "_excludeWithLayerMask", void 0);
-        __decorate([
-            BABYLON.serialize("includeOnlyWithLayerMask")
-        ], Light.prototype, "_includeOnlyWithLayerMask", void 0);
-        __decorate([
-            BABYLON.serialize("lightmapMode")
-        ], Light.prototype, "_lightmapMode", void 0);
         return Light;
     }(BABYLON.Node));
+    //lightmapMode Consts
+    Light._LIGHTMAP_DEFAULT = 0;
+    Light._LIGHTMAP_SPECULAR = 1;
+    Light._LIGHTMAP_SHADOWSONLY = 2;
+    // Intensity Mode Consts
+    Light._INTENSITYMODE_AUTOMATIC = 0;
+    Light._INTENSITYMODE_LUMINOUSPOWER = 1;
+    Light._INTENSITYMODE_LUMINOUSINTENSITY = 2;
+    Light._INTENSITYMODE_ILLUMINANCE = 3;
+    Light._INTENSITYMODE_LUMINANCE = 4;
+    // Light types ids const.
+    Light._LIGHTTYPEID_POINTLIGHT = 0;
+    Light._LIGHTTYPEID_DIRECTIONALLIGHT = 1;
+    Light._LIGHTTYPEID_SPOTLIGHT = 2;
+    Light._LIGHTTYPEID_HEMISPHERICLIGHT = 3;
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], Light.prototype, "diffuse", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], Light.prototype, "specular", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Light.prototype, "intensity", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Light.prototype, "range", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Light.prototype, "intensityMode", null);
+    __decorate([
+        BABYLON.serialize()
+    ], Light.prototype, "radius", null);
+    __decorate([
+        BABYLON.serialize()
+    ], Light.prototype, "_renderPriority", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_reorderLightsInScene")
+    ], Light.prototype, "renderPriority", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Light.prototype, "shadowEnabled", void 0);
+    __decorate([
+        BABYLON.serialize("excludeWithLayerMask")
+    ], Light.prototype, "_excludeWithLayerMask", void 0);
+    __decorate([
+        BABYLON.serialize("includeOnlyWithLayerMask")
+    ], Light.prototype, "_includeOnlyWithLayerMask", void 0);
+    __decorate([
+        BABYLON.serialize("lightmapMode")
+    ], Light.prototype, "_lightmapMode", void 0);
     BABYLON.Light = Light;
 })(BABYLON || (BABYLON = {}));
 
@@ -15825,7 +15825,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Camera = /** @class */ (function (_super) {
+    var Camera = (function (_super) {
         __extends(Camera, _super);
         function Camera(name, position, scene) {
             var _this = _super.call(this, name, scene) || this;
@@ -16568,9 +16568,9 @@ var BABYLON;
                     return function () { return new BABYLON.StereoscopicGamepadCamera(name, BABYLON.Vector3.Zero(), interaxial_distance, isStereoscopicSideBySide, scene); };
                 case "StereoscopicUniversalCamera":
                     return function () { return new BABYLON.StereoscopicUniversalCamera(name, BABYLON.Vector3.Zero(), interaxial_distance, isStereoscopicSideBySide, scene); };
-                case "FreeCamera":// Forcing Universal here
+                case "FreeCamera":
                     return function () { return new BABYLON.UniversalCamera(name, BABYLON.Vector3.Zero(), scene); };
-                default:// Universal Camera is the default value
+                default:
                     return function () { return new BABYLON.UniversalCamera(name, BABYLON.Vector3.Zero(), scene); };
             }
         };
@@ -16615,70 +16615,70 @@ var BABYLON;
             }
             return camera;
         };
-        // Statics
-        Camera._PERSPECTIVE_CAMERA = 0;
-        Camera._ORTHOGRAPHIC_CAMERA = 1;
-        Camera._FOVMODE_VERTICAL_FIXED = 0;
-        Camera._FOVMODE_HORIZONTAL_FIXED = 1;
-        Camera._RIG_MODE_NONE = 0;
-        Camera._RIG_MODE_STEREOSCOPIC_ANAGLYPH = 10;
-        Camera._RIG_MODE_STEREOSCOPIC_SIDEBYSIDE_PARALLEL = 11;
-        Camera._RIG_MODE_STEREOSCOPIC_SIDEBYSIDE_CROSSEYED = 12;
-        Camera._RIG_MODE_STEREOSCOPIC_OVERUNDER = 13;
-        Camera._RIG_MODE_VR = 20;
-        Camera._RIG_MODE_WEBVR = 21;
-        Camera.ForceAttachControlToAlwaysPreventDefault = false;
-        Camera.UseAlternateWebVRRendering = false;
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], Camera.prototype, "position", void 0);
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], Camera.prototype, "upVector", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "orthoLeft", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "orthoRight", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "orthoBottom", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "orthoTop", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "fov", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "minZ", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "maxZ", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "inertia", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "mode", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "layerMask", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "fovMode", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "cameraRigMode", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "interaxialDistance", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Camera.prototype, "isStereoscopicSideBySide", void 0);
         return Camera;
     }(BABYLON.Node));
+    // Statics
+    Camera._PERSPECTIVE_CAMERA = 0;
+    Camera._ORTHOGRAPHIC_CAMERA = 1;
+    Camera._FOVMODE_VERTICAL_FIXED = 0;
+    Camera._FOVMODE_HORIZONTAL_FIXED = 1;
+    Camera._RIG_MODE_NONE = 0;
+    Camera._RIG_MODE_STEREOSCOPIC_ANAGLYPH = 10;
+    Camera._RIG_MODE_STEREOSCOPIC_SIDEBYSIDE_PARALLEL = 11;
+    Camera._RIG_MODE_STEREOSCOPIC_SIDEBYSIDE_CROSSEYED = 12;
+    Camera._RIG_MODE_STEREOSCOPIC_OVERUNDER = 13;
+    Camera._RIG_MODE_VR = 20;
+    Camera._RIG_MODE_WEBVR = 21;
+    Camera.ForceAttachControlToAlwaysPreventDefault = false;
+    Camera.UseAlternateWebVRRendering = false;
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], Camera.prototype, "position", void 0);
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], Camera.prototype, "upVector", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "orthoLeft", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "orthoRight", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "orthoBottom", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "orthoTop", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "fov", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "minZ", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "maxZ", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "inertia", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "mode", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "layerMask", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "fovMode", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "cameraRigMode", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "interaxialDistance", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Camera.prototype, "isStereoscopicSideBySide", void 0);
     BABYLON.Camera = Camera;
 })(BABYLON || (BABYLON = {}));
 
@@ -16686,7 +16686,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RenderingManager = /** @class */ (function () {
+    var RenderingManager = (function () {
         function RenderingManager(scene) {
             this._renderingGroups = new Array();
             this._autoClearDepthStencil = {};
@@ -16844,20 +16844,20 @@ var BABYLON;
                 stencil: stencil
             };
         };
-        /**
-         * The max id used for rendering groups (not included)
-         */
-        RenderingManager.MAX_RENDERINGGROUPS = 4;
-        /**
-         * The min id used for rendering groups (included)
-         */
-        RenderingManager.MIN_RENDERINGGROUPS = 0;
-        /**
-         * Used to globally prevent autoclearing scenes.
-         */
-        RenderingManager.AUTOCLEAR = true;
         return RenderingManager;
     }());
+    /**
+     * The max id used for rendering groups (not included)
+     */
+    RenderingManager.MAX_RENDERINGGROUPS = 4;
+    /**
+     * The min id used for rendering groups (included)
+     */
+    RenderingManager.MIN_RENDERINGGROUPS = 0;
+    /**
+     * Used to globally prevent autoclearing scenes.
+     */
+    RenderingManager.AUTOCLEAR = true;
     BABYLON.RenderingManager = RenderingManager;
 })(BABYLON || (BABYLON = {}));
 
@@ -16865,7 +16865,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RenderingGroup = /** @class */ (function () {
+    var RenderingGroup = (function () {
         /**
          * Creates a new rendering group.
          * @param index The rendering group index
@@ -17219,7 +17219,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ClickInfo = /** @class */ (function () {
+    var ClickInfo = (function () {
         function ClickInfo() {
             this._singleClick = false;
             this._doubleClick = false;
@@ -17271,37 +17271,37 @@ var BABYLON;
     /**
      * This class is used by the onRenderingGroupObservable
      */
-    var RenderingGroupInfo = /** @class */ (function () {
+    var RenderingGroupInfo = (function () {
         function RenderingGroupInfo() {
         }
-        /**
-         * Stage corresponding to the very first hook in the renderingGroup phase: before the render buffer may be cleared
-         * This stage will be fired no matter what
-         */
-        RenderingGroupInfo.STAGE_PRECLEAR = 1;
-        /**
-         * Called before opaque object are rendered.
-         * This stage will be fired only if there's 3D Opaque content to render
-         */
-        RenderingGroupInfo.STAGE_PREOPAQUE = 2;
-        /**
-         * Called after the opaque objects are rendered and before the transparent ones
-         * This stage will be fired only if there's 3D transparent content to render
-         */
-        RenderingGroupInfo.STAGE_PRETRANSPARENT = 3;
-        /**
-         * Called after the transparent object are rendered, last hook of the renderingGroup phase
-         * This stage will be fired no matter what
-         */
-        RenderingGroupInfo.STAGE_POSTTRANSPARENT = 4;
         return RenderingGroupInfo;
     }());
+    /**
+     * Stage corresponding to the very first hook in the renderingGroup phase: before the render buffer may be cleared
+     * This stage will be fired no matter what
+     */
+    RenderingGroupInfo.STAGE_PRECLEAR = 1;
+    /**
+     * Called before opaque object are rendered.
+     * This stage will be fired only if there's 3D Opaque content to render
+     */
+    RenderingGroupInfo.STAGE_PREOPAQUE = 2;
+    /**
+     * Called after the opaque objects are rendered and before the transparent ones
+     * This stage will be fired only if there's 3D transparent content to render
+     */
+    RenderingGroupInfo.STAGE_PRETRANSPARENT = 3;
+    /**
+     * Called after the transparent object are rendered, last hook of the renderingGroup phase
+     * This stage will be fired no matter what
+     */
+    RenderingGroupInfo.STAGE_POSTTRANSPARENT = 4;
     BABYLON.RenderingGroupInfo = RenderingGroupInfo;
     /**
      * Represents a scene to be rendered by the engine.
      * @see http://doc.babylonjs.com/page.php?p=21911
      */
-    var Scene = /** @class */ (function () {
+    var Scene = (function () {
         /**
          * @constructor
          * @param {BABYLON.Engine} engine - the engine to be used to render this scene.
@@ -20961,24 +20961,24 @@ var BABYLON;
                 material.markAsDirty(flag);
             }
         };
-        // Statics
-        Scene._FOGMODE_NONE = 0;
-        Scene._FOGMODE_EXP = 1;
-        Scene._FOGMODE_EXP2 = 2;
-        Scene._FOGMODE_LINEAR = 3;
-        Scene._uniqueIdCounter = 0;
-        Scene.MinDeltaTime = 1.0;
-        Scene.MaxDeltaTime = 1000.0;
-        /** The distance in pixel that you have to move to prevent some events */
-        Scene.DragMovementThreshold = 10; // in pixels
-        /** Time in milliseconds to wait to raise long press events if button is still pressed */
-        Scene.LongPressDelay = 500; // in milliseconds
-        /** Time in milliseconds with two consecutive clicks will be considered as a double click */
-        Scene.DoubleClickDelay = 300; // in milliseconds
-        /** If you need to check double click without raising a single click at first click, enable this flag */
-        Scene.ExclusiveDoubleClickMode = false;
         return Scene;
     }());
+    // Statics
+    Scene._FOGMODE_NONE = 0;
+    Scene._FOGMODE_EXP = 1;
+    Scene._FOGMODE_EXP2 = 2;
+    Scene._FOGMODE_LINEAR = 3;
+    Scene._uniqueIdCounter = 0;
+    Scene.MinDeltaTime = 1.0;
+    Scene.MaxDeltaTime = 1000.0;
+    /** The distance in pixel that you have to move to prevent some events */
+    Scene.DragMovementThreshold = 10; // in pixels
+    /** Time in milliseconds to wait to raise long press events if button is still pressed */
+    Scene.LongPressDelay = 500; // in milliseconds
+    /** Time in milliseconds with two consecutive clicks will be considered as a double click */
+    Scene.DoubleClickDelay = 300; // in milliseconds
+    /** If you need to check double click without raising a single click at first click, enable this flag */
+    Scene.ExclusiveDoubleClickMode = false;
     BABYLON.Scene = Scene;
 })(BABYLON || (BABYLON = {}));
 
@@ -20986,7 +20986,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Buffer = /** @class */ (function () {
+    var Buffer = (function () {
         function Buffer(engine, data, updatable, stride, postponeInternalCreation, instanced) {
             if (instanced === void 0) { instanced = false; }
             if (engine instanceof BABYLON.Mesh) {
@@ -21097,7 +21097,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VertexBuffer = /** @class */ (function () {
+    var VertexBuffer = (function () {
         function VertexBuffer(engine, data, kind, updatable, postponeInternalCreation, stride, instanced, offset, size) {
             if (!stride) {
                 // Deduce stride from kind
@@ -21336,23 +21336,23 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        // Enums
-        VertexBuffer._PositionKind = "position";
-        VertexBuffer._NormalKind = "normal";
-        VertexBuffer._TangentKind = "tangent";
-        VertexBuffer._UVKind = "uv";
-        VertexBuffer._UV2Kind = "uv2";
-        VertexBuffer._UV3Kind = "uv3";
-        VertexBuffer._UV4Kind = "uv4";
-        VertexBuffer._UV5Kind = "uv5";
-        VertexBuffer._UV6Kind = "uv6";
-        VertexBuffer._ColorKind = "color";
-        VertexBuffer._MatricesIndicesKind = "matricesIndices";
-        VertexBuffer._MatricesWeightsKind = "matricesWeights";
-        VertexBuffer._MatricesIndicesExtraKind = "matricesIndicesExtra";
-        VertexBuffer._MatricesWeightsExtraKind = "matricesWeightsExtra";
         return VertexBuffer;
     }());
+    // Enums
+    VertexBuffer._PositionKind = "position";
+    VertexBuffer._NormalKind = "normal";
+    VertexBuffer._TangentKind = "tangent";
+    VertexBuffer._UVKind = "uv";
+    VertexBuffer._UV2Kind = "uv2";
+    VertexBuffer._UV3Kind = "uv3";
+    VertexBuffer._UV4Kind = "uv4";
+    VertexBuffer._UV5Kind = "uv5";
+    VertexBuffer._UV6Kind = "uv6";
+    VertexBuffer._ColorKind = "color";
+    VertexBuffer._MatricesIndicesKind = "matricesIndices";
+    VertexBuffer._MatricesWeightsKind = "matricesWeights";
+    VertexBuffer._MatricesIndicesExtraKind = "matricesIndicesExtra";
+    VertexBuffer._MatricesWeightsExtraKind = "matricesWeightsExtra";
     BABYLON.VertexBuffer = VertexBuffer;
 })(BABYLON || (BABYLON = {}));
 
@@ -21360,7 +21360,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var InternalTexture = /** @class */ (function () {
+    var InternalTexture = (function () {
         function InternalTexture(engine, dataSource) {
             this.onLoadedObservable = new BABYLON.Observable();
             // Private
@@ -21505,19 +21505,19 @@ var BABYLON;
                 this._webGLTexture = null;
             }
         };
-        InternalTexture.DATASOURCE_UNKNOWN = 0;
-        InternalTexture.DATASOURCE_URL = 1;
-        InternalTexture.DATASOURCE_TEMP = 2;
-        InternalTexture.DATASOURCE_RAW = 3;
-        InternalTexture.DATASOURCE_DYNAMIC = 4;
-        InternalTexture.DATASOURCE_RENDERTARGET = 5;
-        InternalTexture.DATASOURCE_MULTIRENDERTARGET = 6;
-        InternalTexture.DATASOURCE_CUBE = 7;
-        InternalTexture.DATASOURCE_CUBERAW = 8;
-        InternalTexture.DATASOURCE_CUBEPREFILTERED = 9;
-        InternalTexture.DATASOURCE_RAW3D = 10;
         return InternalTexture;
     }());
+    InternalTexture.DATASOURCE_UNKNOWN = 0;
+    InternalTexture.DATASOURCE_URL = 1;
+    InternalTexture.DATASOURCE_TEMP = 2;
+    InternalTexture.DATASOURCE_RAW = 3;
+    InternalTexture.DATASOURCE_DYNAMIC = 4;
+    InternalTexture.DATASOURCE_RENDERTARGET = 5;
+    InternalTexture.DATASOURCE_MULTIRENDERTARGET = 6;
+    InternalTexture.DATASOURCE_CUBE = 7;
+    InternalTexture.DATASOURCE_CUBERAW = 8;
+    InternalTexture.DATASOURCE_CUBEPREFILTERED = 9;
+    InternalTexture.DATASOURCE_RAW3D = 10;
     BABYLON.InternalTexture = InternalTexture;
 })(BABYLON || (BABYLON = {}));
 
@@ -21526,7 +21526,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BaseTexture = /** @class */ (function () {
+    var BaseTexture = (function () {
         function BaseTexture(scene) {
             this._hasAlpha = false;
             this.getAlphaFromRGB = false;
@@ -21847,63 +21847,63 @@ var BABYLON;
                 _loop_1();
             }
         };
-        BaseTexture.DEFAULT_ANISOTROPIC_FILTERING_LEVEL = 4;
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "name", void 0);
-        __decorate([
-            BABYLON.serialize("hasAlpha")
-        ], BaseTexture.prototype, "_hasAlpha", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "getAlphaFromRGB", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "level", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "coordinatesIndex", void 0);
-        __decorate([
-            BABYLON.serialize("coordinatesMode")
-        ], BaseTexture.prototype, "_coordinatesMode", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "wrapU", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "wrapV", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "wrapR", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "anisotropicFilteringLevel", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "isCube", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "is3D", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "gammaSpace", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "invertZ", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "lodLevelInAlpha", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "lodGenerationOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "lodGenerationScale", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BaseTexture.prototype, "isRenderTarget", void 0);
         return BaseTexture;
     }());
+    BaseTexture.DEFAULT_ANISOTROPIC_FILTERING_LEVEL = 4;
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "name", void 0);
+    __decorate([
+        BABYLON.serialize("hasAlpha")
+    ], BaseTexture.prototype, "_hasAlpha", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "getAlphaFromRGB", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "level", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "coordinatesIndex", void 0);
+    __decorate([
+        BABYLON.serialize("coordinatesMode")
+    ], BaseTexture.prototype, "_coordinatesMode", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "wrapU", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "wrapV", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "wrapR", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "anisotropicFilteringLevel", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "isCube", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "is3D", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "gammaSpace", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "invertZ", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "lodLevelInAlpha", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "lodGenerationOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "lodGenerationScale", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BaseTexture.prototype, "isRenderTarget", void 0);
     BABYLON.BaseTexture = BaseTexture;
 })(BABYLON || (BABYLON = {}));
 
@@ -21917,7 +21917,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Texture = /** @class */ (function (_super) {
+    var Texture = (function (_super) {
         __extends(Texture, _super);
         function Texture(url, scene, noMipmap, invertY, samplingMode, onLoad, onError, buffer, deleteBuffer, format) {
             if (noMipmap === void 0) { noMipmap = false; }
@@ -22298,64 +22298,64 @@ var BABYLON;
             }
             return new Texture(name, scene, noMipmap, invertY, samplingMode, onLoad, onError, buffer, deleteBuffer, format);
         };
-        // Constants
-        Texture.NEAREST_SAMPLINGMODE = 1;
-        Texture.NEAREST_NEAREST_MIPLINEAR = 1; // nearest is mag = nearest and min = nearest and mip = linear
-        Texture.BILINEAR_SAMPLINGMODE = 2;
-        Texture.LINEAR_LINEAR_MIPNEAREST = 2; // Bilinear is mag = linear and min = linear and mip = nearest
-        Texture.TRILINEAR_SAMPLINGMODE = 3;
-        Texture.LINEAR_LINEAR_MIPLINEAR = 3; // Trilinear is mag = linear and min = linear and mip = linear
-        Texture.NEAREST_NEAREST_MIPNEAREST = 4;
-        Texture.NEAREST_LINEAR_MIPNEAREST = 5;
-        Texture.NEAREST_LINEAR_MIPLINEAR = 6;
-        Texture.NEAREST_LINEAR = 7;
-        Texture.NEAREST_NEAREST = 8;
-        Texture.LINEAR_NEAREST_MIPNEAREST = 9;
-        Texture.LINEAR_NEAREST_MIPLINEAR = 10;
-        Texture.LINEAR_LINEAR = 11;
-        Texture.LINEAR_NEAREST = 12;
-        Texture.EXPLICIT_MODE = 0;
-        Texture.SPHERICAL_MODE = 1;
-        Texture.PLANAR_MODE = 2;
-        Texture.CUBIC_MODE = 3;
-        Texture.PROJECTION_MODE = 4;
-        Texture.SKYBOX_MODE = 5;
-        Texture.INVCUBIC_MODE = 6;
-        Texture.EQUIRECTANGULAR_MODE = 7;
-        Texture.FIXED_EQUIRECTANGULAR_MODE = 8;
-        Texture.FIXED_EQUIRECTANGULAR_MIRRORED_MODE = 9;
-        Texture.CLAMP_ADDRESSMODE = 0;
-        Texture.WRAP_ADDRESSMODE = 1;
-        Texture.MIRROR_ADDRESSMODE = 2;
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "url", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "uOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "vOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "uScale", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "vScale", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "uAng", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "vAng", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "wAng", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Texture.prototype, "isBlocking", null);
         return Texture;
     }(BABYLON.BaseTexture));
+    // Constants
+    Texture.NEAREST_SAMPLINGMODE = 1;
+    Texture.NEAREST_NEAREST_MIPLINEAR = 1; // nearest is mag = nearest and min = nearest and mip = linear
+    Texture.BILINEAR_SAMPLINGMODE = 2;
+    Texture.LINEAR_LINEAR_MIPNEAREST = 2; // Bilinear is mag = linear and min = linear and mip = nearest
+    Texture.TRILINEAR_SAMPLINGMODE = 3;
+    Texture.LINEAR_LINEAR_MIPLINEAR = 3; // Trilinear is mag = linear and min = linear and mip = linear
+    Texture.NEAREST_NEAREST_MIPNEAREST = 4;
+    Texture.NEAREST_LINEAR_MIPNEAREST = 5;
+    Texture.NEAREST_LINEAR_MIPLINEAR = 6;
+    Texture.NEAREST_LINEAR = 7;
+    Texture.NEAREST_NEAREST = 8;
+    Texture.LINEAR_NEAREST_MIPNEAREST = 9;
+    Texture.LINEAR_NEAREST_MIPLINEAR = 10;
+    Texture.LINEAR_LINEAR = 11;
+    Texture.LINEAR_NEAREST = 12;
+    Texture.EXPLICIT_MODE = 0;
+    Texture.SPHERICAL_MODE = 1;
+    Texture.PLANAR_MODE = 2;
+    Texture.CUBIC_MODE = 3;
+    Texture.PROJECTION_MODE = 4;
+    Texture.SKYBOX_MODE = 5;
+    Texture.INVCUBIC_MODE = 6;
+    Texture.EQUIRECTANGULAR_MODE = 7;
+    Texture.FIXED_EQUIRECTANGULAR_MODE = 8;
+    Texture.FIXED_EQUIRECTANGULAR_MIRRORED_MODE = 9;
+    Texture.CLAMP_ADDRESSMODE = 0;
+    Texture.WRAP_ADDRESSMODE = 1;
+    Texture.MIRROR_ADDRESSMODE = 2;
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "url", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "uOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "vOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "uScale", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "vScale", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "uAng", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "vAng", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "wAng", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Texture.prototype, "isBlocking", null);
     BABYLON.Texture = Texture;
 })(BABYLON || (BABYLON = {}));
 
@@ -22364,7 +22364,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var _InstancesBatch = /** @class */ (function () {
+    var _InstancesBatch = (function () {
         function _InstancesBatch() {
             this.mustReturn = false;
             this.visibleInstances = new Array();
@@ -22373,7 +22373,7 @@ var BABYLON;
         return _InstancesBatch;
     }());
     BABYLON._InstancesBatch = _InstancesBatch;
-    var Mesh = /** @class */ (function (_super) {
+    var Mesh = (function (_super) {
         __extends(Mesh, _super);
         /**
          * @constructor
@@ -25288,17 +25288,17 @@ var BABYLON;
             }
             return meshSubclass;
         };
-        // Consts
-        Mesh._FRONTSIDE = 0;
-        Mesh._BACKSIDE = 1;
-        Mesh._DOUBLESIDE = 2;
-        Mesh._DEFAULTSIDE = 0;
-        Mesh._NO_CAP = 0;
-        Mesh._CAP_START = 1;
-        Mesh._CAP_END = 2;
-        Mesh._CAP_ALL = 3;
         return Mesh;
     }(BABYLON.AbstractMesh));
+    // Consts
+    Mesh._FRONTSIDE = 0;
+    Mesh._BACKSIDE = 1;
+    Mesh._DOUBLESIDE = 2;
+    Mesh._DEFAULTSIDE = 0;
+    Mesh._NO_CAP = 0;
+    Mesh._CAP_START = 1;
+    Mesh._CAP_END = 2;
+    Mesh._CAP_ALL = 3;
     BABYLON.Mesh = Mesh;
 })(BABYLON || (BABYLON = {}));
 
@@ -25307,7 +25307,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BaseSubMesh = /** @class */ (function () {
+    var BaseSubMesh = (function () {
         function BaseSubMesh() {
         }
         Object.defineProperty(BaseSubMesh.prototype, "effect", {
@@ -25331,7 +25331,7 @@ var BABYLON;
         return BaseSubMesh;
     }());
     BABYLON.BaseSubMesh = BaseSubMesh;
-    var SubMesh = /** @class */ (function (_super) {
+    var SubMesh = (function (_super) {
         __extends(SubMesh, _super);
         function SubMesh(materialIndex, verticesStart, verticesCount, indexStart, indexCount, mesh, renderingMesh, createBoundingBox) {
             if (createBoundingBox === void 0) { createBoundingBox = true; }
@@ -25632,7 +25632,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var EffectFallbacks = /** @class */ (function () {
+    var EffectFallbacks = (function () {
         function EffectFallbacks() {
             this._defines = {};
             this._currentRank = 32;
@@ -25698,13 +25698,13 @@ var BABYLON;
         return EffectFallbacks;
     }());
     BABYLON.EffectFallbacks = EffectFallbacks;
-    var EffectCreationOptions = /** @class */ (function () {
+    var EffectCreationOptions = (function () {
         function EffectCreationOptions() {
         }
         return EffectCreationOptions;
     }());
     BABYLON.EffectCreationOptions = EffectCreationOptions;
-    var Effect = /** @class */ (function () {
+    var Effect = (function () {
         function Effect(baseName, attributesNamesOrOptions, uniformsNamesOrEngine, samplers, engine, defines, fallbacks, onCompiled, onError, indexParameters) {
             if (samplers === void 0) { samplers = null; }
             if (defines === void 0) { defines = null; }
@@ -26427,13 +26427,13 @@ var BABYLON;
         Effect.ResetCache = function () {
             Effect._baseCache = {};
         };
-        Effect._uniqueIdSeed = 0;
-        Effect._baseCache = {};
-        // Statics
-        Effect.ShadersStore = {};
-        Effect.IncludesShadersStore = {};
         return Effect;
     }());
+    Effect._uniqueIdSeed = 0;
+    Effect._baseCache = {};
+    // Statics
+    Effect.ShadersStore = {};
+    Effect.IncludesShadersStore = {};
     BABYLON.Effect = Effect;
 })(BABYLON || (BABYLON = {}));
 
@@ -26441,7 +26441,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MaterialHelper = /** @class */ (function () {
+    var MaterialHelper = (function () {
         function MaterialHelper() {
         }
         MaterialHelper.BindEyePosition = function (effect, scene) {
@@ -26822,7 +26822,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MaterialDefines = /** @class */ (function () {
+    var MaterialDefines = (function () {
         function MaterialDefines() {
             this._isDirty = true;
             this._areLightsDirty = true;
@@ -26950,7 +26950,7 @@ var BABYLON;
         return MaterialDefines;
     }());
     BABYLON.MaterialDefines = MaterialDefines;
-    var Material = /** @class */ (function () {
+    var Material = (function () {
         function Material(name, scene, doNotAdd) {
             this.checkReadyOnEveryCall = false;
             this.checkReadyOnlyOnce = false;
@@ -27492,75 +27492,75 @@ var BABYLON;
             return materialType.Parse(parsedMaterial, scene, rootUrl);
             ;
         };
-        Material._TriangleFillMode = 0;
-        Material._WireFrameFillMode = 1;
-        Material._PointFillMode = 2;
-        Material._ClockWiseSideOrientation = 0;
-        Material._CounterClockWiseSideOrientation = 1;
-        Material._TextureDirtyFlag = 1;
-        Material._LightDirtyFlag = 2;
-        Material._FresnelDirtyFlag = 4;
-        Material._AttributesDirtyFlag = 8;
-        Material._MiscDirtyFlag = 16;
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "id", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "name", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "checkReadyOnEveryCall", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "checkReadyOnlyOnce", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "state", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "alpha", void 0);
-        __decorate([
-            BABYLON.serialize("backFaceCulling")
-        ], Material.prototype, "_backFaceCulling", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "sideOrientation", void 0);
-        __decorate([
-            BABYLON.serialize("alphaMode")
-        ], Material.prototype, "_alphaMode", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "_needDepthPrePass", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "disableDepthWrite", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "forceDepthWrite", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "separateCullingPass", void 0);
-        __decorate([
-            BABYLON.serialize("fogEnabled")
-        ], Material.prototype, "_fogEnabled", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "pointSize", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "zOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "wireframe", null);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "pointsCloud", null);
-        __decorate([
-            BABYLON.serialize()
-        ], Material.prototype, "fillMode", null);
         return Material;
     }());
+    Material._TriangleFillMode = 0;
+    Material._WireFrameFillMode = 1;
+    Material._PointFillMode = 2;
+    Material._ClockWiseSideOrientation = 0;
+    Material._CounterClockWiseSideOrientation = 1;
+    Material._TextureDirtyFlag = 1;
+    Material._LightDirtyFlag = 2;
+    Material._FresnelDirtyFlag = 4;
+    Material._AttributesDirtyFlag = 8;
+    Material._MiscDirtyFlag = 16;
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "id", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "name", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "checkReadyOnEveryCall", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "checkReadyOnlyOnce", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "state", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "alpha", void 0);
+    __decorate([
+        BABYLON.serialize("backFaceCulling")
+    ], Material.prototype, "_backFaceCulling", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "sideOrientation", void 0);
+    __decorate([
+        BABYLON.serialize("alphaMode")
+    ], Material.prototype, "_alphaMode", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "_needDepthPrePass", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "disableDepthWrite", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "forceDepthWrite", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "separateCullingPass", void 0);
+    __decorate([
+        BABYLON.serialize("fogEnabled")
+    ], Material.prototype, "_fogEnabled", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "pointSize", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "zOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "wireframe", null);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "pointsCloud", null);
+    __decorate([
+        BABYLON.serialize()
+    ], Material.prototype, "fillMode", null);
     BABYLON.Material = Material;
 })(BABYLON || (BABYLON = {}));
 
@@ -27568,7 +27568,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var UniformBuffer = /** @class */ (function () {
+    var UniformBuffer = (function () {
         /**
          * Uniform buffer objects.
          *
@@ -28032,11 +28032,11 @@ var BABYLON;
                 this._buffer = null;
             }
         };
-        // Pool for avoiding memory leaks
-        UniformBuffer._MAX_UNIFORM_SIZE = 256;
-        UniformBuffer._tempBuffer = new Float32Array(UniformBuffer._MAX_UNIFORM_SIZE);
         return UniformBuffer;
     }());
+    // Pool for avoiding memory leaks
+    UniformBuffer._MAX_UNIFORM_SIZE = 256;
+    UniformBuffer._tempBuffer = new Float32Array(UniformBuffer._MAX_UNIFORM_SIZE);
     BABYLON.UniformBuffer = UniformBuffer;
 })(BABYLON || (BABYLON = {}));
 
@@ -28045,7 +28045,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PushMaterial = /** @class */ (function (_super) {
+    var PushMaterial = (function (_super) {
         __extends(PushMaterial, _super);
         function PushMaterial(name, scene) {
             var _this = _super.call(this, name, scene) || this;
@@ -28091,7 +28091,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VertexData = /** @class */ (function () {
+    var VertexData = (function () {
         function VertexData() {
         }
         VertexData.prototype.set = function (data, kind) {
@@ -30278,7 +30278,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Geometry = /** @class */ (function () {
+    var Geometry = (function () {
         function Geometry(id, scene, vertexData, updatable, mesh) {
             if (updatable === void 0) { updatable = false; }
             if (mesh === void 0) { mesh = null; }
@@ -31271,7 +31271,7 @@ var BABYLON;
         var Primitives;
         (function (Primitives) {
             /// Abstract class
-            var _Primitive = /** @class */ (function (_super) {
+            var _Primitive = (function (_super) {
                 __extends(_Primitive, _super);
                 function _Primitive(id, scene, _canBeRegenerated, mesh) {
                     if (_canBeRegenerated === void 0) { _canBeRegenerated = false; }
@@ -31326,7 +31326,7 @@ var BABYLON;
                 return _Primitive;
             }(Geometry));
             Primitives._Primitive = _Primitive;
-            var Ribbon = /** @class */ (function (_super) {
+            var Ribbon = (function (_super) {
                 __extends(Ribbon, _super);
                 // Members
                 function Ribbon(id, scene, pathArray, closeArray, closePath, offset, canBeRegenerated, mesh, side) {
@@ -31348,7 +31348,7 @@ var BABYLON;
                 return Ribbon;
             }(_Primitive));
             Primitives.Ribbon = Ribbon;
-            var Box = /** @class */ (function (_super) {
+            var Box = (function (_super) {
                 __extends(Box, _super);
                 // Members
                 function Box(id, scene, size, canBeRegenerated, mesh, side) {
@@ -31384,7 +31384,7 @@ var BABYLON;
                 return Box;
             }(_Primitive));
             Primitives.Box = Box;
-            var Sphere = /** @class */ (function (_super) {
+            var Sphere = (function (_super) {
                 __extends(Sphere, _super);
                 function Sphere(id, scene, segments, diameter, canBeRegenerated, mesh, side) {
                     if (mesh === void 0) { mesh = null; }
@@ -31421,7 +31421,7 @@ var BABYLON;
                 return Sphere;
             }(_Primitive));
             Primitives.Sphere = Sphere;
-            var Disc = /** @class */ (function (_super) {
+            var Disc = (function (_super) {
                 __extends(Disc, _super);
                 // Members
                 function Disc(id, scene, radius, tessellation, canBeRegenerated, mesh, side) {
@@ -31442,7 +31442,7 @@ var BABYLON;
                 return Disc;
             }(_Primitive));
             Primitives.Disc = Disc;
-            var Cylinder = /** @class */ (function (_super) {
+            var Cylinder = (function (_super) {
                 __extends(Cylinder, _super);
                 function Cylinder(id, scene, height, diameterTop, diameterBottom, tessellation, subdivisions, canBeRegenerated, mesh, side) {
                     if (subdivisions === void 0) { subdivisions = 1; }
@@ -31485,7 +31485,7 @@ var BABYLON;
                 return Cylinder;
             }(_Primitive));
             Primitives.Cylinder = Cylinder;
-            var Torus = /** @class */ (function (_super) {
+            var Torus = (function (_super) {
                 __extends(Torus, _super);
                 function Torus(id, scene, diameter, thickness, tessellation, canBeRegenerated, mesh, side) {
                     if (mesh === void 0) { mesh = null; }
@@ -31524,7 +31524,7 @@ var BABYLON;
                 return Torus;
             }(_Primitive));
             Primitives.Torus = Torus;
-            var Ground = /** @class */ (function (_super) {
+            var Ground = (function (_super) {
                 __extends(Ground, _super);
                 function Ground(id, scene, width, height, subdivisions, canBeRegenerated, mesh) {
                     if (mesh === void 0) { mesh = null; }
@@ -31561,7 +31561,7 @@ var BABYLON;
                 return Ground;
             }(_Primitive));
             Primitives.Ground = Ground;
-            var TiledGround = /** @class */ (function (_super) {
+            var TiledGround = (function (_super) {
                 __extends(TiledGround, _super);
                 function TiledGround(id, scene, xmin, zmin, xmax, zmax, subdivisions, precision, canBeRegenerated, mesh) {
                     if (mesh === void 0) { mesh = null; }
@@ -31583,7 +31583,7 @@ var BABYLON;
                 return TiledGround;
             }(_Primitive));
             Primitives.TiledGround = TiledGround;
-            var Plane = /** @class */ (function (_super) {
+            var Plane = (function (_super) {
                 __extends(Plane, _super);
                 function Plane(id, scene, size, canBeRegenerated, mesh, side) {
                     if (mesh === void 0) { mesh = null; }
@@ -31618,7 +31618,7 @@ var BABYLON;
                 return Plane;
             }(_Primitive));
             Primitives.Plane = Plane;
-            var TorusKnot = /** @class */ (function (_super) {
+            var TorusKnot = (function (_super) {
                 __extends(TorusKnot, _super);
                 function TorusKnot(id, scene, radius, tube, radialSegments, tubularSegments, p, q, canBeRegenerated, mesh, side) {
                     if (mesh === void 0) { mesh = null; }
@@ -31672,7 +31672,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PostProcessManager = /** @class */ (function () {
+    var PostProcessManager = (function () {
         function PostProcessManager(scene) {
             this._vertexBuffers = {};
             this._scene = scene;
@@ -31825,7 +31825,7 @@ var BABYLON;
     /**
      * Performance monitor tracks rolling average frame-time and frame-time variance over a user defined sliding-window
      */
-    var PerformanceMonitor = /** @class */ (function () {
+    var PerformanceMonitor = (function () {
         /**
          * constructor
          * @param frameSampleSize The number of samples required to saturate the sliding window
@@ -31964,7 +31964,7 @@ var BABYLON;
      *
      * Utility to efficiently compute the rolling average and variance over a sliding window of samples
      */
-    var RollingAverage = /** @class */ (function () {
+    var RollingAverage = (function () {
         /**
          * constructor
          * @param length The number of samples required to saturate the sliding window
@@ -32054,7 +32054,7 @@ var BABYLON;
      * or through post processing effect depending on the use of the image processing pipeline in your scene
      * or not.
      */
-    var ImageProcessingConfiguration = /** @class */ (function () {
+    var ImageProcessingConfiguration = (function () {
         function ImageProcessingConfiguration() {
             /**
              * Color curves setup used in the effect if colorCurvesEnabled is set to true
@@ -32469,65 +32469,65 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        // Static constants associated to the image processing.
-        ImageProcessingConfiguration._VIGNETTEMODE_MULTIPLY = 0;
-        ImageProcessingConfiguration._VIGNETTEMODE_OPAQUE = 1;
-        __decorate([
-            BABYLON.serializeAsColorCurves()
-        ], ImageProcessingConfiguration.prototype, "colorCurves", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_colorCurvesEnabled", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture()
-        ], ImageProcessingConfiguration.prototype, "colorGradingTexture", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_colorGradingEnabled", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_colorGradingWithGreenDepth", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_colorGradingBGR", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_exposure", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_toneMappingEnabled", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_contrast", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "vignetteStretch", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "vignetteCentreX", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "vignetteCentreY", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "vignetteWeight", void 0);
-        __decorate([
-            BABYLON.serializeAsColor4()
-        ], ImageProcessingConfiguration.prototype, "vignetteColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "vignetteCameraFov", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_vignetteBlendMode", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_vignetteEnabled", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingConfiguration.prototype, "_applyByPostProcess", void 0);
         return ImageProcessingConfiguration;
     }());
+    // Static constants associated to the image processing.
+    ImageProcessingConfiguration._VIGNETTEMODE_MULTIPLY = 0;
+    ImageProcessingConfiguration._VIGNETTEMODE_OPAQUE = 1;
+    __decorate([
+        BABYLON.serializeAsColorCurves()
+    ], ImageProcessingConfiguration.prototype, "colorCurves", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_colorCurvesEnabled", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture()
+    ], ImageProcessingConfiguration.prototype, "colorGradingTexture", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_colorGradingEnabled", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_colorGradingWithGreenDepth", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_colorGradingBGR", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_exposure", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_toneMappingEnabled", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_contrast", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "vignetteStretch", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "vignetteCentreX", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "vignetteCentreY", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "vignetteWeight", void 0);
+    __decorate([
+        BABYLON.serializeAsColor4()
+    ], ImageProcessingConfiguration.prototype, "vignetteColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "vignetteCameraFov", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_vignetteBlendMode", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_vignetteEnabled", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingConfiguration.prototype, "_applyByPostProcess", void 0);
     BABYLON.ImageProcessingConfiguration = ImageProcessingConfiguration;
 })(BABYLON || (BABYLON = {}));
 
@@ -32544,7 +32544,7 @@ var BABYLON;
      * The only supported format is currently 3dl.
      * More information on LUT: https://en.wikipedia.org/wiki/3D_lookup_table/
      */
-    var ColorGradingTexture = /** @class */ (function (_super) {
+    var ColorGradingTexture = (function (_super) {
         __extends(ColorGradingTexture, _super);
         /**
          * Instantiates a ColorGradingTexture from the following parameters.
@@ -32726,12 +32726,12 @@ var BABYLON;
             serializationObject.customType = "BABYLON.ColorGradingTexture";
             return serializationObject;
         };
-        /**
-         * Empty line regex stored for GC.
-         */
-        ColorGradingTexture._noneEmptyLineRegex = /\S+/;
         return ColorGradingTexture;
     }(BABYLON.BaseTexture));
+    /**
+     * Empty line regex stored for GC.
+     */
+    ColorGradingTexture._noneEmptyLineRegex = /\S+/;
     BABYLON.ColorGradingTexture = ColorGradingTexture;
 })(BABYLON || (BABYLON = {}));
 
@@ -32746,7 +32746,7 @@ var BABYLON;
      * These are similar to controls found in many professional imaging or colorist software. The global controls are applied to the entire image. For advanced tuning, extra controls are provided to adjust the shadow, midtone and highlight areas of the image;
      * corresponding to low luminance, medium luminance, and high luminance areas respectively.
      */
-    var ColorCurves = /** @class */ (function () {
+    var ColorCurves = (function () {
         function ColorCurves() {
             this._dirty = true;
             this._tempColor = new BABYLON.Color4(0, 0, 0, 0);
@@ -33204,7 +33204,7 @@ var BABYLON;
                         result.g = p;
                         result.b = v;
                         break;
-                    default:// case 5:
+                    default:
                         result.r = v;
                         result.g = p;
                         result.b = q;
@@ -33245,44 +33245,44 @@ var BABYLON;
         ColorCurves.Parse = function (source) {
             return BABYLON.SerializationHelper.Parse(function () { return new ColorCurves(); }, source, null, null);
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_globalHue", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_globalDensity", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_globalSaturation", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_globalExposure", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_highlightsHue", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_highlightsDensity", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_highlightsSaturation", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_highlightsExposure", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_midtonesHue", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_midtonesDensity", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_midtonesSaturation", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ColorCurves.prototype, "_midtonesExposure", void 0);
         return ColorCurves;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_globalHue", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_globalDensity", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_globalSaturation", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_globalExposure", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_highlightsHue", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_highlightsDensity", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_highlightsSaturation", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_highlightsExposure", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_midtonesHue", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_midtonesDensity", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_midtonesSaturation", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ColorCurves.prototype, "_midtonesExposure", void 0);
     BABYLON.ColorCurves = ColorCurves;
 })(BABYLON || (BABYLON = {}));
 
@@ -33296,7 +33296,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var StandardMaterialDefines = /** @class */ (function (_super) {
+    var StandardMaterialDefines = (function (_super) {
         __extends(StandardMaterialDefines, _super);
         function StandardMaterialDefines() {
             var _this = _super.call(this) || this;
@@ -33402,7 +33402,7 @@ var BABYLON;
         return StandardMaterialDefines;
     }(BABYLON.MaterialDefines));
     BABYLON.StandardMaterialDefines = StandardMaterialDefines;
-    var StandardMaterial = /** @class */ (function (_super) {
+    var StandardMaterial = (function (_super) {
         __extends(StandardMaterial, _super);
         function StandardMaterial(name, scene) {
             var _this = _super.call(this, name, scene) || this;
@@ -34524,227 +34524,227 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        // Flags used to enable or disable a type of texture for all Standard Materials
-        StandardMaterial._DiffuseTextureEnabled = true;
-        StandardMaterial._AmbientTextureEnabled = true;
-        StandardMaterial._OpacityTextureEnabled = true;
-        StandardMaterial._ReflectionTextureEnabled = true;
-        StandardMaterial._EmissiveTextureEnabled = true;
-        StandardMaterial._SpecularTextureEnabled = true;
-        StandardMaterial._BumpTextureEnabled = true;
-        StandardMaterial._LightmapTextureEnabled = true;
-        StandardMaterial._RefractionTextureEnabled = true;
-        StandardMaterial._ColorGradingTextureEnabled = true;
-        StandardMaterial._FresnelEnabled = true;
-        __decorate([
-            BABYLON.serializeAsTexture("diffuseTexture")
-        ], StandardMaterial.prototype, "_diffuseTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "diffuseTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("ambientTexture")
-        ], StandardMaterial.prototype, "_ambientTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "ambientTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("opacityTexture")
-        ], StandardMaterial.prototype, "_opacityTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "opacityTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("reflectionTexture")
-        ], StandardMaterial.prototype, "_reflectionTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "reflectionTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("emissiveTexture")
-        ], StandardMaterial.prototype, "_emissiveTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "emissiveTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("specularTexture")
-        ], StandardMaterial.prototype, "_specularTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "specularTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("bumpTexture")
-        ], StandardMaterial.prototype, "_bumpTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "bumpTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("lightmapTexture")
-        ], StandardMaterial.prototype, "_lightmapTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "lightmapTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("refractionTexture")
-        ], StandardMaterial.prototype, "_refractionTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "refractionTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("ambient")
-        ], StandardMaterial.prototype, "ambientColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("diffuse")
-        ], StandardMaterial.prototype, "diffuseColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("specular")
-        ], StandardMaterial.prototype, "specularColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("emissive")
-        ], StandardMaterial.prototype, "emissiveColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardMaterial.prototype, "specularPower", void 0);
-        __decorate([
-            BABYLON.serialize("useAlphaFromDiffuseTexture")
-        ], StandardMaterial.prototype, "_useAlphaFromDiffuseTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useAlphaFromDiffuseTexture", void 0);
-        __decorate([
-            BABYLON.serialize("useEmissiveAsIllumination")
-        ], StandardMaterial.prototype, "_useEmissiveAsIllumination", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useEmissiveAsIllumination", void 0);
-        __decorate([
-            BABYLON.serialize("linkEmissiveWithDiffuse")
-        ], StandardMaterial.prototype, "_linkEmissiveWithDiffuse", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "linkEmissiveWithDiffuse", void 0);
-        __decorate([
-            BABYLON.serialize("useSpecularOverAlpha")
-        ], StandardMaterial.prototype, "_useSpecularOverAlpha", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useSpecularOverAlpha", void 0);
-        __decorate([
-            BABYLON.serialize("useReflectionOverAlpha")
-        ], StandardMaterial.prototype, "_useReflectionOverAlpha", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useReflectionOverAlpha", void 0);
-        __decorate([
-            BABYLON.serialize("disableLighting")
-        ], StandardMaterial.prototype, "_disableLighting", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], StandardMaterial.prototype, "disableLighting", void 0);
-        __decorate([
-            BABYLON.serialize("useParallax")
-        ], StandardMaterial.prototype, "_useParallax", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useParallax", void 0);
-        __decorate([
-            BABYLON.serialize("useParallaxOcclusion")
-        ], StandardMaterial.prototype, "_useParallaxOcclusion", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useParallaxOcclusion", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardMaterial.prototype, "parallaxScaleBias", void 0);
-        __decorate([
-            BABYLON.serialize("roughness")
-        ], StandardMaterial.prototype, "_roughness", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "roughness", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardMaterial.prototype, "indexOfRefraction", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardMaterial.prototype, "invertRefractionY", void 0);
-        __decorate([
-            BABYLON.serialize("useLightmapAsShadowmap")
-        ], StandardMaterial.prototype, "_useLightmapAsShadowmap", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useLightmapAsShadowmap", void 0);
-        __decorate([
-            BABYLON.serializeAsFresnelParameters("diffuseFresnelParameters")
-        ], StandardMaterial.prototype, "_diffuseFresnelParameters", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
-        ], StandardMaterial.prototype, "diffuseFresnelParameters", void 0);
-        __decorate([
-            BABYLON.serializeAsFresnelParameters("opacityFresnelParameters")
-        ], StandardMaterial.prototype, "_opacityFresnelParameters", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
-        ], StandardMaterial.prototype, "opacityFresnelParameters", void 0);
-        __decorate([
-            BABYLON.serializeAsFresnelParameters("reflectionFresnelParameters")
-        ], StandardMaterial.prototype, "_reflectionFresnelParameters", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
-        ], StandardMaterial.prototype, "reflectionFresnelParameters", void 0);
-        __decorate([
-            BABYLON.serializeAsFresnelParameters("refractionFresnelParameters")
-        ], StandardMaterial.prototype, "_refractionFresnelParameters", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
-        ], StandardMaterial.prototype, "refractionFresnelParameters", void 0);
-        __decorate([
-            BABYLON.serializeAsFresnelParameters("emissiveFresnelParameters")
-        ], StandardMaterial.prototype, "_emissiveFresnelParameters", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
-        ], StandardMaterial.prototype, "emissiveFresnelParameters", void 0);
-        __decorate([
-            BABYLON.serialize("useReflectionFresnelFromSpecular")
-        ], StandardMaterial.prototype, "_useReflectionFresnelFromSpecular", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
-        ], StandardMaterial.prototype, "useReflectionFresnelFromSpecular", void 0);
-        __decorate([
-            BABYLON.serialize("useGlossinessFromSpecularMapAlpha")
-        ], StandardMaterial.prototype, "_useGlossinessFromSpecularMapAlpha", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "useGlossinessFromSpecularMapAlpha", void 0);
-        __decorate([
-            BABYLON.serialize("maxSimultaneousLights")
-        ], StandardMaterial.prototype, "_maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], StandardMaterial.prototype, "maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.serialize("invertNormalMapX")
-        ], StandardMaterial.prototype, "_invertNormalMapX", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "invertNormalMapX", void 0);
-        __decorate([
-            BABYLON.serialize("invertNormalMapY")
-        ], StandardMaterial.prototype, "_invertNormalMapY", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "invertNormalMapY", void 0);
-        __decorate([
-            BABYLON.serialize("twoSidedLighting")
-        ], StandardMaterial.prototype, "_twoSidedLighting", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], StandardMaterial.prototype, "twoSidedLighting", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardMaterial.prototype, "useLogarithmicDepth", null);
         return StandardMaterial;
     }(BABYLON.PushMaterial));
+    // Flags used to enable or disable a type of texture for all Standard Materials
+    StandardMaterial._DiffuseTextureEnabled = true;
+    StandardMaterial._AmbientTextureEnabled = true;
+    StandardMaterial._OpacityTextureEnabled = true;
+    StandardMaterial._ReflectionTextureEnabled = true;
+    StandardMaterial._EmissiveTextureEnabled = true;
+    StandardMaterial._SpecularTextureEnabled = true;
+    StandardMaterial._BumpTextureEnabled = true;
+    StandardMaterial._LightmapTextureEnabled = true;
+    StandardMaterial._RefractionTextureEnabled = true;
+    StandardMaterial._ColorGradingTextureEnabled = true;
+    StandardMaterial._FresnelEnabled = true;
+    __decorate([
+        BABYLON.serializeAsTexture("diffuseTexture")
+    ], StandardMaterial.prototype, "_diffuseTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "diffuseTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("ambientTexture")
+    ], StandardMaterial.prototype, "_ambientTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "ambientTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("opacityTexture")
+    ], StandardMaterial.prototype, "_opacityTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "opacityTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("reflectionTexture")
+    ], StandardMaterial.prototype, "_reflectionTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "reflectionTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("emissiveTexture")
+    ], StandardMaterial.prototype, "_emissiveTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "emissiveTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("specularTexture")
+    ], StandardMaterial.prototype, "_specularTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "specularTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("bumpTexture")
+    ], StandardMaterial.prototype, "_bumpTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "bumpTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("lightmapTexture")
+    ], StandardMaterial.prototype, "_lightmapTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "lightmapTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("refractionTexture")
+    ], StandardMaterial.prototype, "_refractionTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "refractionTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("ambient")
+    ], StandardMaterial.prototype, "ambientColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("diffuse")
+    ], StandardMaterial.prototype, "diffuseColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("specular")
+    ], StandardMaterial.prototype, "specularColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("emissive")
+    ], StandardMaterial.prototype, "emissiveColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardMaterial.prototype, "specularPower", void 0);
+    __decorate([
+        BABYLON.serialize("useAlphaFromDiffuseTexture")
+    ], StandardMaterial.prototype, "_useAlphaFromDiffuseTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useAlphaFromDiffuseTexture", void 0);
+    __decorate([
+        BABYLON.serialize("useEmissiveAsIllumination")
+    ], StandardMaterial.prototype, "_useEmissiveAsIllumination", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useEmissiveAsIllumination", void 0);
+    __decorate([
+        BABYLON.serialize("linkEmissiveWithDiffuse")
+    ], StandardMaterial.prototype, "_linkEmissiveWithDiffuse", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "linkEmissiveWithDiffuse", void 0);
+    __decorate([
+        BABYLON.serialize("useSpecularOverAlpha")
+    ], StandardMaterial.prototype, "_useSpecularOverAlpha", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useSpecularOverAlpha", void 0);
+    __decorate([
+        BABYLON.serialize("useReflectionOverAlpha")
+    ], StandardMaterial.prototype, "_useReflectionOverAlpha", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useReflectionOverAlpha", void 0);
+    __decorate([
+        BABYLON.serialize("disableLighting")
+    ], StandardMaterial.prototype, "_disableLighting", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], StandardMaterial.prototype, "disableLighting", void 0);
+    __decorate([
+        BABYLON.serialize("useParallax")
+    ], StandardMaterial.prototype, "_useParallax", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useParallax", void 0);
+    __decorate([
+        BABYLON.serialize("useParallaxOcclusion")
+    ], StandardMaterial.prototype, "_useParallaxOcclusion", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useParallaxOcclusion", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardMaterial.prototype, "parallaxScaleBias", void 0);
+    __decorate([
+        BABYLON.serialize("roughness")
+    ], StandardMaterial.prototype, "_roughness", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "roughness", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardMaterial.prototype, "indexOfRefraction", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardMaterial.prototype, "invertRefractionY", void 0);
+    __decorate([
+        BABYLON.serialize("useLightmapAsShadowmap")
+    ], StandardMaterial.prototype, "_useLightmapAsShadowmap", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useLightmapAsShadowmap", void 0);
+    __decorate([
+        BABYLON.serializeAsFresnelParameters("diffuseFresnelParameters")
+    ], StandardMaterial.prototype, "_diffuseFresnelParameters", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
+    ], StandardMaterial.prototype, "diffuseFresnelParameters", void 0);
+    __decorate([
+        BABYLON.serializeAsFresnelParameters("opacityFresnelParameters")
+    ], StandardMaterial.prototype, "_opacityFresnelParameters", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
+    ], StandardMaterial.prototype, "opacityFresnelParameters", void 0);
+    __decorate([
+        BABYLON.serializeAsFresnelParameters("reflectionFresnelParameters")
+    ], StandardMaterial.prototype, "_reflectionFresnelParameters", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
+    ], StandardMaterial.prototype, "reflectionFresnelParameters", void 0);
+    __decorate([
+        BABYLON.serializeAsFresnelParameters("refractionFresnelParameters")
+    ], StandardMaterial.prototype, "_refractionFresnelParameters", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
+    ], StandardMaterial.prototype, "refractionFresnelParameters", void 0);
+    __decorate([
+        BABYLON.serializeAsFresnelParameters("emissiveFresnelParameters")
+    ], StandardMaterial.prototype, "_emissiveFresnelParameters", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
+    ], StandardMaterial.prototype, "emissiveFresnelParameters", void 0);
+    __decorate([
+        BABYLON.serialize("useReflectionFresnelFromSpecular")
+    ], StandardMaterial.prototype, "_useReflectionFresnelFromSpecular", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsFresnelDirty")
+    ], StandardMaterial.prototype, "useReflectionFresnelFromSpecular", void 0);
+    __decorate([
+        BABYLON.serialize("useGlossinessFromSpecularMapAlpha")
+    ], StandardMaterial.prototype, "_useGlossinessFromSpecularMapAlpha", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "useGlossinessFromSpecularMapAlpha", void 0);
+    __decorate([
+        BABYLON.serialize("maxSimultaneousLights")
+    ], StandardMaterial.prototype, "_maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], StandardMaterial.prototype, "maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.serialize("invertNormalMapX")
+    ], StandardMaterial.prototype, "_invertNormalMapX", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "invertNormalMapX", void 0);
+    __decorate([
+        BABYLON.serialize("invertNormalMapY")
+    ], StandardMaterial.prototype, "_invertNormalMapY", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "invertNormalMapY", void 0);
+    __decorate([
+        BABYLON.serialize("twoSidedLighting")
+    ], StandardMaterial.prototype, "_twoSidedLighting", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], StandardMaterial.prototype, "twoSidedLighting", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardMaterial.prototype, "useLogarithmicDepth", null);
     BABYLON.StandardMaterial = StandardMaterial;
 })(BABYLON || (BABYLON = {}));
 
@@ -34758,7 +34758,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PBRMaterialDefines = /** @class */ (function (_super) {
+    var PBRMaterialDefines = (function (_super) {
         __extends(PBRMaterialDefines, _super);
         function PBRMaterialDefines() {
             var _this = _super.call(this) || this;
@@ -34881,7 +34881,7 @@ var BABYLON;
      * For more information, please refer to the documentation :
      * http://doc.babylonjs.com/extensions/Physically_Based_Rendering
      */
-    var PBRBaseMaterial = /** @class */ (function (_super) {
+    var PBRBaseMaterial = (function (_super) {
         __extends(PBRBaseMaterial, _super);
         /**
          * Instantiates a new PBRMaterial instance.
@@ -35876,15 +35876,15 @@ var BABYLON;
             }
             _super.prototype.dispose.call(this, forceDisposeEffect, forceDisposeTextures);
         };
-        PBRBaseMaterial._scaledReflectivity = new BABYLON.Color3();
-        __decorate([
-            BABYLON.serializeAsImageProcessingConfiguration()
-        ], PBRBaseMaterial.prototype, "_imageProcessingConfiguration", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], PBRBaseMaterial.prototype, "useLogarithmicDepth", null);
         return PBRBaseMaterial;
     }(BABYLON.PushMaterial));
+    PBRBaseMaterial._scaledReflectivity = new BABYLON.Color3();
+    __decorate([
+        BABYLON.serializeAsImageProcessingConfiguration()
+    ], PBRBaseMaterial.prototype, "_imageProcessingConfiguration", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], PBRBaseMaterial.prototype, "useLogarithmicDepth", null);
     BABYLON.PBRBaseMaterial = PBRBaseMaterial;
 })(BABYLON || (BABYLON = {}));
 
@@ -35906,7 +35906,7 @@ var BABYLON;
          * This enables better naming and convention enforcements on top of the pbrMaterial.
          * It is used as the base class for both the specGloss and metalRough conventions.
          */
-        var PBRBaseSimpleMaterial = /** @class */ (function (_super) {
+        var PBRBaseSimpleMaterial = (function (_super) {
             __extends(PBRBaseSimpleMaterial, _super);
             /**
              * Instantiates a new PBRMaterial instance.
@@ -36041,58 +36041,58 @@ var BABYLON;
             PBRBaseSimpleMaterial.prototype.getClassName = function () {
                 return "PBRBaseSimpleMaterial";
             };
-            __decorate([
-                BABYLON.serialize(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-            ], PBRBaseSimpleMaterial.prototype, "maxSimultaneousLights", void 0);
-            __decorate([
-                BABYLON.serialize(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-            ], PBRBaseSimpleMaterial.prototype, "disableLighting", void 0);
-            __decorate([
-                BABYLON.serializeAsTexture(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_reflectionTexture")
-            ], PBRBaseSimpleMaterial.prototype, "environmentTexture", void 0);
-            __decorate([
-                BABYLON.serialize(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-            ], PBRBaseSimpleMaterial.prototype, "invertNormalMapX", void 0);
-            __decorate([
-                BABYLON.serialize(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-            ], PBRBaseSimpleMaterial.prototype, "invertNormalMapY", void 0);
-            __decorate([
-                BABYLON.serializeAsTexture(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_bumpTexture")
-            ], PBRBaseSimpleMaterial.prototype, "normalTexture", void 0);
-            __decorate([
-                BABYLON.serializeAsColor3("emissive"),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-            ], PBRBaseSimpleMaterial.prototype, "emissiveColor", void 0);
-            __decorate([
-                BABYLON.serializeAsTexture(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-            ], PBRBaseSimpleMaterial.prototype, "emissiveTexture", void 0);
-            __decorate([
-                BABYLON.serialize(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_ambientTextureStrength")
-            ], PBRBaseSimpleMaterial.prototype, "occlusionStrength", void 0);
-            __decorate([
-                BABYLON.serializeAsTexture(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_ambientTexture")
-            ], PBRBaseSimpleMaterial.prototype, "occlusionTexture", void 0);
-            __decorate([
-                BABYLON.serialize(),
-                BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_alphaCutOff")
-            ], PBRBaseSimpleMaterial.prototype, "alphaCutOff", void 0);
-            __decorate([
-                BABYLON.serialize()
-            ], PBRBaseSimpleMaterial.prototype, "transparencyMode", null);
-            __decorate([
-                BABYLON.serialize()
-            ], PBRBaseSimpleMaterial.prototype, "doubleSided", null);
             return PBRBaseSimpleMaterial;
         }(BABYLON.PBRBaseMaterial));
+        __decorate([
+            BABYLON.serialize(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+        ], PBRBaseSimpleMaterial.prototype, "maxSimultaneousLights", void 0);
+        __decorate([
+            BABYLON.serialize(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+        ], PBRBaseSimpleMaterial.prototype, "disableLighting", void 0);
+        __decorate([
+            BABYLON.serializeAsTexture(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_reflectionTexture")
+        ], PBRBaseSimpleMaterial.prototype, "environmentTexture", void 0);
+        __decorate([
+            BABYLON.serialize(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        ], PBRBaseSimpleMaterial.prototype, "invertNormalMapX", void 0);
+        __decorate([
+            BABYLON.serialize(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        ], PBRBaseSimpleMaterial.prototype, "invertNormalMapY", void 0);
+        __decorate([
+            BABYLON.serializeAsTexture(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_bumpTexture")
+        ], PBRBaseSimpleMaterial.prototype, "normalTexture", void 0);
+        __decorate([
+            BABYLON.serializeAsColor3("emissive"),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        ], PBRBaseSimpleMaterial.prototype, "emissiveColor", void 0);
+        __decorate([
+            BABYLON.serializeAsTexture(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        ], PBRBaseSimpleMaterial.prototype, "emissiveTexture", void 0);
+        __decorate([
+            BABYLON.serialize(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_ambientTextureStrength")
+        ], PBRBaseSimpleMaterial.prototype, "occlusionStrength", void 0);
+        __decorate([
+            BABYLON.serializeAsTexture(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_ambientTexture")
+        ], PBRBaseSimpleMaterial.prototype, "occlusionTexture", void 0);
+        __decorate([
+            BABYLON.serialize(),
+            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_alphaCutOff")
+        ], PBRBaseSimpleMaterial.prototype, "alphaCutOff", void 0);
+        __decorate([
+            BABYLON.serialize()
+        ], PBRBaseSimpleMaterial.prototype, "transparencyMode", null);
+        __decorate([
+            BABYLON.serialize()
+        ], PBRBaseSimpleMaterial.prototype, "doubleSided", null);
         Internals.PBRBaseSimpleMaterial = PBRBaseSimpleMaterial;
     })(Internals = BABYLON.Internals || (BABYLON.Internals = {}));
 })(BABYLON || (BABYLON = {}));
@@ -36114,7 +36114,7 @@ var BABYLON;
      * For more information, please refer to the documentation :
      * http://doc.babylonjs.com/extensions/Physically_Based_Rendering
      */
-    var PBRMaterial = /** @class */ (function (_super) {
+    var PBRMaterial = (function (_super) {
         __extends(PBRMaterial, _super);
         /**
          * Instantiates a new PBRMaterial instance.
@@ -36571,228 +36571,228 @@ var BABYLON;
         PBRMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new PBRMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        PBRMaterial._PBRMATERIAL_OPAQUE = 0;
-        PBRMaterial._PBRMATERIAL_ALPHATEST = 1;
-        PBRMaterial._PBRMATERIAL_ALPHABLEND = 2;
-        PBRMaterial._PBRMATERIAL_ALPHATESTANDBLEND = 3;
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "directIntensity", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "emissiveIntensity", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "environmentIntensity", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "specularIntensity", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "disableBumpMap", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "albedoTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "ambientTexture", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "ambientTextureStrength", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "opacityTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "reflectionTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "emissiveTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "reflectivityTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "metallicTexture", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "metallic", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "roughness", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "microSurfaceTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "bumpTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", null)
-        ], PBRMaterial.prototype, "lightmapTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "refractionTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("ambient"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "ambientColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("albedo"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "albedoColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("reflectivity"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "reflectivityColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("reflection"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "reflectionColor", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("emissive"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "emissiveColor", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "microSurface", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "indexOfRefraction", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "invertRefractionY", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "linkRefractionWithTransparency", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useLightmapAsShadowmap", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useAlphaFromAlbedoTexture", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "forceAlphaTest", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "alphaCutOff", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useSpecularOverAlpha", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useMicroSurfaceFromReflectivityMapAlpha", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useRoughnessFromMetallicTextureAlpha", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useRoughnessFromMetallicTextureGreen", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useMetallnessFromMetallicTextureBlue", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useAmbientOcclusionFromMetallicTextureRed", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useAmbientInGrayScale", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useAutoMicroSurfaceFromReflectivityMap", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "usePhysicalLightFalloff", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useRadianceOverAlpha", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useParallax", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useParallaxOcclusion", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "parallaxScaleBias", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], PBRMaterial.prototype, "disableLighting", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "forceIrradianceInFragment", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], PBRMaterial.prototype, "maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "invertNormalMapX", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "invertNormalMapY", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "twoSidedLighting", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "useAlphaFresnel", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "environmentBRDFTexture", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMaterial.prototype, "forceNormalForward", void 0);
         return PBRMaterial;
     }(BABYLON.PBRBaseMaterial));
+    PBRMaterial._PBRMATERIAL_OPAQUE = 0;
+    PBRMaterial._PBRMATERIAL_ALPHATEST = 1;
+    PBRMaterial._PBRMATERIAL_ALPHABLEND = 2;
+    PBRMaterial._PBRMATERIAL_ALPHATESTANDBLEND = 3;
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "directIntensity", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "emissiveIntensity", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "environmentIntensity", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "specularIntensity", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "disableBumpMap", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "albedoTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "ambientTexture", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "ambientTextureStrength", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "opacityTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "reflectionTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "emissiveTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "reflectivityTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "metallicTexture", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "metallic", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "roughness", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "microSurfaceTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "bumpTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", null)
+    ], PBRMaterial.prototype, "lightmapTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "refractionTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("ambient"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "ambientColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("albedo"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "albedoColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("reflectivity"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "reflectivityColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("reflection"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "reflectionColor", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("emissive"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "emissiveColor", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "microSurface", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "indexOfRefraction", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "invertRefractionY", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "linkRefractionWithTransparency", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useLightmapAsShadowmap", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useAlphaFromAlbedoTexture", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "forceAlphaTest", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "alphaCutOff", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useSpecularOverAlpha", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useMicroSurfaceFromReflectivityMapAlpha", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useRoughnessFromMetallicTextureAlpha", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useRoughnessFromMetallicTextureGreen", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useMetallnessFromMetallicTextureBlue", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useAmbientOcclusionFromMetallicTextureRed", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useAmbientInGrayScale", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useAutoMicroSurfaceFromReflectivityMap", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "usePhysicalLightFalloff", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useRadianceOverAlpha", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useParallax", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useParallaxOcclusion", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "parallaxScaleBias", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], PBRMaterial.prototype, "disableLighting", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "forceIrradianceInFragment", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], PBRMaterial.prototype, "maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "invertNormalMapX", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "invertNormalMapY", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "twoSidedLighting", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "useAlphaFresnel", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "environmentBRDFTexture", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMaterial.prototype, "forceNormalForward", void 0);
     BABYLON.PBRMaterial = PBRMaterial;
 })(BABYLON || (BABYLON = {}));
 
@@ -36812,7 +36812,7 @@ var BABYLON;
      * This fits to the PBR convention in the GLTF definition:
      * https://github.com/KhronosGroup/glTF/tree/2.0/specification/2.0
      */
-    var PBRMetallicRoughnessMaterial = /** @class */ (function (_super) {
+    var PBRMetallicRoughnessMaterial = (function (_super) {
         __extends(PBRMetallicRoughnessMaterial, _super);
         /**
          * Instantiates a new PBRMetalRoughnessMaterial instance.
@@ -36879,28 +36879,28 @@ var BABYLON;
         PBRMetallicRoughnessMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new PBRMetallicRoughnessMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serializeAsColor3(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoColor")
-        ], PBRMetallicRoughnessMaterial.prototype, "baseColor", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoTexture")
-        ], PBRMetallicRoughnessMaterial.prototype, "baseTexture", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMetallicRoughnessMaterial.prototype, "metallic", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], PBRMetallicRoughnessMaterial.prototype, "roughness", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_metallicTexture")
-        ], PBRMetallicRoughnessMaterial.prototype, "metallicRoughnessTexture", void 0);
         return PBRMetallicRoughnessMaterial;
     }(BABYLON.Internals.PBRBaseSimpleMaterial));
+    __decorate([
+        BABYLON.serializeAsColor3(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoColor")
+    ], PBRMetallicRoughnessMaterial.prototype, "baseColor", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoTexture")
+    ], PBRMetallicRoughnessMaterial.prototype, "baseTexture", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMetallicRoughnessMaterial.prototype, "metallic", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], PBRMetallicRoughnessMaterial.prototype, "roughness", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_metallicTexture")
+    ], PBRMetallicRoughnessMaterial.prototype, "metallicRoughnessTexture", void 0);
     BABYLON.PBRMetallicRoughnessMaterial = PBRMetallicRoughnessMaterial;
 })(BABYLON || (BABYLON = {}));
 
@@ -36920,7 +36920,7 @@ var BABYLON;
      * This fits to the PBR convention in the GLTF definition:
      * https://github.com/KhronosGroup/glTF/tree/2.0/extensions/Khronos/KHR_materials_pbrSpecularGlossiness
      */
-    var PBRSpecularGlossinessMaterial = /** @class */ (function (_super) {
+    var PBRSpecularGlossinessMaterial = (function (_super) {
         __extends(PBRSpecularGlossinessMaterial, _super);
         /**
          * Instantiates a new PBRSpecularGlossinessMaterial instance.
@@ -36985,28 +36985,28 @@ var BABYLON;
         PBRSpecularGlossinessMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new PBRSpecularGlossinessMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serializeAsColor3("diffuse"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoColor")
-        ], PBRSpecularGlossinessMaterial.prototype, "diffuseColor", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoTexture")
-        ], PBRSpecularGlossinessMaterial.prototype, "diffuseTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3("specular"),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_reflectivityColor")
-        ], PBRSpecularGlossinessMaterial.prototype, "specularColor", void 0);
-        __decorate([
-            BABYLON.serialize(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_microSurface")
-        ], PBRSpecularGlossinessMaterial.prototype, "glossiness", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture(),
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_reflectivityTexture")
-        ], PBRSpecularGlossinessMaterial.prototype, "specularGlossinessTexture", void 0);
         return PBRSpecularGlossinessMaterial;
     }(BABYLON.Internals.PBRBaseSimpleMaterial));
+    __decorate([
+        BABYLON.serializeAsColor3("diffuse"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoColor")
+    ], PBRSpecularGlossinessMaterial.prototype, "diffuseColor", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_albedoTexture")
+    ], PBRSpecularGlossinessMaterial.prototype, "diffuseTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3("specular"),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_reflectivityColor")
+    ], PBRSpecularGlossinessMaterial.prototype, "specularColor", void 0);
+    __decorate([
+        BABYLON.serialize(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_microSurface")
+    ], PBRSpecularGlossinessMaterial.prototype, "glossiness", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture(),
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty", "_reflectivityTexture")
+    ], PBRSpecularGlossinessMaterial.prototype, "specularGlossinessTexture", void 0);
     BABYLON.PBRSpecularGlossinessMaterial = PBRSpecularGlossinessMaterial;
 })(BABYLON || (BABYLON = {}));
 
@@ -37015,7 +37015,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     BABYLON.CameraInputTypes = {};
-    var CameraInputsManager = /** @class */ (function () {
+    var CameraInputsManager = (function () {
         function CameraInputsManager(camera) {
             this.attached = {};
             this.camera = camera;
@@ -37158,7 +37158,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraMouseInput = /** @class */ (function () {
+    var FreeCameraMouseInput = (function () {
         function FreeCameraMouseInput(touchEnabled) {
             if (touchEnabled === void 0) { touchEnabled = true; }
             this.touchEnabled = touchEnabled;
@@ -37274,14 +37274,14 @@ var BABYLON;
         FreeCameraMouseInput.prototype.getSimpleName = function () {
             return "mouse";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraMouseInput.prototype, "buttons", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraMouseInput.prototype, "angularSensibility", void 0);
         return FreeCameraMouseInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraMouseInput.prototype, "buttons", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraMouseInput.prototype, "angularSensibility", void 0);
     BABYLON.FreeCameraMouseInput = FreeCameraMouseInput;
     BABYLON.CameraInputTypes["FreeCameraMouseInput"] = FreeCameraMouseInput;
 })(BABYLON || (BABYLON = {}));
@@ -37291,7 +37291,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraKeyboardMoveInput = /** @class */ (function () {
+    var FreeCameraKeyboardMoveInput = (function () {
         function FreeCameraKeyboardMoveInput() {
             this._keys = new Array();
             this.keysUp = [38];
@@ -37391,20 +37391,20 @@ var BABYLON;
         FreeCameraKeyboardMoveInput.prototype.getSimpleName = function () {
             return "keyboard";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraKeyboardMoveInput.prototype, "keysUp", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraKeyboardMoveInput.prototype, "keysDown", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraKeyboardMoveInput.prototype, "keysLeft", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraKeyboardMoveInput.prototype, "keysRight", void 0);
         return FreeCameraKeyboardMoveInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraKeyboardMoveInput.prototype, "keysUp", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraKeyboardMoveInput.prototype, "keysDown", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraKeyboardMoveInput.prototype, "keysLeft", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraKeyboardMoveInput.prototype, "keysRight", void 0);
     BABYLON.FreeCameraKeyboardMoveInput = FreeCameraKeyboardMoveInput;
     BABYLON.CameraInputTypes["FreeCameraKeyboardMoveInput"] = FreeCameraKeyboardMoveInput;
 })(BABYLON || (BABYLON = {}));
@@ -37414,7 +37414,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraInputsManager = /** @class */ (function (_super) {
+    var FreeCameraInputsManager = (function (_super) {
         __extends(FreeCameraInputsManager, _super);
         function FreeCameraInputsManager(camera) {
             return _super.call(this, camera) || this;
@@ -37459,7 +37459,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var TargetCamera = /** @class */ (function (_super) {
+    var TargetCamera = (function (_super) {
         __extends(TargetCamera, _super);
         function TargetCamera(name, position, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -37753,17 +37753,17 @@ var BABYLON;
         TargetCamera.prototype.getClassName = function () {
             return "TargetCamera";
         };
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], TargetCamera.prototype, "rotation", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], TargetCamera.prototype, "speed", void 0);
-        __decorate([
-            BABYLON.serializeAsMeshReference("lockedTargetId")
-        ], TargetCamera.prototype, "lockedTarget", void 0);
         return TargetCamera;
     }(BABYLON.Camera));
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], TargetCamera.prototype, "rotation", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], TargetCamera.prototype, "speed", void 0);
+    __decorate([
+        BABYLON.serializeAsMeshReference("lockedTargetId")
+    ], TargetCamera.prototype, "lockedTarget", void 0);
     BABYLON.TargetCamera = TargetCamera;
 })(BABYLON || (BABYLON = {}));
 
@@ -37777,7 +37777,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCamera = /** @class */ (function (_super) {
+    var FreeCamera = (function (_super) {
         __extends(FreeCamera, _super);
         function FreeCamera(name, position, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -37955,17 +37955,17 @@ var BABYLON;
         FreeCamera.prototype.getClassName = function () {
             return "FreeCamera";
         };
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], FreeCamera.prototype, "ellipsoid", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCamera.prototype, "checkCollisions", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCamera.prototype, "applyGravity", void 0);
         return FreeCamera;
     }(BABYLON.TargetCamera));
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], FreeCamera.prototype, "ellipsoid", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCamera.prototype, "checkCollisions", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCamera.prototype, "applyGravity", void 0);
     BABYLON.FreeCamera = FreeCamera;
 })(BABYLON || (BABYLON = {}));
 
@@ -37974,7 +37974,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCameraKeyboardMoveInput = /** @class */ (function () {
+    var ArcRotateCameraKeyboardMoveInput = (function () {
         function ArcRotateCameraKeyboardMoveInput() {
             this._keys = new Array();
             this.keysUp = [38];
@@ -38104,32 +38104,32 @@ var BABYLON;
         ArcRotateCameraKeyboardMoveInput.prototype.getSimpleName = function () {
             return "keyboard";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "keysUp", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "keysDown", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "keysLeft", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "keysRight", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "keysReset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "panningSensibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "zoomingSensibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraKeyboardMoveInput.prototype, "useAltToZoom", void 0);
         return ArcRotateCameraKeyboardMoveInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "keysUp", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "keysDown", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "keysLeft", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "keysRight", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "keysReset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "panningSensibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "zoomingSensibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraKeyboardMoveInput.prototype, "useAltToZoom", void 0);
     BABYLON.ArcRotateCameraKeyboardMoveInput = ArcRotateCameraKeyboardMoveInput;
     BABYLON.CameraInputTypes["ArcRotateCameraKeyboardMoveInput"] = ArcRotateCameraKeyboardMoveInput;
 })(BABYLON || (BABYLON = {}));
@@ -38139,7 +38139,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCameraMouseWheelInput = /** @class */ (function () {
+    var ArcRotateCameraMouseWheelInput = (function () {
         function ArcRotateCameraMouseWheelInput() {
             this.wheelPrecision = 3.0;
             /**
@@ -38185,14 +38185,14 @@ var BABYLON;
         ArcRotateCameraMouseWheelInput.prototype.getSimpleName = function () {
             return "mousewheel";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraMouseWheelInput.prototype, "wheelPrecision", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraMouseWheelInput.prototype, "wheelDeltaPercentage", void 0);
         return ArcRotateCameraMouseWheelInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraMouseWheelInput.prototype, "wheelPrecision", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraMouseWheelInput.prototype, "wheelDeltaPercentage", void 0);
     BABYLON.ArcRotateCameraMouseWheelInput = ArcRotateCameraMouseWheelInput;
     BABYLON.CameraInputTypes["ArcRotateCameraMouseWheelInput"] = ArcRotateCameraMouseWheelInput;
 })(BABYLON || (BABYLON = {}));
@@ -38202,7 +38202,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCameraPointersInput = /** @class */ (function () {
+    var ArcRotateCameraPointersInput = (function () {
         function ArcRotateCameraPointersInput() {
             this.buttons = [0, 1, 2];
             this.angularSensibilityX = 1000.0;
@@ -38493,32 +38493,32 @@ var BABYLON;
         ArcRotateCameraPointersInput.prototype.getSimpleName = function () {
             return "pointers";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "buttons", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "angularSensibilityX", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "angularSensibilityY", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "pinchPrecision", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "pinchDeltaPercentage", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "panningSensibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "multiTouchPanning", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraPointersInput.prototype, "multiTouchPanAndZoom", void 0);
         return ArcRotateCameraPointersInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "buttons", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "angularSensibilityX", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "angularSensibilityY", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "pinchPrecision", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "pinchDeltaPercentage", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "panningSensibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "multiTouchPanning", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraPointersInput.prototype, "multiTouchPanAndZoom", void 0);
     BABYLON.ArcRotateCameraPointersInput = ArcRotateCameraPointersInput;
     BABYLON.CameraInputTypes["ArcRotateCameraPointersInput"] = ArcRotateCameraPointersInput;
 })(BABYLON || (BABYLON = {}));
@@ -38533,7 +38533,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCamera = /** @class */ (function (_super) {
+    var ArcRotateCamera = (function (_super) {
         __extends(ArcRotateCamera, _super);
         function ArcRotateCamera(name, alpha, beta, radius, target, scene) {
             var _this = _super.call(this, name, BABYLON.Vector3.Zero(), scene) || this;
@@ -39230,71 +39230,71 @@ var BABYLON;
         ArcRotateCamera.prototype.getClassName = function () {
             return "ArcRotateCamera";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "alpha", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "beta", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "radius", void 0);
-        __decorate([
-            BABYLON.serializeAsVector3("target")
-        ], ArcRotateCamera.prototype, "_target", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "inertialAlphaOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "inertialBetaOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "inertialRadiusOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "lowerAlphaLimit", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "upperAlphaLimit", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "lowerBetaLimit", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "upperBetaLimit", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "lowerRadiusLimit", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "upperRadiusLimit", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "inertialPanningX", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "inertialPanningY", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "pinchToPanMaxDistance", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "panningDistanceLimit", void 0);
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], ArcRotateCamera.prototype, "panningOriginTarget", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "panningInertia", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "zoomOnFactor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCamera.prototype, "allowUpsideDown", void 0);
         return ArcRotateCamera;
     }(BABYLON.TargetCamera));
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "alpha", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "beta", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "radius", void 0);
+    __decorate([
+        BABYLON.serializeAsVector3("target")
+    ], ArcRotateCamera.prototype, "_target", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "inertialAlphaOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "inertialBetaOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "inertialRadiusOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "lowerAlphaLimit", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "upperAlphaLimit", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "lowerBetaLimit", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "upperBetaLimit", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "lowerRadiusLimit", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "upperRadiusLimit", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "inertialPanningX", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "inertialPanningY", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "pinchToPanMaxDistance", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "panningDistanceLimit", void 0);
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], ArcRotateCamera.prototype, "panningOriginTarget", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "panningInertia", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "zoomOnFactor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCamera.prototype, "allowUpsideDown", void 0);
     BABYLON.ArcRotateCamera = ArcRotateCamera;
 })(BABYLON || (BABYLON = {}));
 
@@ -39303,7 +39303,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCameraInputsManager = /** @class */ (function (_super) {
+    var ArcRotateCameraInputsManager = (function (_super) {
         __extends(ArcRotateCameraInputsManager, _super);
         function ArcRotateCameraInputsManager(camera) {
             return _super.call(this, camera) || this;
@@ -39343,7 +39343,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var HemisphericLight = /** @class */ (function (_super) {
+    var HemisphericLight = (function (_super) {
         __extends(HemisphericLight, _super);
         /**
          * Creates a HemisphericLight object in the scene according to the passed direction (Vector3).
@@ -39405,14 +39405,14 @@ var BABYLON;
         HemisphericLight.prototype.getTypeID = function () {
             return BABYLON.Light.LIGHTTYPEID_HEMISPHERICLIGHT;
         };
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], HemisphericLight.prototype, "groundColor", void 0);
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], HemisphericLight.prototype, "direction", void 0);
         return HemisphericLight;
     }(BABYLON.Light));
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], HemisphericLight.prototype, "groundColor", void 0);
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], HemisphericLight.prototype, "direction", void 0);
     BABYLON.HemisphericLight = HemisphericLight;
 })(BABYLON || (BABYLON = {}));
 
@@ -39426,7 +39426,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ShadowLight = /** @class */ (function (_super) {
+    var ShadowLight = (function (_super) {
         __extends(ShadowLight, _super);
         function ShadowLight() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -39575,20 +39575,20 @@ var BABYLON;
             }
             return this;
         };
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], ShadowLight.prototype, "position", void 0);
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], ShadowLight.prototype, "direction", null);
-        __decorate([
-            BABYLON.serialize()
-        ], ShadowLight.prototype, "shadowMinZ", null);
-        __decorate([
-            BABYLON.serialize()
-        ], ShadowLight.prototype, "shadowMaxZ", null);
         return ShadowLight;
     }(BABYLON.Light));
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], ShadowLight.prototype, "position", void 0);
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], ShadowLight.prototype, "direction", null);
+    __decorate([
+        BABYLON.serialize()
+    ], ShadowLight.prototype, "shadowMinZ", null);
+    __decorate([
+        BABYLON.serialize()
+    ], ShadowLight.prototype, "shadowMaxZ", null);
     BABYLON.ShadowLight = ShadowLight;
 })(BABYLON || (BABYLON = {}));
 
@@ -39602,7 +39602,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PointLight = /** @class */ (function (_super) {
+    var PointLight = (function (_super) {
         __extends(PointLight, _super);
         /**
          * Creates a PointLight object from the passed name and position (Vector3) and adds it in the scene.
@@ -39737,11 +39737,11 @@ var BABYLON;
             this._uniformBuffer.updateFloat4("vLightData", this.position.x, this.position.y, this.position.z, 0, lightIndex);
             return this;
         };
-        __decorate([
-            BABYLON.serialize()
-        ], PointLight.prototype, "shadowAngle", null);
         return PointLight;
     }(BABYLON.ShadowLight));
+    __decorate([
+        BABYLON.serialize()
+    ], PointLight.prototype, "shadowAngle", null);
     BABYLON.PointLight = PointLight;
 })(BABYLON || (BABYLON = {}));
 
@@ -39755,7 +39755,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DirectionalLight = /** @class */ (function (_super) {
+    var DirectionalLight = (function (_super) {
         __extends(DirectionalLight, _super);
         /**
          * Creates a DirectionalLight object in the scene, oriented towards the passed direction (Vector3).
@@ -39923,17 +39923,17 @@ var BABYLON;
         DirectionalLight.prototype.getDepthMaxZ = function (activeCamera) {
             return 1;
         };
-        __decorate([
-            BABYLON.serialize()
-        ], DirectionalLight.prototype, "shadowFrustumSize", null);
-        __decorate([
-            BABYLON.serialize()
-        ], DirectionalLight.prototype, "shadowOrthoScale", null);
-        __decorate([
-            BABYLON.serialize()
-        ], DirectionalLight.prototype, "autoUpdateExtends", void 0);
         return DirectionalLight;
     }(BABYLON.ShadowLight));
+    __decorate([
+        BABYLON.serialize()
+    ], DirectionalLight.prototype, "shadowFrustumSize", null);
+    __decorate([
+        BABYLON.serialize()
+    ], DirectionalLight.prototype, "shadowOrthoScale", null);
+    __decorate([
+        BABYLON.serialize()
+    ], DirectionalLight.prototype, "autoUpdateExtends", void 0);
     BABYLON.DirectionalLight = DirectionalLight;
 })(BABYLON || (BABYLON = {}));
 
@@ -39947,7 +39947,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SpotLight = /** @class */ (function (_super) {
+    var SpotLight = (function (_super) {
         __extends(SpotLight, _super);
         /**
          * Creates a SpotLight object in the scene with the passed parameters :
@@ -40043,20 +40043,20 @@ var BABYLON;
             this._uniformBuffer.updateFloat4("vLightDirection", normalizeDirection.x, normalizeDirection.y, normalizeDirection.z, Math.cos(this.angle * 0.5), lightIndex);
             return this;
         };
-        __decorate([
-            BABYLON.serialize()
-        ], SpotLight.prototype, "angle", null);
-        __decorate([
-            BABYLON.serialize()
-            /**
-             * Allows scaling the angle of the light for shadow generation only.
-             */
-        ], SpotLight.prototype, "shadowAngleScale", null);
-        __decorate([
-            BABYLON.serialize()
-        ], SpotLight.prototype, "exponent", void 0);
         return SpotLight;
     }(BABYLON.ShadowLight));
+    __decorate([
+        BABYLON.serialize()
+    ], SpotLight.prototype, "angle", null);
+    __decorate([
+        BABYLON.serialize()
+        /**
+         * Allows scaling the angle of the light for shadow generation only.
+         */
+    ], SpotLight.prototype, "shadowAngleScale", null);
+    __decorate([
+        BABYLON.serialize()
+    ], SpotLight.prototype, "exponent", void 0);
     BABYLON.SpotLight = SpotLight;
 })(BABYLON || (BABYLON = {}));
 
@@ -40064,7 +40064,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var AnimationRange = /** @class */ (function () {
+    var AnimationRange = (function () {
         function AnimationRange(name, from, to) {
             this.name = name;
             this.from = from;
@@ -40079,7 +40079,7 @@ var BABYLON;
     /**
      * Composed of a frame, and an action function
      */
-    var AnimationEvent = /** @class */ (function () {
+    var AnimationEvent = (function () {
         function AnimationEvent(frame, action, onlyOnce) {
             this.frame = frame;
             this.action = action;
@@ -40089,7 +40089,7 @@ var BABYLON;
         return AnimationEvent;
     }());
     BABYLON.AnimationEvent = AnimationEvent;
-    var PathCursor = /** @class */ (function () {
+    var PathCursor = (function () {
         function PathCursor(path) {
             this.path = path;
             this._onchange = new Array();
@@ -40141,7 +40141,7 @@ var BABYLON;
         return PathCursor;
     }());
     BABYLON.PathCursor = PathCursor;
-    var Animation = /** @class */ (function () {
+    var Animation = (function () {
         function Animation(name, targetProperty, framePerSecond, dataType, loopMode, enableBlending) {
             this.name = name;
             this.targetProperty = targetProperty;
@@ -40614,20 +40614,20 @@ var BABYLON;
                 }
             }
         };
-        Animation.AllowMatricesInterpolation = false;
-        // Statics
-        Animation._ANIMATIONTYPE_FLOAT = 0;
-        Animation._ANIMATIONTYPE_VECTOR3 = 1;
-        Animation._ANIMATIONTYPE_QUATERNION = 2;
-        Animation._ANIMATIONTYPE_MATRIX = 3;
-        Animation._ANIMATIONTYPE_COLOR3 = 4;
-        Animation._ANIMATIONTYPE_VECTOR2 = 5;
-        Animation._ANIMATIONTYPE_SIZE = 6;
-        Animation._ANIMATIONLOOPMODE_RELATIVE = 0;
-        Animation._ANIMATIONLOOPMODE_CYCLE = 1;
-        Animation._ANIMATIONLOOPMODE_CONSTANT = 2;
         return Animation;
     }());
+    Animation.AllowMatricesInterpolation = false;
+    // Statics
+    Animation._ANIMATIONTYPE_FLOAT = 0;
+    Animation._ANIMATIONTYPE_VECTOR3 = 1;
+    Animation._ANIMATIONTYPE_QUATERNION = 2;
+    Animation._ANIMATIONTYPE_MATRIX = 3;
+    Animation._ANIMATIONTYPE_COLOR3 = 4;
+    Animation._ANIMATIONTYPE_VECTOR2 = 5;
+    Animation._ANIMATIONTYPE_SIZE = 6;
+    Animation._ANIMATIONLOOPMODE_RELATIVE = 0;
+    Animation._ANIMATIONLOOPMODE_CYCLE = 1;
+    Animation._ANIMATIONLOOPMODE_CONSTANT = 2;
     BABYLON.Animation = Animation;
 })(BABYLON || (BABYLON = {}));
 
@@ -40635,7 +40635,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RuntimeAnimation = /** @class */ (function () {
+    var RuntimeAnimation = (function () {
         function RuntimeAnimation(target, animation) {
             this._offsetsCache = {};
             this._highLimitsCache = {};
@@ -40998,7 +40998,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Animatable = /** @class */ (function () {
+    var Animatable = (function () {
         function Animatable(scene, target, fromFrame, toFrame, loopAnimation, speedRatio, onAnimationEnd, animations) {
             if (fromFrame === void 0) { fromFrame = 0; }
             if (toFrame === void 0) { toFrame = 100; }
@@ -41194,7 +41194,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var EasingFunction = /** @class */ (function () {
+    var EasingFunction = (function () {
         function EasingFunction() {
             // Properties
             this._easingMode = EasingFunction.EASINGMODE_EASEIN;
@@ -41242,14 +41242,14 @@ var BABYLON;
             }
             return (this.easeInCore(gradient * 2) * 0.5);
         };
-        //Statics
-        EasingFunction._EASINGMODE_EASEIN = 0;
-        EasingFunction._EASINGMODE_EASEOUT = 1;
-        EasingFunction._EASINGMODE_EASEINOUT = 2;
         return EasingFunction;
     }());
+    //Statics
+    EasingFunction._EASINGMODE_EASEIN = 0;
+    EasingFunction._EASINGMODE_EASEOUT = 1;
+    EasingFunction._EASINGMODE_EASEINOUT = 2;
     BABYLON.EasingFunction = EasingFunction;
-    var CircleEase = /** @class */ (function (_super) {
+    var CircleEase = (function (_super) {
         __extends(CircleEase, _super);
         function CircleEase() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -41261,7 +41261,7 @@ var BABYLON;
         return CircleEase;
     }(EasingFunction));
     BABYLON.CircleEase = CircleEase;
-    var BackEase = /** @class */ (function (_super) {
+    var BackEase = (function (_super) {
         __extends(BackEase, _super);
         function BackEase(amplitude) {
             if (amplitude === void 0) { amplitude = 1; }
@@ -41276,7 +41276,7 @@ var BABYLON;
         return BackEase;
     }(EasingFunction));
     BABYLON.BackEase = BackEase;
-    var BounceEase = /** @class */ (function (_super) {
+    var BounceEase = (function (_super) {
         __extends(BounceEase, _super);
         function BounceEase(bounces, bounciness) {
             if (bounces === void 0) { bounces = 3; }
@@ -41309,7 +41309,7 @@ var BABYLON;
         return BounceEase;
     }(EasingFunction));
     BABYLON.BounceEase = BounceEase;
-    var CubicEase = /** @class */ (function (_super) {
+    var CubicEase = (function (_super) {
         __extends(CubicEase, _super);
         function CubicEase() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -41320,7 +41320,7 @@ var BABYLON;
         return CubicEase;
     }(EasingFunction));
     BABYLON.CubicEase = CubicEase;
-    var ElasticEase = /** @class */ (function (_super) {
+    var ElasticEase = (function (_super) {
         __extends(ElasticEase, _super);
         function ElasticEase(oscillations, springiness) {
             if (oscillations === void 0) { oscillations = 3; }
@@ -41345,7 +41345,7 @@ var BABYLON;
         return ElasticEase;
     }(EasingFunction));
     BABYLON.ElasticEase = ElasticEase;
-    var ExponentialEase = /** @class */ (function (_super) {
+    var ExponentialEase = (function (_super) {
         __extends(ExponentialEase, _super);
         function ExponentialEase(exponent) {
             if (exponent === void 0) { exponent = 2; }
@@ -41362,7 +41362,7 @@ var BABYLON;
         return ExponentialEase;
     }(EasingFunction));
     BABYLON.ExponentialEase = ExponentialEase;
-    var PowerEase = /** @class */ (function (_super) {
+    var PowerEase = (function (_super) {
         __extends(PowerEase, _super);
         function PowerEase(power) {
             if (power === void 0) { power = 2; }
@@ -41377,7 +41377,7 @@ var BABYLON;
         return PowerEase;
     }(EasingFunction));
     BABYLON.PowerEase = PowerEase;
-    var QuadraticEase = /** @class */ (function (_super) {
+    var QuadraticEase = (function (_super) {
         __extends(QuadraticEase, _super);
         function QuadraticEase() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -41388,7 +41388,7 @@ var BABYLON;
         return QuadraticEase;
     }(EasingFunction));
     BABYLON.QuadraticEase = QuadraticEase;
-    var QuarticEase = /** @class */ (function (_super) {
+    var QuarticEase = (function (_super) {
         __extends(QuarticEase, _super);
         function QuarticEase() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -41399,7 +41399,7 @@ var BABYLON;
         return QuarticEase;
     }(EasingFunction));
     BABYLON.QuarticEase = QuarticEase;
-    var QuinticEase = /** @class */ (function (_super) {
+    var QuinticEase = (function (_super) {
         __extends(QuinticEase, _super);
         function QuinticEase() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -41410,7 +41410,7 @@ var BABYLON;
         return QuinticEase;
     }(EasingFunction));
     BABYLON.QuinticEase = QuinticEase;
-    var SineEase = /** @class */ (function (_super) {
+    var SineEase = (function (_super) {
         __extends(SineEase, _super);
         function SineEase() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -41421,7 +41421,7 @@ var BABYLON;
         return SineEase;
     }(EasingFunction));
     BABYLON.SineEase = SineEase;
-    var BezierCurveEase = /** @class */ (function (_super) {
+    var BezierCurveEase = (function (_super) {
         __extends(BezierCurveEase, _super);
         function BezierCurveEase(x1, y1, x2, y2) {
             if (x1 === void 0) { x1 = 0; }
@@ -41448,7 +41448,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Condition = /** @class */ (function () {
+    var Condition = (function () {
         function Condition(actionManager) {
             this._actionManager = actionManager;
         }
@@ -41474,7 +41474,7 @@ var BABYLON;
         return Condition;
     }());
     BABYLON.Condition = Condition;
-    var ValueCondition = /** @class */ (function (_super) {
+    var ValueCondition = (function (_super) {
         __extends(ValueCondition, _super);
         function ValueCondition(actionManager, target, propertyPath, value, operator) {
             if (operator === void 0) { operator = ValueCondition.IsEqual; }
@@ -41555,15 +41555,15 @@ var BABYLON;
                 default: return "";
             }
         };
-        // Statics
-        ValueCondition._IsEqual = 0;
-        ValueCondition._IsDifferent = 1;
-        ValueCondition._IsGreater = 2;
-        ValueCondition._IsLesser = 3;
         return ValueCondition;
     }(Condition));
+    // Statics
+    ValueCondition._IsEqual = 0;
+    ValueCondition._IsDifferent = 1;
+    ValueCondition._IsGreater = 2;
+    ValueCondition._IsLesser = 3;
     BABYLON.ValueCondition = ValueCondition;
-    var PredicateCondition = /** @class */ (function (_super) {
+    var PredicateCondition = (function (_super) {
         __extends(PredicateCondition, _super);
         function PredicateCondition(actionManager, predicate) {
             var _this = _super.call(this, actionManager) || this;
@@ -41576,7 +41576,7 @@ var BABYLON;
         return PredicateCondition;
     }(Condition));
     BABYLON.PredicateCondition = PredicateCondition;
-    var StateCondition = /** @class */ (function (_super) {
+    var StateCondition = (function (_super) {
         __extends(StateCondition, _super);
         function StateCondition(actionManager, target, value) {
             var _this = _super.call(this, actionManager) || this;
@@ -41606,7 +41606,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Action = /** @class */ (function () {
+    var Action = (function () {
         function Action(triggerOptions, condition) {
             this.triggerOptions = triggerOptions;
             this.onBeforeExecuteObservable = new BABYLON.Observable();
@@ -41702,39 +41702,39 @@ var BABYLON;
             }
             return serializationObject;
         };
-        Action._SerializeValueAsString = function (value) {
-            if (typeof value === "number") {
-                return value.toString();
-            }
-            if (typeof value === "boolean") {
-                return value ? "true" : "false";
-            }
-            if (value instanceof BABYLON.Vector2) {
-                return value.x + ", " + value.y;
-            }
-            if (value instanceof BABYLON.Vector3) {
-                return value.x + ", " + value.y + ", " + value.z;
-            }
-            if (value instanceof BABYLON.Color3) {
-                return value.r + ", " + value.g + ", " + value.b;
-            }
-            if (value instanceof BABYLON.Color4) {
-                return value.r + ", " + value.g + ", " + value.b + ", " + value.a;
-            }
-            return value; // string
-        };
-        Action._GetTargetProperty = function (target) {
-            return {
-                name: "target",
-                targetType: target instanceof BABYLON.Mesh ? "MeshProperties"
-                    : target instanceof BABYLON.Light ? "LightProperties"
-                        : target instanceof BABYLON.Camera ? "CameraProperties"
-                            : "SceneProperties",
-                value: target instanceof BABYLON.Scene ? "Scene" : target.name
-            };
-        };
         return Action;
     }());
+    Action._SerializeValueAsString = function (value) {
+        if (typeof value === "number") {
+            return value.toString();
+        }
+        if (typeof value === "boolean") {
+            return value ? "true" : "false";
+        }
+        if (value instanceof BABYLON.Vector2) {
+            return value.x + ", " + value.y;
+        }
+        if (value instanceof BABYLON.Vector3) {
+            return value.x + ", " + value.y + ", " + value.z;
+        }
+        if (value instanceof BABYLON.Color3) {
+            return value.r + ", " + value.g + ", " + value.b;
+        }
+        if (value instanceof BABYLON.Color4) {
+            return value.r + ", " + value.g + ", " + value.b + ", " + value.a;
+        }
+        return value; // string
+    };
+    Action._GetTargetProperty = function (target) {
+        return {
+            name: "target",
+            targetType: target instanceof BABYLON.Mesh ? "MeshProperties"
+                : target instanceof BABYLON.Light ? "LightProperties"
+                    : target instanceof BABYLON.Camera ? "CameraProperties"
+                        : "SceneProperties",
+            value: target instanceof BABYLON.Scene ? "Scene" : target.name
+        };
+    };
     BABYLON.Action = Action;
 })(BABYLON || (BABYLON = {}));
 
@@ -41745,7 +41745,7 @@ var BABYLON;
     /**
      * ActionEvent is the event beint sent when an action is triggered.
      */
-    var ActionEvent = /** @class */ (function () {
+    var ActionEvent = (function () {
         /**
          * @param source The mesh or sprite that triggered the action.
          * @param pointerX The X mouse cursor position at the time of the event
@@ -41797,7 +41797,7 @@ var BABYLON;
      * Action Manager manages all events to be triggered on a given mesh or the global scene.
      * A single scene can have many Action Managers to handle predefined actions on specific meshes.
      */
-    var ActionManager = /** @class */ (function () {
+    var ActionManager = (function () {
         function ActionManager(scene) {
             // Members
             this.actions = new Array();
@@ -42331,27 +42331,27 @@ var BABYLON;
                 default: return "";
             }
         };
-        // Statics
-        ActionManager._NothingTrigger = 0;
-        ActionManager._OnPickTrigger = 1;
-        ActionManager._OnLeftPickTrigger = 2;
-        ActionManager._OnRightPickTrigger = 3;
-        ActionManager._OnCenterPickTrigger = 4;
-        ActionManager._OnPickDownTrigger = 5;
-        ActionManager._OnDoublePickTrigger = 6;
-        ActionManager._OnPickUpTrigger = 7;
-        ActionManager._OnLongPressTrigger = 8;
-        ActionManager._OnPointerOverTrigger = 9;
-        ActionManager._OnPointerOutTrigger = 10;
-        ActionManager._OnEveryFrameTrigger = 11;
-        ActionManager._OnIntersectionEnterTrigger = 12;
-        ActionManager._OnIntersectionExitTrigger = 13;
-        ActionManager._OnKeyDownTrigger = 14;
-        ActionManager._OnKeyUpTrigger = 15;
-        ActionManager._OnPickOutTrigger = 16;
-        ActionManager.Triggers = {};
         return ActionManager;
     }());
+    // Statics
+    ActionManager._NothingTrigger = 0;
+    ActionManager._OnPickTrigger = 1;
+    ActionManager._OnLeftPickTrigger = 2;
+    ActionManager._OnRightPickTrigger = 3;
+    ActionManager._OnCenterPickTrigger = 4;
+    ActionManager._OnPickDownTrigger = 5;
+    ActionManager._OnDoublePickTrigger = 6;
+    ActionManager._OnPickUpTrigger = 7;
+    ActionManager._OnLongPressTrigger = 8;
+    ActionManager._OnPointerOverTrigger = 9;
+    ActionManager._OnPointerOutTrigger = 10;
+    ActionManager._OnEveryFrameTrigger = 11;
+    ActionManager._OnIntersectionEnterTrigger = 12;
+    ActionManager._OnIntersectionExitTrigger = 13;
+    ActionManager._OnKeyDownTrigger = 14;
+    ActionManager._OnKeyUpTrigger = 15;
+    ActionManager._OnPickOutTrigger = 16;
+    ActionManager.Triggers = {};
     BABYLON.ActionManager = ActionManager;
 })(BABYLON || (BABYLON = {}));
 
@@ -42360,7 +42360,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var InterpolateValueAction = /** @class */ (function (_super) {
+    var InterpolateValueAction = (function (_super) {
         __extends(InterpolateValueAction, _super);
         function InterpolateValueAction(triggerOptions, target, propertyPath, value, duration, condition, stopOtherAnimations, onInterpolationDone) {
             if (duration === void 0) { duration = 1000; }
@@ -42445,7 +42445,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SwitchBooleanAction = /** @class */ (function (_super) {
+    var SwitchBooleanAction = (function (_super) {
         __extends(SwitchBooleanAction, _super);
         function SwitchBooleanAction(triggerOptions, target, propertyPath, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42472,7 +42472,7 @@ var BABYLON;
         return SwitchBooleanAction;
     }(BABYLON.Action));
     BABYLON.SwitchBooleanAction = SwitchBooleanAction;
-    var SetStateAction = /** @class */ (function (_super) {
+    var SetStateAction = (function (_super) {
         __extends(SetStateAction, _super);
         function SetStateAction(triggerOptions, target, value, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42495,7 +42495,7 @@ var BABYLON;
         return SetStateAction;
     }(BABYLON.Action));
     BABYLON.SetStateAction = SetStateAction;
-    var SetValueAction = /** @class */ (function (_super) {
+    var SetValueAction = (function (_super) {
         __extends(SetValueAction, _super);
         function SetValueAction(triggerOptions, target, propertyPath, value, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42527,7 +42527,7 @@ var BABYLON;
         return SetValueAction;
     }(BABYLON.Action));
     BABYLON.SetValueAction = SetValueAction;
-    var IncrementValueAction = /** @class */ (function (_super) {
+    var IncrementValueAction = (function (_super) {
         __extends(IncrementValueAction, _super);
         function IncrementValueAction(triggerOptions, target, propertyPath, value, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42562,7 +42562,7 @@ var BABYLON;
         return IncrementValueAction;
     }(BABYLON.Action));
     BABYLON.IncrementValueAction = IncrementValueAction;
-    var PlayAnimationAction = /** @class */ (function (_super) {
+    var PlayAnimationAction = (function (_super) {
         __extends(PlayAnimationAction, _super);
         function PlayAnimationAction(triggerOptions, target, from, to, loop, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42592,7 +42592,7 @@ var BABYLON;
         return PlayAnimationAction;
     }(BABYLON.Action));
     BABYLON.PlayAnimationAction = PlayAnimationAction;
-    var StopAnimationAction = /** @class */ (function (_super) {
+    var StopAnimationAction = (function (_super) {
         __extends(StopAnimationAction, _super);
         function StopAnimationAction(triggerOptions, target, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42614,7 +42614,7 @@ var BABYLON;
         return StopAnimationAction;
     }(BABYLON.Action));
     BABYLON.StopAnimationAction = StopAnimationAction;
-    var DoNothingAction = /** @class */ (function (_super) {
+    var DoNothingAction = (function (_super) {
         __extends(DoNothingAction, _super);
         function DoNothingAction(triggerOptions, condition) {
             if (triggerOptions === void 0) { triggerOptions = BABYLON.ActionManager.NothingTrigger; }
@@ -42631,7 +42631,7 @@ var BABYLON;
         return DoNothingAction;
     }(BABYLON.Action));
     BABYLON.DoNothingAction = DoNothingAction;
-    var CombineAction = /** @class */ (function (_super) {
+    var CombineAction = (function (_super) {
         __extends(CombineAction, _super);
         function CombineAction(triggerOptions, children, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42663,7 +42663,7 @@ var BABYLON;
         return CombineAction;
     }(BABYLON.Action));
     BABYLON.CombineAction = CombineAction;
-    var ExecuteCodeAction = /** @class */ (function (_super) {
+    var ExecuteCodeAction = (function (_super) {
         __extends(ExecuteCodeAction, _super);
         function ExecuteCodeAction(triggerOptions, func, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42676,7 +42676,7 @@ var BABYLON;
         return ExecuteCodeAction;
     }(BABYLON.Action));
     BABYLON.ExecuteCodeAction = ExecuteCodeAction;
-    var SetParentAction = /** @class */ (function (_super) {
+    var SetParentAction = (function (_super) {
         __extends(SetParentAction, _super);
         function SetParentAction(triggerOptions, target, parent, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42707,7 +42707,7 @@ var BABYLON;
         return SetParentAction;
     }(BABYLON.Action));
     BABYLON.SetParentAction = SetParentAction;
-    var PlaySoundAction = /** @class */ (function (_super) {
+    var PlaySoundAction = (function (_super) {
         __extends(PlaySoundAction, _super);
         function PlaySoundAction(triggerOptions, sound, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42729,7 +42729,7 @@ var BABYLON;
         return PlaySoundAction;
     }(BABYLON.Action));
     BABYLON.PlaySoundAction = PlaySoundAction;
-    var StopSoundAction = /** @class */ (function (_super) {
+    var StopSoundAction = (function (_super) {
         __extends(StopSoundAction, _super);
         function StopSoundAction(triggerOptions, sound, condition) {
             var _this = _super.call(this, triggerOptions, condition) || this;
@@ -42757,7 +42757,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SpriteManager = /** @class */ (function () {
+    var SpriteManager = (function () {
         function SpriteManager(name, imgUrl, capacity, cellSize, scene, epsilon, samplingMode) {
             if (epsilon === void 0) { epsilon = 0.01; }
             if (samplingMode === void 0) { samplingMode = BABYLON.Texture.TRILINEAR_SAMPLINGMODE; }
@@ -42993,7 +42993,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Sprite = /** @class */ (function () {
+    var Sprite = (function () {
         function Sprite(name, manager) {
             this.name = name;
             this.color = new BABYLON.Color4(1.0, 1.0, 1.0, 1.0);
@@ -43081,7 +43081,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var IntersectionInfo = /** @class */ (function () {
+    var IntersectionInfo = (function () {
         function IntersectionInfo(bu, bv, distance) {
             this.bu = bu;
             this.bv = bv;
@@ -43092,7 +43092,7 @@ var BABYLON;
         return IntersectionInfo;
     }());
     BABYLON.IntersectionInfo = IntersectionInfo;
-    var PickingInfo = /** @class */ (function () {
+    var PickingInfo = (function () {
         function PickingInfo() {
             this.hit = false;
             this.distance = 0;
@@ -43169,7 +43169,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Ray = /** @class */ (function () {
+    var Ray = (function () {
         function Ray(origin, direction, length) {
             if (length === void 0) { length = Number.MAX_VALUE; }
             this.origin = origin;
@@ -43486,10 +43486,10 @@ var BABYLON;
                 result.length *= len;
             }
         };
-        Ray.smallnum = 0.00000001;
-        Ray.rayl = 10e8;
         return Ray;
     }());
+    Ray.smallnum = 0.00000001;
+    Ray.rayl = 10e8;
     BABYLON.Ray = Ray;
 })(BABYLON || (BABYLON = {}));
 
@@ -43541,7 +43541,7 @@ var BABYLON;
             return result;
         };
     })();
-    var Collider = /** @class */ (function () {
+    var Collider = (function () {
         function Collider() {
             this.radius = BABYLON.Vector3.One();
             this.retry = 0;
@@ -43800,7 +43800,7 @@ var BABYLON;
         WorkerReplyType[WorkerReplyType["SUCCESS"] = 0] = "SUCCESS";
         WorkerReplyType[WorkerReplyType["UNKNOWN_ERROR"] = 1] = "UNKNOWN_ERROR";
     })(WorkerReplyType = BABYLON.WorkerReplyType || (BABYLON.WorkerReplyType = {}));
-    var CollisionCoordinatorWorker = /** @class */ (function () {
+    var CollisionCoordinatorWorker = (function () {
         function CollisionCoordinatorWorker() {
             var _this = this;
             this._scaledPosition = BABYLON.Vector3.Zero();
@@ -43950,61 +43950,61 @@ var BABYLON;
         CollisionCoordinatorWorker.prototype.onGeometryDeleted = function (geometry) {
             this._toRemoveGeometryArray.push(geometry.id);
         };
-        CollisionCoordinatorWorker.SerializeMesh = function (mesh) {
-            var submeshes = [];
-            if (mesh.subMeshes) {
-                submeshes = mesh.subMeshes.map(function (sm, idx) {
-                    var boundingInfo = sm.getBoundingInfo();
-                    return {
-                        position: idx,
-                        verticesStart: sm.verticesStart,
-                        verticesCount: sm.verticesCount,
-                        indexStart: sm.indexStart,
-                        indexCount: sm.indexCount,
-                        hasMaterial: !!sm.getMaterial(),
-                        sphereCenter: boundingInfo.boundingSphere.centerWorld.asArray(),
-                        sphereRadius: boundingInfo.boundingSphere.radiusWorld,
-                        boxMinimum: boundingInfo.boundingBox.minimumWorld.asArray(),
-                        boxMaximum: boundingInfo.boundingBox.maximumWorld.asArray()
-                    };
-                });
-            }
-            var geometryId = null;
-            if (mesh instanceof BABYLON.Mesh) {
-                var geometry = mesh.geometry;
-                geometryId = geometry ? geometry.id : null;
-            }
-            else if (mesh instanceof BABYLON.InstancedMesh) {
-                var geometry = mesh.sourceMesh.geometry;
-                geometryId = geometry ? geometry.id : null;
-            }
-            var boundingInfo = mesh.getBoundingInfo();
-            return {
-                uniqueId: mesh.uniqueId,
-                id: mesh.id,
-                name: mesh.name,
-                geometryId: geometryId,
-                sphereCenter: boundingInfo.boundingSphere.centerWorld.asArray(),
-                sphereRadius: boundingInfo.boundingSphere.radiusWorld,
-                boxMinimum: boundingInfo.boundingBox.minimumWorld.asArray(),
-                boxMaximum: boundingInfo.boundingBox.maximumWorld.asArray(),
-                worldMatrixFromCache: mesh.worldMatrixFromCache.asArray(),
-                subMeshes: submeshes,
-                checkCollisions: mesh.checkCollisions
-            };
-        };
-        CollisionCoordinatorWorker.SerializeGeometry = function (geometry) {
-            return {
-                id: geometry.id,
-                positions: new Float32Array(geometry.getVerticesData(BABYLON.VertexBuffer.PositionKind) || []),
-                normals: new Float32Array(geometry.getVerticesData(BABYLON.VertexBuffer.NormalKind) || []),
-                indices: new Uint32Array(geometry.getIndices() || []),
-            };
-        };
         return CollisionCoordinatorWorker;
     }());
+    CollisionCoordinatorWorker.SerializeMesh = function (mesh) {
+        var submeshes = [];
+        if (mesh.subMeshes) {
+            submeshes = mesh.subMeshes.map(function (sm, idx) {
+                var boundingInfo = sm.getBoundingInfo();
+                return {
+                    position: idx,
+                    verticesStart: sm.verticesStart,
+                    verticesCount: sm.verticesCount,
+                    indexStart: sm.indexStart,
+                    indexCount: sm.indexCount,
+                    hasMaterial: !!sm.getMaterial(),
+                    sphereCenter: boundingInfo.boundingSphere.centerWorld.asArray(),
+                    sphereRadius: boundingInfo.boundingSphere.radiusWorld,
+                    boxMinimum: boundingInfo.boundingBox.minimumWorld.asArray(),
+                    boxMaximum: boundingInfo.boundingBox.maximumWorld.asArray()
+                };
+            });
+        }
+        var geometryId = null;
+        if (mesh instanceof BABYLON.Mesh) {
+            var geometry = mesh.geometry;
+            geometryId = geometry ? geometry.id : null;
+        }
+        else if (mesh instanceof BABYLON.InstancedMesh) {
+            var geometry = mesh.sourceMesh.geometry;
+            geometryId = geometry ? geometry.id : null;
+        }
+        var boundingInfo = mesh.getBoundingInfo();
+        return {
+            uniqueId: mesh.uniqueId,
+            id: mesh.id,
+            name: mesh.name,
+            geometryId: geometryId,
+            sphereCenter: boundingInfo.boundingSphere.centerWorld.asArray(),
+            sphereRadius: boundingInfo.boundingSphere.radiusWorld,
+            boxMinimum: boundingInfo.boundingBox.minimumWorld.asArray(),
+            boxMaximum: boundingInfo.boundingBox.maximumWorld.asArray(),
+            worldMatrixFromCache: mesh.worldMatrixFromCache.asArray(),
+            subMeshes: submeshes,
+            checkCollisions: mesh.checkCollisions
+        };
+    };
+    CollisionCoordinatorWorker.SerializeGeometry = function (geometry) {
+        return {
+            id: geometry.id,
+            positions: new Float32Array(geometry.getVerticesData(BABYLON.VertexBuffer.PositionKind) || []),
+            normals: new Float32Array(geometry.getVerticesData(BABYLON.VertexBuffer.NormalKind) || []),
+            indices: new Uint32Array(geometry.getIndices() || []),
+        };
+    };
     BABYLON.CollisionCoordinatorWorker = CollisionCoordinatorWorker;
-    var CollisionCoordinatorLegacy = /** @class */ (function () {
+    var CollisionCoordinatorLegacy = (function () {
         function CollisionCoordinatorLegacy() {
             this._scaledPosition = BABYLON.Vector3.Zero();
             this._scaledVelocity = BABYLON.Vector3.Zero();
@@ -44075,7 +44075,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Particle = /** @class */ (function () {
+    var Particle = (function () {
         function Particle(particleSystem) {
             this.particleSystem = particleSystem;
             this.position = BABYLON.Vector3.Zero();
@@ -44158,7 +44158,7 @@ var BABYLON;
         var random = Math.random();
         return ((random * (max - min)) + min);
     };
-    var ParticleSystem = /** @class */ (function () {
+    var ParticleSystem = (function () {
         // end of sheet animation
         function ParticleSystem(name, capacity, scene, customEffect, _isAnimationSheetEnabled, epsilon) {
             if (customEffect === void 0) { customEffect = null; }
@@ -44734,11 +44734,11 @@ var BABYLON;
             }
             return particleSystem;
         };
-        // Statics
-        ParticleSystem.BLENDMODE_ONEONE = 0;
-        ParticleSystem.BLENDMODE_STANDARD = 1;
         return ParticleSystem;
     }());
+    // Statics
+    ParticleSystem.BLENDMODE_ONEONE = 0;
+    ParticleSystem.BLENDMODE_STANDARD = 1;
     BABYLON.ParticleSystem = ParticleSystem;
 })(BABYLON || (BABYLON = {}));
 
@@ -44746,7 +44746,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SolidParticle = /** @class */ (function () {
+    var SolidParticle = (function () {
         /**
          * Creates a Solid Particle object.
          * Don't create particles manually, use instead the Solid Particle System internal tools like _addParticle()
@@ -44830,7 +44830,7 @@ var BABYLON;
         return SolidParticle;
     }());
     BABYLON.SolidParticle = SolidParticle;
-    var ModelShape = /** @class */ (function () {
+    var ModelShape = (function () {
         /**
          * Creates a ModelShape object. This is an internal simplified reference to a mesh used as for a model to replicate particles from by the SPS.
          * SPS internal tool, don't use it manually.
@@ -44847,7 +44847,7 @@ var BABYLON;
         return ModelShape;
     }());
     BABYLON.ModelShape = ModelShape;
-    var DepthSortedParticle = /** @class */ (function () {
+    var DepthSortedParticle = (function () {
         function DepthSortedParticle() {
             this.ind = 0; // index of the particle in the "indices" array
             this.indicesLength = 0; // length of the particle shape in the "indices" array
@@ -44865,7 +44865,7 @@ var BABYLON;
     /**
     * Full documentation here : http://doc.babylonjs.com/overviews/Solid_Particle_System
     */
-    var SolidParticleSystem = /** @class */ (function () {
+    var SolidParticleSystem = (function () {
         /**
         * Creates a SPS (Solid Particle System) object.
         * `name` (String) is the SPS name, this will be the underlying mesh name.
@@ -45951,7 +45951,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var GroundMesh = /** @class */ (function (_super) {
+    var GroundMesh = (function (_super) {
         __extends(GroundMesh, _super);
         function GroundMesh(name, scene) {
             var _this = _super.call(this, name, scene) || this;
@@ -46202,7 +46202,7 @@ var BABYLON;
     /**
      * Creates an instance based on a source mesh.
      */
-    var InstancedMesh = /** @class */ (function (_super) {
+    var InstancedMesh = (function (_super) {
         __extends(InstancedMesh, _super);
         function InstancedMesh(name, source) {
             var _this = _super.call(this, name, source.getScene()) || this;
@@ -46478,7 +46478,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var LinesMesh = /** @class */ (function (_super) {
+    var LinesMesh = (function (_super) {
         __extends(LinesMesh, _super);
         function LinesMesh(name, scene, parent, source, doNotCloneChildren, useVertexColor) {
             if (scene === void 0) { scene = null; }
@@ -46596,7 +46596,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ShaderMaterial = /** @class */ (function (_super) {
+    var ShaderMaterial = (function (_super) {
         __extends(ShaderMaterial, _super);
         function ShaderMaterial(name, scene, shaderPath, options) {
             var _this = _super.call(this, name, scene) || this;
@@ -47112,7 +47112,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MeshBuilder = /** @class */ (function () {
+    var MeshBuilder = (function () {
         function MeshBuilder() {
         }
         MeshBuilder.updateSideOrientation = function (orientation) {
@@ -48301,7 +48301,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var AudioEngine = /** @class */ (function () {
+    var AudioEngine = (function () {
         function AudioEngine() {
             this._audioContext = null;
             this._audioContextInitialized = false;
@@ -48432,7 +48432,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Sound = /** @class */ (function () {
+    var Sound = (function () {
         /**
         * Create a sound and attach it to a scene
         * @param name Name of your sound
@@ -49095,7 +49095,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SoundTrack = /** @class */ (function () {
+    var SoundTrack = (function () {
         function SoundTrack(scene, options) {
             this.id = -1;
             this._isMainTrack = false;
@@ -49199,7 +49199,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Analyser = /** @class */ (function () {
+    var Analyser = (function () {
         function Analyser(scene) {
             this.SMOOTHING = 0.75;
             this.FFT_SIZE = 512;
@@ -49316,7 +49316,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var CubeTexture = /** @class */ (function (_super) {
+    var CubeTexture = (function (_super) {
         __extends(CubeTexture, _super);
         function CubeTexture(rootUrl, scene, extensions, noMipmap, files, onLoad, onError, format, prefiltered, forcedExtension) {
             if (extensions === void 0) { extensions = null; }
@@ -49444,7 +49444,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RenderTargetTexture = /** @class */ (function (_super) {
+    var RenderTargetTexture = (function (_super) {
         __extends(RenderTargetTexture, _super);
         function RenderTargetTexture(name, size, scene, generateMipMaps, doNotChangeAspectRatio, type, isCube, samplingMode, generateDepthBuffer, generateStencilBuffer, isMulti) {
             if (doNotChangeAspectRatio === void 0) { doNotChangeAspectRatio = true; }
@@ -49982,11 +49982,11 @@ var BABYLON;
                 this._postProcessManager._rebuild();
             }
         };
-        RenderTargetTexture._REFRESHRATE_RENDER_ONCE = 0;
-        RenderTargetTexture._REFRESHRATE_RENDER_ONEVERYFRAME = 1;
-        RenderTargetTexture._REFRESHRATE_RENDER_ONEVERYTWOFRAMES = 2;
         return RenderTargetTexture;
     }(BABYLON.Texture));
+    RenderTargetTexture._REFRESHRATE_RENDER_ONCE = 0;
+    RenderTargetTexture._REFRESHRATE_RENDER_ONEVERYFRAME = 1;
+    RenderTargetTexture._REFRESHRATE_RENDER_ONEVERYTWOFRAMES = 2;
     BABYLON.RenderTargetTexture = RenderTargetTexture;
 })(BABYLON || (BABYLON = {}));
 
@@ -49996,7 +49996,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     ;
-    var MultiRenderTarget = /** @class */ (function (_super) {
+    var MultiRenderTarget = (function (_super) {
         __extends(MultiRenderTarget, _super);
         function MultiRenderTarget(name, size, count, scene, options) {
             var _this = this;
@@ -50154,7 +50154,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MirrorTexture = /** @class */ (function (_super) {
+    var MirrorTexture = (function (_super) {
         __extends(MirrorTexture, _super);
         function MirrorTexture(name, size, scene, generateMipMaps, type, samplingMode, generateDepthBuffer) {
             if (type === void 0) { type = BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT; }
@@ -50296,7 +50296,7 @@ var BABYLON;
     * @param size size of the underlying texture
     * @param scene root scene
     */
-    var RefractionTexture = /** @class */ (function (_super) {
+    var RefractionTexture = (function (_super) {
         __extends(RefractionTexture, _super);
         function RefractionTexture(name, size, scene, generateMipMaps) {
             var _this = _super.call(this, name, size, scene, generateMipMaps, true) || this;
@@ -50347,7 +50347,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DynamicTexture = /** @class */ (function (_super) {
+    var DynamicTexture = (function (_super) {
         __extends(DynamicTexture, _super);
         function DynamicTexture(name, options, scene, generateMipMaps, samplingMode, format) {
             if (scene === void 0) { scene = null; }
@@ -50464,7 +50464,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VideoTexture = /** @class */ (function (_super) {
+    var VideoTexture = (function (_super) {
         __extends(VideoTexture, _super);
         /**
          * Creates a video texture.
@@ -50599,7 +50599,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RawTexture = /** @class */ (function (_super) {
+    var RawTexture = (function (_super) {
         __extends(RawTexture, _super);
         function RawTexture(data, width, height, format, scene, generateMipMaps, invertY, samplingMode) {
             if (generateMipMaps === void 0) { generateMipMaps = true; }
@@ -50656,7 +50656,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PostProcess = /** @class */ (function () {
+    var PostProcess = (function () {
         function PostProcess(name, fragmentUrl, parameters, samplers, options, camera, samplingMode, engine, reusable, defines, textureType, vertexUrl, indexParameters, blockCompilation) {
             if (samplingMode === void 0) { samplingMode = BABYLON.Texture.NEAREST_SAMPLINGMODE; }
             if (defines === void 0) { defines = null; }
@@ -51023,7 +51023,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PassPostProcess = /** @class */ (function (_super) {
+    var PassPostProcess = (function (_super) {
         __extends(PassPostProcess, _super);
         function PassPostProcess(name, options, camera, samplingMode, engine, reusable, textureType) {
             if (textureType === void 0) { textureType = BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT; }
@@ -51038,7 +51038,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ShadowGenerator = /** @class */ (function () {
+    var ShadowGenerator = (function () {
         /**
          * Creates a ShadowGenerator object.
          * A ShadowGenerator is the required tool to use the shadows.
@@ -51935,14 +51935,14 @@ var BABYLON;
             shadowGenerator.forceBackFacesOnly = parsedShadowGenerator.forceBackFacesOnly;
             return shadowGenerator;
         };
-        ShadowGenerator._FILTER_NONE = 0;
-        ShadowGenerator._FILTER_EXPONENTIALSHADOWMAP = 1;
-        ShadowGenerator._FILTER_POISSONSAMPLING = 2;
-        ShadowGenerator._FILTER_BLUREXPONENTIALSHADOWMAP = 3;
-        ShadowGenerator._FILTER_CLOSEEXPONENTIALSHADOWMAP = 4;
-        ShadowGenerator._FILTER_BLURCLOSEEXPONENTIALSHADOWMAP = 5;
         return ShadowGenerator;
     }());
+    ShadowGenerator._FILTER_NONE = 0;
+    ShadowGenerator._FILTER_EXPONENTIALSHADOWMAP = 1;
+    ShadowGenerator._FILTER_POISSONSAMPLING = 2;
+    ShadowGenerator._FILTER_BLUREXPONENTIALSHADOWMAP = 3;
+    ShadowGenerator._FILTER_CLOSEEXPONENTIALSHADOWMAP = 4;
+    ShadowGenerator._FILTER_BLURCLOSEEXPONENTIALSHADOWMAP = 5;
     BABYLON.ShadowGenerator = ShadowGenerator;
 })(BABYLON || (BABYLON = {}));
 
@@ -51950,7 +51950,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DefaultLoadingScreen = /** @class */ (function () {
+    var DefaultLoadingScreen = (function () {
         function DefaultLoadingScreen(_renderingCanvas, _loadingText, _loadingDivBackgroundColor) {
             if (_loadingText === void 0) { _loadingText = ""; }
             if (_loadingDivBackgroundColor === void 0) { _loadingDivBackgroundColor = "black"; }
@@ -52072,7 +52072,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SceneLoader = /** @class */ (function () {
+    var SceneLoader = (function () {
         function SceneLoader() {
         }
         Object.defineProperty(SceneLoader, "NO_LOGGING", {
@@ -52415,16 +52415,16 @@ var BABYLON;
                 }
             }, progressHandler, errorHandler);
         };
-        // Flags
-        SceneLoader._ForceFullSceneLoadingForIncremental = false;
-        SceneLoader._ShowLoadingScreen = true;
-        SceneLoader._CleanBoneMatrixWeights = false;
-        SceneLoader._loggingLevel = SceneLoader.NO_LOGGING;
-        // Members
-        SceneLoader.OnPluginActivatedObservable = new BABYLON.Observable();
-        SceneLoader._registeredPlugins = {};
         return SceneLoader;
     }());
+    // Flags
+    SceneLoader._ForceFullSceneLoadingForIncremental = false;
+    SceneLoader._ShowLoadingScreen = true;
+    SceneLoader._CleanBoneMatrixWeights = false;
+    SceneLoader._loggingLevel = SceneLoader.NO_LOGGING;
+    // Members
+    SceneLoader.OnPluginActivatedObservable = new BABYLON.Observable();
+    SceneLoader._registeredPlugins = {};
     BABYLON.SceneLoader = SceneLoader;
     ;
 })(BABYLON || (BABYLON = {}));
@@ -53013,7 +53013,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FilesInput = /** @class */ (function () {
+    var FilesInput = (function () {
         function FilesInput(engine, scene, sceneLoadedCallback, progressCallback, additionalRenderLoopLogicCallback, textureLoadingCallback, startingProcessingFilesCallback, onReloadCallback, errorCallback) {
             this.onProcessFileCallback = function () { return true; };
             this._engine = engine;
@@ -53213,9 +53213,9 @@ var BABYLON;
                 BABYLON.Tools.Error("Please provide a valid .babylon file.");
             }
         };
-        FilesInput.FilesToLoad = {};
         return FilesInput;
     }());
+    FilesInput.FilesToLoad = {};
     BABYLON.FilesInput = FilesInput;
 })(BABYLON || (BABYLON = {}));
 
@@ -53228,7 +53228,7 @@ var BABYLON;
      * The underlying implementation relies on an associative array to ensure the best performances.
      * The value can be anything including 'null' but except 'undefined'
      */
-    var StringDictionary = /** @class */ (function () {
+    var StringDictionary = (function () {
         function StringDictionary() {
             this._count = 0;
             this._data = {};
@@ -53393,7 +53393,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Tags = /** @class */ (function () {
+    var Tags = (function () {
         function Tags() {
         }
         Tags.EnableFor = function (obj) {
@@ -53500,7 +53500,7 @@ var BABYLON;
 (function (BABYLON) {
     var Internals;
     (function (Internals) {
-        var AndOrNotEvaluator = /** @class */ (function () {
+        var AndOrNotEvaluator = (function () {
             function AndOrNotEvaluator() {
             }
             AndOrNotEvaluator.Eval = function (query, evaluateCallback) {
@@ -53598,7 +53598,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Database = /** @class */ (function () {
+    var Database = (function () {
         function Database(urlToScene, callbackManifestChecked) {
             // Handling various flavors of prefixed version of IndexedDB
             this.idbFactory = (window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB);
@@ -54112,26 +54112,26 @@ var BABYLON;
                 callback();
             }
         };
-        Database.IsUASupportingBlobStorage = true;
-        Database.IDBStorageEnabled = true;
-        Database.parseURL = function (url) {
-            var a = document.createElement('a');
-            a.href = url;
-            var urlWithoutHash = url.substring(0, url.lastIndexOf("#"));
-            var fileName = url.substring(urlWithoutHash.lastIndexOf("/") + 1, url.length);
-            var absLocation = url.substring(0, url.indexOf(fileName, 0));
-            return absLocation;
-        };
-        Database.ReturnFullUrlLocation = function (url) {
-            if (url.indexOf("http:/") === -1 && url.indexOf("https:/") === -1) {
-                return (Database.parseURL(window.location.href) + url);
-            }
-            else {
-                return url;
-            }
-        };
         return Database;
     }());
+    Database.IsUASupportingBlobStorage = true;
+    Database.IDBStorageEnabled = true;
+    Database.parseURL = function (url) {
+        var a = document.createElement('a');
+        a.href = url;
+        var urlWithoutHash = url.substring(0, url.lastIndexOf("#"));
+        var fileName = url.substring(urlWithoutHash.lastIndexOf("/") + 1, url.length);
+        var absLocation = url.substring(0, url.indexOf(fileName, 0));
+        return absLocation;
+    };
+    Database.ReturnFullUrlLocation = function (url) {
+        if (url.indexOf("http:/") === -1 && url.indexOf("https:/") === -1) {
+            return (Database.parseURL(window.location.href) + url);
+        }
+        else {
+            return url;
+        }
+    };
     BABYLON.Database = Database;
 })(BABYLON || (BABYLON = {}));
 
@@ -54139,7 +54139,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FresnelParameters = /** @class */ (function () {
+    var FresnelParameters = (function () {
         function FresnelParameters() {
             this._isEnabled = true;
             this.leftColor = BABYLON.Color3.White();
@@ -54194,7 +54194,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MultiMaterial = /** @class */ (function (_super) {
+    var MultiMaterial = (function (_super) {
         __extends(MultiMaterial, _super);
         function MultiMaterial(name, scene) {
             var _this = _super.call(this, name, scene, true) || this;
@@ -54325,7 +54325,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraTouchInput = /** @class */ (function () {
+    var FreeCameraTouchInput = (function () {
         function FreeCameraTouchInput() {
             this._offsetX = null;
             this._offsetY = null;
@@ -54434,14 +54434,14 @@ var BABYLON;
         FreeCameraTouchInput.prototype.getSimpleName = function () {
             return "touch";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraTouchInput.prototype, "touchAngularSensibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraTouchInput.prototype, "touchMoveSensibility", void 0);
         return FreeCameraTouchInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraTouchInput.prototype, "touchAngularSensibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraTouchInput.prototype, "touchMoveSensibility", void 0);
     BABYLON.FreeCameraTouchInput = FreeCameraTouchInput;
     BABYLON.CameraInputTypes["FreeCameraTouchInput"] = FreeCameraTouchInput;
 })(BABYLON || (BABYLON = {}));
@@ -54452,7 +54452,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // We're mainly based on the logic defined into the FreeCamera code
-    var TouchCamera = /** @class */ (function (_super) {
+    var TouchCamera = (function (_super) {
         __extends(TouchCamera, _super);
         //-- end properties for backward compatibility for inputs
         function TouchCamera(name, position, scene) {
@@ -54511,7 +54511,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ProceduralTexture = /** @class */ (function (_super) {
+    var ProceduralTexture = (function (_super) {
         __extends(ProceduralTexture, _super);
         function ProceduralTexture(name, size, fragment, scene, fallbackTexture, generateMipMaps, isCube) {
             if (fallbackTexture === void 0) { fallbackTexture = null; }
@@ -54824,7 +54824,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var CustomProceduralTexture = /** @class */ (function (_super) {
+    var CustomProceduralTexture = (function (_super) {
         __extends(CustomProceduralTexture, _super);
         function CustomProceduralTexture(name, texturePath, size, scene, fallbackTexture, generateMipMaps) {
             var _this = _super.call(this, name, size, null, scene, fallbackTexture, generateMipMaps) || this;
@@ -54948,7 +54948,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraGamepadInput = /** @class */ (function () {
+    var FreeCameraGamepadInput = (function () {
         function FreeCameraGamepadInput() {
             this.gamepadAngularSensibility = 200;
             this.gamepadMoveSensibility = 40;
@@ -55019,14 +55019,14 @@ var BABYLON;
         FreeCameraGamepadInput.prototype.getSimpleName = function () {
             return "gamepad";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraGamepadInput.prototype, "gamepadAngularSensibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FreeCameraGamepadInput.prototype, "gamepadMoveSensibility", void 0);
         return FreeCameraGamepadInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraGamepadInput.prototype, "gamepadAngularSensibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FreeCameraGamepadInput.prototype, "gamepadMoveSensibility", void 0);
     BABYLON.FreeCameraGamepadInput = FreeCameraGamepadInput;
     BABYLON.CameraInputTypes["FreeCameraGamepadInput"] = FreeCameraGamepadInput;
 })(BABYLON || (BABYLON = {}));
@@ -55036,7 +55036,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCameraGamepadInput = /** @class */ (function () {
+    var ArcRotateCameraGamepadInput = (function () {
         function ArcRotateCameraGamepadInput() {
             this.gamepadRotationSensibility = 80;
             this.gamepadMoveSensibility = 40;
@@ -55097,14 +55097,14 @@ var BABYLON;
         ArcRotateCameraGamepadInput.prototype.getSimpleName = function () {
             return "gamepad";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraGamepadInput.prototype, "gamepadRotationSensibility", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], ArcRotateCameraGamepadInput.prototype, "gamepadMoveSensibility", void 0);
         return ArcRotateCameraGamepadInput;
     }());
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraGamepadInput.prototype, "gamepadRotationSensibility", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], ArcRotateCameraGamepadInput.prototype, "gamepadMoveSensibility", void 0);
     BABYLON.ArcRotateCameraGamepadInput = ArcRotateCameraGamepadInput;
     BABYLON.CameraInputTypes["ArcRotateCameraGamepadInput"] = ArcRotateCameraGamepadInput;
 })(BABYLON || (BABYLON = {}));
@@ -55113,7 +55113,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var GamepadManager = /** @class */ (function () {
+    var GamepadManager = (function () {
         function GamepadManager() {
             var _this = this;
             this._babylonGamepads = [];
@@ -55294,7 +55294,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var StickValues = /** @class */ (function () {
+    var StickValues = (function () {
         function StickValues(x, y) {
             this.x = x;
             this.y = y;
@@ -55302,7 +55302,7 @@ var BABYLON;
         return StickValues;
     }());
     BABYLON.StickValues = StickValues;
-    var Gamepad = /** @class */ (function () {
+    var Gamepad = (function () {
         function Gamepad(id, index, browserGamepad, leftStickX, leftStickY, rightStickX, rightStickY) {
             if (leftStickX === void 0) { leftStickX = 0; }
             if (leftStickY === void 0) { leftStickY = 1; }
@@ -55373,14 +55373,14 @@ var BABYLON;
         };
         Gamepad.prototype.dispose = function () {
         };
-        Gamepad.GAMEPAD = 0;
-        Gamepad.GENERIC = 1;
-        Gamepad.XBOX = 2;
-        Gamepad.POSE_ENABLED = 3;
         return Gamepad;
     }());
+    Gamepad.GAMEPAD = 0;
+    Gamepad.GENERIC = 1;
+    Gamepad.XBOX = 2;
+    Gamepad.POSE_ENABLED = 3;
     BABYLON.Gamepad = Gamepad;
-    var GenericPad = /** @class */ (function (_super) {
+    var GenericPad = (function (_super) {
         __extends(GenericPad, _super);
         function GenericPad(id, index, browserGamepad) {
             var _this = _super.call(this, id, index, browserGamepad) || this;
@@ -55449,7 +55449,7 @@ var BABYLON;
         Xbox360Dpad[Xbox360Dpad["Left"] = 2] = "Left";
         Xbox360Dpad[Xbox360Dpad["Right"] = 3] = "Right";
     })(Xbox360Dpad = BABYLON.Xbox360Dpad || (BABYLON.Xbox360Dpad = {}));
-    var Xbox360Pad = /** @class */ (function (_super) {
+    var Xbox360Pad = (function (_super) {
         __extends(Xbox360Pad, _super);
         function Xbox360Pad(id, index, gamepad, xboxOne) {
             if (xboxOne === void 0) { xboxOne = false; }
@@ -55753,7 +55753,7 @@ var BABYLON;
         PoseEnabledControllerType[PoseEnabledControllerType["WINDOWS"] = 2] = "WINDOWS";
         PoseEnabledControllerType[PoseEnabledControllerType["GENERIC"] = 3] = "GENERIC";
     })(PoseEnabledControllerType = BABYLON.PoseEnabledControllerType || (BABYLON.PoseEnabledControllerType = {}));
-    var PoseEnabledControllerHelper = /** @class */ (function () {
+    var PoseEnabledControllerHelper = (function () {
         function PoseEnabledControllerHelper() {
         }
         PoseEnabledControllerHelper.InitiateController = function (vrGamepad) {
@@ -55774,7 +55774,7 @@ var BABYLON;
         return PoseEnabledControllerHelper;
     }());
     BABYLON.PoseEnabledControllerHelper = PoseEnabledControllerHelper;
-    var PoseEnabledController = /** @class */ (function (_super) {
+    var PoseEnabledController = (function (_super) {
         __extends(PoseEnabledController, _super);
         function PoseEnabledController(browserGamepad) {
             var _this = _super.call(this, browserGamepad.id, browserGamepad.index, browserGamepad) || this;
@@ -55884,7 +55884,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var WebVRController = /** @class */ (function (_super) {
+    var WebVRController = (function (_super) {
         __extends(WebVRController, _super);
         function WebVRController(vrGamepad) {
             var _this = _super.call(this, vrGamepad) || this;
@@ -55979,7 +55979,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var OculusTouchController = /** @class */ (function (_super) {
+    var OculusTouchController = (function (_super) {
         __extends(OculusTouchController, _super);
         function OculusTouchController(vrGamepad) {
             var _this = _super.call(this, vrGamepad) || this;
@@ -56080,7 +56080,7 @@ var BABYLON;
                 case 0:
                     this.onPadStateChangedObservable.notifyObservers(notifyObject);
                     return;
-                case 1:// index trigger
+                case 1:
                     if (this._defaultModel) {
                         (this._defaultModel.getChildren()[3]).rotation.x = -notifyObject.value * 0.20;
                         (this._defaultModel.getChildren()[3]).position.y = -notifyObject.value * 0.005;
@@ -56088,7 +56088,7 @@ var BABYLON;
                     }
                     this.onTriggerStateChangedObservable.notifyObservers(notifyObject);
                     return;
-                case 2:// secondary trigger
+                case 2:
                     if (this._defaultModel) {
                         (this._defaultModel.getChildren()[4]).position.x = triggerDirection * notifyObject.value * 0.0035;
                     }
@@ -56121,11 +56121,11 @@ var BABYLON;
                     return;
             }
         };
-        OculusTouchController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/oculus/';
-        OculusTouchController.MODEL_LEFT_FILENAME = 'left.babylon';
-        OculusTouchController.MODEL_RIGHT_FILENAME = 'right.babylon';
         return OculusTouchController;
     }(BABYLON.WebVRController));
+    OculusTouchController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/oculus/';
+    OculusTouchController.MODEL_LEFT_FILENAME = 'left.babylon';
+    OculusTouchController.MODEL_RIGHT_FILENAME = 'right.babylon';
     BABYLON.OculusTouchController = OculusTouchController;
 })(BABYLON || (BABYLON = {}));
 
@@ -56134,7 +56134,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ViveController = /** @class */ (function (_super) {
+    var ViveController = (function (_super) {
         __extends(ViveController, _super);
         function ViveController(vrGamepad) {
             var _this = _super.call(this, vrGamepad) || this;
@@ -56196,13 +56196,13 @@ var BABYLON;
                 case 0:
                     this.onPadStateChangedObservable.notifyObservers(notifyObject);
                     return;
-                case 1:// index trigger
+                case 1:
                     if (this._defaultModel) {
                         (this._defaultModel.getChildren()[6]).rotation.x = -notifyObject.value * 0.15;
                     }
                     this.onTriggerStateChangedObservable.notifyObservers(notifyObject);
                     return;
-                case 2:// left AND right button
+                case 2:
                     this.onMainButtonStateChangedObservable.notifyObservers(notifyObject);
                     return;
                 case 3:
@@ -56218,10 +56218,10 @@ var BABYLON;
                     return;
             }
         };
-        ViveController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/vive/';
-        ViveController.MODEL_FILENAME = 'wand.babylon';
         return ViveController;
     }(BABYLON.WebVRController));
+    ViveController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/vive/';
+    ViveController.MODEL_FILENAME = 'wand.babylon';
     BABYLON.ViveController = ViveController;
 })(BABYLON || (BABYLON = {}));
 
@@ -56230,7 +56230,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var GenericController = /** @class */ (function (_super) {
+    var GenericController = (function (_super) {
         __extends(GenericController, _super);
         function GenericController(vrGamepad) {
             return _super.call(this, vrGamepad) || this;
@@ -56249,10 +56249,10 @@ var BABYLON;
             console.log("Button id: " + buttonIdx + "state: ");
             console.dir(state);
         };
-        GenericController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/generic/';
-        GenericController.MODEL_FILENAME = 'generic.babylon';
         return GenericController;
     }(BABYLON.WebVRController));
+    GenericController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/generic/';
+    GenericController.MODEL_FILENAME = 'generic.babylon';
     BABYLON.GenericController = GenericController;
 })(BABYLON || (BABYLON = {}));
 
@@ -56261,14 +56261,14 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var LoadedMeshInfo = /** @class */ (function () {
+    var LoadedMeshInfo = (function () {
         function LoadedMeshInfo() {
             this.buttonMeshes = {};
             this.axisMeshes = {};
         }
         return LoadedMeshInfo;
     }());
-    var WindowsMotionController = /** @class */ (function (_super) {
+    var WindowsMotionController = (function (_super) {
         __extends(WindowsMotionController, _super);
         function WindowsMotionController(vrGamepad) {
             var _this = _super.call(this, vrGamepad) || this;
@@ -56587,13 +56587,13 @@ var BABYLON;
             _super.prototype.dispose.call(this);
             this.onTrackpadChangedObservable.clear();
         };
-        WindowsMotionController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/microsoft/';
-        WindowsMotionController.MODEL_LEFT_FILENAME = 'left.glb';
-        WindowsMotionController.MODEL_RIGHT_FILENAME = 'right.glb';
-        WindowsMotionController.GAMEPAD_ID_PREFIX = 'Spatial Controller (Spatial Interaction Source) ';
-        WindowsMotionController.GAMEPAD_ID_PATTERN = /([0-9a-zA-Z]+-[0-9a-zA-Z]+)$/;
         return WindowsMotionController;
     }(BABYLON.WebVRController));
+    WindowsMotionController.MODEL_BASE_URL = 'https://controllers.babylonjs.com/microsoft/';
+    WindowsMotionController.MODEL_LEFT_FILENAME = 'left.glb';
+    WindowsMotionController.MODEL_RIGHT_FILENAME = 'right.glb';
+    WindowsMotionController.GAMEPAD_ID_PREFIX = 'Spatial Controller (Spatial Interaction Source) ';
+    WindowsMotionController.GAMEPAD_ID_PATTERN = /([0-9a-zA-Z]+-[0-9a-zA-Z]+)$/;
     BABYLON.WindowsMotionController = WindowsMotionController;
 })(BABYLON || (BABYLON = {}));
 
@@ -56607,7 +56607,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FollowCamera = /** @class */ (function (_super) {
+    var FollowCamera = (function (_super) {
         __extends(FollowCamera, _super);
         function FollowCamera(name, position, scene, lockedTarget) {
             if (lockedTarget === void 0) { lockedTarget = null; }
@@ -56666,28 +56666,28 @@ var BABYLON;
         FollowCamera.prototype.getClassName = function () {
             return "FollowCamera";
         };
-        __decorate([
-            BABYLON.serialize()
-        ], FollowCamera.prototype, "radius", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FollowCamera.prototype, "rotationOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FollowCamera.prototype, "heightOffset", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FollowCamera.prototype, "cameraAcceleration", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], FollowCamera.prototype, "maxCameraSpeed", void 0);
-        __decorate([
-            BABYLON.serializeAsMeshReference("lockedTargetId")
-        ], FollowCamera.prototype, "lockedTarget", void 0);
         return FollowCamera;
     }(BABYLON.TargetCamera));
+    __decorate([
+        BABYLON.serialize()
+    ], FollowCamera.prototype, "radius", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FollowCamera.prototype, "rotationOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FollowCamera.prototype, "heightOffset", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FollowCamera.prototype, "cameraAcceleration", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], FollowCamera.prototype, "maxCameraSpeed", void 0);
+    __decorate([
+        BABYLON.serializeAsMeshReference("lockedTargetId")
+    ], FollowCamera.prototype, "lockedTarget", void 0);
     BABYLON.FollowCamera = FollowCamera;
-    var ArcFollowCamera = /** @class */ (function (_super) {
+    var ArcFollowCamera = (function (_super) {
         __extends(ArcFollowCamera, _super);
         function ArcFollowCamera(name, alpha, beta, radius, target, scene) {
             var _this = _super.call(this, name, BABYLON.Vector3.Zero(), scene) || this;
@@ -56728,7 +56728,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // We're mainly based on the logic defined into the FreeCamera code
-    var UniversalCamera = /** @class */ (function (_super) {
+    var UniversalCamera = (function (_super) {
         __extends(UniversalCamera, _super);
         //-- end properties for backward compatibility for inputs
         function UniversalCamera(name, position, scene) {
@@ -56781,7 +56781,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // We're mainly based on the logic defined into the FreeCamera code
-    var GamepadCamera = /** @class */ (function (_super) {
+    var GamepadCamera = (function (_super) {
         __extends(GamepadCamera, _super);
         //-- end properties for backward compatibility for inputs
         function GamepadCamera(name, position, scene) {
@@ -56830,7 +56830,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PostProcessRenderPipelineManager = /** @class */ (function () {
+    var PostProcessRenderPipelineManager = (function () {
         function PostProcessRenderPipelineManager() {
             this._renderPipelines = {};
         }
@@ -56919,7 +56919,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PostProcessRenderPass = /** @class */ (function () {
+    var PostProcessRenderPass = (function () {
         function PostProcessRenderPass(scene, name, size, renderList, beforeRender, afterRender) {
             this._refCount = 0;
             this._name = name;
@@ -56963,7 +56963,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PostProcessRenderEffect = /** @class */ (function () {
+    var PostProcessRenderEffect = (function () {
         function PostProcessRenderEffect(engine, name, getPostProcess, singleInstance) {
             this._engine = engine;
             this._name = name;
@@ -57136,7 +57136,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PostProcessRenderPipeline = /** @class */ (function () {
+    var PostProcessRenderPipeline = (function () {
         function PostProcessRenderPipeline(engine, name) {
             this._engine = engine;
             this._name = name;
@@ -57293,13 +57293,13 @@ var BABYLON;
         PostProcessRenderPipeline.prototype.dispose = function () {
             // Must be implemented by children 
         };
-        PostProcessRenderPipeline.PASS_EFFECT_NAME = "passEffect";
-        PostProcessRenderPipeline.PASS_SAMPLER_NAME = "passSampler";
-        __decorate([
-            BABYLON.serialize()
-        ], PostProcessRenderPipeline.prototype, "_name", void 0);
         return PostProcessRenderPipeline;
     }());
+    PostProcessRenderPipeline.PASS_EFFECT_NAME = "passEffect";
+    PostProcessRenderPipeline.PASS_SAMPLER_NAME = "passSampler";
+    __decorate([
+        BABYLON.serialize()
+    ], PostProcessRenderPipeline.prototype, "_name", void 0);
     BABYLON.PostProcessRenderPipeline = PostProcessRenderPipeline;
 })(BABYLON || (BABYLON = {}));
 
@@ -57307,7 +57307,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DepthRenderer = /** @class */ (function () {
+    var DepthRenderer = (function () {
         function DepthRenderer(scene, type) {
             if (type === void 0) { type = BABYLON.Engine.TEXTURETYPE_FLOAT; }
             var _this = this;
@@ -57451,7 +57451,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SSAORenderingPipeline = /** @class */ (function (_super) {
+    var SSAORenderingPipeline = (function (_super) {
         __extends(SSAORenderingPipeline, _super);
         /**
          * @constructor
@@ -57670,26 +57670,26 @@ var BABYLON;
             }
             this._randomTexture.update(false);
         };
-        __decorate([
-            BABYLON.serialize()
-        ], SSAORenderingPipeline.prototype, "totalStrength", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAORenderingPipeline.prototype, "radius", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAORenderingPipeline.prototype, "area", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAORenderingPipeline.prototype, "fallOff", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAORenderingPipeline.prototype, "base", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAORenderingPipeline.prototype, "_ratio", void 0);
         return SSAORenderingPipeline;
     }(BABYLON.PostProcessRenderPipeline));
+    __decorate([
+        BABYLON.serialize()
+    ], SSAORenderingPipeline.prototype, "totalStrength", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAORenderingPipeline.prototype, "radius", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAORenderingPipeline.prototype, "area", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAORenderingPipeline.prototype, "fallOff", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAORenderingPipeline.prototype, "base", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAORenderingPipeline.prototype, "_ratio", void 0);
     BABYLON.SSAORenderingPipeline = SSAORenderingPipeline;
 })(BABYLON || (BABYLON = {}));
 
@@ -57703,7 +57703,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SSAO2RenderingPipeline = /** @class */ (function (_super) {
+    var SSAO2RenderingPipeline = (function (_super) {
         __extends(SSAO2RenderingPipeline, _super);
         /**
          * @constructor
@@ -57997,32 +57997,32 @@ var BABYLON;
             }
             this._randomTexture.update(false);
         };
-        __decorate([
-            BABYLON.serialize()
-        ], SSAO2RenderingPipeline.prototype, "totalStrength", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAO2RenderingPipeline.prototype, "maxZ", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAO2RenderingPipeline.prototype, "minZAspect", void 0);
-        __decorate([
-            BABYLON.serialize("samples")
-        ], SSAO2RenderingPipeline.prototype, "_samples", void 0);
-        __decorate([
-            BABYLON.serialize("expensiveBlur")
-        ], SSAO2RenderingPipeline.prototype, "_expensiveBlur", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAO2RenderingPipeline.prototype, "radius", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAO2RenderingPipeline.prototype, "base", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], SSAO2RenderingPipeline.prototype, "_ratio", void 0);
         return SSAO2RenderingPipeline;
     }(BABYLON.PostProcessRenderPipeline));
+    __decorate([
+        BABYLON.serialize()
+    ], SSAO2RenderingPipeline.prototype, "totalStrength", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAO2RenderingPipeline.prototype, "maxZ", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAO2RenderingPipeline.prototype, "minZAspect", void 0);
+    __decorate([
+        BABYLON.serialize("samples")
+    ], SSAO2RenderingPipeline.prototype, "_samples", void 0);
+    __decorate([
+        BABYLON.serialize("expensiveBlur")
+    ], SSAO2RenderingPipeline.prototype, "_expensiveBlur", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAO2RenderingPipeline.prototype, "radius", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAO2RenderingPipeline.prototype, "base", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], SSAO2RenderingPipeline.prototype, "_ratio", void 0);
     BABYLON.SSAO2RenderingPipeline = SSAO2RenderingPipeline;
 })(BABYLON || (BABYLON = {}));
 
@@ -58035,7 +58035,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var LensRenderingPipeline = /** @class */ (function (_super) {
+    var LensRenderingPipeline = (function (_super) {
         __extends(LensRenderingPipeline, _super);
         /**
          * @constructor
@@ -58266,7 +58266,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var StandardRenderingPipeline = /** @class */ (function (_super) {
+    var StandardRenderingPipeline = (function (_super) {
         __extends(StandardRenderingPipeline, _super);
         /**
          * @constructor
@@ -58933,97 +58933,97 @@ var BABYLON;
         StandardRenderingPipeline.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new StandardRenderingPipeline(source._name, scene, source._ratio); }, source, scene, rootUrl);
         };
-        // Luminance steps
-        StandardRenderingPipeline.LuminanceSteps = 6;
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "brightThreshold", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "blurWidth", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "horizontalBlur", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "exposure", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("lensTexture")
-        ], StandardRenderingPipeline.prototype, "lensTexture", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "volumetricLightCoefficient", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "volumetricLightPower", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "volumetricLightBlurScale", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "hdrMinimumLuminance", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "hdrDecreaseRate", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "hdrIncreaseRate", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("lensColorTexture")
-        ], StandardRenderingPipeline.prototype, "lensColorTexture", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "lensFlareStrength", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "lensFlareGhostDispersal", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "lensFlareHaloWidth", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "lensFlareDistortionStrength", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("lensStarTexture")
-        ], StandardRenderingPipeline.prototype, "lensStarTexture", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture("lensFlareDirtTexture")
-        ], StandardRenderingPipeline.prototype, "lensFlareDirtTexture", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "depthOfFieldDistance", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "depthOfFieldBlurWidth", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "motionStrength", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "BloomEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "DepthOfFieldEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "LensFlareEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "HDREnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "VLSEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "MotionBlurEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "volumetricLightStepsCount", null);
-        __decorate([
-            BABYLON.serialize()
-        ], StandardRenderingPipeline.prototype, "motionBlurSamples", null);
         return StandardRenderingPipeline;
     }(BABYLON.PostProcessRenderPipeline));
+    // Luminance steps
+    StandardRenderingPipeline.LuminanceSteps = 6;
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "brightThreshold", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "blurWidth", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "horizontalBlur", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "exposure", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("lensTexture")
+    ], StandardRenderingPipeline.prototype, "lensTexture", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "volumetricLightCoefficient", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "volumetricLightPower", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "volumetricLightBlurScale", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "hdrMinimumLuminance", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "hdrDecreaseRate", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "hdrIncreaseRate", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("lensColorTexture")
+    ], StandardRenderingPipeline.prototype, "lensColorTexture", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "lensFlareStrength", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "lensFlareGhostDispersal", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "lensFlareHaloWidth", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "lensFlareDistortionStrength", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("lensStarTexture")
+    ], StandardRenderingPipeline.prototype, "lensStarTexture", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture("lensFlareDirtTexture")
+    ], StandardRenderingPipeline.prototype, "lensFlareDirtTexture", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "depthOfFieldDistance", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "depthOfFieldBlurWidth", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "motionStrength", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "BloomEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "DepthOfFieldEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "LensFlareEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "HDREnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "VLSEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "MotionBlurEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "volumetricLightStepsCount", null);
+    __decorate([
+        BABYLON.serialize()
+    ], StandardRenderingPipeline.prototype, "motionBlurSamples", null);
     BABYLON.StandardRenderingPipeline = StandardRenderingPipeline;
 })(BABYLON || (BABYLON = {}));
 
@@ -59032,7 +59032,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FxaaPostProcess = /** @class */ (function (_super) {
+    var FxaaPostProcess = (function (_super) {
         __extends(FxaaPostProcess, _super);
         function FxaaPostProcess(name, options, camera, samplingMode, engine, reusable, textureType) {
             if (camera === void 0) { camera = null; }
@@ -59059,7 +59059,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DefaultRenderingPipeline = /** @class */ (function (_super) {
+    var DefaultRenderingPipeline = (function (_super) {
         __extends(DefaultRenderingPipeline, _super);
         /**
          * @constructor
@@ -59345,32 +59345,32 @@ var BABYLON;
         DefaultRenderingPipeline.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new DefaultRenderingPipeline(source._name, source._name._hdr, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "bloomKernel", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "_bloomWeight", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "_hdr", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "bloomWeight", null);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "bloomScale", null);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "bloomEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "fxaaEnabled", null);
-        __decorate([
-            BABYLON.serialize()
-        ], DefaultRenderingPipeline.prototype, "imageProcessingEnabled", null);
         return DefaultRenderingPipeline;
     }(BABYLON.PostProcessRenderPipeline));
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "bloomKernel", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "_bloomWeight", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "_hdr", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "bloomWeight", null);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "bloomScale", null);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "bloomEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "fxaaEnabled", null);
+    __decorate([
+        BABYLON.serialize()
+    ], DefaultRenderingPipeline.prototype, "imageProcessingEnabled", null);
     BABYLON.DefaultRenderingPipeline = DefaultRenderingPipeline;
 })(BABYLON || (BABYLON = {}));
 
@@ -59378,7 +59378,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var GeometryBufferRenderer = /** @class */ (function () {
+    var GeometryBufferRenderer = (function () {
         function GeometryBufferRenderer(scene, ratio) {
             if (ratio === void 0) { ratio = 1; }
             this._enablePosition = false;
@@ -59556,7 +59556,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RefractionPostProcess = /** @class */ (function (_super) {
+    var RefractionPostProcess = (function (_super) {
         __extends(RefractionPostProcess, _super);
         function RefractionPostProcess(name, refractionTextureUrl, color, depth, colorLevel, options, camera, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, "refraction", ["baseColor", "depth", "colorLevel"], ["refractionSampler"], options, camera, samplingMode, engine, reusable) || this;
@@ -59591,7 +59591,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BlackAndWhitePostProcess = /** @class */ (function (_super) {
+    var BlackAndWhitePostProcess = (function (_super) {
         __extends(BlackAndWhitePostProcess, _super);
         function BlackAndWhitePostProcess(name, options, camera, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, "blackAndWhite", ["degree"], null, options, camera, samplingMode, engine, reusable) || this;
@@ -59611,7 +59611,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ConvolutionPostProcess = /** @class */ (function (_super) {
+    var ConvolutionPostProcess = (function (_super) {
         __extends(ConvolutionPostProcess, _super);
         function ConvolutionPostProcess(name, kernel, options, camera, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, "convolution", ["kernel", "screenSize"], null, options, camera, samplingMode, engine, reusable) || this;
@@ -59622,16 +59622,16 @@ var BABYLON;
             };
             return _this;
         }
-        // Statics
-        // Based on http://en.wikipedia.org/wiki/Kernel_(image_processing)
-        ConvolutionPostProcess.EdgeDetect0Kernel = [1, 0, -1, 0, 0, 0, -1, 0, 1];
-        ConvolutionPostProcess.EdgeDetect1Kernel = [0, 1, 0, 1, -4, 1, 0, 1, 0];
-        ConvolutionPostProcess.EdgeDetect2Kernel = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
-        ConvolutionPostProcess.SharpenKernel = [0, -1, 0, -1, 5, -1, 0, -1, 0];
-        ConvolutionPostProcess.EmbossKernel = [-2, -1, 0, -1, 1, 1, 0, 1, 2];
-        ConvolutionPostProcess.GaussianKernel = [0, 1, 0, 1, 1, 1, 0, 1, 0];
         return ConvolutionPostProcess;
     }(BABYLON.PostProcess));
+    // Statics
+    // Based on http://en.wikipedia.org/wiki/Kernel_(image_processing)
+    ConvolutionPostProcess.EdgeDetect0Kernel = [1, 0, -1, 0, 0, 0, -1, 0, 1];
+    ConvolutionPostProcess.EdgeDetect1Kernel = [0, 1, 0, 1, -4, 1, 0, 1, 0];
+    ConvolutionPostProcess.EdgeDetect2Kernel = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
+    ConvolutionPostProcess.SharpenKernel = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+    ConvolutionPostProcess.EmbossKernel = [-2, -1, 0, -1, 1, 1, 0, 1, 2];
+    ConvolutionPostProcess.GaussianKernel = [0, 1, 0, 1, 1, 1, 0, 1, 0];
     BABYLON.ConvolutionPostProcess = ConvolutionPostProcess;
 })(BABYLON || (BABYLON = {}));
 
@@ -59640,7 +59640,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FilterPostProcess = /** @class */ (function (_super) {
+    var FilterPostProcess = (function (_super) {
         __extends(FilterPostProcess, _super);
         function FilterPostProcess(name, kernelMatrix, options, camera, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, "filter", ["kernelMatrix"], null, options, camera, samplingMode, engine, reusable) || this;
@@ -59666,7 +59666,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // Inspired by http://http.developer.nvidia.com/GPUGems3/gpugems3_ch13.html
-    var VolumetricLightScatteringPostProcess = /** @class */ (function (_super) {
+    var VolumetricLightScatteringPostProcess = (function (_super) {
         __extends(VolumetricLightScatteringPostProcess, _super);
         /**
          * @constructor
@@ -60017,35 +60017,35 @@ var BABYLON;
             mesh.material = material;
             return mesh;
         };
-        __decorate([
-            BABYLON.serializeAsVector3()
-        ], VolumetricLightScatteringPostProcess.prototype, "customMeshPosition", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "useCustomMeshPosition", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "invert", void 0);
-        __decorate([
-            BABYLON.serializeAsMeshReference()
-        ], VolumetricLightScatteringPostProcess.prototype, "mesh", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "excludedMeshes", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "exposure", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "decay", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "weight", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], VolumetricLightScatteringPostProcess.prototype, "density", void 0);
         return VolumetricLightScatteringPostProcess;
     }(BABYLON.PostProcess));
+    __decorate([
+        BABYLON.serializeAsVector3()
+    ], VolumetricLightScatteringPostProcess.prototype, "customMeshPosition", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "useCustomMeshPosition", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "invert", void 0);
+    __decorate([
+        BABYLON.serializeAsMeshReference()
+    ], VolumetricLightScatteringPostProcess.prototype, "mesh", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "excludedMeshes", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "exposure", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "decay", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "weight", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], VolumetricLightScatteringPostProcess.prototype, "density", void 0);
     BABYLON.VolumetricLightScatteringPostProcess = VolumetricLightScatteringPostProcess;
 })(BABYLON || (BABYLON = {}));
 
@@ -60067,7 +60067,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ColorCorrectionPostProcess = /** @class */ (function (_super) {
+    var ColorCorrectionPostProcess = (function (_super) {
         __extends(ColorCorrectionPostProcess, _super);
         function ColorCorrectionPostProcess(name, colorTableUrl, options, camera, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, 'colorCorrection', null, ['colorTable'], options, camera, samplingMode, engine, reusable) || this;
@@ -60098,7 +60098,7 @@ var BABYLON;
         TonemappingOperator[TonemappingOperator["Photographic"] = 3] = "Photographic";
     })(TonemappingOperator = BABYLON.TonemappingOperator || (BABYLON.TonemappingOperator = {}));
     ;
-    var TonemapPostProcess = /** @class */ (function (_super) {
+    var TonemapPostProcess = (function (_super) {
         __extends(TonemapPostProcess, _super);
         function TonemapPostProcess(name, _operator, exposureAdjustment, camera, samplingMode, engine, textureFormat) {
             if (samplingMode === void 0) { samplingMode = BABYLON.Texture.BILINEAR_SAMPLINGMODE; }
@@ -60132,7 +60132,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DisplayPassPostProcess = /** @class */ (function (_super) {
+    var DisplayPassPostProcess = (function (_super) {
         __extends(DisplayPassPostProcess, _super);
         function DisplayPassPostProcess(name, options, camera, samplingMode, engine, reusable) {
             return _super.call(this, name, "displayPass", ["passSampler"], ["passSampler"], options, camera, samplingMode, engine, reusable) || this;
@@ -60147,7 +60147,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var HighlightsPostProcess = /** @class */ (function (_super) {
+    var HighlightsPostProcess = (function (_super) {
         __extends(HighlightsPostProcess, _super);
         function HighlightsPostProcess(name, options, camera, samplingMode, engine, reusable, textureType) {
             if (textureType === void 0) { textureType = BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT; }
@@ -60168,7 +60168,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ImageProcessingPostProcess = /** @class */ (function (_super) {
+    var ImageProcessingPostProcess = (function (_super) {
         __extends(ImageProcessingPostProcess, _super);
         function ImageProcessingPostProcess(name, options, camera, samplingMode, engine, reusable, textureType) {
             if (camera === void 0) { camera = null; }
@@ -60552,11 +60552,11 @@ var BABYLON;
             }
             this.imageProcessingConfiguration.applyByPostProcess = false;
         };
-        __decorate([
-            BABYLON.serialize()
-        ], ImageProcessingPostProcess.prototype, "_fromLinearSpace", void 0);
         return ImageProcessingPostProcess;
     }(BABYLON.PostProcess));
+    __decorate([
+        BABYLON.serialize()
+    ], ImageProcessingPostProcess.prototype, "_fromLinearSpace", void 0);
     BABYLON.ImageProcessingPostProcess = ImageProcessingPostProcess;
 })(BABYLON || (BABYLON = {}));
 
@@ -60565,7 +60565,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BlurPostProcess = /** @class */ (function (_super) {
+    var BlurPostProcess = (function (_super) {
         __extends(BlurPostProcess, _super);
         function BlurPostProcess(name, direction, kernel, options, camera, samplingMode, engine, reusable, textureType) {
             if (samplingMode === void 0) { samplingMode = BABYLON.Texture.BILINEAR_SAMPLINGMODE; }
@@ -60752,7 +60752,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Bone = /** @class */ (function (_super) {
+    var Bone = (function (_super) {
         __extends(Bone, _super);
         function Bone(name, skeleton, parentBone, localMatrix, restPose, baseMatrix, index) {
             if (parentBone === void 0) { parentBone = null; }
@@ -61629,11 +61629,11 @@ var BABYLON;
             tmat.invert();
             BABYLON.Vector3.TransformCoordinatesToRef(position, tmat, result);
         };
-        Bone._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
-        Bone._tmpQuat = BABYLON.Quaternion.Identity();
-        Bone._tmpMats = [BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity()];
         return Bone;
     }(BABYLON.Node));
+    Bone._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
+    Bone._tmpQuat = BABYLON.Quaternion.Identity();
+    Bone._tmpMats = [BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity()];
     BABYLON.Bone = Bone;
 })(BABYLON || (BABYLON = {}));
 
@@ -61641,7 +61641,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BoneIKController = /** @class */ (function () {
+    var BoneIKController = (function () {
         function BoneIKController(mesh, bone, options) {
             this.targetPosition = BABYLON.Vector3.Zero();
             this.poleTargetPosition = BABYLON.Vector3.Zero();
@@ -61842,11 +61842,11 @@ var BABYLON;
             this._bone2.setAxisAngle(this._bendAxis, angC, BABYLON.Space.LOCAL);
             this._bone2Ang = angC;
         };
-        BoneIKController._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
-        BoneIKController._tmpQuat = BABYLON.Quaternion.Identity();
-        BoneIKController._tmpMats = [BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity()];
         return BoneIKController;
     }());
+    BoneIKController._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
+    BoneIKController._tmpQuat = BABYLON.Quaternion.Identity();
+    BoneIKController._tmpMats = [BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity()];
     BABYLON.BoneIKController = BoneIKController;
 })(BABYLON || (BABYLON = {}));
 
@@ -61854,7 +61854,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BoneLookController = /** @class */ (function () {
+    var BoneLookController = (function () {
         /**
          * Create a BoneLookController
          * @param mesh the mesh that the bone belongs to
@@ -62291,11 +62291,11 @@ var BABYLON;
             }
             return false;
         };
-        BoneLookController._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
-        BoneLookController._tmpQuat = BABYLON.Quaternion.Identity();
-        BoneLookController._tmpMats = [BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity()];
         return BoneLookController;
     }());
+    BoneLookController._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
+    BoneLookController._tmpQuat = BABYLON.Quaternion.Identity();
+    BoneLookController._tmpMats = [BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity(), BABYLON.Matrix.Identity()];
     BABYLON.BoneLookController = BoneLookController;
 })(BABYLON || (BABYLON = {}));
 
@@ -62303,7 +62303,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Skeleton = /** @class */ (function () {
+    var Skeleton = (function () {
         function Skeleton(name, id, scene) {
             this.name = name;
             this.id = id;
@@ -62711,7 +62711,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SphericalPolynomial = /** @class */ (function () {
+    var SphericalPolynomial = (function () {
         function SphericalPolynomial() {
             this.x = BABYLON.Vector3.Zero();
             this.y = BABYLON.Vector3.Zero();
@@ -62757,7 +62757,7 @@ var BABYLON;
         return SphericalPolynomial;
     }());
     BABYLON.SphericalPolynomial = SphericalPolynomial;
-    var SphericalHarmonics = /** @class */ (function () {
+    var SphericalHarmonics = (function () {
         function SphericalHarmonics() {
             this.L00 = BABYLON.Vector3.Zero();
             this.L1_1 = BABYLON.Vector3.Zero();
@@ -62848,7 +62848,7 @@ var BABYLON;
 (function (BABYLON) {
     var Internals;
     (function (Internals) {
-        var FileFaceOrientation = /** @class */ (function () {
+        var FileFaceOrientation = (function () {
             function FileFaceOrientation(name, worldAxisForNormal, worldAxisForFileX, worldAxisForFileY) {
                 this.name = name;
                 this.worldAxisForNormal = worldAxisForNormal;
@@ -62862,7 +62862,7 @@ var BABYLON;
          * Helper class dealing with the extraction of spherical polynomial dataArray
          * from a cube map.
          */
-        var CubeMapToSphericalPolynomialTools = /** @class */ (function () {
+        var CubeMapToSphericalPolynomialTools = (function () {
             function CubeMapToSphericalPolynomialTools() {
             }
             /**
@@ -62981,16 +62981,16 @@ var BABYLON;
                 sphericalHarmonics.convertIrradianceToLambertianRadiance();
                 return BABYLON.SphericalPolynomial.getSphericalPolynomialFromHarmonics(sphericalHarmonics);
             };
-            CubeMapToSphericalPolynomialTools.FileFaces = [
-                new FileFaceOrientation("right", new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, -1), new BABYLON.Vector3(0, -1, 0)),
-                new FileFaceOrientation("left", new BABYLON.Vector3(-1, 0, 0), new BABYLON.Vector3(0, 0, 1), new BABYLON.Vector3(0, -1, 0)),
-                new FileFaceOrientation("up", new BABYLON.Vector3(0, 1, 0), new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, 1)),
-                new FileFaceOrientation("down", new BABYLON.Vector3(0, -1, 0), new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, -1)),
-                new FileFaceOrientation("front", new BABYLON.Vector3(0, 0, 1), new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, -1, 0)),
-                new FileFaceOrientation("back", new BABYLON.Vector3(0, 0, -1), new BABYLON.Vector3(-1, 0, 0), new BABYLON.Vector3(0, -1, 0)) // -Z bottom
-            ];
             return CubeMapToSphericalPolynomialTools;
         }());
+        CubeMapToSphericalPolynomialTools.FileFaces = [
+            new FileFaceOrientation("right", new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, -1), new BABYLON.Vector3(0, -1, 0)),
+            new FileFaceOrientation("left", new BABYLON.Vector3(-1, 0, 0), new BABYLON.Vector3(0, 0, 1), new BABYLON.Vector3(0, -1, 0)),
+            new FileFaceOrientation("up", new BABYLON.Vector3(0, 1, 0), new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, 1)),
+            new FileFaceOrientation("down", new BABYLON.Vector3(0, -1, 0), new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, 0, -1)),
+            new FileFaceOrientation("front", new BABYLON.Vector3(0, 0, 1), new BABYLON.Vector3(1, 0, 0), new BABYLON.Vector3(0, -1, 0)),
+            new FileFaceOrientation("back", new BABYLON.Vector3(0, 0, -1), new BABYLON.Vector3(-1, 0, 0), new BABYLON.Vector3(0, -1, 0)) // -Z bottom
+        ];
         Internals.CubeMapToSphericalPolynomialTools = CubeMapToSphericalPolynomialTools;
     })(Internals = BABYLON.Internals || (BABYLON.Internals = {}));
 })(BABYLON || (BABYLON = {}));
@@ -63004,7 +63004,7 @@ var BABYLON;
         /**
          * Helper class usefull to convert panorama picture to their cubemap representation in 6 faces.
          */
-        var PanoramaToCubeMapTools = /** @class */ (function () {
+        var PanoramaToCubeMapTools = (function () {
             function PanoramaToCubeMapTools() {
             }
             /**
@@ -63098,44 +63098,44 @@ var BABYLON;
                     b: b
                 };
             };
-            PanoramaToCubeMapTools.FACE_FRONT = [
-                new BABYLON.Vector3(-1.0, -1.0, -1.0),
-                new BABYLON.Vector3(1.0, -1.0, -1.0),
-                new BABYLON.Vector3(-1.0, 1.0, -1.0),
-                new BABYLON.Vector3(1.0, 1.0, -1.0)
-            ];
-            PanoramaToCubeMapTools.FACE_BACK = [
-                new BABYLON.Vector3(1.0, -1.0, 1.0),
-                new BABYLON.Vector3(-1.0, -1.0, 1.0),
-                new BABYLON.Vector3(1.0, 1.0, 1.0),
-                new BABYLON.Vector3(-1.0, 1.0, 1.0)
-            ];
-            PanoramaToCubeMapTools.FACE_RIGHT = [
-                new BABYLON.Vector3(1.0, -1.0, -1.0),
-                new BABYLON.Vector3(1.0, -1.0, 1.0),
-                new BABYLON.Vector3(1.0, 1.0, -1.0),
-                new BABYLON.Vector3(1.0, 1.0, 1.0)
-            ];
-            PanoramaToCubeMapTools.FACE_LEFT = [
-                new BABYLON.Vector3(-1.0, -1.0, 1.0),
-                new BABYLON.Vector3(-1.0, -1.0, -1.0),
-                new BABYLON.Vector3(-1.0, 1.0, 1.0),
-                new BABYLON.Vector3(-1.0, 1.0, -1.0)
-            ];
-            PanoramaToCubeMapTools.FACE_DOWN = [
-                new BABYLON.Vector3(-1.0, 1.0, -1.0),
-                new BABYLON.Vector3(1.0, 1.0, -1.0),
-                new BABYLON.Vector3(-1.0, 1.0, 1.0),
-                new BABYLON.Vector3(1.0, 1.0, 1.0)
-            ];
-            PanoramaToCubeMapTools.FACE_UP = [
-                new BABYLON.Vector3(-1.0, -1.0, 1.0),
-                new BABYLON.Vector3(1.0, -1.0, 1.0),
-                new BABYLON.Vector3(-1.0, -1.0, -1.0),
-                new BABYLON.Vector3(1.0, -1.0, -1.0)
-            ];
             return PanoramaToCubeMapTools;
         }());
+        PanoramaToCubeMapTools.FACE_FRONT = [
+            new BABYLON.Vector3(-1.0, -1.0, -1.0),
+            new BABYLON.Vector3(1.0, -1.0, -1.0),
+            new BABYLON.Vector3(-1.0, 1.0, -1.0),
+            new BABYLON.Vector3(1.0, 1.0, -1.0)
+        ];
+        PanoramaToCubeMapTools.FACE_BACK = [
+            new BABYLON.Vector3(1.0, -1.0, 1.0),
+            new BABYLON.Vector3(-1.0, -1.0, 1.0),
+            new BABYLON.Vector3(1.0, 1.0, 1.0),
+            new BABYLON.Vector3(-1.0, 1.0, 1.0)
+        ];
+        PanoramaToCubeMapTools.FACE_RIGHT = [
+            new BABYLON.Vector3(1.0, -1.0, -1.0),
+            new BABYLON.Vector3(1.0, -1.0, 1.0),
+            new BABYLON.Vector3(1.0, 1.0, -1.0),
+            new BABYLON.Vector3(1.0, 1.0, 1.0)
+        ];
+        PanoramaToCubeMapTools.FACE_LEFT = [
+            new BABYLON.Vector3(-1.0, -1.0, 1.0),
+            new BABYLON.Vector3(-1.0, -1.0, -1.0),
+            new BABYLON.Vector3(-1.0, 1.0, 1.0),
+            new BABYLON.Vector3(-1.0, 1.0, -1.0)
+        ];
+        PanoramaToCubeMapTools.FACE_DOWN = [
+            new BABYLON.Vector3(-1.0, 1.0, -1.0),
+            new BABYLON.Vector3(1.0, 1.0, -1.0),
+            new BABYLON.Vector3(-1.0, 1.0, 1.0),
+            new BABYLON.Vector3(1.0, 1.0, 1.0)
+        ];
+        PanoramaToCubeMapTools.FACE_UP = [
+            new BABYLON.Vector3(-1.0, -1.0, 1.0),
+            new BABYLON.Vector3(1.0, -1.0, 1.0),
+            new BABYLON.Vector3(-1.0, -1.0, -1.0),
+            new BABYLON.Vector3(1.0, -1.0, -1.0)
+        ];
         Internals.PanoramaToCubeMapTools = PanoramaToCubeMapTools;
     })(Internals = BABYLON.Internals || (BABYLON.Internals = {}));
 })(BABYLON || (BABYLON = {}));
@@ -63150,7 +63150,7 @@ var BABYLON;
         /**
          * This groups tools to convert HDR texture to native colors array.
          */
-        var HDRTools = /** @class */ (function () {
+        var HDRTools = (function () {
             function HDRTools() {
             }
             HDRTools.Ldexp = function (mantissa, exponent) {
@@ -63356,7 +63356,7 @@ var BABYLON;
      * The only supported format is currently panorama picture stored in RGBE format.
      * Example of such files can be found on HDRLib: http://hdrlib.com/
      */
-    var HDRCubeTexture = /** @class */ (function (_super) {
+    var HDRCubeTexture = (function (_super) {
         __extends(HDRCubeTexture, _super);
         /**
          * Instantiates an HDRTexture from the following parameters.
@@ -63781,16 +63781,16 @@ var BABYLON;
             // Coming Back in 3.x.
             BABYLON.Tools.Error("Generation of Babylon HDR is coming back in 3.1.");
         };
-        HDRCubeTexture._facesMapping = [
-            "right",
-            "left",
-            "up",
-            "down",
-            "front",
-            "back"
-        ];
         return HDRCubeTexture;
     }(BABYLON.BaseTexture));
+    HDRCubeTexture._facesMapping = [
+        "right",
+        "left",
+        "up",
+        "down",
+        "front",
+        "back"
+    ];
     BABYLON.HDRCubeTexture = HDRCubeTexture;
 })(BABYLON || (BABYLON = {}));
 
@@ -63851,7 +63851,7 @@ var Earcut;
         return triangles;
     }
     Earcut.earcut = earcut;
-    var Node = /** @class */ (function () {
+    var Node = (function () {
         function Node(i, x, y) {
             this.i = i;
             this.x = x;
@@ -64360,7 +64360,7 @@ var Earcut;
 
 var BABYLON;
 (function (BABYLON) {
-    var IndexedVector2 = /** @class */ (function (_super) {
+    var IndexedVector2 = (function (_super) {
         __extends(IndexedVector2, _super);
         function IndexedVector2(original, index) {
             var _this = _super.call(this, original.x, original.y) || this;
@@ -64369,7 +64369,7 @@ var BABYLON;
         }
         return IndexedVector2;
     }(BABYLON.Vector2));
-    var PolygonPoints = /** @class */ (function () {
+    var PolygonPoints = (function () {
         function PolygonPoints() {
             this.elements = new Array();
         }
@@ -64413,7 +64413,7 @@ var BABYLON;
         };
         return PolygonPoints;
     }());
-    var Polygon = /** @class */ (function () {
+    var Polygon = (function () {
         function Polygon() {
         }
         Polygon.Rectangle = function (xmin, ymin, xmax, ymax) {
@@ -64451,7 +64451,7 @@ var BABYLON;
         return Polygon;
     }());
     BABYLON.Polygon = Polygon;
-    var PolygonMeshBuilder = /** @class */ (function () {
+    var PolygonMeshBuilder = (function () {
         function PolygonMeshBuilder(name, contours, scene) {
             this._points = new PolygonPoints();
             this._outlinepoints = new PolygonPoints();
@@ -64608,7 +64608,7 @@ var BABYLON;
     // functions like `BABYLON.CSG.sphere()` can return a smooth vertex normal, but `normal`
     // is not used anywhere else. 
     // Same goes for uv, it allows to keep the original vertex uv coordinates of the 2 meshes
-    var Vertex = /** @class */ (function () {
+    var Vertex = (function () {
         function Vertex(pos, normal, uv) {
             this.pos = pos;
             this.normal = normal;
@@ -64632,7 +64632,7 @@ var BABYLON;
     }());
     // # class Plane
     // Represents a plane in 3D space.
-    var Plane = /** @class */ (function () {
+    var Plane = (function () {
         function Plane(normal, w) {
             this.normal = normal;
             this.w = w;
@@ -64717,11 +64717,11 @@ var BABYLON;
                     break;
             }
         };
-        // `BABYLON.CSG.Plane.EPSILON` is the tolerance used by `splitPolygon()` to decide if a
-        // point is on the plane.
-        Plane.EPSILON = 1e-5;
         return Plane;
     }());
+    // `BABYLON.CSG.Plane.EPSILON` is the tolerance used by `splitPolygon()` to decide if a
+    // point is on the plane.
+    Plane.EPSILON = 1e-5;
     // # class Polygon
     // Represents a convex polygon. The vertices used to initialize a polygon must
     // be coplanar and form a convex loop.
@@ -64729,7 +64729,7 @@ var BABYLON;
     // Each convex polygon has a `shared` property, which is shared between all
     // polygons that are clones of each other or were split from the same polygon.
     // This can be used to define per-polygon properties (such as surface color).
-    var Polygon = /** @class */ (function () {
+    var Polygon = (function () {
         function Polygon(vertices, shared) {
             this.vertices = vertices;
             this.shared = shared;
@@ -64751,7 +64751,7 @@ var BABYLON;
     // polygons) are added directly to that node and the other polygons are added to
     // the front and/or back subtrees. This is not a leafy BSP tree since there is
     // no distinction between internal and leaf nodes.
-    var Node = /** @class */ (function () {
+    var Node = (function () {
         function Node(polygons) {
             this.plane = null;
             this.front = null;
@@ -64851,7 +64851,7 @@ var BABYLON;
         };
         return Node;
     }());
-    var CSG = /** @class */ (function () {
+    var CSG = (function () {
         function CSG() {
             this.polygons = new Array();
         }
@@ -65110,7 +65110,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var LensFlare = /** @class */ (function () {
+    var LensFlare = (function () {
         function LensFlare(size, position, color, imgUrl, system) {
             this.size = size;
             this.position = position;
@@ -65141,7 +65141,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var LensFlareSystem = /** @class */ (function () {
+    var LensFlareSystem = (function () {
         function LensFlareSystem(name, emitter, scene) {
             this.name = name;
             this.lensFlares = new Array();
@@ -65384,7 +65384,7 @@ var BABYLON;
      * This is a holder class for the physics joint created by the physics plugin.
      * It holds a set of functions to control the underlying joint.
      */
-    var PhysicsJoint = /** @class */ (function () {
+    var PhysicsJoint = (function () {
         function PhysicsJoint(type, jointData) {
             this.type = type;
             this.jointData = jointData;
@@ -65418,31 +65418,31 @@ var BABYLON;
         PhysicsJoint.prototype.executeNativeFunction = function (func) {
             func(this._physicsPlugin.world, this._physicsJoint);
         };
-        //TODO check if the native joints are the same
-        //Joint Types
-        PhysicsJoint.DistanceJoint = 0;
-        PhysicsJoint.HingeJoint = 1;
-        PhysicsJoint.BallAndSocketJoint = 2;
-        PhysicsJoint.WheelJoint = 3;
-        PhysicsJoint.SliderJoint = 4;
-        //OIMO
-        PhysicsJoint.PrismaticJoint = 5;
-        //ENERGY FTW! (compare with this - http://ode-wiki.org/wiki/index.php?title=Manual:_Joint_Types_and_Functions)
-        PhysicsJoint.UniversalJoint = 6;
-        PhysicsJoint.Hinge2Joint = PhysicsJoint.WheelJoint;
-        //Cannon
-        //Similar to a Ball-Joint. Different in params
-        PhysicsJoint.PointToPointJoint = 8;
-        //Cannon only at the moment
-        PhysicsJoint.SpringJoint = 9;
-        PhysicsJoint.LockJoint = 10;
         return PhysicsJoint;
     }());
+    //TODO check if the native joints are the same
+    //Joint Types
+    PhysicsJoint.DistanceJoint = 0;
+    PhysicsJoint.HingeJoint = 1;
+    PhysicsJoint.BallAndSocketJoint = 2;
+    PhysicsJoint.WheelJoint = 3;
+    PhysicsJoint.SliderJoint = 4;
+    //OIMO
+    PhysicsJoint.PrismaticJoint = 5;
+    //ENERGY FTW! (compare with this - http://ode-wiki.org/wiki/index.php?title=Manual:_Joint_Types_and_Functions)
+    PhysicsJoint.UniversalJoint = 6;
+    PhysicsJoint.Hinge2Joint = PhysicsJoint.WheelJoint;
+    //Cannon
+    //Similar to a Ball-Joint. Different in params
+    PhysicsJoint.PointToPointJoint = 8;
+    //Cannon only at the moment
+    PhysicsJoint.SpringJoint = 9;
+    PhysicsJoint.LockJoint = 10;
     BABYLON.PhysicsJoint = PhysicsJoint;
     /**
      * A class representing a physics distance joint.
      */
-    var DistanceJoint = /** @class */ (function (_super) {
+    var DistanceJoint = (function (_super) {
         __extends(DistanceJoint, _super);
         function DistanceJoint(jointData) {
             return _super.call(this, PhysicsJoint.DistanceJoint, jointData) || this;
@@ -65456,7 +65456,7 @@ var BABYLON;
         return DistanceJoint;
     }(PhysicsJoint));
     BABYLON.DistanceJoint = DistanceJoint;
-    var MotorEnabledJoint = /** @class */ (function (_super) {
+    var MotorEnabledJoint = (function (_super) {
         __extends(MotorEnabledJoint, _super);
         function MotorEnabledJoint(type, jointData) {
             return _super.call(this, type, jointData) || this;
@@ -65483,7 +65483,7 @@ var BABYLON;
     /**
      * This class represents a single hinge physics joint
      */
-    var HingeJoint = /** @class */ (function (_super) {
+    var HingeJoint = (function (_super) {
         __extends(HingeJoint, _super);
         function HingeJoint(jointData) {
             return _super.call(this, PhysicsJoint.HingeJoint, jointData) || this;
@@ -65510,7 +65510,7 @@ var BABYLON;
     /**
      * This class represents a dual hinge physics joint (same as wheel joint)
      */
-    var Hinge2Joint = /** @class */ (function (_super) {
+    var Hinge2Joint = (function (_super) {
         __extends(Hinge2Joint, _super);
         function Hinge2Joint(jointData) {
             return _super.call(this, PhysicsJoint.Hinge2Joint, jointData) || this;
@@ -65546,7 +65546,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PhysicsImpostor = /** @class */ (function () {
+    var PhysicsImpostor = (function () {
         function PhysicsImpostor(object, type, _options, _scene) {
             if (_options === void 0) { _options = { mass: 0 }; }
             var _this = this;
@@ -66131,21 +66131,21 @@ var BABYLON;
             }
             mesh.setAbsolutePosition(pos);
         };
-        PhysicsImpostor.DEFAULT_OBJECT_SIZE = new BABYLON.Vector3(1, 1, 1);
-        PhysicsImpostor.IDENTITY_QUATERNION = BABYLON.Quaternion.Identity();
-        PhysicsImpostor._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
-        PhysicsImpostor._tmpQuat = BABYLON.Quaternion.Identity();
-        //Impostor types
-        PhysicsImpostor.NoImpostor = 0;
-        PhysicsImpostor.SphereImpostor = 1;
-        PhysicsImpostor.BoxImpostor = 2;
-        PhysicsImpostor.PlaneImpostor = 3;
-        PhysicsImpostor.MeshImpostor = 4;
-        PhysicsImpostor.CylinderImpostor = 7;
-        PhysicsImpostor.ParticleImpostor = 8;
-        PhysicsImpostor.HeightmapImpostor = 9;
         return PhysicsImpostor;
     }());
+    PhysicsImpostor.DEFAULT_OBJECT_SIZE = new BABYLON.Vector3(1, 1, 1);
+    PhysicsImpostor.IDENTITY_QUATERNION = BABYLON.Quaternion.Identity();
+    PhysicsImpostor._tmpVecs = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
+    PhysicsImpostor._tmpQuat = BABYLON.Quaternion.Identity();
+    //Impostor types
+    PhysicsImpostor.NoImpostor = 0;
+    PhysicsImpostor.SphereImpostor = 1;
+    PhysicsImpostor.BoxImpostor = 2;
+    PhysicsImpostor.PlaneImpostor = 3;
+    PhysicsImpostor.MeshImpostor = 4;
+    PhysicsImpostor.CylinderImpostor = 7;
+    PhysicsImpostor.ParticleImpostor = 8;
+    PhysicsImpostor.HeightmapImpostor = 9;
     BABYLON.PhysicsImpostor = PhysicsImpostor;
 })(BABYLON || (BABYLON = {}));
 
@@ -66153,7 +66153,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var PhysicsEngine = /** @class */ (function () {
+    var PhysicsEngine = (function () {
         function PhysicsEngine(gravity, _physicsPlugin) {
             if (_physicsPlugin === void 0) { _physicsPlugin = new BABYLON.CannonJSPlugin(); }
             this._physicsPlugin = _physicsPlugin;
@@ -66291,10 +66291,10 @@ var BABYLON;
             }
             return null;
         };
-        // Statics
-        PhysicsEngine.Epsilon = 0.001;
         return PhysicsEngine;
     }());
+    // Statics
+    PhysicsEngine.Epsilon = 0.001;
     BABYLON.PhysicsEngine = PhysicsEngine;
 })(BABYLON || (BABYLON = {}));
 
@@ -66302,7 +66302,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var CannonJSPlugin = /** @class */ (function () {
+    var CannonJSPlugin = (function () {
         function CannonJSPlugin(_useDeltaForWorldStep, iterations) {
             if (_useDeltaForWorldStep === void 0) { _useDeltaForWorldStep = true; }
             if (iterations === void 0) { iterations = 10; }
@@ -66771,7 +66771,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var OimoJSPlugin = /** @class */ (function () {
+    var OimoJSPlugin = (function () {
         function OimoJSPlugin(iterations) {
             this.name = "OimoJSPlugin";
             this._tmpImpostorsArray = [];
@@ -67165,7 +67165,7 @@ var BABYLON;
         * By Vincent Thibault
         * @blog http://blog.robrowser.com/javascript-tga-loader.html
         */
-        var TGATools = /** @class */ (function () {
+        var TGATools = (function () {
             function TGATools() {
             }
             TGATools.GetTGAHeader = function (data) {
@@ -67403,21 +67403,21 @@ var BABYLON;
                 }
                 return imageData;
             };
-            //private static _TYPE_NO_DATA = 0;
-            TGATools._TYPE_INDEXED = 1;
-            TGATools._TYPE_RGB = 2;
-            TGATools._TYPE_GREY = 3;
-            TGATools._TYPE_RLE_INDEXED = 9;
-            TGATools._TYPE_RLE_RGB = 10;
-            TGATools._TYPE_RLE_GREY = 11;
-            TGATools._ORIGIN_MASK = 0x30;
-            TGATools._ORIGIN_SHIFT = 0x04;
-            TGATools._ORIGIN_BL = 0x00;
-            TGATools._ORIGIN_BR = 0x01;
-            TGATools._ORIGIN_UL = 0x02;
-            TGATools._ORIGIN_UR = 0x03;
             return TGATools;
         }());
+        //private static _TYPE_NO_DATA = 0;
+        TGATools._TYPE_INDEXED = 1;
+        TGATools._TYPE_RGB = 2;
+        TGATools._TYPE_GREY = 3;
+        TGATools._TYPE_RLE_INDEXED = 9;
+        TGATools._TYPE_RLE_RGB = 10;
+        TGATools._TYPE_RLE_GREY = 11;
+        TGATools._ORIGIN_MASK = 0x30;
+        TGATools._ORIGIN_SHIFT = 0x04;
+        TGATools._ORIGIN_BL = 0x00;
+        TGATools._ORIGIN_BR = 0x01;
+        TGATools._ORIGIN_UL = 0x02;
+        TGATools._ORIGIN_UR = 0x03;
         Internals.TGATools = TGATools;
     })(Internals = BABYLON.Internals || (BABYLON.Internals = {}));
 })(BABYLON || (BABYLON = {}));
@@ -67496,7 +67496,7 @@ var BABYLON;
         // var off_caps4 = 30;
         var off_dxgiFormat = 32;
         ;
-        var DDSTools = /** @class */ (function () {
+        var DDSTools = (function () {
             function DDSTools() {
             }
             DDSTools.GetDDSInfo = function (arrayBuffer) {
@@ -67876,9 +67876,9 @@ var BABYLON;
                     }
                 }
             };
-            DDSTools.StoreLODInAlphaChannel = false;
             return DDSTools;
         }());
+        DDSTools.StoreLODInAlphaChannel = false;
         Internals.DDSTools = DDSTools;
     })(Internals = BABYLON.Internals || (BABYLON.Internals = {}));
 })(BABYLON || (BABYLON = {}));
@@ -67893,7 +67893,7 @@ var BABYLON;
          * for description see https://www.khronos.org/opengles/sdk/tools/KTX/
          * for file layout see https://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/
          */
-        var KhronosTextureContainer = /** @class */ (function () {
+        var KhronosTextureContainer = (function () {
             /**
              * @param {ArrayBuffer} arrayBuffer- contents of the KTX container file
              * @param {number} facesExpected- should be either 1 or 6, based whether a cube texture or or
@@ -67992,14 +67992,14 @@ var BABYLON;
                     height = Math.max(1.0, height * 0.5);
                 }
             };
-            KhronosTextureContainer.HEADER_LEN = 12 + (13 * 4); // identifier + header elements (not including key value meta-data pairs)
-            // load types
-            KhronosTextureContainer.COMPRESSED_2D = 0; // uses a gl.compressedTexImage2D()
-            KhronosTextureContainer.COMPRESSED_3D = 1; // uses a gl.compressedTexImage3D()
-            KhronosTextureContainer.TEX_2D = 2; // uses a gl.texImage2D()
-            KhronosTextureContainer.TEX_3D = 3; // uses a gl.texImage3D()
             return KhronosTextureContainer;
         }());
+        KhronosTextureContainer.HEADER_LEN = 12 + (13 * 4); // identifier + header elements (not including key value meta-data pairs)
+        // load types
+        KhronosTextureContainer.COMPRESSED_2D = 0; // uses a gl.compressedTexImage2D()
+        KhronosTextureContainer.COMPRESSED_3D = 1; // uses a gl.compressedTexImage3D()
+        KhronosTextureContainer.TEX_2D = 2; // uses a gl.texImage2D()
+        KhronosTextureContainer.TEX_3D = 3; // uses a gl.texImage3D()
         Internals.KhronosTextureContainer = KhronosTextureContainer;
     })(Internals = BABYLON.Internals || (BABYLON.Internals = {}));
 })(BABYLON || (BABYLON = {}));
@@ -68013,7 +68013,7 @@ var BABYLON;
         /**
         * Demo available here: http://www.babylonjs-playground.com/#1BZJVJ#8
         */
-        var SkeletonViewer = /** @class */ (function () {
+        var SkeletonViewer = (function () {
             function SkeletonViewer(skeleton, mesh, scene, autoUpdateBonesMatrices, renderingGroupId) {
                 if (autoUpdateBonesMatrices === void 0) { autoUpdateBonesMatrices = true; }
                 if (renderingGroupId === void 0) { renderingGroupId = 1; }
@@ -68147,7 +68147,7 @@ var BABYLON;
 (function (BABYLON) {
     var Debug;
     (function (Debug) {
-        var AxesViewer = /** @class */ (function () {
+        var AxesViewer = (function () {
             function AxesViewer(scene, scaleLines) {
                 if (scaleLines === void 0) { scaleLines = 1; }
                 this._xline = [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()];
@@ -68224,7 +68224,7 @@ var BABYLON;
 (function (BABYLON) {
     var Debug;
     (function (Debug) {
-        var BoneAxesViewer = /** @class */ (function (_super) {
+        var BoneAxesViewer = (function (_super) {
             __extends(BoneAxesViewer, _super);
             function BoneAxesViewer(scene, bone, mesh, scaleLines) {
                 if (scaleLines === void 0) { scaleLines = 1; }
@@ -68265,7 +68265,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var RayHelper = /** @class */ (function () {
+    var RayHelper = (function () {
         function RayHelper(ray) {
             this.ray = ray;
         }
@@ -68384,7 +68384,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var DebugLayer = /** @class */ (function () {
+    var DebugLayer = (function () {
         function DebugLayer(scene) {
             this._scene = scene;
         }
@@ -68426,9 +68426,9 @@ var BABYLON;
                 this._createInspector(config);
             }
         };
-        DebugLayer.InspectorURL = 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js';
         return DebugLayer;
     }());
+    DebugLayer.InspectorURL = 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js';
     BABYLON.DebugLayer = DebugLayer;
 })(BABYLON || (BABYLON = {}));
 
@@ -68438,7 +68438,7 @@ var BABYLON;
 (function (BABYLON) {
     var Debug;
     (function (Debug) {
-        var PhysicsViewer = /** @class */ (function () {
+        var PhysicsViewer = (function () {
             function PhysicsViewer(scene) {
                 this._impostors = [];
                 this._meshes = [];
@@ -68588,7 +68588,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var BoundingBoxRenderer = /** @class */ (function () {
+    var BoundingBoxRenderer = (function () {
         function BoundingBoxRenderer(scene) {
             this.frontColor = new BABYLON.Color3(1, 1, 1);
             this.backColor = new BABYLON.Color3(0.1, 0.1, 0.1);
@@ -68716,7 +68716,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MorphTarget = /** @class */ (function () {
+    var MorphTarget = (function () {
         function MorphTarget(name, influence) {
             if (influence === void 0) { influence = 0; }
             this.name = name;
@@ -68844,7 +68844,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var MorphTargetManager = /** @class */ (function () {
+    var MorphTargetManager = (function () {
         function MorphTargetManager(scene) {
             if (scene === void 0) { scene = null; }
             this._targets = new Array();
@@ -69012,7 +69012,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Octree = /** @class */ (function () {
+    var Octree = (function () {
         function Octree(creationFunc, maxBlockCapacity, maxDepth) {
             if (maxDepth === void 0) { maxDepth = 2; }
             this.maxDepth = maxDepth;
@@ -69084,20 +69084,20 @@ var BABYLON;
                 }
             }
         };
-        Octree.CreationFuncForMeshes = function (entry, block) {
-            var boundingInfo = entry.getBoundingInfo();
-            if (!entry.isBlocked && boundingInfo && boundingInfo.boundingBox.intersectsMinMax(block.minPoint, block.maxPoint)) {
-                block.entries.push(entry);
-            }
-        };
-        Octree.CreationFuncForSubMeshes = function (entry, block) {
-            var boundingInfo = entry.getBoundingInfo();
-            if (boundingInfo && boundingInfo.boundingBox.intersectsMinMax(block.minPoint, block.maxPoint)) {
-                block.entries.push(entry);
-            }
-        };
         return Octree;
     }());
+    Octree.CreationFuncForMeshes = function (entry, block) {
+        var boundingInfo = entry.getBoundingInfo();
+        if (!entry.isBlocked && boundingInfo && boundingInfo.boundingBox.intersectsMinMax(block.minPoint, block.maxPoint)) {
+            block.entries.push(entry);
+        }
+    };
+    Octree.CreationFuncForSubMeshes = function (entry, block) {
+        var boundingInfo = entry.getBoundingInfo();
+        if (boundingInfo && boundingInfo.boundingBox.intersectsMinMax(block.minPoint, block.maxPoint)) {
+            block.entries.push(entry);
+        }
+    };
     BABYLON.Octree = Octree;
 })(BABYLON || (BABYLON = {}));
 
@@ -69105,7 +69105,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var OctreeBlock = /** @class */ (function () {
+    var OctreeBlock = (function () {
         function OctreeBlock(minPoint, maxPoint, capacity, depth, maxDepth, creationFunc) {
             this.entries = new Array();
             this._boundingVectors = new Array();
@@ -69230,7 +69230,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SIMDVector3 = /** @class */ (function () {
+    var SIMDVector3 = (function () {
         function SIMDVector3() {
         }
         SIMDVector3.TransformCoordinatesToRefSIMD = function (vector, transformation, result) {
@@ -69250,7 +69250,7 @@ var BABYLON;
         };
         return SIMDVector3;
     }());
-    var SIMDMatrix = /** @class */ (function () {
+    var SIMDMatrix = (function () {
         function SIMDMatrix() {
         }
         SIMDMatrix.prototype.multiplyToArraySIMD = function (other, result, offset) {
@@ -69415,7 +69415,7 @@ var BABYLON;
     var previousLookAtLHToRef = BABYLON.Matrix.LookAtLHToRef;
     var previousTransformCoordinatesToRef = BABYLON.Vector3.TransformCoordinatesToRef;
     var previousTransformCoordinatesFromFloatsToRef = BABYLON.Vector3.TransformCoordinatesFromFloatsToRef;
-    var SIMDHelper = /** @class */ (function () {
+    var SIMDHelper = (function () {
         function SIMDHelper() {
         }
         Object.defineProperty(SIMDHelper, "IsEnabled", {
@@ -69463,9 +69463,9 @@ var BABYLON;
             BABYLON.Vector3.TransformCoordinatesFromFloatsToRef = SIMDVector3.TransformCoordinatesFromFloatsToRefSIMD;
             SIMDHelper._isEnabled = true;
         };
-        SIMDHelper._isEnabled = false;
         return SIMDHelper;
     }());
+    SIMDHelper._isEnabled = false;
     BABYLON.SIMDHelper = SIMDHelper;
 })(BABYLON || (BABYLON = {}));
 
@@ -69474,7 +69474,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VRDistortionCorrectionPostProcess = /** @class */ (function (_super) {
+    var VRDistortionCorrectionPostProcess = (function (_super) {
         __extends(VRDistortionCorrectionPostProcess, _super);
         function VRDistortionCorrectionPostProcess(name, camera, isRightEye, vrMetrics) {
             var _this = _super.call(this, name, "vrDistortionCorrection", [
@@ -69512,7 +69512,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var AnaglyphPostProcess = /** @class */ (function (_super) {
+    var AnaglyphPostProcess = (function (_super) {
         __extends(AnaglyphPostProcess, _super);
         function AnaglyphPostProcess(name, options, rigCameras, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, "anaglyph", null, ["leftSampler"], options, rigCameras[1], samplingMode, engine, reusable) || this;
@@ -69532,7 +69532,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var StereoscopicInterlacePostProcess = /** @class */ (function (_super) {
+    var StereoscopicInterlacePostProcess = (function (_super) {
         __extends(StereoscopicInterlacePostProcess, _super);
         function StereoscopicInterlacePostProcess(name, rigCameras, isStereoscopicHoriz, samplingMode, engine, reusable) {
             var _this = _super.call(this, name, "stereoscopicInterlace", ['stepSize'], ['camASampler'], 1, rigCameras[1], samplingMode, engine, reusable, isStereoscopicHoriz ? "#define IS_STEREOSCOPIC_HORIZ 1" : undefined) || this;
@@ -69556,7 +69556,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraDeviceOrientationInput = /** @class */ (function () {
+    var FreeCameraDeviceOrientationInput = (function () {
         function FreeCameraDeviceOrientationInput() {
             var _this = this;
             this._screenOrientationAngle = 0;
@@ -69629,7 +69629,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ArcRotateCameraVRDeviceOrientationInput = /** @class */ (function () {
+    var ArcRotateCameraVRDeviceOrientationInput = (function () {
         function ArcRotateCameraVRDeviceOrientationInput() {
             this.alphaCorrection = 1;
             this.betaCorrection = 1;
@@ -69685,7 +69685,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VRCameraMetrics = /** @class */ (function () {
+    var VRCameraMetrics = (function () {
         function VRCameraMetrics() {
             this.compensateDistortion = true;
         }
@@ -69761,7 +69761,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var WebVRFreeCamera = /** @class */ (function (_super) {
+    var WebVRFreeCamera = (function (_super) {
         __extends(WebVRFreeCamera, _super);
         function WebVRFreeCamera(name, position, scene, webVROptions) {
             if (webVROptions === void 0) { webVROptions = {}; }
@@ -70088,7 +70088,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // We're mainly based on the logic defined into the FreeCamera code
-    var DeviceOrientationCamera = /** @class */ (function (_super) {
+    var DeviceOrientationCamera = (function (_super) {
         __extends(DeviceOrientationCamera, _super);
         function DeviceOrientationCamera(name, position, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70138,7 +70138,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VRDeviceOrientationFreeCamera = /** @class */ (function (_super) {
+    var VRDeviceOrientationFreeCamera = (function (_super) {
         __extends(VRDeviceOrientationFreeCamera, _super);
         function VRDeviceOrientationFreeCamera(name, position, scene, compensateDistortion, vrCameraMetrics) {
             if (compensateDistortion === void 0) { compensateDistortion = true; }
@@ -70154,7 +70154,7 @@ var BABYLON;
         return VRDeviceOrientationFreeCamera;
     }(BABYLON.DeviceOrientationCamera));
     BABYLON.VRDeviceOrientationFreeCamera = VRDeviceOrientationFreeCamera;
-    var VRDeviceOrientationGamepadCamera = /** @class */ (function (_super) {
+    var VRDeviceOrientationGamepadCamera = (function (_super) {
         __extends(VRDeviceOrientationGamepadCamera, _super);
         function VRDeviceOrientationGamepadCamera(name, position, scene, compensateDistortion, vrCameraMetrics) {
             if (compensateDistortion === void 0) { compensateDistortion = true; }
@@ -70169,7 +70169,7 @@ var BABYLON;
         return VRDeviceOrientationGamepadCamera;
     }(VRDeviceOrientationFreeCamera));
     BABYLON.VRDeviceOrientationGamepadCamera = VRDeviceOrientationGamepadCamera;
-    var VRDeviceOrientationArcRotateCamera = /** @class */ (function (_super) {
+    var VRDeviceOrientationArcRotateCamera = (function (_super) {
         __extends(VRDeviceOrientationArcRotateCamera, _super);
         function VRDeviceOrientationArcRotateCamera(name, alpha, beta, radius, target, scene, compensateDistortion, vrCameraMetrics) {
             if (compensateDistortion === void 0) { compensateDistortion = true; }
@@ -70193,7 +70193,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var AnaglyphFreeCamera = /** @class */ (function (_super) {
+    var AnaglyphFreeCamera = (function (_super) {
         __extends(AnaglyphFreeCamera, _super);
         function AnaglyphFreeCamera(name, position, interaxialDistance, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70207,7 +70207,7 @@ var BABYLON;
         return AnaglyphFreeCamera;
     }(BABYLON.FreeCamera));
     BABYLON.AnaglyphFreeCamera = AnaglyphFreeCamera;
-    var AnaglyphArcRotateCamera = /** @class */ (function (_super) {
+    var AnaglyphArcRotateCamera = (function (_super) {
         __extends(AnaglyphArcRotateCamera, _super);
         function AnaglyphArcRotateCamera(name, alpha, beta, radius, target, interaxialDistance, scene) {
             var _this = _super.call(this, name, alpha, beta, radius, target, scene) || this;
@@ -70221,7 +70221,7 @@ var BABYLON;
         return AnaglyphArcRotateCamera;
     }(BABYLON.ArcRotateCamera));
     BABYLON.AnaglyphArcRotateCamera = AnaglyphArcRotateCamera;
-    var AnaglyphGamepadCamera = /** @class */ (function (_super) {
+    var AnaglyphGamepadCamera = (function (_super) {
         __extends(AnaglyphGamepadCamera, _super);
         function AnaglyphGamepadCamera(name, position, interaxialDistance, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70235,7 +70235,7 @@ var BABYLON;
         return AnaglyphGamepadCamera;
     }(BABYLON.GamepadCamera));
     BABYLON.AnaglyphGamepadCamera = AnaglyphGamepadCamera;
-    var AnaglyphUniversalCamera = /** @class */ (function (_super) {
+    var AnaglyphUniversalCamera = (function (_super) {
         __extends(AnaglyphUniversalCamera, _super);
         function AnaglyphUniversalCamera(name, position, interaxialDistance, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70249,7 +70249,7 @@ var BABYLON;
         return AnaglyphUniversalCamera;
     }(BABYLON.UniversalCamera));
     BABYLON.AnaglyphUniversalCamera = AnaglyphUniversalCamera;
-    var StereoscopicFreeCamera = /** @class */ (function (_super) {
+    var StereoscopicFreeCamera = (function (_super) {
         __extends(StereoscopicFreeCamera, _super);
         function StereoscopicFreeCamera(name, position, interaxialDistance, isStereoscopicSideBySide, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70264,7 +70264,7 @@ var BABYLON;
         return StereoscopicFreeCamera;
     }(BABYLON.FreeCamera));
     BABYLON.StereoscopicFreeCamera = StereoscopicFreeCamera;
-    var StereoscopicArcRotateCamera = /** @class */ (function (_super) {
+    var StereoscopicArcRotateCamera = (function (_super) {
         __extends(StereoscopicArcRotateCamera, _super);
         function StereoscopicArcRotateCamera(name, alpha, beta, radius, target, interaxialDistance, isStereoscopicSideBySide, scene) {
             var _this = _super.call(this, name, alpha, beta, radius, target, scene) || this;
@@ -70279,7 +70279,7 @@ var BABYLON;
         return StereoscopicArcRotateCamera;
     }(BABYLON.ArcRotateCamera));
     BABYLON.StereoscopicArcRotateCamera = StereoscopicArcRotateCamera;
-    var StereoscopicGamepadCamera = /** @class */ (function (_super) {
+    var StereoscopicGamepadCamera = (function (_super) {
         __extends(StereoscopicGamepadCamera, _super);
         function StereoscopicGamepadCamera(name, position, interaxialDistance, isStereoscopicSideBySide, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70294,7 +70294,7 @@ var BABYLON;
         return StereoscopicGamepadCamera;
     }(BABYLON.GamepadCamera));
     BABYLON.StereoscopicGamepadCamera = StereoscopicGamepadCamera;
-    var StereoscopicUniversalCamera = /** @class */ (function (_super) {
+    var StereoscopicUniversalCamera = (function (_super) {
         __extends(StereoscopicUniversalCamera, _super);
         function StereoscopicUniversalCamera(name, position, interaxialDistance, isStereoscopicSideBySide, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70315,7 +70315,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var VRExperienceHelper = /** @class */ (function () {
+    var VRExperienceHelper = (function () {
         function VRExperienceHelper(scene, webVROptions) {
             if (webVROptions === void 0) { webVROptions = {}; }
             var _this = this;
@@ -70579,7 +70579,7 @@ var BABYLON;
         JoystickAxis[JoystickAxis["Y"] = 1] = "Y";
         JoystickAxis[JoystickAxis["Z"] = 2] = "Z";
     })(JoystickAxis = BABYLON.JoystickAxis || (BABYLON.JoystickAxis = {}));
-    var VirtualJoystick = /** @class */ (function () {
+    var VirtualJoystick = (function () {
         function VirtualJoystick(leftJoystick) {
             var _this = this;
             if (leftJoystick) {
@@ -70857,10 +70857,10 @@ var BABYLON;
                 VirtualJoystick.vjCanvas = null;
             }
         };
-        // Used to draw the virtual joystick inside a 2D canvas on top of the WebGL rendering canvas
-        VirtualJoystick._globalJoystickIndex = 0;
         return VirtualJoystick;
     }());
+    // Used to draw the virtual joystick inside a 2D canvas on top of the WebGL rendering canvas
+    VirtualJoystick._globalJoystickIndex = 0;
     BABYLON.VirtualJoystick = VirtualJoystick;
 })(BABYLON || (BABYLON = {}));
 
@@ -70870,7 +70870,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // We're mainly based on the logic defined into the FreeCamera code
-    var VirtualJoysticksCamera = /** @class */ (function (_super) {
+    var VirtualJoysticksCamera = (function (_super) {
         __extends(VirtualJoysticksCamera, _super);
         function VirtualJoysticksCamera(name, position, scene) {
             var _this = _super.call(this, name, position, scene) || this;
@@ -70889,7 +70889,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FreeCameraVirtualJoystickInput = /** @class */ (function () {
+    var FreeCameraVirtualJoystickInput = (function () {
         function FreeCameraVirtualJoystickInput() {
         }
         FreeCameraVirtualJoystickInput.prototype.getLeftJoystick = function () {
@@ -70946,7 +70946,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var SimplificationSettings = /** @class */ (function () {
+    var SimplificationSettings = (function () {
         function SimplificationSettings(quality, distance, optimizeMesh) {
             this.quality = quality;
             this.distance = distance;
@@ -70955,7 +70955,7 @@ var BABYLON;
         return SimplificationSettings;
     }());
     BABYLON.SimplificationSettings = SimplificationSettings;
-    var SimplificationQueue = /** @class */ (function () {
+    var SimplificationQueue = (function () {
         function SimplificationQueue() {
             this.running = false;
             this._simplificationArray = [];
@@ -71033,7 +71033,7 @@ var BABYLON;
     (function (SimplificationType) {
         SimplificationType[SimplificationType["QUADRATIC"] = 0] = "QUADRATIC";
     })(SimplificationType = BABYLON.SimplificationType || (BABYLON.SimplificationType = {}));
-    var DecimationTriangle = /** @class */ (function () {
+    var DecimationTriangle = (function () {
         function DecimationTriangle(vertices) {
             this.vertices = vertices;
             this.error = new Array(4);
@@ -71045,7 +71045,7 @@ var BABYLON;
         return DecimationTriangle;
     }());
     BABYLON.DecimationTriangle = DecimationTriangle;
-    var DecimationVertex = /** @class */ (function () {
+    var DecimationVertex = (function () {
         function DecimationVertex(position, id) {
             this.position = position;
             this.id = id;
@@ -71061,7 +71061,7 @@ var BABYLON;
         return DecimationVertex;
     }());
     BABYLON.DecimationVertex = DecimationVertex;
-    var QuadraticMatrix = /** @class */ (function () {
+    var QuadraticMatrix = (function () {
         function QuadraticMatrix(data) {
             this.data = new Array(10);
             for (var i = 0; i < 10; ++i) {
@@ -71106,7 +71106,7 @@ var BABYLON;
         return QuadraticMatrix;
     }());
     BABYLON.QuadraticMatrix = QuadraticMatrix;
-    var Reference = /** @class */ (function () {
+    var Reference = (function () {
         function Reference(vertexId, triangleId) {
             this.vertexId = vertexId;
             this.triangleId = triangleId;
@@ -71120,7 +71120,7 @@ var BABYLON;
      * Ported mostly from QSlim and http://voxels.blogspot.de/2014/05/quadric-mesh-simplification-with-source.html to babylon JS
      * @author RaananW
      */
-    var QuadraticErrorSimplification = /** @class */ (function () {
+    var QuadraticErrorSimplification = (function () {
         function QuadraticErrorSimplification(_mesh) {
             this._mesh = _mesh;
             this.initialized = false;
@@ -71595,7 +71595,7 @@ var BABYLON;
 (function (BABYLON) {
     var Internals;
     (function (Internals) {
-        var MeshLODLevel = /** @class */ (function () {
+        var MeshLODLevel = (function () {
             function MeshLODLevel(distance, mesh) {
                 this.distance = distance;
                 this.mesh = mesh;
@@ -71612,7 +71612,7 @@ var BABYLON;
 var BABYLON;
 (function (BABYLON) {
     // Standard optimizations
-    var SceneOptimization = /** @class */ (function () {
+    var SceneOptimization = (function () {
         function SceneOptimization(priority) {
             if (priority === void 0) { priority = 0; }
             this.priority = priority;
@@ -71623,7 +71623,7 @@ var BABYLON;
         return SceneOptimization;
     }());
     BABYLON.SceneOptimization = SceneOptimization;
-    var TextureOptimization = /** @class */ (function (_super) {
+    var TextureOptimization = (function (_super) {
         __extends(TextureOptimization, _super);
         function TextureOptimization(priority, maximumSize) {
             if (priority === void 0) { priority = 0; }
@@ -71652,7 +71652,7 @@ var BABYLON;
         return TextureOptimization;
     }(SceneOptimization));
     BABYLON.TextureOptimization = TextureOptimization;
-    var HardwareScalingOptimization = /** @class */ (function (_super) {
+    var HardwareScalingOptimization = (function (_super) {
         __extends(HardwareScalingOptimization, _super);
         function HardwareScalingOptimization(priority, maximumScale) {
             if (priority === void 0) { priority = 0; }
@@ -71671,7 +71671,7 @@ var BABYLON;
         return HardwareScalingOptimization;
     }(SceneOptimization));
     BABYLON.HardwareScalingOptimization = HardwareScalingOptimization;
-    var ShadowsOptimization = /** @class */ (function (_super) {
+    var ShadowsOptimization = (function (_super) {
         __extends(ShadowsOptimization, _super);
         function ShadowsOptimization() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -71684,7 +71684,7 @@ var BABYLON;
         return ShadowsOptimization;
     }(SceneOptimization));
     BABYLON.ShadowsOptimization = ShadowsOptimization;
-    var PostProcessesOptimization = /** @class */ (function (_super) {
+    var PostProcessesOptimization = (function (_super) {
         __extends(PostProcessesOptimization, _super);
         function PostProcessesOptimization() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -71697,7 +71697,7 @@ var BABYLON;
         return PostProcessesOptimization;
     }(SceneOptimization));
     BABYLON.PostProcessesOptimization = PostProcessesOptimization;
-    var LensFlaresOptimization = /** @class */ (function (_super) {
+    var LensFlaresOptimization = (function (_super) {
         __extends(LensFlaresOptimization, _super);
         function LensFlaresOptimization() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -71710,7 +71710,7 @@ var BABYLON;
         return LensFlaresOptimization;
     }(SceneOptimization));
     BABYLON.LensFlaresOptimization = LensFlaresOptimization;
-    var ParticlesOptimization = /** @class */ (function (_super) {
+    var ParticlesOptimization = (function (_super) {
         __extends(ParticlesOptimization, _super);
         function ParticlesOptimization() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -71723,7 +71723,7 @@ var BABYLON;
         return ParticlesOptimization;
     }(SceneOptimization));
     BABYLON.ParticlesOptimization = ParticlesOptimization;
-    var RenderTargetsOptimization = /** @class */ (function (_super) {
+    var RenderTargetsOptimization = (function (_super) {
         __extends(RenderTargetsOptimization, _super);
         function RenderTargetsOptimization() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -71736,7 +71736,7 @@ var BABYLON;
         return RenderTargetsOptimization;
     }(SceneOptimization));
     BABYLON.RenderTargetsOptimization = RenderTargetsOptimization;
-    var MergeMeshesOptimization = /** @class */ (function (_super) {
+    var MergeMeshesOptimization = (function (_super) {
         __extends(MergeMeshesOptimization, _super);
         function MergeMeshesOptimization() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -71815,12 +71815,12 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        MergeMeshesOptimization._UpdateSelectionTree = false;
         return MergeMeshesOptimization;
     }(SceneOptimization));
+    MergeMeshesOptimization._UpdateSelectionTree = false;
     BABYLON.MergeMeshesOptimization = MergeMeshesOptimization;
     // Options
-    var SceneOptimizerOptions = /** @class */ (function () {
+    var SceneOptimizerOptions = (function () {
         function SceneOptimizerOptions(targetFrameRate, trackerDuration) {
             if (targetFrameRate === void 0) { targetFrameRate = 60; }
             if (trackerDuration === void 0) { trackerDuration = 2000; }
@@ -71889,7 +71889,7 @@ var BABYLON;
     }());
     BABYLON.SceneOptimizerOptions = SceneOptimizerOptions;
     // Scene optimizer tool
-    var SceneOptimizer = /** @class */ (function () {
+    var SceneOptimizer = (function () {
         function SceneOptimizer() {
         }
         SceneOptimizer._CheckCurrentState = function (scene, options, currentPriorityLevel, onSuccess, onFailure) {
@@ -71948,7 +71948,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var OutlineRenderer = /** @class */ (function () {
+    var OutlineRenderer = (function () {
         function OutlineRenderer(scene) {
             this.zOffset = 1;
             this._scene = scene;
@@ -72054,14 +72054,14 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FaceAdjacencies = /** @class */ (function () {
+    var FaceAdjacencies = (function () {
         function FaceAdjacencies() {
             this.edges = new Array();
             this.edgesConnectedCount = 0;
         }
         return FaceAdjacencies;
     }());
-    var EdgesRenderer = /** @class */ (function () {
+    var EdgesRenderer = (function () {
         // Beware when you use this class with complex objects as the adjacencies computation can be really long
         function EdgesRenderer(source, epsilon, checkVerticesInsteadOfIndices) {
             if (epsilon === void 0) { epsilon = 0.95; }
@@ -72329,7 +72329,7 @@ var BABYLON;
      * Special Glow Blur post process only blurring the alpha channel
      * It enforces keeping the most luminous color in the color channel.
      */
-    var GlowBlurPostProcess = /** @class */ (function (_super) {
+    var GlowBlurPostProcess = (function (_super) {
         __extends(GlowBlurPostProcess, _super);
         function GlowBlurPostProcess(name, direction, kernel, options, camera, samplingMode, engine, reusable) {
             if (samplingMode === void 0) { samplingMode = BABYLON.Texture.BILINEAR_SAMPLINGMODE; }
@@ -72353,7 +72353,7 @@ var BABYLON;
      *
      * !!! THIS REQUIRES AN ACTIVE STENCIL BUFFER ON THE CANVAS !!!
      */
-    var HighlightLayer = /** @class */ (function () {
+    var HighlightLayer = (function () {
         /**
          * Instantiates a new highlight Layer and references it to the scene..
          * @param name The name of the layer
@@ -73020,21 +73020,21 @@ var BABYLON;
             this.onAfterComposeObservable.clear();
             this.onSizeChangedObservable.clear();
         };
-        /**
-         * The neutral color used during the preparation of the glow effect.
-         * This is black by default as the blend operation is a blend operation.
-         */
-        HighlightLayer.neutralColor = new BABYLON.Color4(0, 0, 0, 0);
-        /**
-         * Stencil value used for glowing meshes.
-         */
-        HighlightLayer.glowingMeshStencilReference = 0x02;
-        /**
-         * Stencil value used for the other meshes in the scene.
-         */
-        HighlightLayer.normalMeshStencilReference = 0x01;
         return HighlightLayer;
     }());
+    /**
+     * The neutral color used during the preparation of the glow effect.
+     * This is black by default as the blend operation is a blend operation.
+     */
+    HighlightLayer.neutralColor = new BABYLON.Color4(0, 0, 0, 0);
+    /**
+     * Stencil value used for glowing meshes.
+     */
+    HighlightLayer.glowingMeshStencilReference = 0x02;
+    /**
+     * Stencil value used for the other meshes in the scene.
+     */
+    HighlightLayer.normalMeshStencilReference = 0x01;
     BABYLON.HighlightLayer = HighlightLayer;
 })(BABYLON || (BABYLON = {}));
 
@@ -73050,7 +73050,7 @@ var BABYLON;
         AssetTaskState[AssetTaskState["DONE"] = 2] = "DONE";
         AssetTaskState[AssetTaskState["ERROR"] = 3] = "ERROR";
     })(AssetTaskState = BABYLON.AssetTaskState || (BABYLON.AssetTaskState = {}));
-    var AbstractAssetTask = /** @class */ (function () {
+    var AbstractAssetTask = (function () {
         function AbstractAssetTask(name) {
             this.name = name;
             this.isCompleted = false;
@@ -73095,7 +73095,7 @@ var BABYLON;
         return AbstractAssetTask;
     }());
     BABYLON.AbstractAssetTask = AbstractAssetTask;
-    var AssetsProgressEvent = /** @class */ (function () {
+    var AssetsProgressEvent = (function () {
         function AssetsProgressEvent(remainingCount, totalCount, task) {
             this.remainingCount = remainingCount;
             this.totalCount = totalCount;
@@ -73104,7 +73104,7 @@ var BABYLON;
         return AssetsProgressEvent;
     }());
     BABYLON.AssetsProgressEvent = AssetsProgressEvent;
-    var MeshAssetTask = /** @class */ (function (_super) {
+    var MeshAssetTask = (function (_super) {
         __extends(MeshAssetTask, _super);
         function MeshAssetTask(name, meshesNames, rootUrl, sceneFilename) {
             var _this = _super.call(this, name) || this;
@@ -73128,7 +73128,7 @@ var BABYLON;
         return MeshAssetTask;
     }(AbstractAssetTask));
     BABYLON.MeshAssetTask = MeshAssetTask;
-    var TextFileAssetTask = /** @class */ (function (_super) {
+    var TextFileAssetTask = (function (_super) {
         __extends(TextFileAssetTask, _super);
         function TextFileAssetTask(name, url) {
             var _this = _super.call(this, name) || this;
@@ -73150,7 +73150,7 @@ var BABYLON;
         return TextFileAssetTask;
     }(AbstractAssetTask));
     BABYLON.TextFileAssetTask = TextFileAssetTask;
-    var BinaryFileAssetTask = /** @class */ (function (_super) {
+    var BinaryFileAssetTask = (function (_super) {
         __extends(BinaryFileAssetTask, _super);
         function BinaryFileAssetTask(name, url) {
             var _this = _super.call(this, name) || this;
@@ -73172,7 +73172,7 @@ var BABYLON;
         return BinaryFileAssetTask;
     }(AbstractAssetTask));
     BABYLON.BinaryFileAssetTask = BinaryFileAssetTask;
-    var ImageAssetTask = /** @class */ (function (_super) {
+    var ImageAssetTask = (function (_super) {
         __extends(ImageAssetTask, _super);
         function ImageAssetTask(name, url) {
             var _this = _super.call(this, name) || this;
@@ -73196,7 +73196,7 @@ var BABYLON;
         return ImageAssetTask;
     }(AbstractAssetTask));
     BABYLON.ImageAssetTask = ImageAssetTask;
-    var TextureAssetTask = /** @class */ (function (_super) {
+    var TextureAssetTask = (function (_super) {
         __extends(TextureAssetTask, _super);
         function TextureAssetTask(name, url, noMipmap, invertY, samplingMode) {
             if (samplingMode === void 0) { samplingMode = BABYLON.Texture.TRILINEAR_SAMPLINGMODE; }
@@ -73220,7 +73220,7 @@ var BABYLON;
         return TextureAssetTask;
     }(AbstractAssetTask));
     BABYLON.TextureAssetTask = TextureAssetTask;
-    var CubeTextureAssetTask = /** @class */ (function (_super) {
+    var CubeTextureAssetTask = (function (_super) {
         __extends(CubeTextureAssetTask, _super);
         function CubeTextureAssetTask(name, url, extensions, noMipmap, files) {
             var _this = _super.call(this, name) || this;
@@ -73243,7 +73243,7 @@ var BABYLON;
         return CubeTextureAssetTask;
     }(AbstractAssetTask));
     BABYLON.CubeTextureAssetTask = CubeTextureAssetTask;
-    var HDRCubeTextureAssetTask = /** @class */ (function (_super) {
+    var HDRCubeTextureAssetTask = (function (_super) {
         __extends(HDRCubeTextureAssetTask, _super);
         function HDRCubeTextureAssetTask(name, url, size, noMipmap, generateHarmonics, useInGammaSpace, usePMREMGenerator) {
             if (noMipmap === void 0) { noMipmap = false; }
@@ -73272,7 +73272,7 @@ var BABYLON;
         return HDRCubeTextureAssetTask;
     }(AbstractAssetTask));
     BABYLON.HDRCubeTextureAssetTask = HDRCubeTextureAssetTask;
-    var AssetsManager = /** @class */ (function () {
+    var AssetsManager = (function () {
         function AssetsManager(scene) {
             this.tasks = new Array();
             this.waitingTasksCount = 0;
@@ -73505,7 +73505,7 @@ var BABYLON;
             serializationObject.meshes.push(serializeMesh(mesh, serializationObject));
         }
     };
-    var SceneSerializer = /** @class */ (function () {
+    var SceneSerializer = (function () {
         function SceneSerializer() {
         }
         SceneSerializer.ClearCache = function () {
@@ -73696,7 +73696,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var ReflectionProbe = /** @class */ (function () {
+    var ReflectionProbe = (function () {
         function ReflectionProbe(name, size, scene, generateMipMaps) {
             if (generateMipMaps === void 0) { generateMipMaps = true; }
             var _this = this;
@@ -73815,7 +73815,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var Layer = /** @class */ (function () {
+    var Layer = (function () {
         function Layer(name, imgUrl, scene, isBackground, color) {
             this.name = name;
             this.scale = new BABYLON.Vector2(1, 1);
@@ -73970,7 +73970,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var TextureTools = /** @class */ (function () {
+    var TextureTools = (function () {
         function TextureTools() {
         }
         /**
@@ -74025,9 +74025,9 @@ var BABYLON;
             }
             return scene._environmentBRDFTexture;
         };
-        TextureTools._environmentBRDFBase64Texture = "data:image/png;base64,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";
         return TextureTools;
     }());
+    TextureTools._environmentBRDFBase64Texture = "data:image/png;base64,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";
     BABYLON.TextureTools = TextureTools;
 })(BABYLON || (BABYLON = {}));
 
@@ -74035,7 +74035,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var FramingBehavior = /** @class */ (function () {
+    var FramingBehavior = (function () {
         function FramingBehavior() {
             this._mode = FramingBehavior.FitFrustumSidesMode;
             this._radiusScale = 1.0;
@@ -74451,25 +74451,25 @@ var BABYLON;
             enumerable: true,
             configurable: true
         });
-        /**
-         * The easing function used by animations
-         */
-        FramingBehavior.EasingFunction = new BABYLON.ExponentialEase();
-        /**
-         * The easing mode used by animations
-         */
-        FramingBehavior.EasingMode = BABYLON.EasingFunction.EASINGMODE_EASEINOUT;
-        // Statics
-        /**
-         * The camera can move all the way towards the mesh.
-         */
-        FramingBehavior.IgnoreBoundsSizeMode = 0;
-        /**
-         * The camera is not allowed to zoom closer to the mesh than the point at which the adjusted bounding sphere touches the frustum sides
-         */
-        FramingBehavior.FitFrustumSidesMode = 1;
         return FramingBehavior;
     }());
+    /**
+     * The easing function used by animations
+     */
+    FramingBehavior.EasingFunction = new BABYLON.ExponentialEase();
+    /**
+     * The easing mode used by animations
+     */
+    FramingBehavior.EasingMode = BABYLON.EasingFunction.EASINGMODE_EASEINOUT;
+    // Statics
+    /**
+     * The camera can move all the way towards the mesh.
+     */
+    FramingBehavior.IgnoreBoundsSizeMode = 0;
+    /**
+     * The camera is not allowed to zoom closer to the mesh than the point at which the adjusted bounding sphere touches the frustum sides
+     */
+    FramingBehavior.FitFrustumSidesMode = 1;
     BABYLON.FramingBehavior = FramingBehavior;
 })(BABYLON || (BABYLON = {}));
 
@@ -74480,7 +74480,7 @@ var BABYLON;
     /**
      * Add a bouncing effect to an ArcRotateCamera when reaching a specified minimum and maximum radius
      */
-    var BouncingBehavior = /** @class */ (function () {
+    var BouncingBehavior = (function () {
         function BouncingBehavior() {
             /**
              * The duration of the animation, in milliseconds
@@ -74636,16 +74636,16 @@ var BABYLON;
                 this._animatables.shift();
             }
         };
-        /**
-         * The easing function used by animations
-         */
-        BouncingBehavior.EasingFunction = new BABYLON.BackEase(0.3);
-        /**
-         * The easing mode used by animations
-         */
-        BouncingBehavior.EasingMode = BABYLON.EasingFunction.EASINGMODE_EASEOUT;
         return BouncingBehavior;
     }());
+    /**
+     * The easing function used by animations
+     */
+    BouncingBehavior.EasingFunction = new BABYLON.BackEase(0.3);
+    /**
+     * The easing mode used by animations
+     */
+    BouncingBehavior.EasingMode = BABYLON.EasingFunction.EASINGMODE_EASEOUT;
     BABYLON.BouncingBehavior = BouncingBehavior;
 })(BABYLON || (BABYLON = {}));
 
@@ -74653,7 +74653,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var AutoRotationBehavior = /** @class */ (function () {
+    var AutoRotationBehavior = (function () {
         function AutoRotationBehavior() {
             this._zoomStopsAnimation = false;
             this._idleRotationSpeed = 0.05;
@@ -74840,7 +74840,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var NullEngineOptions = /** @class */ (function () {
+    var NullEngineOptions = (function () {
         function NullEngineOptions() {
             this.renderWidth = 512;
             this.renderHeight = 256;
@@ -74853,7 +74853,7 @@ var BABYLON;
      * The null engine class provides support for headless version of babylon.js.
      * This can be used in server side scenario or for testing purposes
      */
-    var NullEngine = /** @class */ (function (_super) {
+    var NullEngine = (function (_super) {
         __extends(NullEngine, _super);
         function NullEngine(options) {
             if (options === void 0) { options = new NullEngineOptions(); }
@@ -75166,7 +75166,7 @@ var BABYLON;
     /**
      * This class can be used to get instrumentation data from a Babylon engine
      */
-    var EngineInstrumentation = /** @class */ (function () {
+    var EngineInstrumentation = (function () {
         function EngineInstrumentation(engine) {
             this.engine = engine;
             this._captureGPUFrameTime = false;
@@ -75302,7 +75302,7 @@ var BABYLON;
     /**
      * This class can be used to get instrumentation data from a Babylon engine
      */
-    var SceneInstrumentation = /** @class */ (function () {
+    var SceneInstrumentation = (function () {
         function SceneInstrumentation(scene) {
             var _this = this;
             this.scene = scene;
@@ -75753,7 +75753,7 @@ var BABYLON;
 
 var BABYLON;
 (function (BABYLON) {
-    var _TimeToken = /** @class */ (function () {
+    var _TimeToken = (function () {
         function _TimeToken() {
             this._timeElapsedQueryEnded = false;
         }

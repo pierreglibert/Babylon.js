@@ -23,7 +23,7 @@ var BABYLON;
      * It basically takes care rendering the font front the given font size to a texture.
      * This is used later on in the postprocess.
      */
-    var AsciiArtFontTexture = /** @class */ (function (_super) {
+    var AsciiArtFontTexture = (function (_super) {
         __extends(AsciiArtFontTexture, _super);
         /**
          * Create a new instance of the Ascii Art FontTexture class
@@ -150,14 +150,14 @@ var BABYLON;
             var texture = BABYLON.SerializationHelper.Parse(function () { return new AsciiArtFontTexture(source.name, source.font, source.text, scene); }, source, scene, null);
             return texture;
         };
-        __decorate([
-            BABYLON.serialize("font")
-        ], AsciiArtFontTexture.prototype, "_font", void 0);
-        __decorate([
-            BABYLON.serialize("text")
-        ], AsciiArtFontTexture.prototype, "_text", void 0);
         return AsciiArtFontTexture;
     }(BABYLON.BaseTexture));
+    __decorate([
+        BABYLON.serialize("font")
+    ], AsciiArtFontTexture.prototype, "_font", void 0);
+    __decorate([
+        BABYLON.serialize("text")
+    ], AsciiArtFontTexture.prototype, "_text", void 0);
     BABYLON.AsciiArtFontTexture = AsciiArtFontTexture;
     /**
      * AsciiArtPostProcess helps rendering everithing in Ascii Art.
@@ -165,7 +165,7 @@ var BABYLON;
      * Simmply add it to your scene and let the nerd that lives in you have fun.
      * Example usage: var pp = new AsciiArtPostProcess("myAscii", "20px Monospace", camera);
      */
-    var AsciiArtPostProcess = /** @class */ (function (_super) {
+    var AsciiArtPostProcess = (function (_super) {
         __extends(AsciiArtPostProcess, _super);
         /**
          * Instantiates a new Ascii Art Post Process.

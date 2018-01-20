@@ -23,7 +23,7 @@ var BABYLON;
      * It basically takes care rendering the font front the given font size to a texture.
      * This is used later on in the postprocess.
      */
-    var DigitalRainFontTexture = /** @class */ (function (_super) {
+    var DigitalRainFontTexture = (function (_super) {
         __extends(DigitalRainFontTexture, _super);
         /**
          * Create a new instance of the Digital Rain FontTexture class
@@ -150,14 +150,14 @@ var BABYLON;
             var texture = BABYLON.SerializationHelper.Parse(function () { return new DigitalRainFontTexture(source.name, source.font, source.text, scene); }, source, scene, null);
             return texture;
         };
-        __decorate([
-            BABYLON.serialize("font")
-        ], DigitalRainFontTexture.prototype, "_font", void 0);
-        __decorate([
-            BABYLON.serialize("text")
-        ], DigitalRainFontTexture.prototype, "_text", void 0);
         return DigitalRainFontTexture;
     }(BABYLON.BaseTexture));
+    __decorate([
+        BABYLON.serialize("font")
+    ], DigitalRainFontTexture.prototype, "_font", void 0);
+    __decorate([
+        BABYLON.serialize("text")
+    ], DigitalRainFontTexture.prototype, "_text", void 0);
     BABYLON.DigitalRainFontTexture = DigitalRainFontTexture;
     /**
      * DigitalRainPostProcess helps rendering everithing in digital rain.
@@ -165,7 +165,7 @@ var BABYLON;
      * Simmply add it to your scene and let the nerd that lives in you have fun.
      * Example usage: var pp = new DigitalRainPostProcess("digitalRain", "20px Monospace", camera);
      */
-    var DigitalRainPostProcess = /** @class */ (function (_super) {
+    var DigitalRainPostProcess = (function (_super) {
         __extends(DigitalRainPostProcess, _super);
         /**
          * Instantiates a new Digital Rain Post Process.

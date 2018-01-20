@@ -22,7 +22,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var AdvancedDynamicTexture = /** @class */ (function (_super) {
+        var AdvancedDynamicTexture = (function (_super) {
             __extends(AdvancedDynamicTexture, _super);
             function AdvancedDynamicTexture(name, width, height, scene, generateMipMaps, samplingMode) {
                 if (width === void 0) { width = 0; }
@@ -462,7 +462,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Measure = /** @class */ (function () {
+        var Measure = (function () {
             function Measure(left, top, width, height) {
                 this.left = left;
                 this.top = top;
@@ -507,7 +507,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Vector2WithInfo = /** @class */ (function (_super) {
+        var Vector2WithInfo = (function (_super) {
             __extends(Vector2WithInfo, _super);
             function Vector2WithInfo(source, buttonIndex) {
                 if (buttonIndex === void 0) { buttonIndex = 0; }
@@ -518,7 +518,7 @@ var BABYLON;
             return Vector2WithInfo;
         }(BABYLON.Vector2));
         GUI.Vector2WithInfo = Vector2WithInfo;
-        var Matrix2D = /** @class */ (function () {
+        var Matrix2D = (function () {
             function Matrix2D(m00, m01, m10, m11, m20, m21) {
                 this.m = new Float32Array(6);
                 this.fromValues(m00, m01, m10, m11, m20, m21);
@@ -619,15 +619,15 @@ var BABYLON;
                     Matrix2D._TempCompose1.multiplyToRef(Matrix2D._TempPostTranslationMatrix, result);
                 }
             };
-            Matrix2D._TempPreTranslationMatrix = Matrix2D.Identity();
-            Matrix2D._TempPostTranslationMatrix = Matrix2D.Identity();
-            Matrix2D._TempRotationMatrix = Matrix2D.Identity();
-            Matrix2D._TempScalingMatrix = Matrix2D.Identity();
-            Matrix2D._TempCompose0 = Matrix2D.Identity();
-            Matrix2D._TempCompose1 = Matrix2D.Identity();
-            Matrix2D._TempCompose2 = Matrix2D.Identity();
             return Matrix2D;
         }());
+        Matrix2D._TempPreTranslationMatrix = Matrix2D.Identity();
+        Matrix2D._TempPostTranslationMatrix = Matrix2D.Identity();
+        Matrix2D._TempRotationMatrix = Matrix2D.Identity();
+        Matrix2D._TempScalingMatrix = Matrix2D.Identity();
+        Matrix2D._TempCompose0 = Matrix2D.Identity();
+        Matrix2D._TempCompose1 = Matrix2D.Identity();
+        Matrix2D._TempCompose2 = Matrix2D.Identity();
         GUI.Matrix2D = Matrix2D;
     })(GUI = BABYLON.GUI || (BABYLON.GUI = {}));
 })(BABYLON || (BABYLON = {}));
@@ -639,7 +639,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var ValueAndUnit = /** @class */ (function () {
+        var ValueAndUnit = (function () {
             function ValueAndUnit(value, unit, negativeValueAllowed) {
                 if (unit === void 0) { unit = ValueAndUnit.UNITMODE_PIXEL; }
                 if (negativeValueAllowed === void 0) { negativeValueAllowed = true; }
@@ -740,12 +740,12 @@ var BABYLON;
                 enumerable: true,
                 configurable: true
             });
-            // Static
-            ValueAndUnit._Regex = /(^-?\d*(\.\d+)?)(%|px)?/;
-            ValueAndUnit._UNITMODE_PERCENTAGE = 0;
-            ValueAndUnit._UNITMODE_PIXEL = 1;
             return ValueAndUnit;
         }());
+        // Static
+        ValueAndUnit._Regex = /(^-?\d*(\.\d+)?)(%|px)?/;
+        ValueAndUnit._UNITMODE_PERCENTAGE = 0;
+        ValueAndUnit._UNITMODE_PIXEL = 1;
         GUI.ValueAndUnit = ValueAndUnit;
     })(GUI = BABYLON.GUI || (BABYLON.GUI = {}));
 })(BABYLON || (BABYLON = {}));
@@ -757,7 +757,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Control = /** @class */ (function () {
+        var Control = (function () {
             // Functions
             function Control(name) {
                 this.name = name;
@@ -1781,16 +1781,16 @@ var BABYLON;
                 context.scale(1 / width, 1 / height);
                 context.translate(-x, -y);
             };
-            // Statics
-            Control._HORIZONTAL_ALIGNMENT_LEFT = 0;
-            Control._HORIZONTAL_ALIGNMENT_RIGHT = 1;
-            Control._HORIZONTAL_ALIGNMENT_CENTER = 2;
-            Control._VERTICAL_ALIGNMENT_TOP = 0;
-            Control._VERTICAL_ALIGNMENT_BOTTOM = 1;
-            Control._VERTICAL_ALIGNMENT_CENTER = 2;
-            Control._FontHeightSizes = {};
             return Control;
         }());
+        // Statics
+        Control._HORIZONTAL_ALIGNMENT_LEFT = 0;
+        Control._HORIZONTAL_ALIGNMENT_RIGHT = 1;
+        Control._HORIZONTAL_ALIGNMENT_CENTER = 2;
+        Control._VERTICAL_ALIGNMENT_TOP = 0;
+        Control._VERTICAL_ALIGNMENT_BOTTOM = 1;
+        Control._VERTICAL_ALIGNMENT_CENTER = 2;
+        Control._FontHeightSizes = {};
         GUI.Control = Control;
     })(GUI = BABYLON.GUI || (BABYLON.GUI = {}));
 })(BABYLON || (BABYLON = {}));
@@ -1803,7 +1803,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Container = /** @class */ (function (_super) {
+        var Container = (function (_super) {
             __extends(Container, _super);
             function Container(name) {
                 var _this = _super.call(this, name) || this;
@@ -1982,7 +1982,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var StackPanel = /** @class */ (function (_super) {
+        var StackPanel = (function (_super) {
             __extends(StackPanel, _super);
             function StackPanel(name) {
                 var _this = _super.call(this, name) || this;
@@ -2124,7 +2124,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Rectangle = /** @class */ (function (_super) {
+        var Rectangle = (function (_super) {
             __extends(Rectangle, _super);
             function Rectangle(name) {
                 var _this = _super.call(this, name) || this;
@@ -2240,7 +2240,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Ellipse = /** @class */ (function (_super) {
+        var Ellipse = (function (_super) {
             __extends(Ellipse, _super);
             function Ellipse(name) {
                 var _this = _super.call(this, name) || this;
@@ -2306,7 +2306,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Line = /** @class */ (function (_super) {
+        var Line = (function (_super) {
             __extends(Line, _super);
             function Line(name) {
                 var _this = _super.call(this, name) || this;
@@ -2506,7 +2506,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Slider = /** @class */ (function (_super) {
+        var Slider = (function (_super) {
             __extends(Slider, _super);
             function Slider(name) {
                 var _this = _super.call(this, name) || this;
@@ -2740,7 +2740,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Checkbox = /** @class */ (function (_super) {
+        var Checkbox = (function (_super) {
             __extends(Checkbox, _super);
             function Checkbox(name) {
                 var _this = _super.call(this, name) || this;
@@ -2856,7 +2856,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var RadioButton = /** @class */ (function (_super) {
+        var RadioButton = (function (_super) {
             __extends(RadioButton, _super);
             function RadioButton(name) {
                 var _this = _super.call(this, name) || this;
@@ -2993,7 +2993,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var TextBlock = /** @class */ (function (_super) {
+        var TextBlock = (function (_super) {
             __extends(TextBlock, _super);
             function TextBlock(name, text) {
                 if (text === void 0) { text = ""; }
@@ -3202,7 +3202,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Image = /** @class */ (function (_super) {
+        var Image = (function (_super) {
             __extends(Image, _super);
             function Image(name, url) {
                 if (url === void 0) { url = null; }
@@ -3430,13 +3430,13 @@ var BABYLON;
                 enumerable: true,
                 configurable: true
             });
-            // Static
-            Image._STRETCH_NONE = 0;
-            Image._STRETCH_FILL = 1;
-            Image._STRETCH_UNIFORM = 2;
-            Image._STRETCH_EXTEND = 3;
             return Image;
         }(GUI.Control));
+        // Static
+        Image._STRETCH_NONE = 0;
+        Image._STRETCH_FILL = 1;
+        Image._STRETCH_UNIFORM = 2;
+        Image._STRETCH_EXTEND = 3;
         GUI.Image = Image;
     })(GUI = BABYLON.GUI || (BABYLON.GUI = {}));
 })(BABYLON || (BABYLON = {}));
@@ -3449,7 +3449,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var Button = /** @class */ (function (_super) {
+        var Button = (function (_super) {
             __extends(Button, _super);
             function Button(name) {
                 var _this = _super.call(this, name) || this;
@@ -3578,7 +3578,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var ColorPicker = /** @class */ (function (_super) {
+        var ColorPicker = (function (_super) {
             __extends(ColorPicker, _super);
             function ColorPicker(name) {
                 var _this = _super.call(this, name) || this;
@@ -3924,7 +3924,7 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var InputText = /** @class */ (function (_super) {
+        var InputText = (function (_super) {
             __extends(InputText, _super);
             function InputText(name, text) {
                 if (text === void 0) { text = ""; }
@@ -4122,7 +4122,7 @@ var BABYLON;
             InputText.prototype.processKey = function (keyCode, key) {
                 // Specific cases
                 switch (keyCode) {
-                    case 8:// BACKSPACE
+                    case 8:
                         if (this._text && this._text.length > 0) {
                             if (this._cursorOffset === 0) {
                                 this.text = this._text.substr(0, this._text.length - 1);
@@ -4135,27 +4135,27 @@ var BABYLON;
                             }
                         }
                         return;
-                    case 46:// DELETE
+                    case 46:
                         if (this._text && this._text.length > 0) {
                             var deletePosition = this._text.length - this._cursorOffset;
                             this.text = this._text.slice(0, deletePosition) + this._text.slice(deletePosition + 1);
                             this._cursorOffset--;
                         }
                         return;
-                    case 13:// RETURN
+                    case 13:
                         this._host.focusedControl = null;
                         return;
-                    case 35:// END
+                    case 35:
                         this._cursorOffset = 0;
                         this._blinkIsEven = false;
                         this._markAsDirty();
                         return;
-                    case 36:// HOME
+                    case 36:
                         this._cursorOffset = this._text.length;
                         this._blinkIsEven = false;
                         this._markAsDirty();
                         return;
-                    case 37:// LEFT
+                    case 37:
                         this._cursorOffset++;
                         if (this._cursorOffset > this._text.length) {
                             this._cursorOffset = this._text.length;
@@ -4163,7 +4163,7 @@ var BABYLON;
                         this._blinkIsEven = false;
                         this._markAsDirty();
                         return;
-                    case 39:// RIGHT
+                    case 39:
                         this._cursorOffset--;
                         if (this._cursorOffset < 0) {
                             this._cursorOffset = 0;
@@ -4173,12 +4173,12 @@ var BABYLON;
                         return;
                 }
                 // Printable characters
-                if ((keyCode === -1) || // Direct access
-                    (keyCode === 32) || // Space
-                    (keyCode > 47 && keyCode < 58) || // Numbers
-                    (keyCode > 64 && keyCode < 91) || // Letters
-                    (keyCode > 185 && keyCode < 193) || // Special characters
-                    (keyCode > 218 && keyCode < 223) || // Special characters
+                if ((keyCode === -1) ||
+                    (keyCode === 32) ||
+                    (keyCode > 47 && keyCode < 58) ||
+                    (keyCode > 64 && keyCode < 91) ||
+                    (keyCode > 185 && keyCode < 193) ||
+                    (keyCode > 218 && keyCode < 223) ||
                     (keyCode > 95 && keyCode < 112)) {
                     if (this._cursorOffset === 0) {
                         this.text += key;
@@ -4337,13 +4337,13 @@ var BABYLON;
 (function (BABYLON) {
     var GUI;
     (function (GUI) {
-        var KeyPropertySet = /** @class */ (function () {
+        var KeyPropertySet = (function () {
             function KeyPropertySet() {
             }
             return KeyPropertySet;
         }());
         GUI.KeyPropertySet = KeyPropertySet;
-        var VirtualKeyboard = /** @class */ (function (_super) {
+        var VirtualKeyboard = (function (_super) {
             __extends(VirtualKeyboard, _super);
             function VirtualKeyboard() {
                 var _this = _super !== null && _super.apply(this, arguments) || this;

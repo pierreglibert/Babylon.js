@@ -20,7 +20,7 @@ var BABYLON;
     /**
      * Background material defines definition.
      */
-    var BackgroundMaterialDefines = /** @class */ (function (_super) {
+    var BackgroundMaterialDefines = (function (_super) {
         __extends(BackgroundMaterialDefines, _super);
         /**
          * Constructor of the defines.
@@ -114,7 +114,7 @@ var BABYLON;
     /**
      * Background material
      */
-    var BackgroundMaterial = /** @class */ (function (_super) {
+    var BackgroundMaterial = (function (_super) {
         __extends(BackgroundMaterial, _super);
         /**
          * constructor
@@ -744,98 +744,98 @@ var BABYLON;
         BackgroundMaterial.Parse = function (source, scene, rootUrl) {
             return BABYLON.SerializationHelper.Parse(function () { return new BackgroundMaterial(source.name, scene); }, source, scene, rootUrl);
         };
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], BackgroundMaterial.prototype, "_primaryColor", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], BackgroundMaterial.prototype, "primaryColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_primaryLevel", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], BackgroundMaterial.prototype, "primaryLevel", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], BackgroundMaterial.prototype, "_secondaryColor", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], BackgroundMaterial.prototype, "secondaryColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_secondaryLevel", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], BackgroundMaterial.prototype, "secondaryLevel", void 0);
-        __decorate([
-            BABYLON.serializeAsColor3()
-        ], BackgroundMaterial.prototype, "_tertiaryColor", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], BackgroundMaterial.prototype, "tertiaryColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_tertiaryLevel", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
-        ], BackgroundMaterial.prototype, "tertiaryLevel", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture()
-        ], BackgroundMaterial.prototype, "_reflectionTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "reflectionTexture", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_reflectionBlur", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "reflectionBlur", void 0);
-        __decorate([
-            BABYLON.serializeAsTexture()
-        ], BackgroundMaterial.prototype, "_diffuseTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "diffuseTexture", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "shadowLights", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_shadowBlurScale", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "shadowBlurScale", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_shadowLevel", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "shadowLevel", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_opacityFresnel", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "opacityFresnel", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_useRGBColor", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "useRGBColor", void 0);
-        __decorate([
-            BABYLON.serialize()
-        ], BackgroundMaterial.prototype, "_maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        ], BackgroundMaterial.prototype, "maxSimultaneousLights", void 0);
-        __decorate([
-            BABYLON.serializeAsImageProcessingConfiguration()
-        ], BackgroundMaterial.prototype, "_imageProcessingConfiguration", void 0);
         return BackgroundMaterial;
     }(BABYLON.PushMaterial));
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], BackgroundMaterial.prototype, "_primaryColor", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], BackgroundMaterial.prototype, "primaryColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_primaryLevel", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], BackgroundMaterial.prototype, "primaryLevel", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], BackgroundMaterial.prototype, "_secondaryColor", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], BackgroundMaterial.prototype, "secondaryColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_secondaryLevel", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], BackgroundMaterial.prototype, "secondaryLevel", void 0);
+    __decorate([
+        BABYLON.serializeAsColor3()
+    ], BackgroundMaterial.prototype, "_tertiaryColor", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], BackgroundMaterial.prototype, "tertiaryColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_tertiaryLevel", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsLightsDirty")
+    ], BackgroundMaterial.prototype, "tertiaryLevel", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture()
+    ], BackgroundMaterial.prototype, "_reflectionTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "reflectionTexture", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_reflectionBlur", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "reflectionBlur", void 0);
+    __decorate([
+        BABYLON.serializeAsTexture()
+    ], BackgroundMaterial.prototype, "_diffuseTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "diffuseTexture", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "shadowLights", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_shadowBlurScale", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "shadowBlurScale", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_shadowLevel", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "shadowLevel", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_opacityFresnel", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "opacityFresnel", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_useRGBColor", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "useRGBColor", void 0);
+    __decorate([
+        BABYLON.serialize()
+    ], BackgroundMaterial.prototype, "_maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.expandToProperty("_markAllSubMeshesAsTexturesDirty")
+    ], BackgroundMaterial.prototype, "maxSimultaneousLights", void 0);
+    __decorate([
+        BABYLON.serializeAsImageProcessingConfiguration()
+    ], BackgroundMaterial.prototype, "_imageProcessingConfiguration", void 0);
     BABYLON.BackgroundMaterial = BackgroundMaterial;
 })(BABYLON || (BABYLON = {}));
 
