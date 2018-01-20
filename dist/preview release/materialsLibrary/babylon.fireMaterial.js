@@ -94,7 +94,7 @@ var BABYLON;
                 defines.FOG = (scene.fogEnabled && mesh.applyFog && scene.fogMode !== BABYLON.Scene.FOGMODE_NONE && this.fogEnabled);
             }
             // Values that need to be evaluated on every frame
-            BABYLON.MaterialHelper.PrepareDefinesForFrameBoundValues(scene, engine, defines, useInstances ? true : false);
+            BABYLON.MaterialHelper.PrepareDefinesForFrameBoundValues(scene, engine, defines, useInstances ? true : false, this._shouldTurnAlphaTestOn(mesh));
             // Attribs
             BABYLON.MaterialHelper.PrepareDefinesForAttributes(mesh, defines, false, true);
             // Get correct effect      
@@ -142,7 +142,8 @@ var BABYLON;
                     onCompiled: this.onCompiled,
                     onError: this.onError,
                     indexParameters: null,
-                    maxSimultaneousLights: 4
+                    maxSimultaneousLights: 4,
+                    transformFeedbackVaryings: null
                 }, engine), defines);
             }
             if (!subMesh.effect || !subMesh.effect.isReady()) {

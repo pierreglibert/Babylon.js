@@ -29,6 +29,8 @@ declare module BABYLON.GUI {
         private _renderAtIdealSize;
         private _focusedControl;
         private _blockNextFocusCheck;
+        private _renderScale;
+        renderScale: number;
         background: string;
         idealWidth: number;
         idealHeight: number;
@@ -36,6 +38,7 @@ declare module BABYLON.GUI {
         readonly layer: Nullable<Layer>;
         readonly rootContainer: Container;
         focusedControl: Nullable<IFocusableControl>;
+        isForeground: boolean;
         constructor(name: string, width: number | undefined, height: number | undefined, scene: Nullable<Scene>, generateMipMaps?: boolean, samplingMode?: number);
         executeOnAllControls(func: (control: Control) => void, container?: Container): void;
         markAsDirty(): void;
@@ -53,7 +56,18 @@ declare module BABYLON.GUI {
         private _manageFocus();
         private _attachToOnPointerOut(scene);
         static CreateForMesh(mesh: AbstractMesh, width?: number, height?: number, supportPointerMove?: boolean): AdvancedDynamicTexture;
-        static CreateFullscreenUI(name: string, foreground?: boolean, scene?: Nullable<Scene>): AdvancedDynamicTexture;
+        /**
+         * FullScreenUI is created in a layer. This allows it to be treated like any other layer.
+         * As such, if you have a multi camera setup, you can set the layerMask on the GUI as well.
+         * When the GUI is not Created as FullscreenUI it does not respect the layerMask.
+         * layerMask is set through advancedTexture.layer.layerMask
+         * @param name name for the Texture
+         * @param foreground render in foreground (default is true)
+         * @param scene scene to be rendered in
+         * @param sampling method for scaling to fit screen
+         * @returns AdvancedDynamicTexture
+         */
+        static CreateFullscreenUI(name: string, foreground?: boolean, scene?: Nullable<Scene>, sampling?: number): AdvancedDynamicTexture;
     }
 }
 
@@ -126,7 +140,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Control {
-        name: string;
+        name: string | undefined;
         private _alpha;
         private _alphaSet;
         private _zIndex;
@@ -162,8 +176,8 @@ declare module BABYLON.GUI {
         private _transformCenterX;
         private _transformCenterY;
         private _transformMatrix;
-        private _invertTransformMatrix;
-        private _transformedPosition;
+        protected _invertTransformMatrix: Matrix2D;
+        protected _transformedPosition: Vector2;
         private _isMatrixDirty;
         private _cachedOffsetX;
         private _cachedOffsetY;
@@ -177,6 +191,10 @@ declare module BABYLON.GUI {
         isHitTestVisible: boolean;
         isPointerBlocker: boolean;
         isFocusInvisible: boolean;
+        shadowOffsetX: number;
+        shadowOffsetY: number;
+        shadowBlur: number;
+        shadowColor: string;
         protected _linkOffsetX: ValueAndUnit;
         protected _linkOffsetY: ValueAndUnit;
         readonly typeName: string;
@@ -254,7 +272,7 @@ declare module BABYLON.GUI {
         readonly linkOffsetYInPixels: number;
         readonly centerX: number;
         readonly centerY: number;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         getLocalCoordinates(globalCoordinates: Vector2): Vector2;
         getLocalCoordinatesToRef(globalCoordinates: Vector2, result: Vector2): Control;
@@ -315,13 +333,13 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Container extends Control {
-        name: string;
+        name: string | undefined;
         protected _children: Control[];
         protected _measureForChildren: Measure;
         protected _background: string;
         background: string;
         readonly children: Control[];
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         getChildByName(name: string): Nullable<Control>;
         getChildByType(name: string, type: string): Nullable<Control>;
@@ -344,7 +362,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class StackPanel extends Container {
-        name: string;
+        name: string | undefined;
         private _isVertical;
         private _manualWidth;
         private _manualHeight;
@@ -353,7 +371,7 @@ declare module BABYLON.GUI {
         isVertical: boolean;
         width: string | number;
         height: string | number;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         protected _preMeasure(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
     }
@@ -362,12 +380,12 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Rectangle extends Container {
-        name: string;
+        name: string | undefined;
         private _thickness;
         private _cornerRadius;
         thickness: number;
         cornerRadius: number;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         protected _localDraw(context: CanvasRenderingContext2D): void;
         protected _additionalProcessing(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
@@ -379,10 +397,10 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Ellipse extends Container {
-        name: string;
+        name: string | undefined;
         private _thickness;
         thickness: number;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         protected _localDraw(context: CanvasRenderingContext2D): void;
         protected _additionalProcessing(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
@@ -393,7 +411,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Line extends Control {
-        name: string;
+        name: string | undefined;
         private _lineWidth;
         private _x1;
         private _y1;
@@ -413,7 +431,7 @@ declare module BABYLON.GUI {
         verticalAlignment: number;
         private readonly _effectiveX2;
         private readonly _effectiveY2;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         _measure(): void;
@@ -425,7 +443,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Slider extends Control {
-        name: string;
+        name: string | undefined;
         private _thumbWidth;
         private _minimum;
         private _maximum;
@@ -434,6 +452,7 @@ declare module BABYLON.GUI {
         private _borderColor;
         private _barOffset;
         private _isThumbCircle;
+        private _isThumbClamped;
         onValueChangedObservable: Observable<number>;
         borderColor: string;
         background: string;
@@ -445,11 +464,12 @@ declare module BABYLON.GUI {
         maximum: number;
         value: number;
         isThumbCircle: boolean;
-        constructor(name?: string);
+        isThumbClamped: boolean;
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         private _pointerIsDown;
-        private _updateValueFromPointer(x);
+        private _updateValueFromPointer(x, y);
         _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
         _onPointerMove(target: Control, coordinates: Vector2): void;
         _onPointerUp(target: Control, coordinates: Vector2, buttonIndex: number): void;
@@ -459,7 +479,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Checkbox extends Control {
-        name: string;
+        name: string | undefined;
         private _isChecked;
         private _background;
         private _checkSizeRatio;
@@ -469,7 +489,7 @@ declare module BABYLON.GUI {
         checkSizeRatio: number;
         background: string;
         isChecked: boolean;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
@@ -479,7 +499,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class RadioButton extends Control {
-        name: string;
+        name: string | undefined;
         private _isChecked;
         private _background;
         private _checkSizeRatio;
@@ -490,7 +510,7 @@ declare module BABYLON.GUI {
         checkSizeRatio: number;
         background: string;
         isChecked: boolean;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         _onPointerDown(target: Control, coordinates: Vector2, buttonIndex: number): boolean;
@@ -500,26 +520,86 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class TextBlock extends Control {
-        name: string;
+        /**
+         * Defines the name of the control
+         */
+        name: string | undefined;
         private _text;
         private _textWrapping;
         private _textHorizontalAlignment;
         private _textVerticalAlignment;
         private _lines;
         private _resizeToFit;
+        private _lineSpacing;
         /**
         * An event triggered after the text is changed
         * @type {BABYLON.Observable}
         */
         onTextChangedObservable: Observable<TextBlock>;
+        /**
+        * An event triggered after the text was broken up into lines
+        * @type {BABYLON.Observable}
+        */
+        onLinesReadyObservable: Observable<TextBlock>;
+        /**
+         * Return the line list (you may need to use the onLinesReadyObservable to make sure the list is ready)
+         */
+        readonly lines: any[];
+        /**
+         * Gets or sets an boolean indicating that the TextBlock will be resized to fit container
+         */
+        /**
+         * Gets or sets an boolean indicating that the TextBlock will be resized to fit container
+         */
         resizeToFit: boolean;
+        /**
+         * Gets or sets a boolean indicating if text must be wrapped
+         */
+        /**
+         * Gets or sets a boolean indicating if text must be wrapped
+         */
         textWrapping: boolean;
+        /**
+         * Gets or sets text to display
+         */
+        /**
+         * Gets or sets text to display
+         */
         text: string;
+        /**
+         * Gets or sets text horizontal alignment (BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER by default)
+         */
+        /**
+         * Gets or sets text horizontal alignment (BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER by default)
+         */
         textHorizontalAlignment: number;
+        /**
+         * Gets or sets text vertical alignment (BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER by default)
+         */
+        /**
+         * Gets or sets text vertical alignment (BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER by default)
+         */
         textVerticalAlignment: number;
-        constructor(name?: string, text?: string);
+        /**
+         * Gets or sets line spacing value
+         */
+        /**
+         * Gets or sets line spacing value
+         */
+        lineSpacing: string | number;
+        /**
+         * Creates a new TextBlock object
+         * @param name defines the name of the control
+         * @param text defines the text to display (emptry string by default)
+         */
+        constructor(
+            /**
+             * Defines the name of the control
+             */
+            name?: string | undefined, text?: string);
         protected _getTypeName(): string;
         private _drawText(text, textWidth, y, context);
+        /** @ignore */
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         protected _additionalProcessing(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
         protected _parseLine(line: string | undefined, context: CanvasRenderingContext2D): object;
@@ -533,7 +613,7 @@ declare module BABYLON.GUI {
 declare var DOMImage: new (width?: number | undefined, height?: number | undefined) => HTMLImageElement;
 declare module BABYLON.GUI {
     class Image extends Control {
-        name: string;
+        name: string | undefined;
         private _domImage;
         private _imageWidth;
         private _imageHeight;
@@ -545,6 +625,9 @@ declare module BABYLON.GUI {
         private _sourceTop;
         private _sourceWidth;
         private _sourceHeight;
+        private _cellWidth;
+        private _cellHeight;
+        private _cellId;
         sourceLeft: number;
         sourceTop: number;
         sourceWidth: number;
@@ -554,7 +637,10 @@ declare module BABYLON.GUI {
         domImage: HTMLImageElement;
         private _onImageLoaded();
         source: Nullable<string>;
-        constructor(name?: string, url?: Nullable<string>);
+        cellWidth: number;
+        cellHeight: number;
+        cellId: number;
+        constructor(name?: string | undefined, url?: Nullable<string>);
         protected _getTypeName(): string;
         synchronizeSizeWithContent(): void;
         _draw(parentMeasure: Measure, context: CanvasRenderingContext2D): void;
@@ -572,12 +658,12 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class Button extends Rectangle {
-        name: string;
+        name: string | undefined;
         pointerEnterAnimation: () => void;
         pointerOutAnimation: () => void;
         pointerDownAnimation: () => void;
         pointerUpAnimation: () => void;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         _processPicking(x: number, y: number, type: number, buttonIndex: number): boolean;
         _onPointerEnter(target: Control): boolean;
@@ -594,7 +680,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class ColorPicker extends Control {
-        name: string;
+        name: string | undefined;
         private _colorWheelCanvas;
         private _value;
         private _tmpColor;
@@ -611,7 +697,7 @@ declare module BABYLON.GUI {
         width: string | number;
         height: string | number;
         size: string | number;
-        constructor(name?: string);
+        constructor(name?: string | undefined);
         protected _getTypeName(): string;
         private _updateSquareProps();
         private _drawGradientSquare(hueValue, left, top, width, height, context);
@@ -633,7 +719,7 @@ declare module BABYLON.GUI {
 
 declare module BABYLON.GUI {
     class InputText extends Control implements IFocusableControl {
-        name: string;
+        name: string | undefined;
         private _text;
         private _placeholderText;
         private _background;
@@ -665,7 +751,8 @@ declare module BABYLON.GUI {
         placeholderColor: string;
         placeholderText: string;
         text: string;
-        constructor(name?: string, text?: string);
+        width: string | number;
+        constructor(name?: string | undefined, text?: string);
         onBlur(): void;
         onFocus(): void;
         protected _getTypeName(): string;
@@ -700,9 +787,13 @@ declare module BABYLON.GUI {
         defaultButtonPaddingBottom: string;
         defaultButtonColor: string;
         defaultButtonBackground: string;
+        shiftButtonColor: string;
+        selectedShiftThickness: number;
+        shiftState: number;
         protected _getTypeName(): string;
         private _createKey(key, propertySet);
         addKeysRow(keys: Array<string>, propertySets?: Array<KeyPropertySet>): void;
+        applyShiftState(shiftState: number): void;
         private _connectedInputText;
         private _onFocusObserver;
         private _onBlurObserver;

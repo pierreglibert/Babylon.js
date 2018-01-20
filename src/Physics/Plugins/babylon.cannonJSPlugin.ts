@@ -18,6 +18,9 @@
                 Tools.Error("CannonJS is not available. Please make sure you included the js file.");
                 return;
             }
+
+            this._extendNamespace();
+
             this.world = new this.BJSCANNON.World();
             this.world.broadphase = new this.BJSCANNON.NaiveBroadphase();
             this.world.solver.iterations = iterations;
@@ -116,7 +119,7 @@
             if (meshChildren.length) {
                 var processMesh = (localPosition: Vector3, mesh: AbstractMesh) => {
 
-                    if (!currentRotation || ! mesh.rotationQuaternion) {
+                    if (!currentRotation || !mesh.rotationQuaternion) {
                         return;
                     }
 
@@ -263,13 +266,50 @@
                     returnValue = new this.BJSCANNON.Plane();
                     break;
                 case PhysicsImpostor.MeshImpostor:
+                    // should transform the vertex data to world coordinates!!
                     var rawVerts = object.getVerticesData ? object.getVerticesData(VertexBuffer.PositionKind) : [];
                     var rawFaces = object.getIndices ? object.getIndices() : [];
+                    if (!rawVerts) return;
+                    // get only scale! so the object could transform correctly.
+                    let oldPosition = object.position.clone();
+                    let oldRotation = object.rotation && object.rotation.clone();
+                    let oldQuaternion = object.rotationQuaternion && object.rotationQuaternion.clone();
+                    object.position.copyFromFloats(0, 0, 0);
+                    object.rotation && object.rotation.copyFromFloats(0, 0, 0);
+                    object.rotationQuaternion && object.rotationQuaternion.copyFrom(impostor.getParentsRotation());
+
+                    object.rotationQuaternion && object.parent && object.rotationQuaternion.conjugateInPlace();
+
+                    let transform = object.computeWorldMatrix(true);
+                    // convert rawVerts to object space
+                    var temp = new Array<number>();
+                    var index: number;
+                    for (index = 0; index < rawVerts.length; index += 3) {
+                        Vector3.TransformCoordinates(Vector3.FromArray(rawVerts, index), transform).toArray(temp, index);
+                    }
+
                     Tools.Warn("MeshImpostor only collides against spheres.");
-                    returnValue = new this.BJSCANNON.Trimesh(<number[]>rawVerts, <number[]>rawFaces);
+                    returnValue = new this.BJSCANNON.Trimesh(temp, <number[]>rawFaces);
+                    //now set back the transformation!
+                    object.position.copyFrom(oldPosition);
+                    oldRotation && object.rotation && object.rotation.copyFrom(oldRotation);
+                    oldQuaternion && object.rotationQuaternion && object.rotationQuaternion.copyFrom(oldQuaternion);
                     break;
                 case PhysicsImpostor.HeightmapImpostor:
+                    let oldPosition2 = object.position.clone();
+                    let oldRotation2 = object.rotation && object.rotation.clone();
+                    let oldQuaternion2 = object.rotationQuaternion && object.rotationQuaternion.clone();
+                    object.position.copyFromFloats(0, 0, 0);
+                    object.rotation && object.rotation.copyFromFloats(0, 0, 0);
+                    object.rotationQuaternion && object.rotationQuaternion.copyFrom(impostor.getParentsRotation());
+                    object.rotationQuaternion && object.parent && object.rotationQuaternion.conjugateInPlace();
+                    object.rotationQuaternion && object.rotationQuaternion.multiplyInPlace(this._minus90X);
+
                     returnValue = this._createHeightmap(object);
+                    object.position.copyFrom(oldPosition2);
+                    oldRotation2 && object.rotation && object.rotation.copyFrom(oldRotation2);
+                    oldQuaternion2 && object.rotationQuaternion && object.rotationQuaternion.copyFrom(oldQuaternion2);
+                    object.computeWorldMatrix(true);
                     break;
                 case PhysicsImpostor.ParticleImpostor:
                     returnValue = new this.BJSCANNON.Particle();
@@ -281,21 +321,29 @@
 
         private _createHeightmap(object: IPhysicsEnabledObject, pointDepth?: number) {
             var pos = <FloatArray>(object.getVerticesData(VertexBuffer.PositionKind));
+            let transform = object.computeWorldMatrix(true);
+            // convert rawVerts to object space
+            var temp = new Array<number>();
+            var index: number;
+            for (index = 0; index < pos.length; index += 3) {
+                Vector3.TransformCoordinates(Vector3.FromArray(pos, index), transform).toArray(temp, index);
+            }
+            pos = temp;
             var matrix = new Array<Array<any>>();
 
             //For now pointDepth will not be used and will be automatically calculated.
             //Future reference - try and find the best place to add a reference to the pointDepth variable.
             var arraySize = pointDepth || ~~(Math.sqrt(pos.length / 3) - 1);
-            let boundingInfo = <BoundingInfo>(object.getBoundingInfo());
-            var dim = Math.min(boundingInfo.boundingBox.extendSizeWorld.x, boundingInfo.boundingBox.extendSizeWorld.z);
-            var minY = boundingInfo.boundingBox.extendSizeWorld.y;
-            
+            let boundingInfo = object.getBoundingInfo();
+            var dim = Math.min(boundingInfo.boundingBox.extendSizeWorld.x, boundingInfo.boundingBox.extendSizeWorld.y);
+            var minY = boundingInfo.boundingBox.extendSizeWorld.z;
+
             var elementSize = dim * 2 / arraySize;
 
             for (var i = 0; i < pos.length; i = i + 3) {
                 var x = Math.round((pos[i + 0]) / elementSize + arraySize / 2);
-                var z = Math.round(((pos[i + 2]) / elementSize - arraySize / 2) * -1);
-                var y = pos[i + 1] + minY;
+                var z = Math.round(((pos[i + 1]) / elementSize - arraySize / 2) * -1);
+                var y = -pos[i + 2] + minY;
                 if (!matrix[x]) {
                     matrix[x] = [];
                 }
@@ -349,8 +397,12 @@
             //make sure it is updated...
             object.computeWorldMatrix && object.computeWorldMatrix(true);
             // The delta between the mesh position and the mesh bounding box center
+            let bInfo = object.getBoundingInfo();
+            if (!bInfo) return;
             var center = impostor.getObjectCenter();
-            this._tmpDeltaPosition.copyFrom(object.position.subtract(center));
+            //m.getAbsolutePosition().subtract(m.getBoundingInfo().boundingBox.centerWorld)
+            this._tmpDeltaPosition.copyFrom(object.getAbsolutePivotPoint().subtract(center));
+            this._tmpDeltaPosition.divideInPlace(impostor.object.scaling);
             this._tmpPosition.copyFrom(center);
             var quaternion = object.rotationQuaternion;
 
@@ -370,7 +422,7 @@
             //If it is a heightfield, if should be centered.
             if (impostor.type === PhysicsImpostor.HeightmapImpostor) {
                 var mesh = <AbstractMesh>(<any>object);
-                let boundingInfo = <BoundingInfo>mesh.getBoundingInfo();
+                let boundingInfo = mesh.getBoundingInfo();
                 //calculate the correct body position:
                 var rotationQuaternion = mesh.rotationQuaternion;
                 mesh.rotationQuaternion = this._tmpUnityRotation;
@@ -380,9 +432,6 @@
                 var c = center.clone();
 
                 var oldPivot = mesh.getPivotMatrix() || Matrix.Translation(0, 0, 0);
-
-                //rotation is back
-                mesh.rotationQuaternion = rotationQuaternion;
 
                 //calculate the new center using a pivot (since this.BJSCANNON.js doesn't center height maps)
                 var p = Matrix.Translation(boundingInfo.boundingBox.extendSizeWorld.x, 0, -boundingInfo.boundingBox.extendSizeWorld.z);
@@ -396,12 +445,14 @@
                 //add it inverted to the delta
                 this._tmpDeltaPosition.copyFrom(boundingInfo.boundingBox.centerWorld.subtract(c));
                 this._tmpDeltaPosition.y += boundingInfo.boundingBox.extendSizeWorld.y;
+                //rotation is back
+                mesh.rotationQuaternion = rotationQuaternion;
 
                 mesh.setPivotMatrix(oldPivot);
                 mesh.computeWorldMatrix(true);
             } else if (impostor.type === PhysicsImpostor.MeshImpostor) {
                 this._tmpDeltaPosition.copyFromFloats(0, 0, 0);
-                this._tmpPosition.copyFrom(object.position);
+                //this._tmpPosition.copyFrom(object.position);
             }
 
             impostor.setDeltaPosition(this._tmpDeltaPosition);
@@ -542,6 +593,47 @@
 
         public dispose() {
 
+        }
+
+        private _extendNamespace() {
+
+            //this will force cannon to execute at least one step when using interpolation
+            let step_tmp1 = new this.BJSCANNON.Vec3();
+            let Engine = this.BJSCANNON;
+            this.BJSCANNON.World.prototype.step = function (dt: number, timeSinceLastCalled: number, maxSubSteps: number) {
+                maxSubSteps = maxSubSteps || 10;
+                timeSinceLastCalled = timeSinceLastCalled || 0;
+                if (timeSinceLastCalled === 0) {
+                    this.internalStep(dt);
+                    this.time += dt;
+                } else {
+                    var internalSteps = Math.floor((this.time + timeSinceLastCalled) / dt) - Math.floor(this.time / dt);
+                    internalSteps = Math.min(internalSteps, maxSubSteps) || 1;
+                    var t0 = performance.now();
+                    for (var i = 0; i !== internalSteps; i++) {
+                        this.internalStep(dt);
+                        if (performance.now() - t0 > dt * 1000) {
+                            break;
+                        }
+                    }
+                    this.time += timeSinceLastCalled;
+                    var h = this.time % dt;
+                    var h_div_dt = h / dt;
+                    var interpvelo = step_tmp1;
+                    var bodies = this.bodies;
+                    for (var j = 0; j !== bodies.length; j++) {
+                        var b = bodies[j];
+                        if (b.type !== Engine.Body.STATIC && b.sleepState !== Engine.Body.SLEEPING) {
+                            b.position.vsub(b.previousPosition, interpvelo);
+                            interpvelo.scale(h_div_dt, interpvelo);
+                            b.position.vadd(interpvelo, b.interpolatedPosition);
+                        } else {
+                            b.interpolatedPosition.copy(b.position);
+                            b.interpolatedQuaternion.copy(b.quaternion);
+                        }
+                    }
+                }
+            };
         }
     }
 }

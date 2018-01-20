@@ -358,33 +358,53 @@
          * Like every other parametric shape, it is dynamically updatable by passing an existing instance of LineSystem to this static function.  
          * The parameter `lines` is an array of lines, each line being an array of successive Vector3.   
          * The optional parameter `instance` is an instance of an existing LineSystem object to be updated with the passed `lines` parameter. The way to update it is the same than for 
+         * The optional parameter `colors` is an array of line colors, each line colors being an array of successive Color4, one per line point.  
+         * The optional parameter `useVertexAlpha' is to be set to `false` (default `true`) when you don't need the alpha blending (faster).  
          * updating a simple Line mesh, you just need to update every line in the `lines` array : http://doc.babylonjs.com/tutorials/How_to_dynamically_morph_a_mesh#lines-and-dashedlines   
          * When updating an instance, remember that only line point positions can change, not the number of points, neither the number of lines.      
          * The mesh can be set to updatable with the boolean parameter `updatable` (default false) if its internal geometry is supposed to change once created.  
          */
-        public static CreateLineSystem(name: string, options: { lines: Vector3[][], updatable: boolean, instance: Nullable<LinesMesh> }, scene: Nullable<Scene>): LinesMesh {
+        public static CreateLineSystem(name: string, options: { lines: Vector3[][], updatable: boolean, instance: Nullable<LinesMesh>, colors?: Nullable<Color4[][]>, useVertexAlpha?: boolean }, scene: Nullable<Scene>): LinesMesh {
             var instance = options.instance;
             var lines = options.lines;
+            var colors = options.colors;
 
             if (instance) { // lines update
-                var positionFunction = (positions: FloatArray) => {
-                    var i = 0;
-                    for (var l = 0; l < lines.length; l++) {
-                        var points = lines[l];
-                        for (var p = 0; p < points.length; p++) {
-                            positions[i] = points[p].x;
-                            positions[i + 1] = points[p].y;
-                            positions[i + 2] = points[p].z;
-                            i += 3;
+                var positions = instance.getVerticesData(VertexBuffer.PositionKind)!;
+                var vertexColor;
+                var lineColors;
+                if (colors) {
+                    vertexColor = instance.getVerticesData(VertexBuffer.ColorKind)!;
+                }
+                var i = 0;
+                var c = 0;
+                for (var l = 0; l < lines.length; l++) {
+                    var points = lines[l];
+                    for (var p = 0; p < points.length; p++) {
+                        positions[i] = points[p].x;
+                        positions[i + 1] = points[p].y;
+                        positions[i + 2] = points[p].z;
+                        if (colors && vertexColor) {
+                            lineColors = colors[l];
+                            vertexColor[c] = lineColors[p].r;
+                            vertexColor[c + 1] = lineColors[p].g;
+                            vertexColor[c + 2] = lineColors[p].b;
+                            vertexColor[c + 3] = lineColors[p].a;
+                            c += 4;
                         }
+                        i += 3;
                     }
-                };
-                instance.updateMeshPositions(positionFunction, false);
+                }
+                instance.updateVerticesData(VertexBuffer.PositionKind, positions, false, false);
+                if (colors && vertexColor) {
+                    instance.updateVerticesData(VertexBuffer.ColorKind, vertexColor, false, false)
+                }
                 return instance;
             }
 
             // line system creation
-            var lineSystem = new LinesMesh(name, scene);
+            var useVertexColor = (colors) ? true : false;
+            var lineSystem = new LinesMesh(name, scene, null, undefined, undefined, useVertexColor, options.useVertexAlpha);
             var vertexData = VertexData.CreateLineSystem(options);
             vertexData.applyToMesh(lineSystem, options.updatable);
             return lineSystem;
@@ -397,11 +417,14 @@
          * Like every other parametric shape, it is dynamically updatable by passing an existing instance of LineMesh to this static function.  
          * The parameter `points` is an array successive Vector3.   
          * The optional parameter `instance` is an instance of an existing LineMesh object to be updated with the passed `points` parameter : http://doc.babylonjs.com/tutorials/How_to_dynamically_morph_a_mesh#lines-and-dashedlines    
+         * The optional parameter `colors` is an array of successive Color4, one per line point.  
+         * The optional parameter `useVertexAlpha' is to be set to `false` (default `true`) when you don't need alpha blending (faster).  
          * When updating an instance, remember that only point positions can change, not the number of points.      
          * The mesh can be set to updatable with the boolean parameter `updatable` (default false) if its internal geometry is supposed to change once created.  
          */
-        public static CreateLines(name: string, options: { points: Vector3[], updatable: boolean, instance: Nullable<LinesMesh> }, scene: Nullable<Scene> = null): LinesMesh {
-            var lines = MeshBuilder.CreateLineSystem(name, { lines: [options.points], updatable: options.updatable, instance: options.instance }, scene);
+        public static CreateLines(name: string, options: { points: Vector3[], updatable: boolean, instance: Nullable<LinesMesh>, colors?: Color4[], useVertexAlpha?: boolean }, scene: Nullable<Scene> = null): LinesMesh {
+            var colors = (options.colors) ? [options.colors] : null;
+            var lines = MeshBuilder.CreateLineSystem(name, { lines: [options.points], updatable: options.updatable, instance: options.instance, colors: colors, useVertexAlpha: options.useVertexAlpha }, scene);
             return lines;
         }
 
@@ -425,7 +448,7 @@
             var dashSize = options.dashSize || 3;
 
             if (instance) {  //  dashed lines update
-                var positionFunction = (positions: number[]): void => {
+                var positionFunction = (positions: FloatArray): void => {
                     var curvect = Vector3.Zero();
                     var nbSeg = positions.length / 6;
                     var lg = 0;
@@ -750,6 +773,10 @@
 
                 if (!context) {
                     throw new Error("Unable to get 2d context for CreateGroundFromHeightMap");
+                }
+
+                if (scene.isDisposed) {
+                    return;
                 }
 
                 var bufferWidth = img.width;
@@ -1241,7 +1268,7 @@
 
                 var angle = 0;
                 var returnScale: { (i: number, distance: number): number; } = () => { return scale !== null ? scale : 1; };
-                var returnRotation: { (i: number, distance: number): number; } = () => { return rotation!== null ? rotation : 0; };
+                var returnRotation: { (i: number, distance: number): number; } = () => { return rotation !== null ? rotation : 0; };
                 var rotate: { (i: number, distance: number): number; } = custom && rotateFunction ? rotateFunction : returnRotation;
                 var scl: { (i: number, distance: number): number; } = custom && scaleFunction ? scaleFunction : returnScale;
                 var index = (cap === Mesh.NO_CAP || cap === Mesh.CAP_END) ? 0 : 2;

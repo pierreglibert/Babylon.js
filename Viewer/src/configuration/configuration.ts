@@ -13,18 +13,12 @@ export interface ViewerConfiguration {
         mapper?: string; // json (default), html, yaml, xml, etc'. if not provided, file extension will be used.
     };
 
-    // native (!!!) javascript events. Mainly used in the JSON-format.
-    // those events will be triggered by the container element (the <babylon> tag);
-    events?: {
-        load: boolean | string;
-        init: boolean | string;
-        meshselected: boolean | string;
-        pointerdown: boolean | string;
-        pointerup: boolean | string;
-        pointermove: boolean | string;
-        // load: 'onViewerLoaded' // will trigger the event prefix-onViewerLoaded instead of prefix-onLoad (and ONLY this event).
-    } | boolean; //events: true - fire all events
-    eventPrefix?: string;
+    // names of functions in the window context.
+    observers?: {
+        onEngineInit?: string;
+        onSceneInit?: string;
+        onModelLoaded?: string;
+    }
 
     canvasElement?: string; // if there is a need to override the standard implementation - ID of HTMLCanvasElement
 
@@ -36,16 +30,15 @@ export interface ViewerConfiguration {
         scaling?: { x: number, y: number, z: number };
         parentObjectIndex?: number; // the index of the parent object of the model in the loaded meshes array.
 
-        [propName: string]: any; // further configuration, like title and creator
-    } | string,
-
-    description?: string | {
         title: string;
         subtitle?: string;
         thumbnail?: string; // URL or data-url
-    };
+
+        [propName: string]: any; // further configuration, like title and creator
+    } | string;
 
     scene?: {
+        debug?: boolean;
         autoRotate?: boolean;
         rotationSpeed?: number;
         defaultCamera?: boolean;
@@ -91,6 +84,7 @@ export interface ViewerConfiguration {
         size?: number;
         receiveShadows?: boolean;
         shadowOnly?: boolean;
+        mirror?: boolean;
         material?: {
             [propName: string]: any;
         }

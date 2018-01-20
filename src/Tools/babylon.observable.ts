@@ -34,7 +34,7 @@
          * The object that originally notified the event
          */
         public target?: any;
-        
+
         /**
          * The current object in the bubbling phase
          */
@@ -45,7 +45,7 @@
      * Represent an Observer registered to a given Observable object.
      */
     export class Observer<T> {
-        constructor(public callback: (eventData: Nullable<T>, eventState: EventState) => void, public mask: number, public scope: any = null) {
+        constructor(public callback: (eventData: T, eventState: EventState) => void, public mask: number, public scope: any = null) {
         }
     }
 
@@ -55,7 +55,7 @@
     export class MultiObserver<T> {
         private _observers: Nullable<Observer<T>[]>;
         private _observables: Nullable<Observable<T>[]>;
-        
+
         public dispose(): void {
             if (this._observers && this._observables) {
                 for (var index = 0; index < this._observers.length; index++) {
@@ -71,7 +71,7 @@
             let result = new MultiObserver<T>();
 
             result._observers = new Array<Observer<T>>();
-            result._observables = observables;            
+            result._observables = observables;
 
             for (var observable of observables) {
                 let observer = observable.add(callback, mask, false, scope);
@@ -157,11 +157,12 @@
         /**
          * Remove a callback from the Observable object
          * @param callback the callback to remove. If it doesn't belong to this Observable, false will be returned.
+         * @param scope optional scope. If used only the callbacks with this scope will be removed.
         */
-        public removeCallback(callback: (eventData: T, eventState: EventState) => void): boolean {
+        public removeCallback(callback: (eventData: T, eventState: EventState) => void, scope?: any): boolean {
 
             for (var index = 0; index < this._observers.length; index++) {
-                if (this._observers[index].callback === callback) {
+                if (this._observers[index].callback === callback && (!scope || scope === this._observers[index].scope)) {
                     this._observers.splice(index, 1);
                     return true;
                 }
@@ -176,7 +177,11 @@
          * @param eventData
          * @param mask
          */
-        public notifyObservers(eventData: Nullable<T>, mask: number = -1, target?: any, currentTarget?: any): boolean {
+        public notifyObservers(eventData: T, mask: number = -1, target?: any, currentTarget?: any): boolean {
+            if (!this._observers.length) {
+                return true;
+            }
+
             let state = this._eventState;
             state.mask = mask;
             state.target = target;
@@ -185,9 +190,9 @@
 
             for (var obs of this._observers) {
                 if (obs.mask & mask) {
-                    if(obs.scope){
+                    if (obs.scope) {
                         obs.callback.apply(obs.scope, [eventData, state])
-                    }else{
+                    } else {
                         obs.callback(eventData, state);
                     }
                 }
@@ -209,7 +214,7 @@
             state.skipNextObservers = false;
 
             observer.callback(eventData, state);
-        }        
+        }
 
         /**
          * return true is the Observable has at least one Observer registered

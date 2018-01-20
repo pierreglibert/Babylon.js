@@ -15,19 +15,24 @@ module BABYLON {
         scaling: Vector3;
         rotation?: Vector3;
         parent?: any;
-        getBoundingInfo(): Nullable<BoundingInfo>;
-        computeWorldMatrix?(force: boolean): void;
+        getBoundingInfo(): BoundingInfo;
+        computeWorldMatrix(force: boolean): Matrix;
         getWorldMatrix?(): Matrix;
         getChildMeshes?(directDescendantsOnly?: boolean): Array<AbstractMesh>;
         getVerticesData(kind: string): Nullable<Array<number> | Float32Array>;
         getIndices?(): Nullable<IndicesArray>;
         getScene?(): Scene;
         getAbsolutePosition(): Vector3;
+        getAbsolutePivotPoint(): Vector3;
+        rotate(axis: Vector3, amount: number, space?: Space): TransformNode;
+        translate(axis: Vector3, distance: number, space?: Space): TransformNode;
+        setAbsolutePosition(absolutePosition: Vector3): TransformNode;
+        getClassName(): string;
     }
 
     export class PhysicsImpostor {
 
-        public static DEFAULT_OBJECT_SIZE: Vector3 = new BABYLON.Vector3(1, 1, 1);
+        public static DEFAULT_OBJECT_SIZE: Vector3 = new Vector3(1, 1, 1);
 
         public static IDENTITY_QUATERNION = Quaternion.Identity();
 
@@ -153,7 +158,7 @@ module BABYLON {
             this._physicsEngine.removeImpostor(this);
             this.physicsBody = null;
             this._parent = this._parent || this._getPhysicsParent();
-            if (!this.parent || this._options.ignoreParent) {
+            if (!this._isDisposed && (!this.parent || this._options.ignoreParent)) {
                 this._physicsEngine.addImpostor(this);
             }
         }
@@ -230,12 +235,7 @@ module BABYLON {
                 //calculate the world matrix with no rotation
                 this.object.computeWorldMatrix && this.object.computeWorldMatrix(true);
                 let boundingInfo = this.object.getBoundingInfo();
-                let size: Vector3;
-                if (boundingInfo) {
-                    size = boundingInfo.boundingBox.extendSizeWorld.scale(2)
-                } else {
-                    size = Vector3.Zero();
-                }
+                let size = boundingInfo.boundingBox.extendSizeWorld.scale(2)
 
                 //bring back the rotation
                 this.object.rotationQuaternion = q;
@@ -251,9 +251,6 @@ module BABYLON {
         public getObjectCenter(): Vector3 {
             if (this.object.getBoundingInfo) {
                 let boundingInfo = this.object.getBoundingInfo();
-                if (!boundingInfo) {
-                    return this.object.position;
-                }
                 return boundingInfo.boundingBox.centerWorld;
             } else {
                 return this.object.position;
@@ -370,8 +367,25 @@ module BABYLON {
             }
         }
 
-        private _tmpPositionWithDelta: Vector3 = Vector3.Zero();
-        private _tmpRotationWithDelta: Quaternion = new Quaternion();
+        //temp variables for parent rotation calculations
+        //private _mats: Array<Matrix> = [new Matrix(), new Matrix()];
+        private _tmpQuat: Quaternion = new Quaternion();
+        private _tmpQuat2: Quaternion = new Quaternion();
+
+        public getParentsRotation() {
+            let parent = this.object.parent;
+            this._tmpQuat.copyFromFloats(0, 0, 0, 1);
+            while (parent) {
+                if (parent.rotationQuaternion) {
+                    this._tmpQuat2.copyFrom(parent.rotationQuaternion);
+                } else {
+                    Quaternion.RotationYawPitchRollToRef(parent.rotation.y, parent.rotation.x, parent.rotation.z, this._tmpQuat2)
+                }
+                this._tmpQuat.multiplyToRef(this._tmpQuat2, this._tmpQuat);
+                parent = parent.parent;
+            }
+            return this._tmpQuat;
+        }
 
         /**
          * this function is executed by the physics engine.
@@ -381,23 +395,17 @@ module BABYLON {
                 return;
             }
 
-            if (this._options.ignoreParent && this.object.parent) {
-                this._tmpPositionWithDelta.copyFrom(this.object.getAbsolutePosition());
-                //this.object.getAbsolutePosition().subtractToRef(this._deltaPosition, this._tmpPositionWithDelta);
+            this.object.translate(this._deltaPosition, -1);
+            this._deltaRotationConjugated && this.object.rotationQuaternion && this.object.rotationQuaternion.multiplyToRef(this._deltaRotationConjugated, this.object.rotationQuaternion);
+            this.object.computeWorldMatrix(false);
+            if (this.object.parent && this.object.rotationQuaternion) {
+                this.getParentsRotation();
+                this._tmpQuat.multiplyToRef(this.object.rotationQuaternion, this._tmpQuat);
             } else {
-                this.object.position.subtractToRef(this._deltaPosition, this._tmpPositionWithDelta);
+                this._tmpQuat.copyFrom(this.object.rotationQuaternion || new Quaternion());
             }
-            //conjugate deltaRotation
-            if (this.object.rotationQuaternion) {
-                if (this._deltaRotationConjugated) {
-                    this.object.rotationQuaternion.multiplyToRef(this._deltaRotationConjugated, this._tmpRotationWithDelta);
-                } else {
-                    this._tmpRotationWithDelta.copyFrom(this.object.rotationQuaternion);
-                }
-            }
-            // Only if not disabled
             if (!this._options.disableBidirectionalTransformation) {
-                this._physicsEngine.getPhysicsPlugin().setPhysicsBodyTransformation(this, this._tmpPositionWithDelta, this._tmpRotationWithDelta);
+                this.object.rotationQuaternion && this._physicsEngine.getPhysicsPlugin().setPhysicsBodyTransformation(this, /*bInfo.boundingBox.centerWorld*/ this.object.getAbsolutePivotPoint(), this._tmpQuat);
             }
 
             this._onBeforePhysicsStepCallbacks.forEach((func) => {
@@ -418,22 +426,22 @@ module BABYLON {
             });
 
             this._physicsEngine.getPhysicsPlugin().setTransformationFromPhysicsBody(this);
-
-            if (this._options.ignoreParent && this.object.parent) {
-                this.object.position.subtractInPlace(this.object.parent.getAbsolutePosition());
-            } else {
-                this.object.position.addInPlace(this._deltaPosition)
+            // object has now its world rotation. needs to be converted to local.
+            if (this.object.parent && this.object.rotationQuaternion) {
+                this.getParentsRotation();
+                this._tmpQuat.conjugateInPlace();
+                this._tmpQuat.multiplyToRef(this.object.rotationQuaternion, this.object.rotationQuaternion);
             }
-
-            if (this._deltaRotation && this.object.rotationQuaternion) {
-                this.object.rotationQuaternion.multiplyInPlace(this._deltaRotation);
-            }
+            // take the position set and make it the absolute position of this object.
+            this.object.setAbsolutePosition(this.object.position);
+            this._deltaRotation && this.object.rotationQuaternion && this.object.rotationQuaternion.multiplyToRef(this._deltaRotation, this.object.rotationQuaternion);
+            this.object.translate(this._deltaPosition, 1);
         }
 
         /**
          * Legacy collision detection event support
          */
-        public onCollideEvent: Nullable<(collider: BABYLON.PhysicsImpostor, collidedWith: BABYLON.PhysicsImpostor) => void> = null;
+        public onCollideEvent: Nullable<(collider: PhysicsImpostor, collidedWith: PhysicsImpostor) => void> = null;
 
         //event and body object due to cannon's event-based architecture.
         public onCollide = (e: { body: any }) => {

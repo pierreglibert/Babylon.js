@@ -1,6 +1,6 @@
 {
     "name": "babylonjs-viewer",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "A viewer using BabylonJS to display 3D elements natively",
     "scripts": {
         "start:server": "webpack-dev-server",
@@ -23,26 +23,21 @@
     },
     "homepage": "https://github.com/BabylonJS/Babylon.js#readme",
     "devDependencies": {
-        "@types/node": "^8.0.44",
-        "base64-image-loader": "^1.2.0",
-        "html-loader": "^0.5.1",
+        "@types/node": "^8.5.8",
+        "base64-image-loader": "^1.2.1",
+        "html-loader": "^0.5.4",
         "json-loader": "^0.5.7",
         "ts-loader": "^2.3.7",
-        "typescript": "^2.5.3",
-        "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
-        "webpack": "^3.8.1",
-        "webpack-dev-server": "^2.9.2"
+        "typescript": "^2.6.2",
+        "uglifyjs-webpack-plugin": "^1.1.6",
+        "webpack": "^3.10.0",
+        "webpack-dev-server": "^2.11.0"
     },
     "dependencies": {
-        "babylonjs": "^3.1.0-alpha3.6",
-        "babylonjs-loaders": "^3.1.0-alpha3.6",
-        "babylonjs-materials": "^3.1.0-alpha3.6",
-        "babylonjs-post-process": "^3.1.0-alpha3.6",
-        "babylonjs-procedural-textures": "^3.1.0-alpha3.6",
-        "es6-promise": "^4.1.1",
-        "handlebars": "^4.0.11",
-        "lodash": "^4.17.4",
-        "lodash.merge": "^4.6.0",
-        "promise-polyfill": "^6.0.2"
+        "babylonjs": "^3.2.0-alpha4",
+        "babylonjs-loaders": "^3.2.0-alpha4",
+        "deepmerge": "^2.0.1",
+        "es6-promise": "^4.2.2",
+        "handlebars": "^4.0.11"
     }
 }

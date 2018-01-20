@@ -119,8 +119,21 @@ module BABYLON.GUI {
 
         protected _localDraw(context: CanvasRenderingContext2D): void {
             if (this._background) {
+                if(this.shadowBlur || this.shadowOffsetX || this.shadowOffsetY){
+                    context.shadowColor = this.shadowColor;
+                    context.shadowBlur = this.shadowBlur;
+                    context.shadowOffsetX = this.shadowOffsetX;
+                    context.shadowOffsetY = this.shadowOffsetY;
+                }
+                
                 context.fillStyle = this._background;
                 context.fillRect(this._currentMeasure.left, this._currentMeasure.top, this._currentMeasure.width, this._currentMeasure.height);
+                
+                if(this.shadowBlur || this.shadowOffsetX || this.shadowOffsetY){
+                    context.shadowBlur = 0;
+                    context.shadowOffsetX = 0;
+                    context.shadowOffsetY = 0;
+                }
             }
         }
 
@@ -162,7 +175,7 @@ module BABYLON.GUI {
         }
 
         public _processPicking(x: number, y: number, type: number, buttonIndex: number): boolean {
-            if (!this.isHitTestVisible || !this.isVisible || this.notRenderable) {
+            if (!this.isVisible || this.notRenderable) {
                 return false;
             }
 
@@ -176,6 +189,10 @@ module BABYLON.GUI {
                 if (child._processPicking(x, y, type, buttonIndex)) {
                     return true;
                 }
+            }
+
+            if (!this.isHitTestVisible) {
+                return false;
             }
 
             return this._processObservables(type, x, y, buttonIndex);

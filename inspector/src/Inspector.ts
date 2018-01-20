@@ -22,13 +22,13 @@ module INSPECTOR {
 
         private _initialTab: number;
 
-        private _parentElement: Nullable<HTMLElement>;
+        private _parentElement: BABYLON.Nullable<HTMLElement>;
 
         /** The inspector is created with the given engine.
          * If the parameter 'popup' is false, the inspector is created as a right panel on the main window.
          * If the parameter 'popup' is true, the inspector is created in another popup.
          */
-        constructor(scene: BABYLON.Scene, popup?: boolean, initialTab: number = 0, parentElement: Nullable<HTMLElement> = null, newColors?: {
+        constructor(scene: BABYLON.Scene, popup?: boolean, initialTab: number = 0, parentElement: BABYLON.Nullable<HTMLElement> = null, newColors?: {
             backgroundColor?: string,
             backgroundColorLighter?: string,
             backgroundColorLighter2?: string,
@@ -39,15 +39,15 @@ module INSPECTOR {
         }) {
 
             // Load GUI library if not already done
-            if(!BABYLON.GUI){
-            	BABYLON.Tools.LoadScript("https://preview.babylonjs.com/gui/babylon.gui.js", () => { 
+            if (!BABYLON.GUI) {
+                BABYLON.Tools.LoadScript("https://preview.babylonjs.com/gui/babylon.gui.js", () => {
                     //Load properties of GUI objects now as BABYLON.GUI has to be declared before 
                     loadGUIProperties();
                 }, () => {
                     console.warn("Please add script https://preview.babylonjs.com/gui/babylon.gui.js to the HTML file")
                 });
             }
-            else{
+            else {
                 //Load properties of GUI objects now as BABYLON.GUI has to be declared before 
                 loadGUIProperties();
             }
@@ -139,7 +139,7 @@ module INSPECTOR {
                             this._c2diwrapper.style.maxWidth = `${widthPx - leftPx}px`;
                         }
                     }
-                    
+
 
                     // Check if the parent of the canvas is the body page. If yes, the size ratio is computed
                     let parent = this._getRelativeParent(canvas);
@@ -357,6 +357,7 @@ module INSPECTOR {
                     }
                 }
             }
+            Scheduler.getInstance().dispose();
         }
 
         /** Open the inspector in a new popup
@@ -369,6 +370,9 @@ module INSPECTOR {
             } else {
                 // Create popup
                 let popup = window.open('', 'Babylon.js INSPECTOR', 'toolbar=no,resizable=yes,menubar=no,width=750,height=1000');
+                if (!popup) {
+                    return;
+                }
                 popup.document.title = 'Babylon.js INSPECTOR';
                 // Get the inspector style      
                 let styles = Inspector.DOCUMENT.querySelectorAll('style');
@@ -409,8 +413,8 @@ module INSPECTOR {
             }
         }
 
-        public getActiveTabIndex():number {
-           return this._tabbar.getActiveTabIndex();
+        public getActiveTabIndex(): number {
+            return this._tabbar.getActiveTabIndex();
         }
     }
 }

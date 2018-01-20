@@ -2,19 +2,23 @@ import { mapperManager } from './mappers';
 import { ViewerConfiguration } from './configuration';
 import { getConfigurationType } from './types';
 
-import * as merge from 'lodash.merge';
+import * as deepmerge from '../../assets/deepmerge.min.js';
 
 export class ConfigurationLoader {
 
-    private configurationCache: { (url: string): any };
+    private configurationCache: { [url: string]: any };
+
+    constructor() {
+        this.configurationCache = {};
+    }
 
     public loadConfiguration(initConfig: ViewerConfiguration = {}): Promise<ViewerConfiguration> {
 
-        let loadedConfig = merge({}, initConfig);
+        let loadedConfig = deepmerge({}, initConfig);
 
         let extendedConfiguration = getConfigurationType(loadedConfig && loadedConfig.extends);
 
-        loadedConfig = merge(extendedConfiguration, loadedConfig);
+        loadedConfig = deepmerge(extendedConfiguration, loadedConfig);
 
         if (loadedConfig.configuration) {
 
@@ -34,7 +38,7 @@ export class ConfigurationLoader {
             let mapper = mapperManager.getMapper(mapperType);
             return this.loadFile(url).then((data: any) => {
                 let parsed = mapper.map(data);
-                return merge(loadedConfig, parsed);
+                return deepmerge(loadedConfig, parsed);
             });
         } else {
             return Promise.resolve(loadedConfig);
@@ -62,10 +66,10 @@ export class ConfigurationLoader {
                     if (xhr.status === OK) {
                         cacheReference[url] = xhr.responseText;
                         resolve(xhr.responseText); // 'This is the returned text.'
+                    } else {
+                        console.log('Error: ' + xhr.status, url);
+                        reject('Error: ' + xhr.status); // An error occurred during the request.
                     }
-                } else {
-                    console.log('Error: ' + xhr.status, url);
-                    reject('Error: ' + xhr.status); // An error occurred during the request.
                 }
             }
         });

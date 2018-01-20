@@ -6,13 +6,20 @@
         "declarationFilename": "babylon.d.ts",
         "declarationModuleFilename": "babylon.module.d.ts",
         "outputDirectory": "../../dist/preview release",
+        "playgroundDirectory": "../../Playground/",
+        "intellisenseFile": "babylon.d.txt",
+        "intellisenseSources": [
+            "../../dist/preview release/babylon.d.ts",
+            "../../dist/preview release/gui/babylon.gui.d.ts"
+        ],
         "outputCustomConfigurationsDirectory": "../../dist/preview release/customConfigurations",
         "srcOutputDirectory": "../../src/",
-        "currentConfig": "all"
+        "currentConfig": "all",
+        "typedocJSON": "../../.temp/babylon.typedoc.json",
+        "typedocValidationBaseline": "../../dist/preview release/typedocValidationBaseline.json"
     },
     "buildConfigurations": {
         "all": [
-            "standardMaterial",
             "pbrMaterial",
             "freeCamera",
             "arcRotateCamera",
@@ -26,6 +33,7 @@
             "picking",
             "collisions",
             "particles",
+            "gpuParticles",
             "solidParticles",
             "additionalMeshes",
             "meshBuilder",
@@ -61,7 +69,6 @@
             "debug",
             "morphTargets",
             "octrees",
-            "simd",
             "vr",
             "virtualJoystick",
             "optimizations",
@@ -73,21 +80,20 @@
             "textureTools",
             "cameraBehaviors",
             "nullEngine",
-            "instrumentation"
+            "instrumentation",
+            "backgroundMaterial",
+            "environmentHelper"
         ],
         "minimal": [
-            "standardMaterial",
             "freeCamera",
             "hemisphericLight"
         ],
         "minimalWithBuilder": [
             "meshBuilder",
-            "standardMaterial",
             "freeCamera",
             "hemisphericLight"
         ],
         "minimalGLTFViewer": [
-            "standardMaterial",
             "pbrMaterial",
             "freeCamera",
             "arcRotateCamera",
@@ -136,7 +142,6 @@
             "debug",
             "morphTargets",
             "octrees",
-            "simd",
             "vr",
             "virtualJoystick",
             "optimizations",
@@ -148,8 +153,9 @@
             "textureTools",
             "cameraBehaviors",
             "instrumentation",
+            "backgroundMaterial",
+            "environmentHelper",
             "materialsLibrary/babylon.gridMaterial.js",
-            "materialsLibrary/babylon.backgroundMaterial.js",
             "loaders/babylon.glTFFileLoader.js"
         ],
         "distributed": [
@@ -159,12 +165,14 @@
     "workloads": {
         "core": {
             "files": [
+                "../../src/Materials/babylon.effect.js",
                 "../../src/babylon.types.js",
                 "../../src/Events/babylon.keyboardEvents.js",
                 "../../src/Events/babylon.pointerEvents.js",
                 "../../src/Math/babylon.math.js",
                 "../../src/Math/babylon.math.scalar.js",
                 "../../src/babylon.mixins.js",
+                "../../src/Engine/babylon.webgl2.js",
                 "../../src/Tools/babylon.decorators.js",
                 "../../src/Tools/babylon.observable.js",
                 "../../src/Tools/babylon.smartArray.js",
@@ -177,40 +185,90 @@
                 "../../src/Culling/babylon.boundingSphere.js",
                 "../../src/Culling/babylon.boundingBox.js",
                 "../../src/Culling/babylon.boundingInfo.js",
+                "../../src/Mesh/babylon.transformNode.js",
                 "../../src/Mesh/babylon.abstractMesh.js",
                 "../../src/Lights/babylon.light.js",
                 "../../src/Cameras/babylon.camera.js",
                 "../../src/Rendering/babylon.renderingManager.js",
                 "../../src/Rendering/babylon.renderingGroup.js",
                 "../../src/babylon.scene.js",
+                "../../src/babylon.assetContainer.js",
                 "../../src/Mesh/babylon.buffer.js",
                 "../../src/Mesh/babylon.vertexBuffer.js",
+                "../../src/Materials/Textures/babylon.internalTextureTracker.js",
                 "../../src/Materials/Textures/babylon.internalTexture.js",
                 "../../src/Materials/Textures/babylon.baseTexture.js",
                 "../../src/Materials/Textures/babylon.texture.js",
                 "../../src/Mesh/babylon.mesh.js",
                 "../../src/Mesh/babylon.subMesh.js",
-                "../../src/Materials/babylon.effect.js",
-                "../../src/Materials/babylon.materialHelper.js",
                 "../../src/Materials/babylon.material.js",
                 "../../src/Materials/babylon.uniformBuffer.js",
-                "../../src/Materials/babylon.pushMaterial.js",
                 "../../src/Mesh/babylon.mesh.vertexData.js",
                 "../../src/Mesh/babylon.geometry.js",
                 "../../src/PostProcess/babylon.postProcessManager.js",
                 "../../src/Tools/babylon.performanceMonitor.js",
                 "../../src/Materials/babylon.imageProcessingConfiguration.js",
                 "../../src/Materials/Textures/babylon.colorGradingTexture.js",
-                "../../src/Materials/babylon.colorCurves.js"
+                "../../src/Materials/babylon.colorCurves.js",
+                "../../src/Behaviors/babylon.behavior.js",
+                "../../src/Materials/babylon.materialHelper.js",
+                "../../src/Materials/babylon.pushMaterial.js",
+                "../../src/Materials/babylon.standardMaterial.js"
+            ],
+            "shaders": [
+                "default.vertex",
+                "default.fragment"
             ],
             "shaderIncludes": [
-                "depthPrePass"
+                "depthPrePass",
+                "bonesDeclaration",
+                "instancesDeclaration",
+                "pointCloudVertexDeclaration",
+                "bumpVertexDeclaration",
+                "clipPlaneVertexDeclaration",
+                "fogVertexDeclaration",
+                "morphTargetsVertexGlobalDeclaration",
+                "morphTargetsVertexDeclaration",
+                "logDepthDeclaration",
+                "morphTargetsVertex",
+                "instancesVertex",
+                "bonesVertex",
+                "bumpVertex",
+                "clipPlaneVertex",
+                "fogVertex",
+                "shadowsVertex",
+                "pointCloudVertex",
+                "logDepthVertex",
+                "helperFunctions",
+                "lightFragmentDeclaration",
+                "lightsFragmentFunctions",
+                "lightUboDeclaration",
+                "defaultVertexDeclaration",
+                "defaultFragmentDeclaration",
+                "defaultUboDeclaration",
+                "shadowsFragmentFunctions",
+                "fresnelFunction",
+                "reflectionFunction",
+                "imageProcessingDeclaration",
+                "imageProcessingFunctions",
+                "bumpFragmentFunctions",
+                "clipPlaneFragmentDeclaration",
+                "fogFragmentDeclaration",
+                "clipPlaneFragment",
+                "bumpFragment",
+                "lightFragment",
+                "logDepthFragment",
+                "fogFragment"
             ]
         },
         "particles": {
             "files": [
                 "../../src/Particles/babylon.particle.js",
-                "../../src/Particles/babylon.particleSystem.js"
+                "../../src/Particles/babylon.particleSystem.js",
+                "../../src/Particles/babylon.boxParticleEmitter.js",
+                "../../src/Particles/babylon.coneParticleEmitter.js",
+                "../../src/Particles/babylon.sphereParticleEmitter.js",
+                "../../src/Particles/babylon.iParticleEmitterType.js"
             ],
             "dependUpon": [
                 "core"
@@ -220,16 +278,33 @@
                 "particles.fragment"
             ]
         },
+        "gpuParticles": {
+            "files": [
+                "../../src/Particles/babylon.gpuParticleSystem.js"
+            ],
+            "dependUpon": [
+                "core"
+            ],
+            "shaders": [
+                "gpuRenderParticles.vertex",
+                "gpuRenderParticles.fragment",
+                "gpuUpdateParticles.vertex",
+                "gpuUpdateParticles.fragment"
+            ]
+        },
         "nullEngine": {
             "files": [
-                "../../src/Engine/babylon.nullEngine.js"
+                "../../src/Engine/babylon.nullEngine.js",
+                "../../src/Engine/babylon.webgl2.js",
+                "../../src/babylon.mixins.js"
             ],
             "dependUpon": [
                 "core"
             ]
-        },    
+        },
         "instrumentation": {
             "files": [
+                "../../src/Engine/babylon.webgl2.js",
                 "../../src/Instrumentation/babylon.engineInstrumentation.js",
                 "../../src/Instrumentation/babylon.sceneInstrumentation.js",
                 "../../src/Instrumentation/babylon.timeToken.js"
@@ -237,7 +312,7 @@
             "dependUpon": [
                 "core"
             ]
-        },      
+        },
         "cameraBehaviors": {
             "files": [
                 "../../src/Behaviors/Cameras/babylon.framingBehavior.js",
@@ -300,6 +375,7 @@
         "animations": {
             "files": [
                 "../../src/Animations/babylon.animation.js",
+                "../../src/Animations/babylon.animationGroup.js",
                 "../../src/Animations/babylon.runtimeAnimation.js",
                 "../../src/Animations/babylon.animatable.js",
                 "../../src/Animations/babylon.easing.js"
@@ -327,7 +403,8 @@
                 "../../src/Mesh/babylon.linesMesh.js"
             ],
             "dependUpon": [
-                "core"
+                "core",
+                "shaderMaterial"
             ],
             "shaders": [
                 "color.vertex",
@@ -340,7 +417,7 @@
             ],
             "dependUpon": [
                 "core",
-                "shaderMaterial"
+                "additionalMeshes"
             ]
         },
         "shaderMaterial": {
@@ -349,59 +426,6 @@
             ],
             "dependUpon": [
                 "core"
-            ]
-        },
-        "standardMaterial": {
-            "files": [
-                "../../src/Materials/babylon.standardMaterial.js"
-            ],
-            "dependUpon": [
-                "core"
-            ],
-            "shaders": [
-                "default.vertex",
-                "default.fragment"
-            ],
-            "shaderIncludes": [
-                "bonesDeclaration",
-                "instancesDeclaration",
-                "pointCloudVertexDeclaration",
-                "bumpVertexDeclaration",
-                "clipPlaneVertexDeclaration",
-                "fogVertexDeclaration",
-                "morphTargetsVertexGlobalDeclaration",
-                "morphTargetsVertexDeclaration",
-                "logDepthDeclaration",
-                "morphTargetsVertex",
-                "instancesVertex",
-                "bonesVertex",
-                "bumpVertex",
-                "clipPlaneVertex",
-                "fogVertex",
-                "shadowsVertex",
-                "pointCloudVertex",
-                "logDepthVertex",
-                "helperFunctions",
-                "lightFragmentDeclaration",
-                "lightsFragmentFunctions",
-                "lightUboDeclaration",
-                "defaultVertexDeclaration",
-                "defaultFragmentDeclaration",
-                "defaultUboDeclaration",
-                "shadowsFragmentFunctions",
-                "fresnelFunction",
-                "reflectionFunction",                
-                "imageProcessingDeclaration",
-                "imageProcessingFunctions",
-                "bumpFragmentFunctions",
-                "clipPlaneFragmentDeclaration",
-                "logDepthDeclaration",
-                "fogFragmentDeclaration",
-                "clipPlaneFragment",
-                "bumpFragment",
-                "lightFragment",
-                "logDepthFragment",
-                "fogFragment"
             ]
         },
         "pbrMaterial": {
@@ -420,72 +444,44 @@
                 "pbr.fragment"
             ],
             "shaderIncludes": [
-                "bonesDeclaration",
-                "instancesDeclaration",
-                "bumpVertexDeclaration",
-                "clipPlaneVertexDeclaration",
-                "fogVertexDeclaration",
-                "morphTargetsVertexGlobalDeclaration",
-                "morphTargetsVertexDeclaration",
-                "logDepthDeclaration",
-                "morphTargetsVertex",
-                "instancesVertex",
-                "bonesVertex",
-                "bumpVertex",
-                "clipPlaneVertex",
-                "fogVertex",
-                "shadowsVertex",
-                "logDepthVertex",
-                "lightFragmentDeclaration",
-                "lightUboDeclaration",
                 "pbrVertexDeclaration",
                 "pbrFragmentDeclaration",
                 "pbrUboDeclaration",
-                "fresnelFunction",
-                "reflectionFunction",
-                "shadowsFragmentFunctions",
                 "pbrFunctions",
-                "imageProcessingDeclaration",
-                "imageProcessingFunctions",                
                 "harmonicsFunctions",
-                "pbrLightFunctions",
-                "helperFunctions",
-                "bumpFragmentFunctions",
-                "clipPlaneFragmentDeclaration",
-                "logDepthDeclaration",
-                "fogFragmentDeclaration",
-                "clipPlaneFragment",
-                "bumpFragment",
-                "lightFragment",
-                "logDepthFragment",
-                "fogFragment"
+                "pbrLightFunctions"
+            ]
+        },
+        "targetCamera": {
+            "files": [
+                "../../src/Cameras/babylon.cameraInputsManager.js",
+                "../../src/Cameras/babylon.targetCamera.js"
+            ],
+            "dependUpon": [
+                "core"
             ]
         },
         "freeCamera": {
             "files": [
-                "../../src/Cameras/babylon.cameraInputsManager.js",
                 "../../src/Cameras/Inputs/babylon.freeCameraMouseInput.js",
                 "../../src/Cameras/Inputs/babylon.freeCameraKeyboardMoveInput.js",
                 "../../src/Cameras/babylon.freeCameraInputsManager.js",
-                "../../src/Cameras/babylon.targetCamera.js",
                 "../../src/Cameras/babylon.freeCamera.js"
             ],
             "dependUpon": [
-                "core"
+                "targetCamera"
             ]
         },
         "arcRotateCamera": {
             "files": [
-                "../../src/Cameras/babylon.cameraInputsManager.js",
-                "../../src/Cameras/babylon.targetCamera.js",
                 "../../src/Cameras/Inputs/babylon.arcRotateCameraKeyboardMoveInput.js",
                 "../../src/Cameras/Inputs/babylon.arcRotateCameraMouseWheelInput.js",
                 "../../src/Cameras/Inputs/babylon.arcRotateCameraPointersInput.js",
-                "../../src/Cameras/babylon.arcRotateCamera.js",
-                "../../src/Cameras/babylon.arcRotateCameraInputsManager.js"
+                "../../src/Cameras/babylon.arcRotateCameraInputsManager.js",
+                "../../src/Cameras/babylon.arcRotateCamera.js"
             ],
             "dependUpon": [
-                "core"
+                "targetCamera"
             ]
         },
         "hemisphericLight": {
@@ -587,7 +583,6 @@
                 "../../src/Tools/babylon.andOrNotEvaluator.js"
             ],
             "dependUpon": [
-                "core",
                 "stringDictionary"
             ]
         },
@@ -648,7 +643,8 @@
                 "../../src/Gamepad/Controllers/babylon.oculusTouchController.js",
                 "../../src/Gamepad/Controllers/babylon.viveController.js",
                 "../../src/Gamepad/Controllers/babylon.genericController.js",
-                "../../src/Gamepad/Controllers/babylon.windowsMotionController.js"
+                "../../src/Gamepad/Controllers/babylon.windowsMotionController.js",
+                "../../src/Gamepad/Controllers/babylon.gearVRController.js"
             ],
             "dependUpon": [
                 "core"
@@ -675,12 +671,7 @@
                 "depth.vertex",
                 "depth.fragment"
             ],
-            "shaderIncludes": [
-                "bonesDeclaration",
-                "instancesDeclaration",
-                "instancesVertex",
-                "bonesVertex"
-            ]
+            "shaderIncludes": []
         },
         "geometryBufferRenderer": {
             "files": [
@@ -696,9 +687,7 @@
             "shaderIncludes": [
                 "mrtFragmentDeclaration",
                 "bones300Declaration",
-                "instances300Declaration",
-                "instancesVertex",
-                "bonesVertex"
+                "instances300Declaration"
             ]
         },
         "postProcesses": {
@@ -765,10 +754,7 @@
             "shaders": [
                 "imageProcessing.fragment"
             ],
-            "shaderIncludes": [
-                "imageProcessingDeclaration",
-                "imageProcessingFunctions"
-            ]
+            "shaderIncludes": []
         },
         "additionalPostProcesses": {
             "files": [
@@ -901,11 +887,13 @@
                 "../../src/Physics/babylon.physicsJoint.js",
                 "../../src/Physics/babylon.physicsImpostor.js",
                 "../../src/Physics/babylon.physicsEngine.js",
+                "../../src/Physics/babylon.physicsHelper.js",
                 "../../src/Physics/Plugins/babylon.cannonJSPlugin.js",
                 "../../src/Physics/Plugins/babylon.oimoJSPlugin.js"
             ],
             "dependUpon": [
-                "core"
+                "core",
+                "picking"
             ]
         },
         "textureFormats": {
@@ -920,25 +908,19 @@
         },
         "debug": {
             "files": [
-                "../../src/Debug/babylon.skeletonViewer.js",
-                "../../src/Debug/babylon.axesViewer.js",
-                "../../src/Debug/babylon.boneAxesViewer.js",
+                "../../src/Debug/babylon.debugModules.js",
                 "../../src/Debug/babylon.rayHelper.js",
                 "../../src/Debug/babylon.debugLayer.js",
-                "../../src/Debug/babylon.physicsViewer.js",
                 "../../src/Rendering/babylon.boundingBoxRenderer.js"
             ],
             "dependUpon": [
                 "shaderMaterial",
                 "additionalMeshes",
-                "standardMaterial",
+                "core",
                 "stringDictionary",
                 "actions"
             ],
-            "shaders": [
-                "color.vertex",
-                "color.fragment"
-            ]
+            "shaders": []
         },
         "morphTargets": {
             "files": [
@@ -953,14 +935,6 @@
             "files": [
                 "../../src/Culling/Octrees/babylon.octree.js",
                 "../../src/Culling/Octrees/babylon.octreeBlock.js"
-            ],
-            "dependUpon": [
-                "core"
-            ]
-        },
-        "simd": {
-            "files": [
-                "../../src/Math/babylon.math.SIMD.js"
             ],
             "dependUpon": [
                 "core"
@@ -981,7 +955,9 @@
                 "../../src/Cameras/VR/babylon.vrExperienceHelper.js"
             ],
             "dependUpon": [
-                "core"
+                "core",
+                "postProcesses",
+                "freeCamera"
             ],
             "shaders": [
                 "anaglyph.fragment",
@@ -1065,6 +1041,33 @@
                 "layer.vertex",
                 "layer.fragment"
             ]
+        },
+        "backgroundMaterial": {
+            "files": [
+                "../../src/Materials/Background/babylon.backgroundMaterial.js"
+            ],
+            "dependUpon": [
+                "core"
+            ],
+            "shaders": [
+                "background.vertex",
+                "background.fragment"
+            ],
+            "shaderIncludes": [
+                "backgroundVertexDeclaration",
+                "backgroundFragmentDeclaration",
+                "backgroundUboDeclaration"
+            ]
+        },
+        "environmentHelper": {
+            "files": [
+                "../../src/Helpers/babylon.environmentHelper.js"
+            ],
+            "dependUpon": [
+                "core",
+                "backgroundMaterial",
+                "additionalTextures"
+            ]
         }
     },
     "typescript": [
@@ -1089,7 +1092,8 @@
         "loaders",
         "serializers",
         "inspector",
-        "gui"
+        "gui",
+        "viewer"
     ],
     "materialsLibrary": {
         "libraries": [
@@ -1228,21 +1232,6 @@
                     "../../materialsLibrary/src/cell/cell.fragment.fx"
                 ],
                 "output": "babylon.cellMaterial.js"
-            },
-            {
-                "files": [
-                    "../../materialsLibrary/src/background/babylon.backgroundMaterial.ts"
-                ],
-                "shaderFiles": [
-                    "../../materialsLibrary/src/background/background.vertex.fx",
-                    "../../materialsLibrary/src/background/background.fragment.fx"
-                ],
-                "shadersIncludeFiles": [
-                    "../../materialsLibrary/src/background/backgroundFragmentDeclaration.fx",
-                    "../../materialsLibrary/src/background/backgroundUboDeclaration.fx",
-                    "../../materialsLibrary/src/background/backgroundVertexDeclaration.fx"
-                ],
-                "output": "babylon.backgroundMaterial.js"
             }
         ],
         "build": {
@@ -1465,6 +1454,15 @@
                     "../../serializers/src/OBJ/babylon.objSerializer.ts"
                 ],
                 "output": "babylon.objSerializer.js"
+            },
+            {
+                "files": [
+                    "../../serializers/src/glTF/2.0/babylon.glTFSerializer.ts",
+                    "../../serializers/src/glTF/2.0/babylon.glTFExporter.ts",
+                    "../../serializers/src/glTF/2.0/babylon.glTFData.ts",
+                    "../../serializers/src/glTF/2.0/babylon.glTFMaterial.ts"
+                ],
+                "output": "babylon.glTF2Serializer.js"
             }
         ],
         "build": {
@@ -1492,12 +1490,12 @@
                     "../../gui/src/controls/ellipse.ts",
                     "../../gui/src/controls/line.ts",
                     "../../gui/src/controls/slider.ts",
-                    "../../gui/src/controls/checkBox.ts",
+                    "../../gui/src/controls/checkbox.ts",
                     "../../gui/src/controls/radioButton.ts",
                     "../../gui/src/controls/textBlock.ts",
                     "../../gui/src/controls/image.ts",
                     "../../gui/src/controls/button.ts",
-                    "../../gui/src/controls/colorPicker.ts",
+                    "../../gui/src/controls/colorpicker.ts",
                     "../../gui/src/controls/inputText.ts",
                     "../../gui/src/controls/virtualKeyboard.ts"
                 ],
@@ -1579,12 +1577,29 @@
                 ],
                 "output": "babylon.inspector.js",
                 "webpack": "../../inspector/webpack.config.js",
-                "bundle": "true"
+                "bundle": "true",
+                "moduleDeclaration": "INSPECTOR"
             }
         ],
         "build": {
             "srcOutputDirectory": "../../inspector/",
             "distOutputDirectory": "/inspector/"
+        }
+    },
+    "viewer": {
+        "libraries": [
+            {
+                "files": [],
+                "noBundleInName": true,
+                "output": "babylon.viewer.js",
+                "webpack": "../../Viewer/webpack.gulp.config.js",
+                "bundle": "true",
+                "moduleDeclaration": "BabylonViewer"
+            }
+        ],
+        "build": {
+            "srcOutputDirectory": "../../Viewer/",
+            "distOutputDirectory": "/viewer/"
         }
     }
 }

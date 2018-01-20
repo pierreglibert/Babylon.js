@@ -3,6 +3,11 @@
         dispose(): void;
     }
 
+    export interface IActiveMeshCandidateProvider {
+        getMeshes(scene: Scene): AbstractMesh[];
+        readonly checksIsEnabled: boolean; // Indicates if the meshes have been checked to make sure they are isEnabled().
+    }
+
     class ClickInfo {
         private _singleClick = false;
         private _doubleClick = false;
@@ -96,7 +101,7 @@
         private static _FOGMODE_EXP2 = 2;
         private static _FOGMODE_LINEAR = 3;
 
-        private static _uniqueIdCounter = 0;        
+        private static _uniqueIdCounter = 0;
 
         public static MinDeltaTime = 1.0;
         public static MaxDeltaTime = 1000.0;
@@ -147,7 +152,7 @@
             if (this._environmentTexture === value) {
                 return;
             }
-            
+
             this._environmentTexture = value;
             this.markAllMaterialsAsDirty(Material.TextureDirtyFlag);
         }
@@ -181,6 +186,7 @@
         public forceShowBoundingBoxes = false;
         public clipPlane: Nullable<Plane>;
         public animationsEnabled = true;
+        public useConstantAnimationDeltaTime = false;
         public constantlyUpdateMeshUnderPointer = false;
 
         public hoverCursor = "pointer";
@@ -253,31 +259,37 @@
         * An event triggered before animating the scene
         * @type {BABYLON.Observable}
         */
-        public onBeforeAnimationsObservable = new Observable<Scene>();        
+        public onBeforeAnimationsObservable = new Observable<Scene>();
+
+        /**
+        * An event triggered after animations processing
+        * @type {BABYLON.Observable}
+        */
+        public onAfterAnimationsObservable = new Observable<Scene>();
 
         /**
         * An event triggered before draw calls are ready to be sent
         * @type {BABYLON.Observable}
         */
-        public onBeforeDrawPhaseObservable = new Observable<Scene>();          
+        public onBeforeDrawPhaseObservable = new Observable<Scene>();
 
         /**
         * An event triggered after draw calls have been sent
         * @type {BABYLON.Observable}
         */
-        public onAfterDrawPhaseObservable = new Observable<Scene>();         
-        
+        public onAfterDrawPhaseObservable = new Observable<Scene>();
+
         /**
         * An event triggered when physic simulation is about to be run
         * @type {BABYLON.Observable}
         */
-        public onBeforePhysicsObservable = new Observable<Scene>();          
-        
+        public onBeforePhysicsObservable = new Observable<Scene>();
+
         /**
         * An event triggered when physic simulation has been done
         * @type {BABYLON.Observable}
         */
-        public onAfterPhysicsObservable = new Observable<Scene>();           
+        public onAfterPhysicsObservable = new Observable<Scene>();
 
         /**
         * An event triggered when the scene is ready
@@ -318,41 +330,47 @@
         * An event triggered when active meshes evaluation is about to start
         * @type {BABYLON.Observable}
         */
-        public onBeforeActiveMeshesEvaluationObservable = new Observable<Scene>();        
+        public onBeforeActiveMeshesEvaluationObservable = new Observable<Scene>();
 
         /**
         * An event triggered when active meshes evaluation is done
         * @type {BABYLON.Observable}
         */
-        public onAfterActiveMeshesEvaluationObservable = new Observable<Scene>();           
+        public onAfterActiveMeshesEvaluationObservable = new Observable<Scene>();
 
         /**
         * An event triggered when particles rendering is about to start
         * Note: This event can be trigger more than once per frame (because particles can be rendered by render target textures as well)
         * @type {BABYLON.Observable}
         */
-        public onBeforeParticlesRenderingObservable = new Observable<Scene>();        
-        
+        public onBeforeParticlesRenderingObservable = new Observable<Scene>();
+
         /**
         * An event triggered when particles rendering is done
         * Note: This event can be trigger more than once per frame (because particles can be rendered by render target textures as well)
         * @type {BABYLON.Observable}
         */
-        public onAfterParticlesRenderingObservable = new Observable<Scene>();  
+        public onAfterParticlesRenderingObservable = new Observable<Scene>();
 
         /**
         * An event triggered when sprites rendering is about to start
         * Note: This event can be trigger more than once per frame (because sprites can be rendered by render target textures as well)
         * @type {BABYLON.Observable}
         */
-        public onBeforeSpritesRenderingObservable = new Observable<Scene>();        
-        
+        public onBeforeSpritesRenderingObservable = new Observable<Scene>();
+
         /**
         * An event triggered when sprites rendering is done
         * Note: This event can be trigger more than once per frame (because sprites can be rendered by render target textures as well)
         * @type {BABYLON.Observable}
         */
-        public onAfterSpritesRenderingObservable = new Observable<Scene>();          
+        public onAfterSpritesRenderingObservable = new Observable<Scene>();
+
+        /**
+        * An event triggered when SceneLoader.Append or SceneLoader.Load or SceneLoader.ImportMesh were successfully executed
+        * @type {BABYLON.Observable}
+        */
+        public onDataLoadedObservable = new Observable<Scene>();
 
         /**
         * An event triggered when a camera is created
@@ -391,6 +409,18 @@
         public onGeometryRemovedObservable = new Observable<Geometry>();
 
         /**
+        * An event triggered when a transform node is created
+        * @type {BABYLON.Observable}
+        */
+        public onNewTransformNodeAddedObservable = new Observable<TransformNode>();
+
+        /**
+        * An event triggered when a transform node is removed
+        * @type {BABYLON.Observable}
+        */
+        public onTransformNodeRemovedObservable = new Observable<TransformNode>();
+
+        /**
         * An event triggered when a mesh is created
         * @type {BABYLON.Observable}
         */
@@ -408,13 +438,13 @@
         * @type {BABYLON.Observable}
         */
         public OnBeforeRenderTargetsRenderObservable = new Observable<Scene>();
-        
+
         /**
         * An event triggered when render targets were rendered.
         * Can happen multiple times per frame.
         * @type {BABYLON.Observable}
         */
-        public OnAfterRenderTargetsRenderObservable = new Observable<Scene>();      
+        public OnAfterRenderTargetsRenderObservable = new Observable<Scene>();
 
         /**
         * An event triggered before calculating deterministic simulation step
@@ -460,7 +490,7 @@
 
         public get gamepadManager(): GamepadManager {
             if (!this._gamepadManager) {
-                this._gamepadManager = new GamepadManager();
+                this._gamepadManager = new GamepadManager(this);
             }
 
             return this._gamepadManager;
@@ -498,7 +528,6 @@
         private _meshPickProceed = false;
 
         private _previousButtonPressed: number;
-        private _previousHasSwiped = false;
         private _currentPickResult: Nullable<PickingInfo> = null;
         private _previousPickResult: Nullable<PickingInfo> = null;
         private _totalPointersPressed = 0;
@@ -530,13 +559,13 @@
          * You have the possibility to skip the process and the call to onKeyboardObservable by setting KeyboardInfoPre.skipOnPointerObservable to true
          */
         public onPreKeyboardObservable = new Observable<KeyboardInfoPre>();
-        
+
         /**
          * Observable event triggered each time an keyboard event is received from the hosting window
          */
         public onKeyboardObservable = new Observable<KeyboardInfo>();
-        private _onKeyDown: (evt: Event) => void;
-        private _onKeyUp: (evt: Event) => void;
+        private _onKeyDown: (evt: KeyboardEvent) => void;
+        private _onKeyUp: (evt: KeyboardEvent) => void;
         private _onCanvasFocusObserver: Nullable<Observer<Engine>>;
         private _onCanvasBlurObserver: Nullable<Observer<Engine>>;
 
@@ -654,11 +683,25 @@
 
         // Meshes
         /**
+        * All of the tranform nodes added to this scene.
+        * @see BABYLON.TransformNode
+        * @type {BABYLON.TransformNode[]}
+        */
+        public transformNodes = new Array<TransformNode>();
+
+        /**
         * All of the (abstract) meshes added to this scene.
         * @see BABYLON.AbstractMesh
         * @type {BABYLON.AbstractMesh[]}
         */
         public meshes = new Array<AbstractMesh>();
+
+        /**
+        * All of the animation groups added to this scene.
+        * @see BABYLON.AnimationGroup
+        * @type {BABYLON.AnimationGroup[]}
+        */
+        public animationGroups = new Array<AnimationGroup>();
 
         // Geometries
         private _geometries = new Array<Geometry>();
@@ -777,7 +820,7 @@
         public actionManager: ActionManager;
 
         public _actionManagers = new Array<ActionManager>();
-        private _meshesForIntersections = new SmartArray<AbstractMesh>(256);
+        private _meshesForIntersections = new SmartArrayNoDuplicate<AbstractMesh>(256);
 
         // Procedural textures
         public proceduralTexturesEnabled = true;
@@ -832,15 +875,17 @@
         private _alternateProjectionUpdateFlag = -1;
 
         public _toBeDisposed = new SmartArray<Nullable<IDisposable>>(256);
+        private _activeRequests = new Array<IFileRequest>();
         private _pendingData = new Array();
         private _isDisposed = false;
 
+        public dispatchAllSubMeshesOfActiveMeshes: boolean = false;
         private _activeMeshes = new SmartArray<AbstractMesh>(256);
         private _processedMaterials = new SmartArray<Material>(256);
-        private _renderTargets = new SmartArray<RenderTargetTexture>(256);
+        private _renderTargets = new SmartArrayNoDuplicate<RenderTargetTexture>(256);
         public _activeParticleSystems = new SmartArray<IParticleSystem>(256);
-        private _activeSkeletons = new SmartArray<Skeleton>(32);
-        private _softwareSkinnedMeshes = new SmartArray<Mesh>(32);
+        private _activeSkeletons = new SmartArrayNoDuplicate<Skeleton>(32);
+        private _softwareSkinnedMeshes = new SmartArrayNoDuplicate<Mesh>(32);
 
         private _renderingManager: RenderingManager;
         private _physicsEngine: Nullable<PhysicsEngine>;
@@ -885,6 +930,21 @@
 
         private _depthRenderer: Nullable<DepthRenderer>;
         private _geometryBufferRenderer: Nullable<GeometryBufferRenderer>;
+
+        /**
+         * Gets the current geometry buffer associated to the scene.
+         */
+        public get geometryBufferRenderer(): Nullable<GeometryBufferRenderer> {
+            return this._geometryBufferRenderer;
+        }
+        /**
+         * Sets the current geometry buffer for the scene.
+         */
+        public set geometryBufferRenderer(geometryBufferRenderer: Nullable<GeometryBufferRenderer>) {
+            if (geometryBufferRenderer && geometryBufferRenderer.isSupported) {
+                this._geometryBufferRenderer = geometryBufferRenderer;
+            }
+        }
 
         private _pickedDownMesh: Nullable<AbstractMesh>;
         private _pickedUpMesh: Nullable<AbstractMesh>;
@@ -938,7 +998,7 @@
         }
 
         public set workerCollisions(enabled: boolean) {
-            if (!BABYLON.CollisionCoordinatorLegacy) {
+            if (!CollisionCoordinatorLegacy) {
                 return;
             }
 
@@ -1086,7 +1146,7 @@
 
         public getRenderTargetsDuration(): number {
             Tools.Warn("getRenderTargetsDuration is deprecated. Please use SceneInstrumentation class");
-            return 0;            
+            return 0;
         }
 
         public getRenderDuration(): number {
@@ -1170,7 +1230,7 @@
         }
 
         private _processPointerMove(pickResult: Nullable<PickingInfo>, evt: PointerEvent): Scene {
-            
+
             var canvas = this._engine.getRenderingCanvas();
 
             if (!canvas) {
@@ -1222,7 +1282,7 @@
                 }
             }
 
-            return this;            
+            return this;
         }
 
         /**
@@ -1233,7 +1293,7 @@
             let evt = new PointerEvent("pointerdown");
 
             return this._processPointerDown(pickResult, evt);
-        }        
+        }
 
         private _processPointerDown(pickResult: Nullable<PickingInfo>, evt: PointerEvent): Scene {
             if (pickResult && pickResult.hit && pickResult.pickedMesh) {
@@ -1298,11 +1358,12 @@
             let evt = new PointerEvent("pointerup");
             let clickInfo = new ClickInfo();
             clickInfo.singleClick = true;
+            clickInfo.ignore = true;
 
             return this._processPointerUp(pickResult, evt, clickInfo);
-        }    
+        }
 
-        private _processPointerUp(pickResult: Nullable<PickingInfo>, evt: PointerEvent, clickInfo: ClickInfo): Scene {            
+        private _processPointerUp(pickResult: Nullable<PickingInfo>, evt: PointerEvent, clickInfo: ClickInfo): Scene {
             if (pickResult && pickResult && pickResult.pickedMesh) {
                 this._pickedUpMesh = pickResult.pickedMesh;
                 if (this._pickedDownMesh === this._pickedUpMesh) {
@@ -1401,7 +1462,7 @@
                 let checkPicking = obs1.hasSpecificMask(PointerEventTypes.POINTERPICK) || obs2.hasSpecificMask(PointerEventTypes.POINTERPICK)
                     || obs1.hasSpecificMask(PointerEventTypes.POINTERTAP) || obs2.hasSpecificMask(PointerEventTypes.POINTERTAP)
                     || obs1.hasSpecificMask(PointerEventTypes.POINTERDOUBLETAP) || obs2.hasSpecificMask(PointerEventTypes.POINTERDOUBLETAP);
-                if (!checkPicking && BABYLON.ActionManager && ActionManager.HasPickTriggers) {
+                if (!checkPicking && ActionManager && ActionManager.HasPickTriggers) {
                     act = this._initActionManager(act, clickInfo);
                     if (act)
                         checkPicking = act.hasPickTriggers;
@@ -1475,7 +1536,6 @@
                                     this._previousStartingPointerPosition.x = this._startingPointerPosition.x;
                                     this._previousStartingPointerPosition.y = this._startingPointerPosition.y;
                                     this._previousButtonPressed = btn;
-                                    this._previousHasSwiped = clickInfo.hasSwiped;
                                     if (Scene.ExclusiveDoubleClickMode) {
                                         if (this._previousDelayedSimpleClickTimeout) {
                                             clearTimeout(this._previousDelayedSimpleClickTimeout);
@@ -1496,7 +1556,6 @@
                                 this._previousStartingPointerPosition.x = this._startingPointerPosition.x;
                                 this._previousStartingPointerPosition.y = this._startingPointerPosition.y;
                                 this._previousButtonPressed = btn;
-                                this._previousHasSwiped = clickInfo.hasSwiped;
                             }
                         }
                     }
@@ -1532,7 +1591,7 @@
                 }
 
                 // Meshes
-                var pickResult = this.pick(this._unTranslatedPointerX, this._unTranslatedPointerY, this.pointerMovePredicate, false, this.cameraToUseForPointers);             
+                var pickResult = this.pick(this._unTranslatedPointerX, this._unTranslatedPointerY, this.pointerMovePredicate, false, this.cameraToUseForPointers);
 
                 this._processPointerMove(pickResult, evt);
             };
@@ -1615,8 +1674,7 @@
                 this._pickedUpMesh = null;
                 this._meshPickProceed = false;
 
-                this._updatePointerPosition(evt);      
-
+                this._updatePointerPosition(evt);
                 this._initClickEvent(this.onPrePointerObservable, this.onPointerObservable, evt, (clickInfo: ClickInfo, pickResult: Nullable<PickingInfo>) => {
                     // PreObservable support
                     if (this.onPrePointerObservable.hasObservers()) {
@@ -1661,7 +1719,7 @@
                     }
 
                     // Meshes
-                    if (!this._meshPickProceed && (BABYLON.ActionManager && ActionManager.HasTriggers || this.onPointerObservable.hasObservers())) {
+                    if (!this._meshPickProceed && (ActionManager && ActionManager.HasTriggers || this.onPointerObservable.hasObservers())) {
                         this._initActionManager(null, clickInfo);
                     }
                     if (!pickResult) {
@@ -1735,18 +1793,18 @@
             };
 
             let engine = this.getEngine();
-            this._onCanvasFocusObserver = engine.onCanvasFocusObservable.add(()=>{
+            this._onCanvasFocusObserver = engine.onCanvasFocusObservable.add(() => {
                 if (!canvas) {
                     return;
                 }
                 canvas.addEventListener("keydown", this._onKeyDown, false);
-                canvas.addEventListener("keyup", this._onKeyUp, false);   
+                canvas.addEventListener("keyup", this._onKeyUp, false);
             });
 
-            this._onCanvasBlurObserver = engine.onCanvasBlurObservable.add(()=>{       
+            this._onCanvasBlurObserver = engine.onCanvasBlurObservable.add(() => {
                 if (!canvas) {
                     return;
-                }                         
+                }
                 canvas.removeEventListener("keydown", this._onKeyDown);
                 canvas.removeEventListener("keyup", this._onKeyUp);
             });
@@ -1759,18 +1817,18 @@
             }
 
             if (attachMove) {
-                canvas.addEventListener(eventPrefix + "move", this._onPointerMove, false);
+                canvas.addEventListener(eventPrefix + "move", <any>this._onPointerMove, false);
                 // Wheel
-                canvas.addEventListener('mousewheel', this._onPointerMove, false);
-                canvas.addEventListener('DOMMouseScroll', this._onPointerMove, false);
+                canvas.addEventListener('mousewheel', <any>this._onPointerMove, false);
+                canvas.addEventListener('DOMMouseScroll', <any>this._onPointerMove, false);
             }
 
             if (attachDown) {
-                canvas.addEventListener(eventPrefix + "down", this._onPointerDown, false);
+                canvas.addEventListener(eventPrefix + "down", <any>this._onPointerDown, false);
             }
 
             if (attachUp) {
-                window.addEventListener(eventPrefix + "up", this._onPointerUp, false);
+                window.addEventListener(eventPrefix + "up", <any>this._onPointerUp, false);
             }
 
             canvas.tabIndex = 1;
@@ -1785,9 +1843,9 @@
                 return;
             }
 
-            canvas.removeEventListener(eventPrefix + "move", this._onPointerMove);
-            canvas.removeEventListener(eventPrefix + "down", this._onPointerDown);
-            window.removeEventListener(eventPrefix + "up", this._onPointerUp);
+            canvas.removeEventListener(eventPrefix + "move", <any>this._onPointerMove);
+            canvas.removeEventListener(eventPrefix + "down", <any>this._onPointerDown);
+            window.removeEventListener(eventPrefix + "up", <any>this._onPointerUp);
 
             if (this._onCanvasBlurObserver) {
                 engine.onCanvasBlurObservable.remove(this._onCanvasBlurObserver);
@@ -1798,8 +1856,8 @@
             }
 
             // Wheel
-            canvas.removeEventListener('mousewheel', this._onPointerMove);
-            canvas.removeEventListener('DOMMouseScroll', this._onPointerMove);
+            canvas.removeEventListener('mousewheel', <any>this._onPointerMove);
+            canvas.removeEventListener('DOMMouseScroll', <any>this._onPointerMove);
 
             // Keyboard
             canvas.removeEventListener("keydown", this._onKeyDown);
@@ -1809,10 +1867,14 @@
             this.onKeyboardObservable.clear();
             this.onPreKeyboardObservable.clear();
             this.onPointerObservable.clear();
-            this.onPrePointerObservable.clear();     
+            this.onPrePointerObservable.clear();
         }
 
-        // Ready
+        /**
+         * This function will check if the scene can be rendered (textures are loaded, shaders are compiled)
+         * Delay loaded resources are not taking in account
+         * @return true if all required resources are ready
+         */
         public isReady(): boolean {
             if (this._isDisposed) {
                 return false;
@@ -1821,7 +1883,8 @@
             if (this._pendingData.length > 0) {
                 return false;
             }
-            var index: number;
+            let index: number;
+            let engine = this.getEngine();
 
             // Geometries
             for (index = 0; index < this._geometries.length; index++) {
@@ -1848,10 +1911,17 @@
                     return false;
                 }
 
-                var mat = mesh.material;
-                if (mat) {
-                    if (!mat.isReady(mesh)) {
-                        return false;
+                // Highlight layers
+                let hardwareInstancedRendering = mesh.getClassName() === "InstancedMesh" || engine.getCaps().instancedArrays && (<Mesh>mesh).instances.length > 0;
+                for (var layer of this.highlightLayers) {
+                    if (!layer.hasMesh(mesh)) {
+                        continue;
+                    }
+
+                    for (var subMesh of mesh.subMeshes) {
+                        if (!layer.isReady(subMesh, hardwareInstancedRendering)) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -1881,20 +1951,56 @@
             this.onAfterRenderObservable.removeCallback(func);
         }
 
+        private _executeOnceBeforeRender(func: () => void): void {
+            let execFunc = () => {
+                func();
+                setTimeout(() => {
+                    this.unregisterBeforeRender(execFunc);
+                });
+            }
+            this.registerBeforeRender(execFunc);
+        }
+
+        /**
+         * The provided function will run before render once and will be disposed afterwards.
+         * A timeout delay can be provided so that the function will be executed in N ms.
+         * The timeout is using the browser's native setTimeout so time percision cannot be guaranteed.
+         * @param func The function to be executed.
+         * @param timeout optional delay in ms
+         */
+        public executeOnceBeforeRender(func: () => void, timeout?: number): void {
+            if (timeout !== undefined) {
+                setTimeout(() => {
+                    this._executeOnceBeforeRender(func);
+                }, timeout);
+            } else {
+                this._executeOnceBeforeRender(func);
+            }
+        }
+
         public _addPendingData(data: any): void {
             this._pendingData.push(data);
         }
 
         public _removePendingData(data: any): void {
+            var wasLoading = this.isLoading;
             var index = this._pendingData.indexOf(data);
 
             if (index !== -1) {
                 this._pendingData.splice(index, 1);
             }
+
+            if (wasLoading && !this.isLoading) {
+                this.onDataLoadedObservable.notifyObservers(this);
+            }
         }
 
         public getWaitingItemsCount(): number {
             return this._pendingData.length;
+        }
+
+        public get isLoading(): boolean {
+            return this._pendingData.length > 0;
         }
 
         /**
@@ -1970,6 +2076,17 @@
             return animatable;
         }
 
+        /**
+         * Begin a new animation on a given node
+         * @param {BABYLON.Node} node defines the root node where the animation will take place
+         * @param {BABYLON.Animation[]} defines the list of animations to start
+         * @param {number} from defines the initial value
+         * @param {number} to defines the final value
+         * @param {boolean} loop defines if you want animation to loop (off by default)
+         * @param {number} speedRatio defines the speed ratio to apply to all animations
+         * @param onAnimationEnd defines the callback to call when an animation ends (will be called once per node)
+         * @returns the list of created animatables
+         */
         public beginDirectAnimation(target: any, animations: Animation[], from: number, to: number, loop?: boolean, speedRatio?: number, onAnimationEnd?: () => void): Animatable {
             if (speedRatio === undefined) {
                 speedRatio = 1.0;
@@ -1978,6 +2095,28 @@
             var animatable = new Animatable(this, target, from, to, loop, speedRatio, onAnimationEnd, animations);
 
             return animatable;
+        }
+
+        /**
+         * Begin a new animation on a given node and its hierarchy
+         * @param {BABYLON.Node} node defines the root node where the animation will take place
+         * @param {boolean} directDescendantsOnly if true only direct descendants will be used, if false direct and also indirect (children of children, an so on in a recursive manner) descendants will be used.
+         * @param {BABYLON.Animation[]} defines the list of animations to start
+         * @param {number} from defines the initial value
+         * @param {number} to defines the final value
+         * @param {boolean} loop defines if you want animation to loop (off by default)
+         * @param {number} speedRatio defines the speed ratio to apply to all animations
+         * @param onAnimationEnd defines the callback to call when an animation ends (will be called once per node)
+         * @returns the list of animatables created for all nodes
+         */
+        public beginDirectHierarchyAnimation(target: Node, directDescendantsOnly: boolean, animations: Animation[], from: number, to: number, loop?: boolean, speedRatio?: number, onAnimationEnd?: () => void): Animatable[] {
+            let children = target.getDescendants(directDescendantsOnly);
+            let result = [];
+            for (var child of children) {
+                result.push(this.beginDirectAnimation(child, animations, from, to, loop, speedRatio, onAnimationEnd));
+            }
+
+            return result;
         }
 
         public getAnimatableByTarget(target: any): Nullable<Animatable> {
@@ -1990,7 +2129,7 @@
             return null;
         }
 
-        public get Animatables(): Animatable[] {
+        public get animatables(): Animatable[] {
             return this._activeAnimatables;
         }
 
@@ -2008,6 +2147,18 @@
             }
         }
 
+        /**
+         * Stops and removes all animations that have been applied to the scene
+         */
+        public stopAllAnimations(): void {
+            if (this._activeAnimatables) {
+                for (let i = 0; i < this._activeAnimatables.length; i++) {
+                    this._activeAnimatables[i].stop();
+                }
+                this._activeAnimatables = [];
+            }
+        }
+
         private _animate(): void {
             if (!this.animationsEnabled || this._activeAnimatables.length === 0) {
                 return;
@@ -2021,7 +2172,7 @@
                 }
                 this._animationTimeLast = now;
             }
-            var deltaTime = (now - this._animationTimeLast) * this.animationTimeScale;
+            var deltaTime = this.useConstantAnimationDeltaTime ? 16.0 : (now - this._animationTimeLast) * this.animationTimeScale;
             this._animationTime += deltaTime;
             this._animationTimeLast = now;
             for (var index = 0; index < this._activeAnimatables.length; index++) {
@@ -2034,7 +2185,7 @@
             this._useAlternateCameraConfiguration = active;
         }
 
-        public getViewMatrix(): Matrix {            
+        public getViewMatrix(): Matrix {
             return this._useAlternateCameraConfiguration ? this._alternateViewMatrix : this._viewMatrix;
         }
 
@@ -2097,7 +2248,7 @@
             if (!this._alternateSceneUbo) {
                 this._createAlternateUbo();
             }
-            
+
             if (this._alternateSceneUbo.useUbo) {
                 this._alternateSceneUbo.updateMatrix("viewProjection", this._alternateTransformMatrix);
                 this._alternateSceneUbo.updateMatrix("view", this._alternateViewMatrix);
@@ -2124,6 +2275,7 @@
             if (this.collisionCoordinator) {
                 this.collisionCoordinator.onMeshAdded(newMesh);
             }
+            newMesh._resyncLightSources();
 
             this.onNewMeshAddedObservable.notifyObservers(newMesh);
         }
@@ -2134,12 +2286,26 @@
                 // Remove from the scene if mesh found
                 this.meshes.splice(index, 1);
             }
-            //notify the collision coordinator
-            if (this.collisionCoordinator) {
-                this.collisionCoordinator.onMeshRemoved(toRemove);
-            }
 
             this.onMeshRemovedObservable.notifyObservers(toRemove);
+
+            return index;
+        }
+
+        public addTransformNode(newTransformNode: TransformNode) {
+            this.transformNodes.push(newTransformNode);
+
+            this.onNewTransformNodeAddedObservable.notifyObservers(newTransformNode);
+        }
+
+        public removeTransformNode(toRemove: TransformNode): number {
+            var index = this.transformNodes.indexOf(toRemove);
+            if (index !== -1) {
+                // Remove from the scene if found
+                this.transformNodes.splice(index, 1);
+            }
+
+            this.onTransformNodeRemovedObservable.notifyObservers(toRemove);
 
             return index;
         }
@@ -2167,6 +2333,11 @@
         public removeLight(toRemove: Light): number {
             var index = this.lights.indexOf(toRemove);
             if (index !== -1) {
+                // Remove from meshes
+                for (var mesh of this.meshes) {
+                    mesh._removeLightSource(toRemove);
+                }
+
                 // Remove from the scene if mesh found
                 this.lights.splice(index, 1);
                 this.sortLightsByPriority();
@@ -2199,9 +2370,61 @@
             return index;
         }
 
+
+        public removeParticleSystem(toRemove: ParticleSystem): number {
+            var index = this.particleSystems.indexOf(toRemove);
+            if (index !== -1) {
+                this.particleSystems.splice(index, 1);
+            }
+            return index;
+        };
+        public removeAnimation(toRemove: Animation): number {
+            var index = this.animations.indexOf(toRemove);
+            if (index !== -1) {
+                this.animations.splice(index, 1);
+            }
+            return index;
+        };
+        public removeMultiMaterial(toRemove: MultiMaterial): number {
+            var index = this.multiMaterials.indexOf(toRemove);
+            if (index !== -1) {
+                this.multiMaterials.splice(index, 1);
+            }
+            return index;
+        };
+        public removeMaterial(toRemove: Material): number {
+            var index = this.materials.indexOf(toRemove);
+            if (index !== -1) {
+                this.materials.splice(index, 1);
+            }
+            return index;
+        };
+        public removeLensFlareSystem(toRemove: LensFlareSystem) {
+            var index = this.lensFlareSystems.indexOf(toRemove);
+            if (index !== -1) {
+                this.lensFlareSystems.splice(index, 1);
+            }
+            return index;
+        };
+        public removeActionManager(toRemove: ActionManager) {
+            var index = this._actionManagers.indexOf(toRemove);
+            if (index !== -1) {
+                this._actionManagers.splice(index, 1);
+            }
+            return index;
+        };
+
         public addLight(newLight: Light) {
             this.lights.push(newLight);
             this.sortLightsByPriority();
+
+            // Add light to all meshes (To support if the light is removed and then readded)
+            for (var mesh of this.meshes) {
+                if (mesh._lightSources.indexOf(newLight) === -1) {
+                    mesh._lightSources.push(newLight);
+                    mesh._resyncLightSources();
+                }
+            }
 
             this.onNewLightAddedObservable.notifyObservers(newLight);
         }
@@ -2215,6 +2438,42 @@
         public addCamera(newCamera: Camera) {
             this.cameras.push(newCamera);
             this.onNewCameraAddedObservable.notifyObservers(newCamera);
+        }
+
+        public addSkeleton(newSkeleton: Skeleton) {
+            this.skeletons.push(newSkeleton)
+        }
+
+        public addParticleSystem(newParticleSystem: ParticleSystem) {
+            this.particleSystems.push(newParticleSystem)
+        }
+
+        public addAnimation(newAnimation: Animation) {
+            this.animations.push(newAnimation)
+        }
+
+        public addMultiMaterial(newMultiMaterial: MultiMaterial) {
+            this.multiMaterials.push(newMultiMaterial)
+        }
+
+        public addMaterial(newMaterial: Material) {
+            this.materials.push(newMaterial)
+        }
+
+        public addMorphTargetManager(newMorphTargetManager: MorphTargetManager) {
+            this.morphTargetManagers.push(newMorphTargetManager)
+        }
+
+        public addGeometry(newGeometrie: Geometry) {
+            this._geometries.push(newGeometrie)
+        }
+
+        public addLensFlareSystem(newLensFlareSystem: LensFlareSystem) {
+            this.lensFlareSystems.push(newLensFlareSystem)
+        }
+
+        public addActionManager(newActionManager: ActionManager) {
+            this._actionManagers.push(newActionManager)
         }
 
         /**
@@ -2267,6 +2526,21 @@
             if (camera) {
                 this.activeCamera = camera;
                 return camera;
+            }
+
+            return null;
+        }
+
+        /**
+         * get an animation group using its name
+         * @param {string} the material's name
+         * @return {BABYLON.AnimationGroup|null} the animation group or null if none found.
+         */
+        public getAnimationGroupByName(name: string): Nullable<AnimationGroup> {
+            for (var index = 0; index < this.animationGroups.length; index++) {
+                if (this.animationGroups[index].name === name) {
+                    return this.animationGroups[index];
+                }
             }
 
             return null;
@@ -2540,6 +2814,27 @@
         }
 
         /**
+         * Get the first added transform node found of a given ID
+         * @param {string} id - the id to search for
+         * @return {BABYLON.TransformNode|null} the transform node found or null if not found at all.
+         */
+        public getTransformNodeByID(id: string): Nullable<TransformNode> {
+            for (var index = 0; index < this.transformNodes.length; index++) {
+                if (this.transformNodes[index].id === id) {
+                    return this.transformNodes[index];
+                }
+            }
+
+            return null;
+        }
+
+        public getTransformNodesByID(id: string): Array<TransformNode> {
+            return this.transformNodes.filter(function (m) {
+                return m.id === id;
+            })
+        }
+
+        /**
          * Get a mesh with its auto-generated unique id
          * @param {number} uniqueId - the unique id to search for
          * @return {BABYLON.AbstractMesh|null} the mesh found or null if not found at all.
@@ -2579,6 +2874,12 @@
             for (index = this.meshes.length - 1; index >= 0; index--) {
                 if (this.meshes[index].id === id) {
                     return this.meshes[index];
+                }
+            }
+
+            for (index = this.transformNodes.length - 1; index >= 0; index--) {
+                if (this.transformNodes[index].id === id) {
+                    return this.transformNodes[index];
                 }
             }
 
@@ -2649,6 +2950,16 @@
             for (var index = 0; index < this.meshes.length; index++) {
                 if (this.meshes[index].name === name) {
                     return this.meshes[index];
+                }
+            }
+
+            return null;
+        }
+
+        public getTransformNodeByName(name: string): Nullable<TransformNode> {
+            for (var index = 0; index < this.transformNodes.length; index++) {
+                if (this.transformNodes[index].name === name) {
+                    return this.transformNodes[index];
                 }
             }
 
@@ -2795,20 +3106,18 @@
         }
 
         private _evaluateSubMesh(subMesh: SubMesh, mesh: AbstractMesh): void {
-            if (mesh.alwaysSelectAsActiveMesh || mesh.subMeshes.length === 1 || subMesh.isInFrustum(this._frustumPlanes)) {
-                var material = subMesh.getMaterial();
-
+            if (this.dispatchAllSubMeshesOfActiveMeshes || mesh.alwaysSelectAsActiveMesh || mesh.subMeshes.length === 1 || subMesh.isInFrustum(this._frustumPlanes)) {
                 if (mesh.showSubMeshesBoundingBox) {
-                    let boundingInfo = subMesh.getBoundingInfo();
-
-                    if (boundingInfo) {
+                    const boundingInfo = subMesh.getBoundingInfo();
+                    if (boundingInfo !== null && boundingInfo !== undefined) {
                         this.getBoundingBoxRenderer().renderList.push(boundingInfo.boundingBox);
                     }
                 }
 
-                if (material) {
+                const material = subMesh.getMaterial();
+                if (material !== null && material !== undefined) {
                     // Render targets
-                    if (material.getRenderTargetTextures) {
+                    if (material.getRenderTargetTextures !== undefined) {
                         if (this._processedMaterials.indexOf(material) === -1) {
                             this._processedMaterials.push(material);
 
@@ -2818,7 +3127,7 @@
 
                     // Dispatch
                     this._activeIndices.addCount(subMesh.indexCount, false);
-                    this._renderingManager.dispatch(subMesh);
+                    this._renderingManager.dispatch(subMesh, mesh, material);
                 }
             }
         }
@@ -2826,7 +3135,15 @@
         public _isInIntermediateRendering(): boolean {
             return this._intermediateRendering
         }
-        
+
+        private _activeMeshCandidateProvider: IActiveMeshCandidateProvider;
+        public setActiveMeshCandidateProvider(provider: IActiveMeshCandidateProvider): void {
+            this._activeMeshCandidateProvider = provider;
+        }
+        public getActiveMeshCandidateProvider(): IActiveMeshCandidateProvider {
+            return this._activeMeshCandidateProvider;
+        }
+
         private _activeMeshesFrozen = false;
 
         /**
@@ -2837,7 +3154,7 @@
             this._activeMeshesFrozen = true;
             return this;
         }
-        
+
         /**
          * Use this function to restart evaluating active meshes on every frame
          */
@@ -2871,18 +3188,32 @@
             // Meshes
             var meshes: AbstractMesh[];
             var len: number;
+            var checkIsEnabled = true;
 
-            if (this._selectionOctree) { // Octree
+            // Determine mesh candidates
+            if (this._activeMeshCandidateProvider !== undefined) {
+                // Use _activeMeshCandidateProvider
+                meshes = this._activeMeshCandidateProvider.getMeshes(this);
+                checkIsEnabled = this._activeMeshCandidateProvider.checksIsEnabled === false;
+                if (meshes !== undefined) {
+                    len = meshes.length;
+                } else {
+                    len = 0;
+                }
+            } else if (this._selectionOctree !== undefined) {
+                // Octree
                 var selection = this._selectionOctree.select(this._frustumPlanes);
                 meshes = selection.data;
                 len = selection.length;
-            } else { // Full scene traversal
+            } else {
+                // Full scene traversal
                 len = this.meshes.length;
                 meshes = this.meshes;
             }
 
-            for (var meshIndex = 0; meshIndex < len; meshIndex++) {
-                var mesh = meshes[meshIndex];
+            // Check each mesh
+            for (var meshIndex = 0, mesh, meshLOD; meshIndex < len; meshIndex++) {
+                mesh = meshes[meshIndex];
 
                 if (mesh.isBlocked) {
                     continue;
@@ -2890,7 +3221,7 @@
 
                 this._totalVertices.addCount(mesh.getTotalVertices(), false);
 
-                if (!mesh.isReady() || !mesh.isEnabled()) {
+                if (!mesh.isReady() || (checkIsEnabled && !mesh.isEnabled())) {
                     continue;
                 }
 
@@ -2902,9 +3233,9 @@
                 }
 
                 // Switch to current LOD
-                var meshLOD = mesh.getLOD(this.activeCamera);
+                meshLOD = mesh.getLOD(this.activeCamera);
 
-                if (!meshLOD) {
+                if (meshLOD === undefined || meshLOD === null) {
                     continue;
                 }
 
@@ -2913,7 +3244,7 @@
                 if (mesh.alwaysSelectAsActiveMesh || mesh.isVisible && mesh.visibility > 0 && ((mesh.layerMask & this.activeCamera.layerMask) !== 0) && mesh.isInFrustum(this._frustumPlanes)) {
                     this._activeMeshes.push(mesh);
                     this.activeCamera._activeMeshes.push(mesh);
-                        
+
                     mesh._activate(this._renderId);
                     if (meshLOD !== mesh) {
                         meshLOD._activate(this._renderId);
@@ -2947,7 +3278,7 @@
         }
 
         private _activeMesh(sourceMesh: AbstractMesh, mesh: AbstractMesh): void {
-            if (mesh.skeleton && this.skeletonsEnabled) {
+            if (this.skeletonsEnabled && mesh.skeleton !== null && mesh.skeleton !== undefined) {
                 if (this._activeSkeletons.pushNoDuplicate(mesh.skeleton)) {
                     mesh.skeleton.prepare();
                 }
@@ -2960,17 +3291,18 @@
             if (sourceMesh.showBoundingBox || this.forceShowBoundingBoxes) {
                 let boundingInfo = sourceMesh.getBoundingInfo();
 
-                if (boundingInfo) {
-                    this.getBoundingBoxRenderer().renderList.push(boundingInfo.boundingBox);    
-                }
+                this.getBoundingBoxRenderer().renderList.push(boundingInfo.boundingBox);
             }
 
-            if (mesh && mesh.subMeshes) {
+            if (
+                mesh !== undefined && mesh !== null
+                && mesh.subMeshes !== undefined && mesh.subMeshes !== null && mesh.subMeshes.length > 0
+            ) {
                 // Submeshes Octrees
                 var len: number;
                 var subMeshes: SubMesh[];
 
-                if (mesh._submeshesOctree && mesh.useOctreeForRenderingSelection) {
+                if (mesh.useOctreeForRenderingSelection && mesh._submeshesOctree !== undefined && mesh._submeshesOctree !== null) {
                     var intersections = mesh._submeshesOctree.select(this._frustumPlanes);
 
                     len = intersections.length;
@@ -2980,8 +3312,8 @@
                     len = subMeshes.length;
                 }
 
-                for (var subIndex = 0; subIndex < len; subIndex++) {
-                    var subMesh = subMeshes[subIndex];
+                for (var subIndex = 0, subMesh; subIndex < len; subIndex++) {
+                    subMesh = subMeshes[subIndex];
 
                     this._evaluateSubMesh(subMesh, mesh);
                 }
@@ -3012,7 +3344,7 @@
                 throw new Error("Active camera not set");
 
             Tools.StartPerformanceCounter("Rendering camera " + this.activeCamera.name);
-           
+
             // Viewport
             engine.setViewport(this.activeCamera.viewport);
 
@@ -3116,7 +3448,7 @@
                 }
                 engine.setDepthBuffer(true);
             }
-        
+
             // Activate HighlightLayer stencil
             if (renderhighlights) {
                 this._engine.setStencilBuffer(true);
@@ -3175,7 +3507,7 @@
 
             // Finalize frame
             this.postProcessManager._finalizeFrame(camera.isIntermediate);
-           
+
             // Reset some special arrays
             this._renderTargets.reset();
 
@@ -3196,7 +3528,7 @@
             if (this.activeCamera) {
                 this.activeCamera.update();
             }
-            
+
             // rig cameras
             for (var index = 0; index < camera._rigCameras.length; index++) {
                 this._renderForCamera(camera._rigCameras[index]);
@@ -3273,58 +3605,67 @@
                 this.simplificationQueue.executeNext();
             }
 
-            if(this._engine.isDeterministicLockStep()){
-              var deltaTime = Math.max(Scene.MinDeltaTime, Math.min(this._engine.getDeltaTime(), Scene.MaxDeltaTime)) / 1000;
+            if (this._engine.isDeterministicLockStep()) {
+                var deltaTime = Math.max(Scene.MinDeltaTime, Math.min(this._engine.getDeltaTime(), Scene.MaxDeltaTime)) + this._timeAccumulator;
 
-              var defaultTimeStep = (60.0 / 1000.0);
-              if (this._physicsEngine) {
-                defaultTimeStep = this._physicsEngine.getTimeStep();
-              }
+                var defaultFPS = (60.0 / 1000.0);
 
-              var maxSubSteps = this._engine.getLockstepMaxSteps();
+                let defaultFrameTime = 1000 / 60; // frame time in MS
 
-              this._timeAccumulator += deltaTime;
+                if (this._physicsEngine) {
+                    defaultFrameTime = this._physicsEngine.getTimeStep() * 1000;
+                }
+                let stepsTaken = 0;
 
-              // compute the amount of fixed steps we should have taken since the last step
-              var internalSteps = Math.floor(this._timeAccumulator / defaultTimeStep);
-              internalSteps = Math.min(internalSteps, maxSubSteps);
+                var maxSubSteps = this._engine.getLockstepMaxSteps();
 
-              for(this._currentInternalStep = 0; this._currentInternalStep < internalSteps; this._currentInternalStep++){
+                var internalSteps = Math.floor(deltaTime / (1000 * defaultFPS));
+                internalSteps = Math.min(internalSteps, maxSubSteps);
 
-                this.onBeforeStepObservable.notifyObservers(this);
+                do {
+                    this.onBeforeStepObservable.notifyObservers(this);
 
+                    // Animations
+                    this._animationRatio = defaultFrameTime * defaultFPS;
+                    this._animate();
+                    this.onAfterAnimationsObservable.notifyObservers(this);
+
+                    // Physics
+                    if (this._physicsEngine) {
+                        this.onBeforePhysicsObservable.notifyObservers(this);
+                        this._physicsEngine._step(defaultFrameTime / 1000);
+                        this.onAfterPhysicsObservable.notifyObservers(this);
+                    }
+
+                    this.onAfterStepObservable.notifyObservers(this);
+                    this._currentStepId++;
+
+                    stepsTaken++;
+                    deltaTime -= defaultFrameTime;
+
+                } while (deltaTime > 0 && stepsTaken < internalSteps);
+
+                this._timeAccumulator = deltaTime < 0 ? 0 : deltaTime;
+
+            }
+            else {
                 // Animations
-                this._animationRatio = defaultTimeStep * (60.0 / 1000.0);
+                var deltaTime = this.useConstantAnimationDeltaTime ? 16 : Math.max(Scene.MinDeltaTime, Math.min(this._engine.getDeltaTime(), Scene.MaxDeltaTime));
+                this._animationRatio = deltaTime * (60.0 / 1000.0);
                 this._animate();
+                this.onAfterAnimationsObservable.notifyObservers(this);
 
                 // Physics
                 if (this._physicsEngine) {
-                   this.onBeforePhysicsObservable.notifyObservers(this);
-                   this._physicsEngine._step(defaultTimeStep);
-                   this.onAfterPhysicsObservable.notifyObservers(this);
+                    this.onBeforePhysicsObservable.notifyObservers(this);
+                    this._physicsEngine._step(deltaTime / 1000.0);
+                    this.onAfterPhysicsObservable.notifyObservers(this);
                 }
-                this._timeAccumulator -= defaultTimeStep;
-
-                this.onAfterStepObservable.notifyObservers(this);
-                this._currentStepId++;
-
-                if((internalSteps > 1) && (this._currentInternalStep != internalSteps - 1)) {
-                    this._evaluateActiveMeshes();
-                }
-              }
             }
-            else {
-              // Animations
-              var deltaTime = Math.max(Scene.MinDeltaTime, Math.min(this._engine.getDeltaTime(), Scene.MaxDeltaTime));
-              this._animationRatio = deltaTime * (60.0 / 1000.0);
-              this._animate();
 
-              // Physics
-              if (this._physicsEngine) {
-                this.onBeforePhysicsObservable.notifyObservers(this);
-                this._physicsEngine._step(deltaTime / 1000.0);
-                this.onAfterPhysicsObservable.notifyObservers(this);
-              }
+            // update gamepad manager
+            if (this._gamepadManager && this._gamepadManager._isMonitoring) {
+                this._gamepadManager._checkGamepadsStatus();
             }
 
             // Before render
@@ -3652,6 +3993,8 @@
 
             this.importedMeshesFiles = new Array<string>();
 
+            this.stopAllAnimations();
+
             this.resetCachedMaterial();
 
             if (this._depthRenderer) {
@@ -3682,6 +4025,11 @@
             this._meshesForIntersections.dispose();
             this._toBeDisposed.dispose();
 
+            // Abort active requests
+            for (let request of this._activeRequests) {
+                request.abort();
+            }
+
             // Debug layer
             if (this._debugLayer) {
                 this._debugLayer.hide();
@@ -3707,6 +4055,9 @@
             this.onAfterDrawPhaseObservable.clear();
             this.onBeforePhysicsObservable.clear();
             this.onAfterPhysicsObservable.clear();
+            this.onBeforeAnimationsObservable.clear();
+            this.onAfterAnimationsObservable.clear();
+            this.onDataLoadedObservable.clear();
 
             this.detachControl();
 
@@ -3730,6 +4081,11 @@
                 }
             }
 
+            // Release animation groups
+            while (this.animationGroups.length) {
+                this.animationGroups[0].dispose();
+            }
+
             // Release lights
             while (this.lights.length) {
                 this.lights[0].dispose();
@@ -3738,6 +4094,9 @@
             // Release meshes
             while (this.meshes.length) {
                 this.meshes[0].dispose(true);
+            }
+            while (this.transformNodes.length) {
+                this.removeTransformNode(this.transformNodes[0]);
             }
 
             // Release cameras
@@ -3810,7 +4169,7 @@
                 this._engine.scenes.splice(index, 1);
             }
 
-            this._engine.wipeCaches();
+            this._engine.wipeCaches(true);
             this._isDisposed = true;
         }
 
@@ -3845,13 +4204,11 @@
                 mesh.computeWorldMatrix(true);
                 let boundingInfo = mesh.getBoundingInfo();
 
-                if (boundingInfo) {
-                    var minBox = boundingInfo.boundingBox.minimumWorld;
-                    var maxBox = boundingInfo.boundingBox.maximumWorld;
+                var minBox = boundingInfo.boundingBox.minimumWorld;
+                var maxBox = boundingInfo.boundingBox.maximumWorld;
 
-                    Tools.CheckExtends(minBox, min, max);
-                    Tools.CheckExtends(maxBox, min, max);
-                }
+                Tools.CheckExtends(minBox, min, max);
+                Tools.CheckExtends(maxBox, min, max);
             }
 
             return {
@@ -3875,6 +4232,14 @@
 
         // Picking
         public createPickingRay(x: number, y: number, world: Matrix, camera: Nullable<Camera>, cameraViewSpace = false): Ray {
+            let result = Ray.Zero();
+
+            this.createPickingRayToRef(x, y, world, result, camera, cameraViewSpace);
+
+            return result;
+        }
+
+        public createPickingRayToRef(x: number, y: number, world: Matrix, result: Ray, camera: Nullable<Camera>, cameraViewSpace = false): Scene {
             var engine = this._engine;
 
             if (!camera) {
@@ -3890,13 +4255,22 @@
             // Moving coordinates to local viewport world
             x = x / this._engine.getHardwareScalingLevel() - viewport.x;
             y = y / this._engine.getHardwareScalingLevel() - (this._engine.getRenderHeight() - viewport.y - viewport.height);
-            return Ray.CreateNew(x, y, viewport.width, viewport.height, world ? world : Matrix.Identity(), cameraViewSpace ? Matrix.Identity() : camera.getViewMatrix(), camera.getProjectionMatrix());
-            //       return BABYLON.Ray.CreateNew(x / window.devicePixelRatio, y / window.devicePixelRatio, viewport.width, viewport.height, world ? world : BABYLON.Matrix.Identity(), camera.getViewMatrix(), camera.getProjectionMatrix());
+
+            result.update(x, y, viewport.width, viewport.height, world ? world : Matrix.Identity(), cameraViewSpace ? Matrix.Identity() : camera.getViewMatrix(), camera.getProjectionMatrix());
+            return this;
         }
 
-        public createPickingRayInCameraSpace(x: number, y: number, camera?: Camera): Nullable<Ray> {
-            if (!BABYLON.PickingInfo) {
-                return null;
+        public createPickingRayInCameraSpace(x: number, y: number, camera?: Camera): Ray {
+            let result = Ray.Zero();
+
+            this.createPickingRayInCameraSpaceToRef(x, y, result, camera);
+
+            return result;
+        }
+
+        public createPickingRayInCameraSpaceToRef(x: number, y: number, result: Ray, camera?: Camera): Scene {
+            if (!PickingInfo) {
+                return this;
             }
 
             var engine = this._engine;
@@ -3915,11 +4289,12 @@
             // Moving coordinates to local viewport world
             x = x / this._engine.getHardwareScalingLevel() - viewport.x;
             y = y / this._engine.getHardwareScalingLevel() - (this._engine.getRenderHeight() - viewport.y - viewport.height);
-            return Ray.CreateNew(x, y, viewport.width, viewport.height, identity, identity, camera.getProjectionMatrix());
+            result.update(x, y, viewport.width, viewport.height, identity, identity, camera.getProjectionMatrix());
+            return this;
         }
 
         private _internalPick(rayFunction: (world: Matrix) => Ray, predicate?: (mesh: AbstractMesh) => boolean, fastCheck?: boolean): Nullable<PickingInfo> {
-            if (!BABYLON.PickingInfo) {
+            if (!PickingInfo) {
                 return null;
             }
 
@@ -3957,7 +4332,7 @@
         }
 
         private _internalMultiPick(rayFunction: (world: Matrix) => Ray, predicate?: (mesh: AbstractMesh) => boolean): Nullable<PickingInfo[]> {
-            if (!BABYLON.PickingInfo) {
+            if (!PickingInfo) {
                 return null;
             }
             var pickingInfos = new Array<PickingInfo>();
@@ -3988,7 +4363,7 @@
 
 
         private _internalPickSprites(ray: Ray, predicate?: (sprite: Sprite) => boolean, fastCheck?: boolean, camera?: Camera): Nullable<PickingInfo> {
-            if (!BABYLON.PickingInfo) {
+            if (!PickingInfo) {
                 return null;
             }
 
@@ -4027,6 +4402,8 @@
             return pickingInfo || new PickingInfo();
         }
 
+        private _tempPickingRay: Nullable<Ray> = Ray ? Ray.Zero() : null;
+
         /** Launch a ray to try to pick a mesh in the scene
          * @param x position on screen
          * @param y position on screen
@@ -4035,7 +4412,14 @@
          * @param camera to use for computing the picking ray. Can be set to null. In this case, the scene.activeCamera will be used
          */
         public pick(x: number, y: number, predicate?: (mesh: AbstractMesh) => boolean, fastCheck?: boolean, camera?: Nullable<Camera>): Nullable<PickingInfo> {
-            return this._internalPick(world => this.createPickingRay(x, y, world, camera || null), predicate, fastCheck);
+            if (!PickingInfo) {
+                return null;
+            }
+
+            return this._internalPick(world => {
+                this.createPickingRayToRef(x, y, world, this._tempPickingRay!, camera || null);
+                return this._tempPickingRay!;
+            }, predicate, fastCheck);
         }
 
         /** Launch a ray to try to pick a sprite in the scene
@@ -4046,14 +4430,12 @@
          * @param camera camera to use for computing the picking ray. Can be set to null. In this case, the scene.activeCamera will be used
          */
         public pickSprite(x: number, y: number, predicate?: (sprite: Sprite) => boolean, fastCheck?: boolean, camera?: Camera): Nullable<PickingInfo> {
-            let ray = this.createPickingRayInCameraSpace(x, y, camera);
+            this.createPickingRayInCameraSpaceToRef(x, y, this._tempPickingRay!, camera);
 
-            if (!ray) {
-                return null;
-            }
-
-            return this._internalPickSprites(ray, predicate, fastCheck, camera);
+            return this._internalPickSprites(this._tempPickingRay!, predicate, fastCheck, camera);
         }
+
+        private _cachedRayForTransform: Ray;
 
         /** Use the given ray to pick a mesh in the scene
          * @param ray The ray to use to pick meshes
@@ -4066,7 +4448,13 @@
                     this._pickWithRayInverseMatrix = Matrix.Identity();
                 }
                 world.invertToRef(this._pickWithRayInverseMatrix);
-                return Ray.Transform(ray, this._pickWithRayInverseMatrix);
+
+                if (!this._cachedRayForTransform) {
+                    this._cachedRayForTransform = Ray.Zero();
+                }
+
+                Ray.TransformToRef(ray, this._pickWithRayInverseMatrix, this._cachedRayForTransform);
+                return this._cachedRayForTransform;
             }, predicate, fastCheck);
         }
 
@@ -4092,7 +4480,13 @@
                     this._pickWithRayInverseMatrix = Matrix.Identity();
                 }
                 world.invertToRef(this._pickWithRayInverseMatrix);
-                return Ray.Transform(ray, this._pickWithRayInverseMatrix);
+
+                if (!this._cachedRayForTransform) {
+                    this._cachedRayForTransform = Ray.Zero();
+                }
+
+                Ray.TransformToRef(ray, this._pickWithRayInverseMatrix, this._cachedRayForTransform);
+                return this._cachedRayForTransform;
             }, predicate);
         }
 
@@ -4194,7 +4588,7 @@
 
             if (this.postProcessManager) {
                 this.postProcessManager._rebuild();
-            }         
+            }
 
             for (var layer of this.layers) {
                 layer._rebuild();
@@ -4214,7 +4608,7 @@
 
             if (this._postProcessRenderPipelineManager) {
                 this._postProcessRenderPipelineManager._rebuild();
-            }            
+            }
         }
 
         public _rebuildTextures(): void {
@@ -4265,7 +4659,7 @@
                     camera = freeCamera;
                 }
                 camera.minZ = radius * 0.01;
-                camera.maxZ = radius * 100;
+                camera.maxZ = radius * 1000;
                 camera.speed = radius * 0.2;
                 this.activeCamera = camera;
 
@@ -4287,13 +4681,13 @@
             }
 
             // Skybox
-            var hdrSkybox = BABYLON.Mesh.CreateBox("hdrSkyBox", scale, this);
+            var hdrSkybox = Mesh.CreateBox("hdrSkyBox", scale, this);
             if (pbr) {
-                let hdrSkyboxMaterial = new BABYLON.PBRMaterial("skyBox", this);
+                let hdrSkyboxMaterial = new PBRMaterial("skyBox", this);
                 hdrSkyboxMaterial.backFaceCulling = false;
                 hdrSkyboxMaterial.reflectionTexture = this.environmentTexture.clone();
                 if (hdrSkyboxMaterial.reflectionTexture) {
-                    hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+                    hdrSkyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
                 }
                 hdrSkyboxMaterial.microSurface = 1.0 - blur;
                 hdrSkyboxMaterial.disableLighting = true;
@@ -4302,11 +4696,11 @@
                 hdrSkybox.material = hdrSkyboxMaterial;
             }
             else {
-                let skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this);
+                let skyboxMaterial = new StandardMaterial("skyBox", this);
                 skyboxMaterial.backFaceCulling = false;
                 skyboxMaterial.reflectionTexture = this.environmentTexture.clone();
                 if (skyboxMaterial.reflectionTexture) {
-                    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+                    skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
                 }
                 skyboxMaterial.disableLighting = true;
                 hdrSkybox.infiniteDistance = true;
@@ -4316,8 +4710,15 @@
             return hdrSkybox;
         }
 
-        public createDefaultVRExperience(webVROptions: WebVROptions = {}) {
-            this.VRHelper = new BABYLON.VRExperienceHelper(this, webVROptions);
+        public createDefaultEnvironment(options: Partial<IEnvironmentHelperOptions>): Nullable<EnvironmentHelper> {
+            if (EnvironmentHelper) {
+                return new EnvironmentHelper(options, this);
+            }
+            return null;
+        }
+
+        public createDefaultVRExperience(webVROptions: VRExperienceHelperOptions = {}): VRExperienceHelper {
+            return new VRExperienceHelper(this, webVROptions);
         }
 
         // Tags
@@ -4333,7 +4734,7 @@
 
             for (var i in list) {
                 var item = list[i];
-                if (Tags.MatchesQuery(item, tagsQuery)) {
+                if (Tags && Tags.MatchesQuery(item, tagsQuery)) {
                     listByTags.push(item);
                     forEach(item);
                 }
@@ -4403,6 +4804,15 @@
                 }
                 material.markAsDirty(flag);
             }
+        }
+
+        public _loadFile(url: string, onSuccess: (data: string | ArrayBuffer, responseURL?: string) => void, onProgress?: (data: any) => void, useDatabase?: boolean, useArrayBuffer?: boolean, onError?: (request?: XMLHttpRequest, exception?: any) => void): IFileRequest {
+            let request = Tools.LoadFile(url, onSuccess, onProgress, useDatabase ? this.database : undefined, useArrayBuffer, onError);
+            this._activeRequests.push(request);
+            request.onCompleteObservable.add(request => {
+                this._activeRequests.splice(this._activeRequests.indexOf(request), 1);
+            });
+            return request;
         }
     }
 }
