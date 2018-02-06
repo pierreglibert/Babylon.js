@@ -1,4 +1,5 @@
 module BABYLON {
+    /** @ignore */
     export class StandardMaterialDefines extends MaterialDefines implements IImageProcessingConfigurationDefines {
         public MAINUV1 = false;
         public MAINUV2 = false;
@@ -52,6 +53,7 @@ module BABYLON {
         public REFLECTIONMAP_SPHERICAL = false;
         public REFLECTIONMAP_PLANAR = false;
         public REFLECTIONMAP_CUBIC = false;
+        public USE_LOCAL_REFLECTIONMAP_CUBIC = false;
         public REFLECTIONMAP_PROJECTION = false;
         public REFLECTIONMAP_SKYBOX = false;
         public REFLECTIONMAP_EXPLICIT = false;
@@ -108,7 +110,7 @@ module BABYLON {
     export class StandardMaterial extends PushMaterial {
         @serializeAsTexture("diffuseTexture")
         private _diffuseTexture: Nullable<BaseTexture>;;
-        @expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        @expandToProperty("_markAllSubMeshesAsTexturesAndMiscDirty")
         public diffuseTexture: Nullable<BaseTexture>;;
 
         @serializeAsTexture("ambientTexture")
@@ -118,7 +120,7 @@ module BABYLON {
 
         @serializeAsTexture("opacityTexture")
         private _opacityTexture: Nullable<BaseTexture>;;
-        @expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        @expandToProperty("_markAllSubMeshesAsTexturesAndMiscDirty")
         public opacityTexture: Nullable<BaseTexture>;;
 
         @serializeAsTexture("reflectionTexture")
@@ -233,7 +235,7 @@ module BABYLON {
 
         @serializeAsFresnelParameters("opacityFresnelParameters")
         private _opacityFresnelParameters: FresnelParameters;
-        @expandToProperty("_markAllSubMeshesAsFresnelDirty")
+        @expandToProperty("_markAllSubMeshesAsFresnelAndMiscDirty")
         public opacityFresnelParameters: FresnelParameters;
 
 
@@ -616,6 +618,8 @@ module BABYLON {
                                     defines.setReflectionMode("REFLECTIONMAP_MIRROREDEQUIRECTANGULAR_FIXED");
                                     break;
                             }
+
+                            defines.USE_LOCAL_REFLECTIONMAP_CUBIC = (<any>this._reflectionTexture).boundingBoxSize ? true : false;
                         }
                     } else {
                         defines.REFLECTION = false;
@@ -739,13 +743,13 @@ module BABYLON {
             }
 
             // Misc.
-            MaterialHelper.PrepareDefinesForMisc(mesh, scene, this._useLogarithmicDepth, this.pointsCloud, this.fogEnabled, defines);
+            MaterialHelper.PrepareDefinesForMisc(mesh, scene, this._useLogarithmicDepth, this.pointsCloud, this.fogEnabled, this._shouldTurnAlphaTestOn(mesh), defines);
 
             // Attribs
             MaterialHelper.PrepareDefinesForAttributes(mesh, defines, true, true, true);
 
             // Values that need to be evaluated on every frame
-            MaterialHelper.PrepareDefinesForFrameBoundValues(scene, engine, defines, useInstances, this._shouldTurnAlphaTestOn(mesh));
+            MaterialHelper.PrepareDefinesForFrameBoundValues(scene, engine, defines, useInstances);
 
             // Get correct effect      
             if (defines.isDirty) {
@@ -847,6 +851,7 @@ module BABYLON {
                     "mBones",
                     "vClipPlane", "diffuseMatrix", "ambientMatrix", "opacityMatrix", "reflectionMatrix", "emissiveMatrix", "specularMatrix", "bumpMatrix", "lightmapMatrix", "refractionMatrix",
                     "diffuseLeftColor", "diffuseRightColor", "opacityParts", "reflectionLeftColor", "reflectionRightColor", "emissiveLeftColor", "emissiveRightColor", "refractionLeftColor", "refractionRightColor",
+                    "vReflectionPosition", "vReflectionSize",
                     "logarithmicDepthConstant", "vTangentSpaceParams"
                 ];
 
@@ -911,6 +916,8 @@ module BABYLON {
             this._uniformBuffer.addUniform("vAmbientInfos", 2);
             this._uniformBuffer.addUniform("vOpacityInfos", 2);
             this._uniformBuffer.addUniform("vReflectionInfos", 2);
+            this._uniformBuffer.addUniform("vReflectionPosition", 3);
+            this._uniformBuffer.addUniform("vReflectionSize", 3);
             this._uniformBuffer.addUniform("vEmissiveInfos", 2);
             this._uniformBuffer.addUniform("vLightmapInfos", 2);
             this._uniformBuffer.addUniform("vSpecularInfos", 2);
@@ -1024,6 +1031,13 @@ module BABYLON {
                         if (this._reflectionTexture && StandardMaterial.ReflectionTextureEnabled) {
                             this._uniformBuffer.updateFloat2("vReflectionInfos", this._reflectionTexture.level, this.roughness);
                             this._uniformBuffer.updateMatrix("reflectionMatrix", this._reflectionTexture.getReflectionTextureMatrix());
+
+                            if ((<any>this._reflectionTexture).boundingBoxSize) {
+                                let cubeTexture = <CubeTexture>this._reflectionTexture;
+
+                                this._uniformBuffer.updateVector3("vReflectionPosition", cubeTexture.boundingBoxPosition);
+                                this._uniformBuffer.updateVector3("vReflectionSize", cubeTexture.boundingBoxSize);
+                            }
                         }
 
                         if (this._emissiveTexture && StandardMaterial.EmissiveTextureEnabled) {

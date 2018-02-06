@@ -60,7 +60,12 @@ var tsConfig = {
     noUnusedLocals: true,
     strictNullChecks: true,
     strictFunctionTypes: true,
-    types: []
+    types: [],
+    lib: [
+        "dom",
+        "es2015.promise",
+        "es5"
+    ]
 };
 var tsProject = typescript.createProject(tsConfig);
 
@@ -76,7 +81,12 @@ var externalTsConfig = {
     noImplicitThis: true,
     noUnusedLocals: true,
     strictNullChecks: true,
-    types: []
+    types: [],
+    lib: [
+        "dom",
+        "es2015.promise",
+        "es5"
+    ]
 };
 
 var minimist = require("minimist");
@@ -315,7 +325,9 @@ var buildExternalLibraries = function (settings) {
             let dtsFiles = files.map(function (filename) {
                 return filename.replace(".js", ".d.ts");
             });
-
+            if (settings.build.extraDeclarations) {
+                settings.build.extraDeclarations.forEach(file => { dtsFiles.unshift(file) })
+            }
             let dtsTask = gulp.src(dtsFiles)
                 .pipe(concat(settings.build.outputFilename + ".module.d.ts"))
                 .pipe(replace(referenceSearchRegex, ""))
@@ -395,6 +407,8 @@ var buildExternalLibrary = function (library, settings, watch) {
             .pipe(gulp.dest(outputDirectory));
         /*}*/
 
+
+
         var dts = tsProcess.dts
             .pipe(concat(library.output))
             .pipe(replace(referenceSearchRegex, ""))
@@ -416,14 +430,60 @@ var buildExternalLibrary = function (library, settings, watch) {
         }
 
         if (library.webpack) {
-            return waitAll.on("end", function () {
-                return webpack(require(library.webpack))
-                    .pipe(rename(library.output.replace(".js", library.noBundleInName ? '.js' : ".bundle.js")))
-                    .pipe(addModuleExports(library.moduleDeclaration, false, false, true))
-                    .pipe(uglify())
-                    .pipe(optimisejs())
-                    .pipe(gulp.dest(outputDirectory))
-            });
+            let sequence = [waitAll];
+            let wpBuild = webpack(require(library.webpack));
+            if (settings.build.outputs) {
+                let build = wpBuild
+                    .pipe(addModuleExports(library.moduleDeclaration, false, false, true));
+
+                let unminifiedOutpus = [];
+                let minifiedOutputs = [];
+                settings.build.outputs.forEach(out => {
+                    if (out.minified) {
+                        out.destination.forEach(dest => {
+                            minifiedOutputs.push(dest);
+                        });
+                    } else {
+                        out.destination.forEach(dest => {
+                            unminifiedOutpus.push(dest);
+                        });
+                    }
+                });
+
+                function processDestination(dest) {
+                    var outputDirectory = config.build.outputDirectory + dest.outputDirectory;
+                    build = build
+                        .pipe(rename(dest.filename.replace(".js", library.noBundleInName ? '.js' : ".bundle.js")))
+                        .pipe(gulp.dest(outputDirectory));
+                }
+
+                unminifiedOutpus.forEach(dest => {
+                    processDestination(dest);
+                });
+
+                if (minifiedOutputs.length) {
+                    build = build
+                        .pipe(uglify())
+                        .pipe(optimisejs())
+                }
+
+                minifiedOutputs.forEach(dest => {
+                    processDestination(dest);
+                });
+
+                sequence.push(build);
+            } else {
+                sequence.push(
+                    wpBuild
+                        .pipe(rename(library.output.replace(".js", library.noBundleInName ? '.js' : ".bundle.js")))
+                        .pipe(addModuleExports(library.moduleDeclaration, false, false, true))
+                        .pipe(uglify())
+                        .pipe(optimisejs())
+                        .pipe(gulp.dest(outputDirectory))
+                )
+            }
+
+            return merge2(sequence);
         }
         else {
             return waitAll;
@@ -901,14 +961,14 @@ gulp.task("tests-unit-transpile", function (done) {
 
     var tsResult = gulp.src("../../tests/unit/**/*.ts", { base: "../../" })
         .pipe(tsProject());
-    
+
     tsResult.once("error", function () {
         tsResult.once("finish", function () {
             console.log("Typescript compile failed");
             process.exit(1);
         });
     });
- 
+
     return tsResult.js.pipe(gulp.dest("../../"));
 });
 
@@ -941,7 +1001,7 @@ gulp.task("tests-unit", ["tests-unit-transpile"], function (done) {
     server.start();
 });
 
-gulp.task("tests-whatsnew", function(done) {
+gulp.task("tests-whatsnew", function (done) {
     // Only checks on Travis
     if (!process.env.TRAVIS) {
         done();
@@ -970,12 +1030,12 @@ gulp.task("tests-whatsnew", function(done) {
             oldData += data;
         });
         res.on("end", () => {
-            fs.readFile("../../dist/preview release/what's new.md", "utf-8", function(err, newData) {
+            fs.readFile("../../dist/preview release/what's new.md", "utf-8", function (err, newData) {
                 if (err || oldData != newData) {
                     done();
                     return;
                 }
-                
+
                 console.error("What's new file did not change.");
                 process.exit(1);
             });

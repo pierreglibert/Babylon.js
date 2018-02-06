@@ -297,6 +297,14 @@
             return this._LODLevels.length > 0;
         }
 
+        /**
+         * Gets the list of {BABYLON.MeshLODLevel} associated with the current mesh
+         * @returns an array of {BABYLON.MeshLODLevel} 
+         */
+        public getLODLevels(): MeshLODLevel[] {
+            return this._LODLevels;
+        }
+
         private _sortLODLevels(): void {
             this._LODLevels.sort((a, b) => {
                 if (a.distance < b.distance) {
@@ -767,7 +775,7 @@
             var data = this.getVerticesData(VertexBuffer.PositionKind);
 
             if (data && applySkeleton && this.skeleton) {
-                data = data.slice();
+                data = Tools.Slice(data);
 
                 var matricesIndicesData = this.getVerticesData(VertexBuffer.MatricesIndicesKind);
                 var matricesWeightsData = this.getVerticesData(VertexBuffer.MatricesWeightsKind);
@@ -1732,13 +1740,12 @@
                 this.instances[0].dispose();
             }
 
-            // Highlight layers.
-            let highlightLayers = this.getScene().highlightLayers;
-            for (let i = 0; i < highlightLayers.length; i++) {
-                let highlightLayer = highlightLayers[i];
-                if (highlightLayer) {
-                    highlightLayer.removeMesh(this);
-                    highlightLayer.removeExcludedMesh(this);
+            // Effect layers.
+            let effectLayers = this.getScene().effectLayers;
+            for (let i = 0; i < effectLayers.length; i++) {
+                let effectLayer = effectLayers[i];
+                if (effectLayer) {
+                    effectLayer._disposeMesh(this);
                 }
             }
             super.dispose(doNotRecurse, disposeMaterialAndTextures);
@@ -2374,7 +2381,7 @@
             mesh.scaling = Vector3.FromArray(parsedMesh.scaling);
 
             if (parsedMesh.localMatrix) {
-                mesh.setPivotMatrix(Matrix.FromArray(parsedMesh.localMatrix));
+                mesh.setPreTransformMatrix(Matrix.FromArray(parsedMesh.localMatrix));
             } else if (parsedMesh.pivotMatrix) {
                 mesh.setPivotMatrix(Matrix.FromArray(parsedMesh.pivotMatrix));
             }
@@ -3302,8 +3309,8 @@
                     minVector = boundingBox.minimumWorld;
                     maxVector = boundingBox.maximumWorld;
                 } else {
-                    minVector.MinimizeInPlace(boundingBox.minimumWorld);
-                    maxVector.MaximizeInPlace(boundingBox.maximumWorld);
+                    minVector.minimizeInPlace(boundingBox.minimumWorld);
+                    maxVector.maximizeInPlace(boundingBox.maximumWorld);
                 }
             });
 

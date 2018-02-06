@@ -748,9 +748,15 @@
         public spritesEnabled = true;
         public spriteManagers = new Array<SpriteManager>();
 
-        // Layers
+        /**
+         * The list of layers (background and foreground) of the scene.
+         */
         public layers = new Array<Layer>();
-        public highlightLayers = new Array<HighlightLayer>();
+
+        /**
+         * The list of effect layers (highlights/glow) contained in the scene.
+         */
+        public effectLayers = new Array<EffectLayer>();
 
         // Skeletons
         private _skeletonsEnabled = true;
@@ -1911,9 +1917,9 @@
                     return false;
                 }
 
-                // Highlight layers
+                // Effect layers
                 let hardwareInstancedRendering = mesh.getClassName() === "InstancedMesh" || engine.getCaps().instancedArrays && (<Mesh>mesh).instances.length > 0;
-                for (var layer of this.highlightLayers) {
+                for (var layer of this.effectLayers) {
                     if (!layer.hasMesh(mesh)) {
                         continue;
                     }
@@ -2017,6 +2023,18 @@
             this._executeWhenReadyTimeoutId = setTimeout(() => {
                 this._checkIsReady();
             }, 150);
+        }
+
+        /**
+         * Returns a promise that resolves when the scene is ready.
+         * @returns A promise that resolves when the scene is ready.
+         */
+        public whenReadyAsync(): Promise<void> {
+            return new Promise(resolve => {
+                this.executeWhenReady(() => {
+                    resolve();
+                });
+            });
         }
 
         public _checkIsReady() {
@@ -2431,7 +2449,7 @@
 
         public sortLightsByPriority(): void {
             if (this.requireLightSorting) {
-                this.lights.sort(Light.compareLightsPriority);
+                this.lights.sort(Light.CompareLightsPriority);
             }
         }
 
@@ -3037,9 +3055,24 @@
          * @return The highlight layer if found otherwise null.
          */
         public getHighlightLayerByName(name: string): Nullable<HighlightLayer> {
-            for (var index = 0; index < this.highlightLayers.length; index++) {
-                if (this.highlightLayers[index].name === name) {
-                    return this.highlightLayers[index];
+            for (var index = 0; index < this.effectLayers.length; index++) {
+                if (this.effectLayers[index].name === name && this.effectLayers[index].getEffectName() === HighlightLayer.EffectName) {
+                    return (<any>this.effectLayers[index]) as HighlightLayer;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Return a the first highlight layer of the scene with a given name.
+         * @param name The name of the highlight layer to look for.
+         * @return The highlight layer if found otherwise null.
+         */
+        public getGlowLayerByName(name: string): Nullable<GlowLayer> {
+            for (var index = 0; index < this.effectLayers.length; index++) {
+                if (this.effectLayers[index].name === name && this.effectLayers[index].getEffectName() === GlowLayer.EffectName) {
+                    return (<any>this.effectLayers[index]) as GlowLayer;
                 }
             }
 
@@ -3398,22 +3431,24 @@
                 needsRestoreFrameBuffer = true; // Restore back buffer
             }
 
-            // Render HighlightLayer Texture
+            // Render EffecttLayer Texture
             var stencilState = this._engine.getStencilBuffer();
-            var renderhighlights = false;
-            if (this.renderTargetsEnabled && this.highlightLayers && this.highlightLayers.length > 0) {
+            var renderEffects = false;
+            var needStencil = false;
+            if (this.renderTargetsEnabled && this.effectLayers && this.effectLayers.length > 0) {
                 this._intermediateRendering = true;
-                for (let i = 0; i < this.highlightLayers.length; i++) {
-                    let highlightLayer = this.highlightLayers[i];
+                for (let i = 0; i < this.effectLayers.length; i++) {
+                    let effectLayer = this.effectLayers[i];
 
-                    if (highlightLayer.shouldRender() &&
-                        (!highlightLayer.camera ||
-                            (highlightLayer.camera.cameraRigMode === Camera.RIG_MODE_NONE && camera === highlightLayer.camera) ||
-                            (highlightLayer.camera.cameraRigMode !== Camera.RIG_MODE_NONE && highlightLayer.camera._rigCameras.indexOf(camera) > -1))) {
+                    if (effectLayer.shouldRender() &&
+                        (!effectLayer.camera ||
+                            (effectLayer.camera.cameraRigMode === Camera.RIG_MODE_NONE && camera === effectLayer.camera) ||
+                            (effectLayer.camera.cameraRigMode !== Camera.RIG_MODE_NONE && effectLayer.camera._rigCameras.indexOf(camera) > -1))) {
 
-                        renderhighlights = true;
+                        renderEffects = true;
+                        needStencil = needStencil || effectLayer.needStencil();
 
-                        let renderTarget = (<RenderTargetTexture>(<any>highlightLayer)._mainTexture);
+                        let renderTarget = (<RenderTargetTexture>(<any>effectLayer)._mainTexture);
                         if (renderTarget._shouldRender()) {
                             this._renderId++;
                             renderTarget.render(false, false);
@@ -3449,8 +3484,8 @@
                 engine.setDepthBuffer(true);
             }
 
-            // Activate HighlightLayer stencil
-            if (renderhighlights) {
+            // Activate effect Layer stencil
+            if (needStencil) {
                 this._engine.setStencilBuffer(true);
             }
 
@@ -3459,8 +3494,8 @@
             this._renderingManager.render(null, null, true, true);
             this.onAfterDrawPhaseObservable.notifyObservers(this);
 
-            // Restore HighlightLayer stencil
-            if (renderhighlights) {
+            // Restore effect Layer stencil
+            if (needStencil) {
                 this._engine.setStencilBuffer(stencilState);
             }
 
@@ -3494,12 +3529,12 @@
                 engine.setDepthBuffer(true);
             }
 
-            // Highlight Layer
-            if (renderhighlights) {
+            // Effect Layer
+            if (renderEffects) {
                 engine.setDepthBuffer(false);
-                for (let i = 0; i < this.highlightLayers.length; i++) {
-                    if (this.highlightLayers[i].shouldRender()) {
-                        this.highlightLayers[i].render();
+                for (let i = 0; i < this.effectLayers.length; i++) {
+                    if (this.effectLayers[i].shouldRender()) {
+                        this.effectLayers[i].render();
                     }
                 }
                 engine.setDepthBuffer(true);
@@ -4134,8 +4169,8 @@
             while (this.layers.length) {
                 this.layers[0].dispose();
             }
-            while (this.highlightLayers.length) {
-                this.highlightLayers[0].dispose();
+            while (this.effectLayers.length) {
+                this.effectLayers[0].dispose();
             }
 
             // Release textures
@@ -4594,8 +4629,8 @@
                 layer._rebuild();
             }
 
-            for (var highlightLayer of this.highlightLayers) {
-                highlightLayer._rebuild();
+            for (var effectLayer of this.effectLayers) {
+                effectLayer._rebuild();
             }
 
             if (this._boundingBoxRenderer) {
@@ -4619,14 +4654,13 @@
             this.markAllMaterialsAsDirty(Material.TextureDirtyFlag);
         }
 
-        public createDefaultCameraOrLight(createArcRotateCamera = false, replace = false, attachCameraControls = false) {
-            // Dispose existing camera or light in replace mode.
+        /**
+         * Creates a default light for the scene.
+         * @param replace Whether to replace the existing lights in the scene.
+         */
+        public createDefaultLight(replace = false): void {
+            // Dispose existing light in replace mode.
             if (replace) {
-                if (this.activeCamera) {
-                    this.activeCamera.dispose();
-                    this.activeCamera = null;
-                }
-
                 if (this.lights) {
                     for (var i = 0; i < this.lights.length; i++) {
                         this.lights[i].dispose();
@@ -4638,6 +4672,22 @@
             if (this.lights.length === 0) {
                 new HemisphericLight("default light", Vector3.Up(), this);
             }
+        }
+
+        /**
+         * Creates a default camera for the scene.
+         * @param createArcRotateCamera Whether to create an arc rotate or a free camera.
+         * @param replace Whether to replace the existing active camera in the scene.
+         * @param attachCameraControls Whether to attach camera controls to the canvas.
+         */
+        public createDefaultCamera(createArcRotateCamera = false, replace = false, attachCameraControls = false): void {
+            // Dispose existing camera in replace mode.
+            if (replace) {
+                if (this.activeCamera) {
+                    this.activeCamera.dispose();
+                    this.activeCamera = null;
+                }
+            }
 
             // Camera
             if (!this.activeCamera) {
@@ -4647,6 +4697,11 @@
 
                 var camera: TargetCamera;
                 var radius = worldSize.length() * 1.5;
+                // empty scene scenario!
+                if (!isFinite(radius)) {
+                    radius = 1;
+                    worldCenter.copyFromFloats(0, 0, 0);
+                }
                 if (createArcRotateCamera) {
                     var arcRotateCamera = new ArcRotateCamera("default camera", -(Math.PI / 2), Math.PI / 2, radius, worldCenter, this);
                     arcRotateCamera.lowerRadiusLimit = radius * 0.01;
@@ -4668,6 +4723,11 @@
                     camera.attachControl(canvas);
                 }
             }
+        }
+
+        public createDefaultCameraOrLight(createArcRotateCamera = false, replace = false, attachCameraControls = false): void {
+            this.createDefaultLight(replace);
+            this.createDefaultCamera(createArcRotateCamera, replace, attachCameraControls);
         }
 
         public createDefaultSkybox(environmentTexture?: BaseTexture, pbr = false, scale = 1000, blur = 0): Nullable<Mesh> {
@@ -4813,6 +4873,17 @@
                 this._activeRequests.splice(this._activeRequests.indexOf(request), 1);
             });
             return request;
+        }
+
+        /** @ignore */
+        public _loadFileAsync(url: string, useDatabase?: boolean, useArrayBuffer?: boolean): Promise<string | ArrayBuffer> {
+            return new Promise((resolve, reject) => {
+                this._loadFile(url, (data) => {
+                    resolve(data);
+                }, undefined, useDatabase, useArrayBuffer, (request, exception) => {
+                    reject(exception);
+                })
+            });
         }
     }
 }
