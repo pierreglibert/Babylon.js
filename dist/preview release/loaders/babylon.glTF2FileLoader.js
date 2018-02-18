@@ -571,6 +571,7 @@ var BABYLON;
                     _this._progressCallback = onProgress;
                     _this._state = BABYLON.GLTFLoaderState.Loading;
                     _this._loadData(data);
+                    _this._checkExtensions();
                     var promises = new Array();
                     if (nodes) {
                         promises.push(_this._loadNodesAsync(nodes));
@@ -667,6 +668,17 @@ var BABYLON;
                     }
                 }
             };
+            GLTFLoader.prototype._checkExtensions = function () {
+                if (this._gltf.extensionsRequired) {
+                    for (var _i = 0, _a = this._gltf.extensionsRequired; _i < _a.length; _i++) {
+                        var name_2 = _a[_i];
+                        var extension = this._extensions[name_2];
+                        if (!extension || !extension.enabled) {
+                            throw new Error("Require extension " + name_2 + " is not available");
+                        }
+                    }
+                }
+            };
             GLTFLoader.prototype._createRootNode = function () {
                 this._rootBabylonMesh = new BABYLON.Mesh("__root__", this._babylonScene);
                 var rootNode = { _babylonMesh: this._rootBabylonMesh };
@@ -723,6 +735,12 @@ var BABYLON;
                         var node = nodes_2[_i];
                         if (node._babylonMesh) {
                             meshes.push(node._babylonMesh);
+                        }
+                        if (node._primitiveBabylonMeshes) {
+                            for (var _a = 0, _b = node._primitiveBabylonMeshes; _a < _b.length; _a++) {
+                                var babylonMesh = _b[_a];
+                                meshes.push(babylonMesh);
+                            }
                         }
                     }
                 }
@@ -848,11 +866,15 @@ var BABYLON;
             };
             GLTFLoader.prototype._loadVertexDataAsync = function (context, primitive, babylonMesh) {
                 var _this = this;
+                var promise = GLTF2.GLTFLoaderExtension._LoadVertexDataAsync(this, context, primitive, babylonMesh);
+                if (promise) {
+                    return promise;
+                }
                 var attributes = primitive.attributes;
                 if (!attributes) {
                     throw new Error(context + ": Attributes are missing");
                 }
-                if (primitive.mode && primitive.mode !== 4 /* TRIANGLES */) {
+                if (primitive.mode != undefined && primitive.mode !== 4 /* TRIANGLES */) {
                     // TODO: handle other primitive modes
                     throw new Error(context + ": Mode " + primitive.mode + " is not currently supported");
                 }
@@ -1790,6 +1812,9 @@ var BABYLON;
                 delete this._gltf;
                 delete this._babylonScene;
                 this._completePromises.length = 0;
+                for (var name_3 in this._extensions) {
+                    this._extensions[name_3].dispose();
+                }
                 this._extensions = {};
                 delete this._rootBabylonMesh;
                 delete this._progressCallback;
@@ -1799,8 +1824,8 @@ var BABYLON;
             };
             GLTFLoader.prototype._applyExtensions = function (actionAsync) {
                 for (var _i = 0, _a = GLTFLoader._Names; _i < _a.length; _i++) {
-                    var name_2 = _a[_i];
-                    var extension = this._extensions[name_2];
+                    var name_4 = _a[_i];
+                    var extension = this._extensions[name_4];
                     if (extension.enabled) {
                         var promise = actionAsync(extension);
                         if (promise) {
@@ -1831,11 +1856,16 @@ var BABYLON;
                 this.enabled = true;
                 this._loader = loader;
             }
+            GLTFLoaderExtension.prototype.dispose = function () {
+                delete this._loader;
+            };
             // #region Overridable Methods
             /** Override this method to modify the default behavior for loading scenes. */
             GLTFLoaderExtension.prototype._loadSceneAsync = function (context, node) { return null; };
             /** Override this method to modify the default behavior for loading nodes. */
             GLTFLoaderExtension.prototype._loadNodeAsync = function (context, node) { return null; };
+            /** Override this method to modify the default behavior for loading mesh primitive vertex data. */
+            GLTFLoaderExtension.prototype._loadVertexDataAsync = function (context, primitive, babylonMesh) { return null; };
             /** Override this method to modify the default behavior for loading materials. */
             GLTFLoaderExtension.prototype._loadMaterialAsync = function (context, material, babylonMesh) { return null; };
             /** Override this method to modify the default behavior for loading uris. */
@@ -1843,7 +1873,6 @@ var BABYLON;
             // #endregion
             /** Helper method called by a loader extension to load an glTF extension. */
             GLTFLoaderExtension.prototype._loadExtensionAsync = function (context, property, actionAsync) {
-                var _this = this;
                 if (!property.extensions) {
                     return null;
                 }
@@ -1854,10 +1883,13 @@ var BABYLON;
                 }
                 // Clear out the extension before executing the action to avoid recursing into the same property.
                 delete extensions[this.name];
-                return actionAsync(context + "/extensions/" + this.name, extension).then(function () {
-                    // Restore the extension after completing the action.
-                    extensions[_this.name] = extension;
-                });
+                try {
+                    return actionAsync(context + "/extensions/" + this.name, extension);
+                }
+                finally {
+                    // Restore the extension after executing the action.
+                    extensions[this.name] = extension;
+                }
             };
             /** Helper method called by the loader to allow extensions to override loading scenes. */
             GLTFLoaderExtension._LoadSceneAsync = function (loader, context, scene) {
@@ -1866,6 +1898,10 @@ var BABYLON;
             /** Helper method called by the loader to allow extensions to override loading nodes. */
             GLTFLoaderExtension._LoadNodeAsync = function (loader, context, node) {
                 return loader._applyExtensions(function (extension) { return extension._loadNodeAsync(context, node); });
+            };
+            /** Helper method called by the loader to allow extensions to override loading mesh primitive vertex data. */
+            GLTFLoaderExtension._LoadVertexDataAsync = function (loader, context, primitive, babylonMesh) {
+                return loader._applyExtensions(function (extension) { return extension._loadVertexDataAsync(context, primitive, babylonMesh); });
             };
             /** Helper method called by the loader to allow extensions to override loading materials. */
             GLTFLoaderExtension._LoadMaterialAsync = function (loader, context, material, babylonMesh) {
@@ -2032,6 +2068,100 @@ var BABYLON;
 })(BABYLON || (BABYLON = {}));
 
 //# sourceMappingURL=MSFT_lod.js.map
+
+/// <reference path="../../../../../dist/preview release/babylon.d.ts"/>
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var BABYLON;
+(function (BABYLON) {
+    var GLTF2;
+    (function (GLTF2) {
+        var Extensions;
+        (function (Extensions) {
+            // https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_draco_mesh_compression
+            var NAME = "KHR_draco_mesh_compression";
+            var KHR_draco_mesh_compression = /** @class */ (function (_super) {
+                __extends(KHR_draco_mesh_compression, _super);
+                function KHR_draco_mesh_compression(loader) {
+                    var _this = _super.call(this, loader) || this;
+                    _this.name = NAME;
+                    _this._dracoCompression = null;
+                    // Disable extension if decoder is not available.
+                    if (!BABYLON.DracoCompression.DecoderUrl) {
+                        _this.enabled = false;
+                    }
+                    return _this;
+                }
+                KHR_draco_mesh_compression.prototype.dispose = function () {
+                    if (this._dracoCompression) {
+                        this._dracoCompression.dispose();
+                    }
+                    _super.prototype.dispose.call(this);
+                };
+                KHR_draco_mesh_compression.prototype._loadVertexDataAsync = function (context, primitive, babylonMesh) {
+                    var _this = this;
+                    return this._loadExtensionAsync(context, primitive, function (extensionContext, extension) {
+                        if (primitive.mode != undefined) {
+                            if (primitive.mode !== 5 /* TRIANGLE_STRIP */ &&
+                                primitive.mode !== 4 /* TRIANGLES */) {
+                                throw new Error(context + ": Unsupported mode " + primitive.mode);
+                            }
+                            // TODO: handle triangle strips
+                            if (primitive.mode === 5 /* TRIANGLE_STRIP */) {
+                                throw new Error(context + ": Mode " + primitive.mode + " is not currently supported");
+                            }
+                        }
+                        var attributes = {};
+                        var loadAttribute = function (name, kind) {
+                            var uniqueId = extension.attributes[name];
+                            if (uniqueId == undefined) {
+                                return;
+                            }
+                            babylonMesh._delayInfo = babylonMesh._delayInfo || [];
+                            if (babylonMesh._delayInfo.indexOf(kind) === -1) {
+                                babylonMesh._delayInfo.push(kind);
+                            }
+                            attributes[kind] = uniqueId;
+                        };
+                        loadAttribute("POSITION", BABYLON.VertexBuffer.PositionKind);
+                        loadAttribute("NORMAL", BABYLON.VertexBuffer.NormalKind);
+                        loadAttribute("TANGENT", BABYLON.VertexBuffer.TangentKind);
+                        loadAttribute("TEXCOORD_0", BABYLON.VertexBuffer.UVKind);
+                        loadAttribute("TEXCOORD_1", BABYLON.VertexBuffer.UV2Kind);
+                        loadAttribute("JOINTS_0", BABYLON.VertexBuffer.MatricesIndicesKind);
+                        loadAttribute("WEIGHTS_0", BABYLON.VertexBuffer.MatricesWeightsKind);
+                        loadAttribute("COLOR_0", BABYLON.VertexBuffer.ColorKind);
+                        var bufferView = GLTF2.GLTFLoader._GetProperty(extensionContext, _this._loader._gltf.bufferViews, extension.bufferView);
+                        return _this._loader._loadBufferViewAsync("#/bufferViews/" + bufferView._index, bufferView).then(function (data) {
+                            try {
+                                if (!_this._dracoCompression) {
+                                    _this._dracoCompression = new BABYLON.DracoCompression();
+                                }
+                                return _this._dracoCompression.decodeMeshAsync(data, attributes);
+                            }
+                            catch (e) {
+                                throw new Error(context + ": " + e.message);
+                            }
+                        });
+                    });
+                };
+                return KHR_draco_mesh_compression;
+            }(GLTF2.GLTFLoaderExtension));
+            Extensions.KHR_draco_mesh_compression = KHR_draco_mesh_compression;
+            GLTF2.GLTFLoader._Register(NAME, function (loader) { return new KHR_draco_mesh_compression(loader); });
+        })(Extensions = GLTF2.Extensions || (GLTF2.Extensions = {}));
+    })(GLTF2 = BABYLON.GLTF2 || (BABYLON.GLTF2 = {}));
+})(BABYLON || (BABYLON = {}));
+
+//# sourceMappingURL=KHR_draco_mesh_compression.js.map
 
 /// <reference path="../../../../../dist/preview release/babylon.d.ts"/>
 var __extends = (this && this.__extends) || (function () {

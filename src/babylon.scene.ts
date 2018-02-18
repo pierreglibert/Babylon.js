@@ -934,7 +934,7 @@
 
         private _debugLayer: DebugLayer;
 
-        private _depthRenderer: Nullable<DepthRenderer>;
+        private _depthRenderer: {[id:string]:DepthRenderer} = {};
         private _geometryBufferRenderer: Nullable<GeometryBufferRenderer>;
 
         /**
@@ -1228,10 +1228,11 @@
         /**
          * Use this method to simulate a pointer move on a mesh
          * The pickResult parameter can be obtained from a scene.pick or scene.pickWithRay
+         * @param pickResult pickingInfo of the object wished to simulate pointer event on
+         * @param pointerEventInit pointer event state to be used when simulating the pointer event (eg. pointer id for multitouch)
          */
-        public simulatePointerMove(pickResult: PickingInfo): Scene {
-            let evt = new PointerEvent("pointermove");
-
+        public simulatePointerMove(pickResult: PickingInfo, pointerEventInit?: PointerEventInit): Scene {
+            let evt = new PointerEvent("pointermove", pointerEventInit);
             return this._processPointerMove(pickResult, evt);
         }
 
@@ -1294,9 +1295,11 @@
         /**
          * Use this method to simulate a pointer down on a mesh
          * The pickResult parameter can be obtained from a scene.pick or scene.pickWithRay
+         * @param pickResult pickingInfo of the object wished to simulate pointer event on
+         * @param pointerEventInit pointer event state to be used when simulating the pointer event (eg. pointer id for multitouch)
          */
-        public simulatePointerDown(pickResult: PickingInfo): Scene {
-            let evt = new PointerEvent("pointerdown");
+        public simulatePointerDown(pickResult: PickingInfo, pointerEventInit?: PointerEventInit): Scene {
+            let evt = new PointerEvent("pointerdown", pointerEventInit);
 
             return this._processPointerDown(pickResult, evt);
         }
@@ -1359,9 +1362,11 @@
         /**
          * Use this method to simulate a pointer up on a mesh
          * The pickResult parameter can be obtained from a scene.pick or scene.pickWithRay
+         * @param pickResult pickingInfo of the object wished to simulate pointer event on
+         * @param pointerEventInit pointer event state to be used when simulating the pointer event (eg. pointer id for multitouch)
          */
-        public simulatePointerUp(pickResult: PickingInfo): Scene {
-            let evt = new PointerEvent("pointerup");
+        public simulatePointerUp(pickResult: PickingInfo, pointerEventInit?: PointerEventInit): Scene {
+            let evt = new PointerEvent("pointerup", pointerEventInit);
             let clickInfo = new ClickInfo();
             clickInfo.singleClick = true;
             clickInfo.ignore = true;
@@ -1913,7 +1918,7 @@
                     continue;
                 }
 
-                if (!mesh.isReady()) {
+                if (!mesh.isReady(true)) {
                     return false;
                 }
 
@@ -2389,7 +2394,7 @@
         }
 
 
-        public removeParticleSystem(toRemove: ParticleSystem): number {
+        public removeParticleSystem(toRemove: IParticleSystem): number {
             var index = this.particleSystems.indexOf(toRemove);
             if (index !== -1) {
                 this.particleSystems.splice(index, 1);
@@ -2462,7 +2467,7 @@
             this.skeletons.push(newSkeleton)
         }
 
-        public addParticleSystem(newParticleSystem: ParticleSystem) {
+        public addParticleSystem(newParticleSystem: IParticleSystem) {
             this.particleSystems.push(newParticleSystem)
         }
 
@@ -3364,7 +3369,7 @@
             this._setAlternateTransformMatrix(alternateCamera.getViewMatrix(), alternateCamera.getProjectionMatrix());
         }
 
-        private _renderForCamera(camera: Camera): void {
+        private _renderForCamera(camera: Camera, rigParent?: Camera): void {
             if (camera && camera._skipRendering) {
                 return;
             }
@@ -3412,7 +3417,11 @@
                 this._renderTargets.concatWithNoDuplicate(camera.customRenderTargets);
             }
 
-            if (this.renderTargetsEnabled && this._renderTargets.length > 0) {
+            if (rigParent && rigParent.customRenderTargets && rigParent.customRenderTargets.length > 0) {
+                this._renderTargets.concatWithNoDuplicate(rigParent.customRenderTargets);
+            }
+
+            if (this.renderTargetsEnabled && this._renderTargets.length > 0) {                
                 this._intermediateRendering = true;
                 Tools.StartPerformanceCounter("Render targets", this._renderTargets.length > 0);
                 for (var renderIndex = 0; renderIndex < this._renderTargets.length; renderIndex++) {
@@ -3566,11 +3575,11 @@
 
             // rig cameras
             for (var index = 0; index < camera._rigCameras.length; index++) {
-                this._renderForCamera(camera._rigCameras[index]);
+                this._renderForCamera(camera._rigCameras[index], camera);
             }
 
             this.activeCamera = camera;
-            this.setTransformMatrix(this.activeCamera.getViewMatrix(), this.activeCamera.getProjectionMatrix());
+            this.setTransformMatrix(this.activeCamera.getViewMatrix(), this.activeCamera.getProjectionMatrix());           
         }
 
         private _checkIntersections(): void {
@@ -3778,8 +3787,8 @@
             }
 
             // Depth renderer
-            if (this._depthRenderer) {
-                this._renderTargets.push(this._depthRenderer.getDepthMap());
+            for(var key in this._depthRenderer){
+                this._renderTargets.push(this._depthRenderer[key].getDepthMap());
             }
 
             // Geometry renderer
@@ -3966,23 +3975,35 @@
             }
         }
 
-        public enableDepthRenderer(): DepthRenderer {
-            if (this._depthRenderer) {
-                return this._depthRenderer;
+        /**
+         * Creates a depth renderer a given camera which contains a depth map which can be used for post processing.
+         * @param camera The camera to create the depth renderer on (default: scene's active camera)
+         * @returns the created depth renderer
+         */
+        public enableDepthRenderer(camera?: Nullable<Camera>): DepthRenderer {
+            camera = camera || this.activeCamera;
+            if(!camera){
+                throw "No camera available to enable depth renderer";
             }
+            if (!this._depthRenderer[camera.id]) {
+                this._depthRenderer[camera.id] = new DepthRenderer(this, Engine.TEXTURETYPE_FLOAT, camera);
+            }            
 
-            this._depthRenderer = new DepthRenderer(this);
-
-            return this._depthRenderer;
+            return this._depthRenderer[camera.id];
         }
 
-        public disableDepthRenderer(): void {
-            if (!this._depthRenderer) {
+        /**
+         * Disables a depth renderer for a given camera
+         * @param camera The camera to disable the depth renderer on (default: scene's active camera)
+         */
+        public disableDepthRenderer(camera?: Nullable<Camera>): void {
+            camera = camera || this.activeCamera;
+            if (!camera || !this._depthRenderer[camera.id]) {
                 return;
             }
 
-            this._depthRenderer.dispose();
-            this._depthRenderer = null;
+            this._depthRenderer[camera.id].dispose();
+            delete this._depthRenderer[camera.id];
         }
 
         public enableGeometryBufferRenderer(ratio: number = 1): Nullable<GeometryBufferRenderer> {
@@ -4032,8 +4053,8 @@
 
             this.resetCachedMaterial();
 
-            if (this._depthRenderer) {
-                this._depthRenderer.dispose();
+            for(var key in this._depthRenderer){
+                this._depthRenderer[key].dispose();
             }
 
             if (this._gamepadManager) {
@@ -4226,17 +4247,24 @@
         }
 
         // Octrees
-        public getWorldExtends(): { min: Vector3; max: Vector3 } {
+
+        /**
+         * Get the world extend vectors with an optional filter
+         * 
+         * @param filterPredicate the predicate - which meshes should be included when calculating the world size
+         * @returns {{ min: Vector3; max: Vector3 }} min and max vectors
+         */
+        public getWorldExtends(filterPredicate?: (mesh: AbstractMesh) => boolean): { min: Vector3; max: Vector3 } {
             var min = new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
             var max = new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-            for (var index = 0; index < this.meshes.length; index++) {
-                var mesh = this.meshes[index];
+            filterPredicate = filterPredicate || (() => true);
+            this.meshes.filter(filterPredicate).forEach(mesh => {
+                mesh.computeWorldMatrix(true);
 
                 if (!mesh.subMeshes || mesh.subMeshes.length === 0 || mesh.infiniteDistance) {
-                    continue;
+                    return;
                 }
 
-                mesh.computeWorldMatrix(true);
                 let boundingInfo = mesh.getBoundingInfo();
 
                 var minBox = boundingInfo.boundingBox.minimumWorld;
@@ -4244,7 +4272,7 @@
 
                 Tools.CheckExtends(minBox, min, max);
                 Tools.CheckExtends(maxBox, min, max);
-            }
+            })
 
             return {
                 min: min,

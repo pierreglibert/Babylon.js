@@ -39,7 +39,11 @@
         private _prefiltered: boolean;
 
         public static CreateFromImages(files: string[], scene: Scene, noMipmap?: boolean) {
-            return new CubeTexture("", scene, null, noMipmap, files);
+            let rootUrlKey = "";
+            
+            files.forEach(url => rootUrlKey += url);
+
+            return new CubeTexture(rootUrlKey, scene, null, noMipmap, files);
         }
 
         public static CreateFromPrefilteredData(url: string, scene: Scene, forcedExtension: any = null) {
@@ -140,11 +144,19 @@
         public setReflectionTextureMatrix(value: Matrix): void {
             this._textureMatrix = value;
         }
-
+        
         public static Parse(parsedTexture: any, scene: Scene, rootUrl: string): CubeTexture {
             var texture = SerializationHelper.Parse(() => {
                 return new CubeTexture(rootUrl + parsedTexture.name, scene, parsedTexture.extensions);
             }, parsedTexture, scene);
+            
+            // Local Cubemaps
+            if (parsedTexture.boundingBoxPosition) {
+                texture.boundingBoxPosition = BABYLON.Vector3.FromArray(parsedTexture.boundingBoxPosition);
+            }
+            if (parsedTexture.boundingBoxSize) {
+                texture.boundingBoxSize = BABYLON.Vector3.FromArray(parsedTexture.boundingBoxSize);
+            }
 
             // Animations
             if (parsedTexture.animations) {

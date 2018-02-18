@@ -123,6 +123,7 @@ module BABYLON.GLTF2 {
                 this._state = GLTFLoaderState.Loading;
 
                 this._loadData(data);
+                this._checkExtensions();
 
                 const promises = new Array<Promise<void>>();
 
@@ -231,6 +232,17 @@ module BABYLON.GLTF2 {
             }
         }
 
+        private _checkExtensions(): void {
+            if (this._gltf.extensionsRequired) {
+                for (const name of this._gltf.extensionsRequired) {
+                    const extension = this._extensions[name];
+                    if (!extension || !extension.enabled) {
+                        throw new Error(`Require extension ${name} is not available`);
+                    }
+                }
+            }
+        }
+
         private _createRootNode(): ILoaderNode {
             this._rootBabylonMesh = new Mesh("__root__", this._babylonScene);
             const rootNode = { _babylonMesh: this._rootBabylonMesh } as ILoaderNode;
@@ -297,6 +309,12 @@ module BABYLON.GLTF2 {
                 for (const node of nodes) {
                     if (node._babylonMesh) {
                         meshes.push(node._babylonMesh);
+                    }
+
+                    if (node._primitiveBabylonMeshes) {
+                        for (const babylonMesh of node._primitiveBabylonMeshes) {
+                            meshes.push(babylonMesh);
+                        }
                     }
                 }
             }
@@ -446,12 +464,17 @@ module BABYLON.GLTF2 {
         }
 
         private _loadVertexDataAsync(context: string, primitive: ILoaderMeshPrimitive, babylonMesh: Mesh): Promise<VertexData> {
+            const promise = GLTFLoaderExtension._LoadVertexDataAsync(this, context, primitive, babylonMesh);
+            if (promise) {
+                return promise;
+            }
+
             const attributes = primitive.attributes;
             if (!attributes) {
                 throw new Error(context + ": Attributes are missing");
             }
 
-            if (primitive.mode && primitive.mode !== MeshPrimitiveMode.TRIANGLES) {
+            if (primitive.mode != undefined && primitive.mode !== MeshPrimitiveMode.TRIANGLES) {
                 // TODO: handle other primitive modes
                 throw new Error(context + ": Mode " + primitive.mode + " is not currently supported");
             }
@@ -998,7 +1021,7 @@ module BABYLON.GLTF2 {
             return buffer._data;
         }
 
-        private _loadBufferViewAsync(context: string, bufferView: ILoaderBufferView): Promise<ArrayBufferView> {
+        public _loadBufferViewAsync(context: string, bufferView: ILoaderBufferView): Promise<ArrayBufferView> {
             if (bufferView._data) {
                 return bufferView._data;
             }
@@ -1545,7 +1568,13 @@ module BABYLON.GLTF2 {
             delete this._gltf;
             delete this._babylonScene;
             this._completePromises.length = 0;
+
+            for (const name in this._extensions) {
+                this._extensions[name].dispose();
+            }
+
             this._extensions = {};
+
             delete this._rootBabylonMesh;
             delete this._progressCallback;
 

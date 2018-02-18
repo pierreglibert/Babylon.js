@@ -1,7 +1,7 @@
 {
-  "errors": 7267,
+  "errors": 7238,
   "babylon.typedoc.json": {
-    "errors": 7267,
+    "errors": 7238,
     "AnimationKeyInterpolation": {
       "Enumeration": {
         "Comments": {
@@ -4381,11 +4381,6 @@
             "MissingText": true
           }
         },
-        "coordinatesMode": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
         "delayLoadState": {
           "Comments": {
             "MissingText": true
@@ -4477,21 +4472,6 @@
           }
         },
         "uid": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "wrapR": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "wrapU": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "wrapV": {
           "Comments": {
             "MissingText": true
           }
@@ -5753,13 +5733,6 @@
           }
         }
       },
-      "Property": {
-        "instanceDivisor": {
-          "Comments": {
-            "MissingText": true
-          }
-        }
-      },
       "Method": {
         "_rebuild": {
           "Comments": {
@@ -5778,33 +5751,6 @@
             }
           }
         },
-        "createVertexBuffer": {
-          "Comments": {
-            "MissingText": true
-          },
-          "Parameter": {
-            "kind": {
-              "Comments": {
-                "MissingText": true
-              }
-            },
-            "offset": {
-              "Comments": {
-                "MissingText": true
-              }
-            },
-            "size": {
-              "Comments": {
-                "MissingText": true
-              }
-            },
-            "stride": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
-          }
-        },
         "dispose": {
           "Comments": {
             "MissingText": true
@@ -5816,11 +5762,6 @@
           }
         },
         "getData": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "getIsInstanced": {
           "Comments": {
             "MissingText": true
           }
@@ -8932,61 +8873,6 @@
         }
       }
     },
-    "DepthRenderer": {
-      "Class": {
-        "Comments": {
-          "MissingText": true
-        }
-      },
-      "Constructor": {
-        "new DepthRenderer": {
-          "Comments": {
-            "MissingText": true
-          },
-          "Parameter": {
-            "scene": {
-              "Comments": {
-                "MissingText": true
-              }
-            },
-            "type": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
-          }
-        }
-      },
-      "Method": {
-        "dispose": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "getDepthMap": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "isReady": {
-          "Comments": {
-            "MissingText": true
-          },
-          "Parameter": {
-            "subMesh": {
-              "Comments": {
-                "MissingText": true
-              }
-            },
-            "useInstances": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
-          }
-        }
-      }
-    },
     "DisplayPassPostProcess": {
       "Class": {
         "Comments": {
@@ -9747,18 +9633,6 @@
           },
           "Parameter": {
             "program": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
-          }
-        },
-        "_getRGBABufferInternalSizedFormat": {
-          "Comments": {
-            "MissingText": true
-          },
-          "Parameter": {
-            "type": {
               "Comments": {
                 "MissingText": true
               }
@@ -11455,11 +11329,6 @@
           }
         },
         "hideLoadingUI": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "initWebVR": {
           "Comments": {
             "MissingText": true
           }
@@ -27766,11 +27635,6 @@
             "MissingText": true
           }
         },
-        "disableDepthRenderer": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
         "disableGeometryBufferRenderer": {
           "Comments": {
             "MissingText": true
@@ -27787,11 +27651,6 @@
           }
         },
         "disposeSounds": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
-        "enableDepthRenderer": {
           "Comments": {
             "MissingText": true
           }
@@ -28347,11 +28206,6 @@
             "MissingText": true
           }
         },
-        "getWorldExtends": {
-          "Comments": {
-            "MissingText": true
-          }
-        },
         "incrementRenderId": {
           "Comments": {
             "MissingText": true
@@ -28685,37 +28539,16 @@
         "simulatePointerDown": {
           "Comments": {
             "MissingReturn": true
-          },
-          "Parameter": {
-            "pickResult": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
           }
         },
         "simulatePointerMove": {
           "Comments": {
             "MissingReturn": true
-          },
-          "Parameter": {
-            "pickResult": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
           }
         },
         "simulatePointerUp": {
           "Comments": {
             "MissingReturn": true
-          },
-          "Parameter": {
-            "pickResult": {
-              "Comments": {
-                "MissingText": true
-              }
-            }
           }
         },
         "sortLightsByPriority": {
