@@ -19,6 +19,7 @@
 ## Updates
 
 - Tons of functions and classes received the code comments they deserved (All the community)
+- New `Texture.UseSerializedUrlIfAny` static property to let textures serialize complete URL instead of using side by side loading ([deltakosh](https://github.com/deltakosh))
 - Added `particleSystem.reset()` to clear a particle system ([deltakosh](https://github.com/deltakosh))
 - Added support for all RGBA orders (BGR, RGB, etc..) for the DDS loader ([deltakosh](https://github.com/deltakosh))
 - Improved [SceneOptimizer](http://doc.babylonjs.com/how_to/how_to_use_sceneoptimizer) to provide better adaptability ([deltakosh](https://github.com/deltakosh))
@@ -50,7 +51,7 @@
 - (Viewer) Scene Optimizer intergrated in viewer. ([RaananW](https://github.com/RaananW))
 - (Viewer) The viewer supports custom shaders in the configuration. ([RaananW](https://github.com/RaananW))
 - Documented PostProcessRenderEffect, DefaultRenderingPipeline, BlurPostProcess, DepthOfFieldEffect, PostProcess, PostProcessManager, Effect classes ([trevordev](https://github.com/trevordev))
-- SPS internal storage of each solid particle rotation matrix ([jbousquie](https://github.com/jbousquie)) 
+- SPS internal storage of each solid particle rotation matrix ([jbousquie](https://github.com/jbousquie))
 - SPS particle parenting feature ([jbousquie](https://github.com/jbousquie))
 - (Viewer) Introducing the viewer labs - testing new features. ([RaananW](https://github.com/RaananW))
 - KeepAssets class and AssetContainer.moveAllFromScene ([HoloLite](http://www.html5gamedevs.com/profile/28694-hololite/) [trevordev](https://github.com/trevordev))
@@ -77,6 +78,9 @@
 - (Viewer) XHR requests not use Tools.LoadFile and are disposed correctly - [#3671](https://github.com/BabylonJS/Babylon.js/issues/3671) ([RaananW](https://github.com/RaananW))
 - Added `Tools.WorkerPool` class for web worker management. ([bghgary](https://github.com/bghgary))
 - Support depth maps for multiple active cameras for post processes like depth of field ([trevordev](https://github.com/trevordev))
+- Integrates depth texture support in the engine ([sebavan](https://github.com/sebavan))
+- NPM package now has a dependency system, updated during build. ([RaananW](https://github.com/RaananW))
+- Default pipeline will use webGL 2.0 anti aliasing by default if supported, webVR post processing will render to eye texture size ([trevordev](https://github.com/trevordev))
 
 ## Bug fixes
 
@@ -87,6 +91,8 @@
 - Fixed a bug when calling load on an empty assets manager - [#3739](https://github.com/BabylonJS/Babylon.js/issues/3739). ([RaananW](https://github.com/RaananW))
 - Enabling teleportation in the vr helper class caused a redundant post process to be added ([trevordev](https://github.com/trevordev))
 - (Viewer) Fixed a bug where loading another mesh positioned it incorrectly ([RaananW](https://github.com/RaananW))
+- (Viewer) Disabling templates now work correctly ([RaananW](https://github.com/RaananW))
+- AMD "define" declaration is no longer anonymous ([RaananW](https://github.com/RaananW))
 
 ## Breaking changes
 
