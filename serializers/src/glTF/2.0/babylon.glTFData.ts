@@ -1,31 +1,31 @@
-/// <reference path="../../../../dist/babylon.glTF2Interface.d.ts"/>
+/// <reference path="../../../../dist/preview release/glTF2Interface/babylon.glTF2Interface.d.ts"/>
 
 module BABYLON {
     /**
      * Class for holding and downloading glTF file data
      */
-    export class _GLTFData {
+    export class GLTFData {
         /**
-         * Object which contains the file name as the key and its data as the value.
+         * Object which contains the file name as the key and its data as the value
          */
         glTFFiles: { [fileName: string]: string | Blob };
 
         /**
-         * Initializes the glTF file object.
+         * Initializes the glTF file object
          */
         public constructor() {
             this.glTFFiles = {};
         }
 
         /**
-         * Downloads the glTF data as files based on their names and data.
+         * Downloads the glTF data as files based on their names and data
          */
         public downloadFiles(): void {
             /**
-            * Checks for a matching suffix at the end of a string (for ES5 and lower).
-            * @param str - Source string.
-            * @param suffix - Suffix to search for in the source string.
-            * @returns - Boolean indicating whether the suffix was found (true) or not (false).
+            * Checks for a matching suffix at the end of a string (for ES5 and lower)
+            * @param str Source string
+            * @param suffix Suffix to search for in the source string
+            * @returns Boolean indicating whether the suffix was found (true) or not (false)
             */
             function endsWith(str: string, suffix: string): boolean {
                 return str.indexOf(suffix, str.length - suffix.length) !== -1;

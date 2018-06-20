@@ -21,17 +21,14 @@ module BABYLON {
 
         /**
         * The chromatic aberration PostProcess id in the pipeline
-        * @type {string}
         */
         public LensChromaticAberrationEffect: string = "LensChromaticAberrationEffect";
         /**
         * The highlights enhancing PostProcess id in the pipeline
-        * @type {string}
         */
         public HighlightsEnhancingEffect: string = "HighlightsEnhancingEffect";
         /**
         * The depth-of-field PostProcess id in the pipeline
-        * @type {string}
         */
         public LensDepthOfFieldEffect: string = "LensDepthOfFieldEffect";
 
@@ -180,7 +177,7 @@ module BABYLON {
         // colors shifting and distortion
         private _createChromaticAberrationPostProcess(ratio: number): void {
             this._chromaticAberrationPostProcess = new PostProcess("LensChromaticAberration", "chromaticAberration",
-                ["chromatic_aberration", "screen_width", "screen_height"],      // uniforms
+                ["chromatic_aberration", "screen_width", "screen_height", "direction", "radialIntensity", "centerPosition"],      // uniforms
                 [],                                         // samplers
                 ratio, null, Texture.TRILINEAR_SAMPLINGMODE,
                 this._scene.getEngine(), false);
@@ -189,6 +186,9 @@ module BABYLON {
                 effect.setFloat('chromatic_aberration', this._chromaticAberration);
                 effect.setFloat('screen_width', this._scene.getEngine().getRenderWidth());
                 effect.setFloat('screen_height', this._scene.getEngine().getRenderHeight());
+                effect.setFloat('radialIntensity', 1);
+                effect.setFloat2('direction', 17, 17);
+                effect.setFloat2('centerPosition', 0.5,0.5);
             };
         }
 

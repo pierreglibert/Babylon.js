@@ -31,12 +31,32 @@
             return this._boundingBoxSize;
         }
 
+
+        @serialize("rotationY")
+        protected _rotationY: number = 0;
+        /**
+         * Sets texture matrix rotation angle around Y axis in radians.
+         */
+        public set rotationY(value: number) {
+            this._rotationY = value;
+            this.setReflectionTextureMatrix(BABYLON.Matrix.RotationY(this._rotationY));
+        }
+        /**
+         * Gets texture matrix rotation angle around Y axis radians.
+         */
+        public get rotationY(): number {
+            return this._rotationY;
+        }        
+
         private _noMipmap: boolean;
         private _files: string[];
         private _extensions: string[];
         private _textureMatrix: Matrix;
         private _format: number;
-        private _prefiltered: boolean;
+        private _createPolynomials: boolean;
+
+        /** @hidden */
+        public readonly _prefiltered: boolean = false;
 
         public static CreateFromImages(files: string[], scene: Scene, noMipmap?: boolean) {
             let rootUrlKey = "";
@@ -46,12 +66,40 @@
             return new CubeTexture(rootUrlKey, scene, null, noMipmap, files);
         }
 
-        public static CreateFromPrefilteredData(url: string, scene: Scene, forcedExtension: any = null) {
-            return new CubeTexture(url, scene, null, false, null, null, null, undefined, true, forcedExtension);
+        /**
+         * Creates and return a texture created from prefilterd data by tools like IBL Baker or Lys.
+         * @param url defines the url of the prefiltered texture
+         * @param scene defines the scene the texture is attached to
+         * @param forcedExtension defines the extension of the file if different from the url
+         * @param createPolynomials defines whether or not to create polynomial harmonics from the texture data if necessary
+         * @return the prefiltered texture
+         */
+        public static CreateFromPrefilteredData(url: string, scene: Scene, forcedExtension: any = null, createPolynomials: boolean = true) {
+            return new CubeTexture(url, scene, null, false, null, null, null, undefined, true, forcedExtension, createPolynomials);
         }
 
+        /**
+         * Creates a cube texture to use with reflection for instance. It can be based upon dds or six images as well
+         * as prefiltered data.
+         * @param rootUrl defines the url of the texture or the root name of the six images
+         * @param scene defines the scene the texture is attached to
+         * @param extensions defines the suffixes add to the picture name in case six images are in use like _px.jpg...
+         * @param noMipmap defines if mipmaps should be created or not
+         * @param files defines the six files to load for the different faces
+         * @param onLoad defines a callback triggered at the end of the file load if no errors occured
+         * @param onError defines a callback triggered in case of error during load
+         * @param format defines the internal format to use for the texture once loaded
+         * @param prefiltered defines whether or not the texture is created from prefiltered data
+         * @param forcedExtension defines the extensions to use (force a special type of file to load) in case it is different from the file name
+         * @param createPolynomials defines whether or not to create polynomial harmonics from the texture data if necessary
+         * @param lodScale defines the scale applied to environment texture. This manages the range of LOD level used for IBL according to the roughness
+         * @param lodOffset defines the offset applied to environment texture. This manages first LOD level used for IBL according to the roughness
+         * @return the cube texture
+         */
         constructor(rootUrl: string, scene: Scene, extensions: Nullable<string[]> = null, noMipmap: boolean = false, files: Nullable<string[]> = null,
-            onLoad: Nullable<() => void> = null, onError: Nullable<(message?: string, exception?: any) => void> = null, format: number = Engine.TEXTUREFORMAT_RGBA, prefiltered = false, forcedExtension: any = null) {
+            onLoad: Nullable<() => void> = null, onError: Nullable<(message?: string, exception?: any) => void> = null, format: number = Engine.TEXTUREFORMAT_RGBA, prefiltered = false, 
+            forcedExtension: any = null, createPolynomials: boolean = false,
+            lodScale: number = 0.8, lodOffset: number = 0) {
             super(scene);
 
             this.name = rootUrl;
@@ -59,25 +107,35 @@
             this._noMipmap = noMipmap;
             this.hasAlpha = false;
             this._format = format;
-            this._prefiltered = prefiltered;
             this.isCube = true;
             this._textureMatrix = Matrix.Identity();
-            if (prefiltered) {
-                this.gammaSpace = false;
-            }
+            this._createPolynomials = createPolynomials;
 
             if (!rootUrl && !files) {
                 return;
             }
 
-            this._texture = this._getFromCache(rootUrl, noMipmap);
-
             const lastDot = rootUrl.lastIndexOf(".");
             const extension = forcedExtension ? forcedExtension : (lastDot > -1 ? rootUrl.substring(lastDot).toLowerCase() : "");
             const isDDS = (extension === ".dds");
+            const isEnv = (extension === ".env");
+
+            if (isEnv) {
+                this.gammaSpace = false;
+                this._prefiltered = false;
+            }
+            else {
+                this._prefiltered = prefiltered;
+                
+                if (prefiltered) {
+                    this.gammaSpace = false;
+                }
+            }
+
+            this._texture = this._getFromCache(rootUrl, noMipmap);
 
             if (!files) {
-                if (!isDDS && !extensions) {
+                if (!isEnv && !isDDS && !extensions) {
                     extensions = ["_px.jpg", "_py.jpg", "_pz.jpg", "_nx.jpg", "_ny.jpg", "_nz.jpg"];
                 }
 
@@ -96,10 +154,10 @@
             if (!this._texture) {
                 if (!scene.useDelayedTextureLoading) {
                     if (prefiltered) {
-                        this._texture = scene.getEngine().createPrefilteredCubeTexture(rootUrl, scene, this.lodGenerationScale, this.lodGenerationOffset, onLoad, onError, format, forcedExtension);
+                        this._texture = scene.getEngine().createPrefilteredCubeTexture(rootUrl, scene, lodScale, lodOffset, onLoad, onError, format, forcedExtension, this._createPolynomials);
                     }
                     else {
-                        this._texture = scene.getEngine().createCubeTexture(rootUrl, scene, files, noMipmap, onLoad, onError, this._format, forcedExtension);
+                        this._texture = scene.getEngine().createCubeTexture(rootUrl, scene, files, noMipmap, onLoad, onError, this._format, forcedExtension, false, lodScale, lodOffset);
                     }
                 } else {
                     this.delayLoadState = Engine.DELAYLOADSTATE_NOTLOADED;
@@ -129,7 +187,7 @@
 
             if (!this._texture) {
                 if (this._prefiltered) {
-                    this._texture = scene.getEngine().createPrefilteredCubeTexture(this.url, scene, this.lodGenerationScale, this.lodGenerationOffset, undefined, undefined, this._format);
+                    this._texture = scene.getEngine().createPrefilteredCubeTexture(this.url, scene, this.lodGenerationScale, this.lodGenerationOffset, undefined, undefined, this._format, undefined, this._createPolynomials);
                 }
                 else {
                     this._texture = scene.getEngine().createCubeTexture(this.url, scene, this._files, this._noMipmap, undefined, undefined, this._format);
@@ -147,7 +205,11 @@
 
         public static Parse(parsedTexture: any, scene: Scene, rootUrl: string): CubeTexture {
             var texture = SerializationHelper.Parse(() => {
-                return new CubeTexture(rootUrl + parsedTexture.name, scene, parsedTexture.extensions);
+                var prefiltered:boolean = false;
+                if (parsedTexture.prefiltered) {
+                    prefiltered = parsedTexture.prefiltered;
+                }
+                return new CubeTexture(rootUrl + parsedTexture.name, scene, parsedTexture.extensions, false, null, null, null, undefined, prefiltered);
             }, parsedTexture, scene);
 
             // Local Cubemaps

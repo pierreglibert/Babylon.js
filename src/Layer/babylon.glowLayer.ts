@@ -68,6 +68,7 @@
         /**
          * Gets the kernel size of the blur.
          */
+        @serialize()
         public get blurKernelSize(): number {
             return this._horizontalBlurPostprocess1.kernel;
         }
@@ -82,11 +83,14 @@
         /**
          * Gets the glow intensity.
          */
+        @serialize()
         public get intensity(): number {
             return this._intensity;
         }
 
+        @serialize("options")
         private _options: IGlowLayerOptions;
+
         private _intensity: number = 1.0;
         private _horizontalBlurPostprocess1: BlurPostProcess;
         private _verticalBlurPostprocess1: BlurPostProcess;
@@ -115,7 +119,7 @@
          * @param scene The scene to use the layer in
          * @param options Sets of none mandatory options to use with the layer (see IGlowLayerOptions for more information)
          */
-        constructor(public name: string, scene: Scene, options?: Partial<IGlowLayerOptions>) {
+        constructor(name: string, scene: Scene, options?: Partial<IGlowLayerOptions>) {
             super(name, scene);
             this.neutralColor = new Color4(0, 0, 0, 1);
 
@@ -169,6 +173,14 @@
             blurTextureWidth = this._engine.needPOTTextures ? Tools.GetExponentOfTwo(blurTextureWidth, this._maxSize) : blurTextureWidth;
             blurTextureHeight = this._engine.needPOTTextures ? Tools.GetExponentOfTwo(blurTextureHeight, this._maxSize) : blurTextureHeight;
 
+            var textureType = 0;
+            if (this._engine.getCaps().textureHalfFloatRender) {
+                textureType = Engine.TEXTURETYPE_HALF_FLOAT;
+            }
+            else {
+                textureType = Engine.TEXTURETYPE_UNSIGNED_INT;
+            }
+
             this._blurTexture1 = new RenderTargetTexture("GlowLayerBlurRTT",
                 {
                     width: blurTextureWidth,
@@ -177,7 +189,7 @@
                 this._scene,
                 false,
                 true,
-                Engine.TEXTURETYPE_HALF_FLOAT);
+                textureType);
             this._blurTexture1.wrapU = Texture.CLAMP_ADDRESSMODE;
             this._blurTexture1.wrapV = Texture.CLAMP_ADDRESSMODE;
             this._blurTexture1.updateSamplingMode(Texture.BILINEAR_SAMPLINGMODE);
@@ -195,7 +207,7 @@
                 this._scene,
                 false,
                 true,
-                Engine.TEXTURETYPE_HALF_FLOAT);
+                textureType);
             this._blurTexture2.wrapU = Texture.CLAMP_ADDRESSMODE;
             this._blurTexture2.wrapV = Texture.CLAMP_ADDRESSMODE;
             this._blurTexture2.updateSamplingMode(Texture.BILINEAR_SAMPLINGMODE);
@@ -208,7 +220,7 @@
                     width:  blurTextureWidth,
                     height: blurTextureHeight
                 },
-                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, Engine.TEXTURETYPE_HALF_FLOAT);
+                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, textureType);
             this._horizontalBlurPostprocess1.width = blurTextureWidth;
             this._horizontalBlurPostprocess1.height = blurTextureHeight;
             this._horizontalBlurPostprocess1.onApplyObservable.add(effect => {
@@ -219,13 +231,13 @@
                     width:  blurTextureWidth,
                     height: blurTextureHeight
                 },
-                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, Engine.TEXTURETYPE_HALF_FLOAT);
+                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, textureType);
 
             this._horizontalBlurPostprocess2 = new BlurPostProcess("GlowLayerHBP2", new Vector2(1.0, 0), this._options.blurKernelSize / 2, {
                     width:  blurTextureWidth2,
                     height: blurTextureHeight2
                 },
-                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, Engine.TEXTURETYPE_HALF_FLOAT);
+                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, textureType);
             this._horizontalBlurPostprocess2.width = blurTextureWidth2;
             this._horizontalBlurPostprocess2.height = blurTextureHeight2;
             this._horizontalBlurPostprocess2.onApplyObservable.add(effect => {
@@ -236,7 +248,7 @@
                     width:  blurTextureWidth2,
                     height: blurTextureHeight2
                 },
-                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, Engine.TEXTURETYPE_HALF_FLOAT);
+                null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, textureType);
 
             this._postProcesses = [ this._horizontalBlurPostprocess1, this._verticalBlurPostprocess1, this._horizontalBlurPostprocess2, this._verticalBlurPostprocess2 ];
             this._postProcesses1 = [ this._horizontalBlurPostprocess1, this._verticalBlurPostprocess1 ];
@@ -432,6 +444,81 @@
         public _disposeMesh(mesh: Mesh): void {
             this.removeIncludedOnlyMesh(mesh);
             this.removeExcludedMesh(mesh);
+        }
+
+        /**
+          * Gets the class name of the effect layer
+          * @returns the string with the class name of the effect layer
+          */
+         public getClassName(): string {
+            return "GlowLayer";
+        }
+
+        /**
+         * Serializes this glow layer
+         * @returns a serialized glow layer object
+         */
+        public serialize(): any {
+            var serializationObject = SerializationHelper.Serialize(this);
+            serializationObject.customType = "BABYLON.GlowLayer";
+
+            var index;
+
+            // Included meshes
+            serializationObject.includedMeshes = [];
+
+            if (this._includedOnlyMeshes.length) {
+                for (index = 0; index < this._includedOnlyMeshes.length; index++) {
+                    var mesh = this._scene.getMeshByUniqueID(this._includedOnlyMeshes[index]);
+                    if (mesh) {
+                        serializationObject.includedMeshes.push(mesh.id);
+                    }
+                }
+            }
+
+            // Excluded meshes
+            serializationObject.excludedMeshes = [];
+
+            if (this._excludedMeshes.length) {
+                for (index = 0; index < this._excludedMeshes.length; index++) {
+                    var mesh = this._scene.getMeshByUniqueID(this._excludedMeshes[index]);
+                    if (mesh) {
+                        serializationObject.excludedMeshes.push(mesh.id);
+                    }
+                }
+            }
+
+            return serializationObject;
+        }
+
+        /**
+         * Creates a Glow Layer from parsed glow layer data
+         * @param parsedGlowLayer defines glow layer data
+         * @param scene defines the current scene
+         * @param rootUrl defines the root URL containing the glow layer information
+         * @returns a parsed Glow Layer
+         */
+        public static Parse(parsedGlowLayer: any, scene: Scene, rootUrl: string): GlowLayer {
+            var gl = SerializationHelper.Parse(() => new GlowLayer(parsedGlowLayer.name, scene, parsedGlowLayer.options), parsedGlowLayer, scene, rootUrl);
+            var index;
+
+            // Excluded meshes
+            for (index = 0; index < parsedGlowLayer.excludedMeshes.length; index++) {
+                var mesh = scene.getMeshByID(parsedGlowLayer.excludedMeshes[index]);
+                if (mesh) {
+                    gl.addExcludedMesh(<Mesh>mesh);
+                }
+            }
+
+            // Included meshes
+            for (index = 0; index < parsedGlowLayer.includedMeshes.length; index++) {
+                var mesh = scene.getMeshByID(parsedGlowLayer.includedMeshes[index]);
+                if (mesh) {
+                    gl.addIncludedOnlyMesh(<Mesh>mesh);
+                }
+            }
+
+            return gl;
         }
     }
 } 

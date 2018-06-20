@@ -357,6 +357,14 @@
                 }
             }
 
+            // Effect layers
+            if (parsedData.effectLayers) {
+                for (index = 0; index < parsedData.effectLayers.length; index++) {
+                    var effectLayer = EffectLayer.Parse(parsedData.effectLayers[index], scene, rootUrl);
+                    container.effectLayers.push(effectLayer);
+                }
+            }
+
             // Actions (scene)
             if (parsedData.actions !== undefined && parsedData.actions !== null) {
                 ActionManager.Parse(parsedData.actions, null, scene);
@@ -526,9 +534,16 @@
                                 }
                             }
 
+                            // Morph targets ?
+                            if (parsedData.morphTargetManagers !== undefined && parsedData.morphTargetManagers !== null) {
+                                for (var managerData of parsedData.morphTargetManagers) {
+                                    MorphTargetManager.Parse(managerData, scene);
+                                }
+                            }                               
+
                             var mesh = Mesh.Parse(parsedMesh, scene, rootUrl);
                             meshes.push(mesh);
-                            log += "\n\tMesh " + mesh.toString(fullDetails);
+                            log += "\n\tMesh " + mesh.toString(fullDetails);                         
                         }
                     }
 
@@ -665,7 +680,20 @@
 
                 // Environment texture		
                 if (parsedData.environmentTexture !== undefined && parsedData.environmentTexture !== null) {
-                    scene.environmentTexture = CubeTexture.CreateFromPrefilteredData(rootUrl + parsedData.environmentTexture, scene);
+                    if (parsedData.environmentTextureType && parsedData.environmentTextureType === "BABYLON.HDRCubeTexture") {
+                        var hdrSize:number = (parsedData.environmentTextureSize) ? parsedData.environmentTextureSize : 128;
+                        var hdrTexture = new HDRCubeTexture(rootUrl + parsedData.environmentTexture, scene, hdrSize);
+                        if (parsedData.environmentTextureRotationY) {
+                            hdrTexture.rotationY = parsedData.environmentTextureRotationY;
+                        }
+                        scene.environmentTexture = hdrTexture;
+                    } else {
+                        var cubeTexture = CubeTexture.CreateFromPrefilteredData(rootUrl + parsedData.environmentTexture, scene);
+                        if (parsedData.environmentTextureRotationY) {
+                            cubeTexture.rotationY = parsedData.environmentTextureRotationY;
+                        }
+                        scene.environmentTexture = cubeTexture;                        
+                    }
                     if (parsedData.createDefaultSkybox === true) {
                         var skyboxScale = (scene.activeCamera !== undefined && scene.activeCamera !== null) ? (scene.activeCamera.maxZ - scene.activeCamera.minZ) / 2 : 1000;
                         var skyboxBlurLevel = parsedData.skyboxBlurLevel || 0;

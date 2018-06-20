@@ -54,18 +54,27 @@
         protected _emissiveTextureAndColor: { texture: Nullable<BaseTexture>, color: Color4 } = { texture: null, color: new Color4() };
 
         /**
+         * The name of the layer
+         */
+        @serialize()
+        public name: string;
+
+        /**
          * The clear color of the texture used to generate the glow map.
          */
+        @serializeAsColor4()
         public neutralColor: Color4 = new Color4();
 
         /**
          * Specifies wether the highlight layer is enabled or not.
          */
+        @serialize()
         public isEnabled: boolean = true;
 
         /**
          * Gets the camera attached to the layer.
          */
+        @serializeAsCameraReference()
         public get camera(): Nullable<Camera> {
             return this._effectLayerOptions.camera;
         }
@@ -102,8 +111,10 @@
          */
         constructor(
             /** The Friendly of the effect in the scene */
-            public name: string, 
+            name: string,
             scene: Scene) {
+            this.name = name;
+
             this._scene = scene || Engine.LastCreatedScene;
             this._engine = scene.getEngine();
             this._maxSize = this._engine.getCaps().maxTextureSize;
@@ -163,6 +174,12 @@
          * @param mesh The mesh to free.
          */
         public abstract _disposeMesh(mesh: Mesh): void;
+
+        /**
+         * Serializes this layer (Glow or Highlight for example)
+         * @returns a serialized layer object
+         */
+        public abstract serialize?(): any;
 
         /**
          * Initializes the effect layer with the required options.
@@ -372,6 +389,18 @@
                 defines.push("#define NUM_BONE_INFLUENCERS 0");
             }
 
+            // Morph targets         
+            var manager = (<Mesh>mesh).morphTargetManager;
+            let morphInfluencers = 0;
+            if (manager) {
+                if (manager.numInfluencers > 0) {
+                    defines.push("#define MORPHTARGETS");
+                    morphInfluencers = manager.numInfluencers;
+                    defines.push("#define NUM_MORPH_INFLUENCERS " + morphInfluencers);
+                    MaterialHelper.PrepareAttributesForMorphTargets(attribs, mesh, {"NUM_MORPH_INFLUENCERS": morphInfluencers });
+                }
+            }            
+
             // Instances
             if (useInstances) {
                 defines.push("#define INSTANCES");
@@ -387,8 +416,9 @@
                 this._cachedDefines = join;
                 this._effectLayerMapGenerationEffect = this._scene.getEngine().createEffect("glowMapGeneration",
                     attribs,
-                    ["world", "mBones", "viewProjection", "diffuseMatrix", "color", "emissiveMatrix"],
-                    ["diffuseSampler", "emissiveSampler"], join);
+                    ["world", "mBones", "viewProjection", "diffuseMatrix", "color", "emissiveMatrix", "morphTargetInfluences"],
+                    ["diffuseSampler", "emissiveSampler"], join,
+                    undefined, undefined, undefined, { maxSimultaneousMorphTargets: morphInfluencers });
             }
 
             return this._effectLayerMapGenerationEffect.isReady();
@@ -558,6 +588,9 @@
                     this._effectLayerMapGenerationEffect.setMatrices("mBones", mesh.skeleton.getTransformMatrices(mesh));
                 }
 
+                // Morph targets
+                MaterialHelper.BindMorphTargetParameters(mesh, this._effectLayerMapGenerationEffect);
+
                 // Draw
                 mesh._processRendering(subMesh, this._effectLayerMapGenerationEffect, Material.TriangleFillMode, batch, hardwareInstancedRendering,
                     (isInstance, world) => this._effectLayerMapGenerationEffect.setMatrix("world", world));
@@ -569,7 +602,7 @@
 
         /**
          * Rebuild the required buffers.
-         * @ignore Internal use only.
+         * @hidden Internal use only.
          */
         public _rebuild(): void {
             let vb = this._vertexBuffers[VertexBuffer.PositionKind];
@@ -634,6 +667,27 @@
             this.onBeforeComposeObservable.clear();
             this.onAfterComposeObservable.clear();
             this.onSizeChangedObservable.clear();
+        }
+
+        /**
+          * Gets the class name of the effect layer
+          * @returns the string with the class name of the effect layer
+          */
+         public getClassName(): string {
+            return "EffectLayer";
+        }
+
+        /**
+         * Creates an effect layer from parsed effect layer data
+         * @param parsedEffectLayer defines effect layer data
+         * @param scene defines the current scene
+         * @param rootUrl defines the root URL containing the effect layer information
+         * @returns a parsed effect Layer
+         */
+        public static Parse(parsedEffectLayer: any, scene: Scene, rootUrl: string): EffectLayer {
+            var effectLayerType = Tools.Instantiate(parsedEffectLayer.customType);
+            
+            return effectLayerType.Parse(parsedEffectLayer, scene, rootUrl);
         }
     }
 } 

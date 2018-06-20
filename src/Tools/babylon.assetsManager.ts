@@ -32,7 +32,7 @@ module BABYLON {
         public onSuccess: (task: any) => void;
 
         /**
-         * Callback called when the task is successful
+         * Callback called when the task is not successful
          */
         public onError: (task: any, message?: string, exception?: any) => void;
 
@@ -73,7 +73,7 @@ module BABYLON {
 
         /**
          * Internal only
-         * @ignore 
+         * @hidden 
          */
         public _setErrorObject(message?: string, exception?: any) {
             if (this._errorObject) {
@@ -109,6 +109,14 @@ module BABYLON {
          */
         public runTask(scene: Scene, onSuccess: () => void, onError: (message?: string, exception?: any) => void) {
             throw new Error("runTask is not implemented");
+        }
+
+        /**
+         * Reset will set the task state back to INIT, so the next load call of the assets manager will execute this task again.
+         * This can be used with failed tasks that have the reason for failure fixed.
+         */
+        public reset() {
+            this._taskState = AssetTaskState.INIT;
         }
 
         private onErrorCallback(onError: (message?: string, exception?: any) => void, message?: string, exception?: any) {
@@ -606,8 +614,8 @@ module BABYLON {
          * @param size defines the desired size (the more it increases the longer the generation will be) If the size is omitted this implies you are using a preprocessed cubemap.
          * @param noMipmap defines if mipmaps should not be generated (default is false)
          * @param generateHarmonics specifies whether you want to extract the polynomial harmonics during the generation process (default is true)
-         * @param useInGammaSpace specifies if the texture will be use in gamma or linear space (the PBR material requires those texture in linear space, but the standard material would require them in Gamma space) (default is false)
-         * @param usePMREMGenerator specifies whether or not to generate the CubeMap through CubeMapGen to avoid seams issue at run time (default is false)
+         * @param gammaSpace specifies if the texture will be use in gamma or linear space (the PBR material requires those texture in linear space, but the standard material would require them in Gamma space) (default is false)
+         * @param reserved Internal use only
          */
         constructor(
             /**
@@ -619,9 +627,9 @@ module BABYLON {
              */
             public url: string,
             /**
-             * Defines the desired size (the more it increases the longer the generation will be) If the size is omitted this implies you are using a preprocessed cubemap.
+             * Defines the desired size (the more it increases the longer the generation will be)
              */
-            public size?: number,
+            public size: number,
             /**
              * Defines if mipmaps should not be generated (default is false)
              */
@@ -633,11 +641,11 @@ module BABYLON {
             /**
              * Specifies if the texture will be use in gamma or linear space (the PBR material requires those texture in linear space, but the standard material would require them in Gamma space) (default is false)
              */
-            public useInGammaSpace = false,
+            public gammaSpace = false,
             /**
-             * Specifies whether or not to generate the CubeMap through CubeMapGen to avoid seams issue at run time (default is false)
+             * Internal Use Only
              */
-            public usePMREMGenerator = false) {
+            public reserved = false) {
             super(name);
         }
 
@@ -657,7 +665,7 @@ module BABYLON {
                 onError(message, exception);
             };
 
-            this.texture = new HDRCubeTexture(this.url, scene, this.size, this.noMipmap, this.generateHarmonics, this.useInGammaSpace, this.usePMREMGenerator, onload, onerror);
+            this.texture = new HDRCubeTexture(this.url, scene, this.size, this.noMipmap, this.generateHarmonics, this.gammaSpace, this.reserved, onload, onerror);
         }
     }
 
@@ -821,32 +829,33 @@ module BABYLON {
          * @param size defines the size you want for the cubemap (can be null)
          * @param noMipmap defines if the texture must not receive mipmaps (false by default)
          * @param generateHarmonics defines if you want to automatically generate (true by default)
-         * @param useInGammaSpace defines if the texture must be considered in gamma space (false by default)
-         * @param usePMREMGenerator is a reserved parameter and must be set to false or ignored
+         * @param gammaSpace specifies if the texture will be use in gamma or linear space (the PBR material requires those texture in linear space, but the standard material would require them in Gamma space) (default is false)
+         * @param reserved Internal use only
          * @returns a new {BABYLON.HDRCubeTextureAssetTask} object
          */
-        public addHDRCubeTextureTask(taskName: string, url: string, size?: number, noMipmap = false, generateHarmonics = true, useInGammaSpace = false, usePMREMGenerator = false): HDRCubeTextureAssetTask {
-            var task = new HDRCubeTextureAssetTask(taskName, url, size, noMipmap, generateHarmonics, useInGammaSpace, usePMREMGenerator);
+        public addHDRCubeTextureTask(taskName: string, url: string, size: number, noMipmap = false, generateHarmonics = true, gammaSpace = false, reserved = false): HDRCubeTextureAssetTask {
+            var task = new HDRCubeTextureAssetTask(taskName, url, size, noMipmap, generateHarmonics, gammaSpace, reserved);
             this._tasks.push(task);
 
             return task;
+        }
+
+        /**
+         * Remove a task from the assets manager.
+         * @param task the task to remove
+         */
+        public removeTask(task: AbstractAssetTask) {
+            let index = this._tasks.indexOf(task);
+
+            if (index > -1) {
+                this._tasks.splice(index, 1);
+            }
         }
 
         private _decreaseWaitingTasksCount(task: AbstractAssetTask): void {
             this._waitingTasksCount--;
 
             try {
-                if (task.taskState === AssetTaskState.DONE) {
-                    // Let's remove successfull tasks
-                    Tools.SetImmediate(() => {
-                        let index = this._tasks.indexOf(task);
-
-                        if (index > -1) {
-                            this._tasks.splice(index, 1);
-                        }
-                    });
-                }
-
                 if (this.onProgress) {
                     this.onProgress(
                         this._waitingTasksCount,
@@ -871,6 +880,18 @@ module BABYLON {
                 try {
                     if (this.onFinish) {
                         this.onFinish(this._tasks);
+                    }
+
+                    // Let's remove successfull tasks
+                    var currentTasks = this._tasks.slice();
+                    for (var task of currentTasks) {
+                        if (task.taskState === AssetTaskState.DONE) {
+                            let index = this._tasks.indexOf(task);
+
+                            if (index > -1) {
+                                this._tasks.splice(index, 1);
+                            }
+                        }
                     }
 
                     this.onTasksDoneObservable.notifyObservers(this._tasks);
@@ -948,7 +969,9 @@ module BABYLON {
 
             for (var index = 0; index < this._tasks.length; index++) {
                 var task = this._tasks[index];
-                this._runTask(task);
+                if (task.taskState === AssetTaskState.INIT) {
+                    this._runTask(task);
+                }
             }
 
             return this;

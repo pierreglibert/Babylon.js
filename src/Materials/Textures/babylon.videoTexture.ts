@@ -17,6 +17,11 @@
          * Automatically updates internal texture from video at every frame in the render loop
          */
         autoUpdateTexture: boolean;
+
+        /**
+         * Image src displayed during the video loading or until the user interacts with the video.
+         */
+        poster?: string;
     }
 
     export class VideoTexture extends Texture {
@@ -30,8 +35,18 @@
          */
         public readonly video: HTMLVideoElement;
 
+        private _onUserActionRequestedObservable: Nullable<Observable<Texture>> = null;
+
+        public get onUserActionRequestedObservable(): Observable<Texture> {
+            if (!this._onUserActionRequestedObservable) {
+                this._onUserActionRequestedObservable = new Observable<Texture>();
+            }
+            return this._onUserActionRequestedObservable;
+        }
+
         private _generateMipMaps: boolean;
         private _engine: Engine;
+        private _stillImageCaptured = false;
 
         /**
          * Creates a video texture.
@@ -66,6 +81,9 @@
 
             this.name = name || this._getName(src);
             this.video = this._getVideo(src);
+            if (settings.poster) {
+                this.video.poster = settings.poster;
+            }
 
             if (settings.autoPlay !== undefined) {
                 this.video.autoplay = settings.autoPlay;
@@ -74,6 +92,8 @@
                 this.video.loop = settings.loop;
             }
 
+            this.video.setAttribute("playsinline", "");
+                
             this.video.addEventListener("canplay", this._createInternalTexture);
             this.video.addEventListener("paused", this._updateInternalTexture);
             this.video.addEventListener("seeked", this._updateInternalTexture);
@@ -140,8 +160,49 @@
                 this._samplingMode
             );
 
-            this._texture.isReady = true;
-            this._updateInternalTexture();
+            if (!this.video.autoplay) {
+                let oldHandler = this.video.onplaying;
+                let error = false;
+                this.video.onplaying = () => {
+                    this.video.onplaying = oldHandler;
+                    this._texture!.isReady = true;
+                    this._updateInternalTexture();
+                    if (!error) {
+                        this.video.pause();
+                    }
+                    if (this._onLoadObservable && this._onLoadObservable.hasObservers()) {
+                        this.onLoadObservable.notifyObservers(this);
+                    }
+                };
+                var playing = this.video.play();
+                if (playing) {
+                    playing.then(() => {
+                        // Everything is good.
+                    })
+                    .catch(() => {
+                        error = true;
+                        // On Chrome for instance, new policies might prevent playing without user interaction.
+                        if (this._onUserActionRequestedObservable && this._onUserActionRequestedObservable.hasObservers()) {
+                            this._onUserActionRequestedObservable.notifyObservers(this);
+                        }
+                    });
+                }
+                else {
+                    this.video.onplaying = oldHandler;
+                    this._texture.isReady = true;
+                    this._updateInternalTexture();
+                    if (this._onLoadObservable && this._onLoadObservable.hasObservers()) {
+                        this.onLoadObservable.notifyObservers(this);
+                    }
+                }
+            }
+            else {
+                this._texture.isReady = true;
+                this._updateInternalTexture();
+                if (this._onLoadObservable && this._onLoadObservable.hasObservers()) {
+                    this.onLoadObservable.notifyObservers(this);
+                }
+            }
         };
 
         private reset = (): void => {
@@ -179,9 +240,10 @@
             if (!isVisible) {
                 return;
             }
-            if (this.video.paused) {
+            if (this.video.paused && this._stillImageCaptured) {
                 return;
             }
+            this._stillImageCaptured = true;
             this._updateInternalTexture();
         }
 
@@ -205,7 +267,13 @@
         }
 
         public dispose(): void {
-            super.dispose();            
+            super.dispose();
+            
+            if (this._onUserActionRequestedObservable) {
+                this._onUserActionRequestedObservable.clear();
+                this._onUserActionRequestedObservable = null;
+            }
+
             this.video.removeEventListener("canplay", this._createInternalTexture);
             this.video.removeEventListener("paused", this._updateInternalTexture);
             this.video.removeEventListener("seeked", this._updateInternalTexture);
@@ -225,6 +293,10 @@
             }
         ): void {
             var video = document.createElement("video");
+            video.setAttribute('autoplay', '');
+            video.setAttribute('muted', '');
+            video.setAttribute('playsinline', '');
+
             var constraintsDeviceId;
             if (constraints && constraints.deviceId) {
                 constraintsDeviceId = {
@@ -232,46 +304,73 @@
                 };
             }
 
-            navigator.getUserMedia =
-                navigator.getUserMedia ||
-                navigator.webkitGetUserMedia ||
-                navigator.mozGetUserMedia ||
-                navigator.msGetUserMedia;
             window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
 
-            if (navigator.getUserMedia) {
-                navigator.getUserMedia(
-                    {
-                        video: {
-                            deviceId: constraintsDeviceId,
-                            width: {
-                                min: (constraints && constraints.minWidth) || 256,
-                                max: (constraints && constraints.maxWidth) || 640,
-                            },
-                            height: {
-                                min: (constraints && constraints.minHeight) || 256,
-                                max: (constraints && constraints.maxHeight) || 480,
-                            },
-                        },
-                    },
-                    (stream: any) => {
+            if (navigator.mediaDevices) {
+                navigator.mediaDevices.getUserMedia({ video: constraints })
+                    .then(function(stream) {
                         if (video.mozSrcObject !== undefined) {
                             // hack for Firefox < 19
                             video.mozSrcObject = stream;
                         } else {
-                            video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+                            video.srcObject = stream;
                         }
 
+                        let onPlaying = () => {
+                            if (onReady) {
+                                onReady(new VideoTexture("video", video, scene, true, true));
+                            }
+                            video.removeEventListener("playing", onPlaying);
+                        };
+
+                        video.addEventListener("playing", onPlaying);
                         video.play();
+                    })
+                    .catch(function(err) {
+                        Tools.Error(err.name);
+                    });
+            }
+            else {
+                navigator.getUserMedia =
+                    navigator.getUserMedia ||
+                    navigator.webkitGetUserMedia ||
+                    navigator.mozGetUserMedia ||
+                    navigator.msGetUserMedia;
 
-                        if (onReady) {
-                            onReady(new VideoTexture("video", video, scene, true, true));
+                if (navigator.getUserMedia) {
+                    navigator.getUserMedia(
+                        {
+                            video: {
+                                deviceId: constraintsDeviceId,
+                                width: {
+                                    min: (constraints && constraints.minWidth) || 256,
+                                    max: (constraints && constraints.maxWidth) || 640,
+                                },
+                                height: {
+                                    min: (constraints && constraints.minHeight) || 256,
+                                    max: (constraints && constraints.maxHeight) || 480,
+                                },
+                            },
+                        },
+                        (stream: any) => {
+                            if (video.mozSrcObject !== undefined) {
+                                // hack for Firefox < 19
+                                video.mozSrcObject = stream;
+                            } else {
+                                video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+                            }
+
+                            video.play();
+
+                            if (onReady) {
+                                onReady(new VideoTexture("video", video, scene, true, true));
+                            }
+                        },
+                        function(e: MediaStreamError) {
+                            Tools.Error(e.name);
                         }
-                    },
-                    function(e: MediaStreamError) {
-                        Tools.Error(e.name);
-                    }
-                );
+                    );
+                }
             }
         }
     }

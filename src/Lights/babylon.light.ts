@@ -185,7 +185,6 @@ module BABYLON {
             this._computePhotometricScale();
         };
 
-        
         @serialize()
         private _renderPriority: number;
         /**
@@ -195,12 +194,27 @@ module BABYLON {
         @expandToProperty("_reorderLightsInScene")
         public renderPriority: number = 0;
 
+        @serialize("shadowEnabled")
+        private _shadowEnabled: boolean = true;
         /**
-         * Defines wether or not the shadows are enabled for this light. This can help turning off/on shadow without detaching
+         * Gets wether or not the shadows are enabled for this light. This can help turning off/on shadow without detaching
          * the current shadow generator.
          */
-        @serialize()
-        public shadowEnabled: boolean = true;
+        public get shadowEnabled(): boolean {
+            return this._shadowEnabled;
+        }
+        /**
+         * Sets wether or not the shadows are enabled for this light. This can help turning off/on shadow without detaching
+         * the current shadow generator.
+         */
+        public set shadowEnabled(value: boolean) {
+            if (this._shadowEnabled === value) {
+                return;
+            }
+
+            this._shadowEnabled = value;
+            this._markMeshesAsLightDirty();
+        }
 
         private _includedOnlyMeshes: AbstractMesh[];
         /**
@@ -297,18 +311,18 @@ module BABYLON {
         public _shadowGenerator: Nullable<IShadowGenerator>;
 
         /**
-         * @ignore Internal use only.
+         * @hidden Internal use only.
          */
         public _excludedMeshesIds = new Array<string>();
 
         /**
-         * @ignore Internal use only.
+         * @hidden Internal use only.
          */
         public _includedOnlyMeshesIds = new Array<string>();
 
         /**
          * The current light unifom buffer.
-         * @ignore Internal use only.
+         * @hidden Internal use only.
          */
         public _uniformBuffer: UniformBuffer;
 
@@ -341,7 +355,7 @@ module BABYLON {
         public abstract transferToEffect(effect: Effect, lightIndex: string): Light;
 
         /**
-         * @ignore internal use only.
+         * @hidden internal use only.
          */
         public abstract _getWorldMatrix(): Matrix;
 
@@ -374,7 +388,6 @@ module BABYLON {
         /**
          * Set the enabled state of this node.
          * @param value - the new enabled state
-         * @see isEnabled
          */
         public setEnabled(value: boolean): void {
             super.setEnabled(value);
@@ -433,6 +446,7 @@ module BABYLON {
          */
         public getWorldMatrix(): Matrix {
             this._currentRenderId = this.getScene().getRenderId();
+            this._childRenderId = this._currentRenderId;
 
             var worldMatrix = this._getWorldMatrix();
 
@@ -467,9 +481,11 @@ module BABYLON {
         }
 
         /**
-         * Disposes the light.  
+         * Releases resources associated with this node.
+         * @param doNotRecurse Set to true to not recurse into each children (recurse into each children by default)
+         * @param disposeMaterialAndTextures Set to true to also dispose referenced materials and textures (false by default)
          */
-        public dispose(): void {
+        public dispose(doNotRecurse?: boolean, disposeMaterialAndTextures = false): void {
             if (this._shadowGenerator) {
                 this._shadowGenerator.dispose();
                 this._shadowGenerator = null;
@@ -487,7 +503,7 @@ module BABYLON {
 
             // Remove from scene
             this.getScene().removeLight(this);
-            super.dispose();
+            super.dispose(doNotRecurse, disposeMaterialAndTextures);
         }
 
         /**
@@ -684,7 +700,7 @@ module BABYLON {
 
         /**
          * Forces the meshes to update their light related information in their rendering used effects
-         * @ignore Internal Use Only
+         * @hidden Internal Use Only
          */
         public _markMeshesAsLightDirty() {
             for (var mesh of this.getScene().meshes) {
@@ -763,7 +779,7 @@ module BABYLON {
 
         /**
          * Reorder the light in the scene according to their defined priority.
-         * @ignore Internal Use Only
+         * @hidden Internal Use Only
          */
         public _reorderLightsInScene(): void {
             var scene = this.getScene();

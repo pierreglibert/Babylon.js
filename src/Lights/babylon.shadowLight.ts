@@ -111,7 +111,7 @@
     }
 
     /**
-     * Base implementation of @see IShadowLight
+     * Base implementation IShadowLight
      * It groups all the common behaviour in order to reduce dupplication and better follow the DRY pattern.
      */
     export abstract class ShadowLight extends Light implements IShadowLight {
@@ -303,7 +303,7 @@
 
         /**
          * Get the world matrix of the sahdow lights.
-         * @ignore Internal Use Only
+         * @hidden Internal Use Only
          */
         public _getWorldMatrix(): Matrix {
             if (!this._worldMatrix) {

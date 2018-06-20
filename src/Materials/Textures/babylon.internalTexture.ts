@@ -133,80 +133,91 @@ module BABYLON {
         public next: Nullable<IInternalTextureTracker> = null
 
         // Private
-        /** @ignore */
+        /** @hidden */
         public _initialSlot = -1;
-        /** @ignore */
+        /** @hidden */
         public _designatedSlot = -1;
-        /** @ignore */
+        /** @hidden */
         public _dataSource = InternalTexture.DATASOURCE_UNKNOWN;
-        /** @ignore */
-        public _buffer: Nullable<ArrayBuffer | HTMLImageElement>;
-        /** @ignore */
+        /** @hidden */
+        public _buffer: Nullable<string | ArrayBuffer | HTMLImageElement | Blob>;
+        /** @hidden */
         public _bufferView: Nullable<ArrayBufferView>;
-        /** @ignore */
+        /** @hidden */
         public _bufferViewArray: Nullable<ArrayBufferView[]>;
-        /** @ignore */
+        /** @hidden */
         public _size: number;
-        /** @ignore */
+        /** @hidden */
         public _extension: string;
-        /** @ignore */
+        /** @hidden */
         public _files: Nullable<string[]>;
-        /** @ignore */
+        /** @hidden */
         public _workingCanvas: HTMLCanvasElement;
-        /** @ignore */
+        /** @hidden */
         public _workingContext: CanvasRenderingContext2D;
-        /** @ignore */
+        /** @hidden */
         public _framebuffer: Nullable<WebGLFramebuffer>;
-        /** @ignore */
+        /** @hidden */
         public _depthStencilBuffer: Nullable<WebGLRenderbuffer>;
-        /** @ignore */
+        /** @hidden */
         public _MSAAFramebuffer: Nullable<WebGLFramebuffer>;
-        /** @ignore */
+        /** @hidden */
         public _MSAARenderBuffer: Nullable<WebGLRenderbuffer>;
-        /** @ignore */
+        /** @hidden */
         public _attachments: Nullable<number[]>;
-        /** @ignore */
+        /** @hidden */
         public _cachedCoordinatesMode: Nullable<number>;
-        /** @ignore */
+        /** @hidden */
         public _cachedWrapU: Nullable<number>;
-        /** @ignore */
+        /** @hidden */
         public _cachedWrapV: Nullable<number>;
-        /** @ignore */
+        /** @hidden */
         public _cachedWrapR: Nullable<number>;
-        /** @ignore */
+        /** @hidden */
         public _cachedAnisotropicFilteringLevel: Nullable<number>;
-        /** @ignore */
+        /** @hidden */
         public _isDisabled: boolean;
-        /** @ignore */
+        /** @hidden */
         public _compression: Nullable<string>;
-        /** @ignore */
+        /** @hidden */
         public _generateStencilBuffer: boolean;
-        /** @ignore */
+        /** @hidden */
         public _generateDepthBuffer: boolean;
-        /** @ignore */
+        /** @hidden */
         public _comparisonFunction: number = 0;
-        /** @ignore */
+        /** @hidden */
         public _sphericalPolynomial: Nullable<SphericalPolynomial>;
-        /** @ignore */
-        public _lodGenerationScale: number;
-        /** @ignore */
-        public _lodGenerationOffset: number;
+        /** @hidden */
+        public _lodGenerationScale: number = 0;
+        /** @hidden */
+        public _lodGenerationOffset: number = 0;
 
         // The following three fields helps sharing generated fixed LODs for texture filtering
         // In environment not supporting the textureLOD extension like EDGE. They are for internal use only.
         // They are at the level of the gl texture to benefit from the cache.
-        /** @ignore */
+        /** @hidden */
         public _lodTextureHigh: BaseTexture;
-        /** @ignore */
+        /** @hidden */
         public _lodTextureMid: BaseTexture;
-        /** @ignore */
+        /** @hidden */
         public _lodTextureLow: BaseTexture;
+        /** @hidden */
+        public _isRGBD: boolean = false;
 
-        /** @ignore */
+        /** @hidden */
         public _webGLTexture: Nullable<WebGLTexture>;
-        /** @ignore */
+        /** @hidden */
         public _references: number = 1;
+
         private _engine: Engine;
+
+        /**
+         * Gets the Engine the texture belongs to.
+         * @returns The babylon engine
+         */
+        public getEngine(): Engine {
+            return this._engine;
+        }
 
         /**
          * Gets the data source type of the texture (can be one of the BABYLON.InternalTexture.DATASOURCE_XXXX)
@@ -252,7 +263,7 @@ module BABYLON {
             this._size = width * height * depth;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _rebuild(): void {
             var proxy: InternalTexture;
             this.isReady = false;
@@ -322,13 +333,10 @@ module BABYLON {
                         bilinearFiltering: this.samplingMode !== Texture.BILINEAR_SAMPLINGMODE,
                         comparisonFunction: this._comparisonFunction,
                         generateStencil: this._generateStencilBuffer,
+                        isCube: this.isCube
                     };
 
-                    if (this.isCube) {
-                        proxy = this._engine.createDepthStencilTexture({ width: this.width, height: this.height }, depthTextureOptions);
-                    } else {
-                        proxy = this._engine.createDepthStencilCubeTexture(this.width, depthTextureOptions);
-                    }
+                    proxy = this._engine.createDepthStencilTexture({ width: this.width, height: this.height }, depthTextureOptions);
                     proxy._swapAndDie(this);
 
                     this.isReady = true;
@@ -356,11 +364,12 @@ module BABYLON {
 
                         this.isReady = true;
                     }, null, this.format, this._extension);
+                    proxy._sphericalPolynomial = this._sphericalPolynomial;
                     return;
             }
         }
 
-        private _swapAndDie(target: InternalTexture): void {
+        public _swapAndDie(target: InternalTexture): void {
             target._webGLTexture = this._webGLTexture;
 
             if (this._framebuffer) {

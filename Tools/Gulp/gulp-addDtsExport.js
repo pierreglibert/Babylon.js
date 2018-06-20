@@ -11,7 +11,7 @@ module.exports = function (varName, moduleName, subModule, extendsRoot, dependen
 
         let referenceText = '';
         if (subModule) {
-            referenceText = '/// <reference types="babylonjs"/>\n';
+            //referenceText = '/// <reference types="babylonjs"/>\n';
         }
 
         if (dependencies) {

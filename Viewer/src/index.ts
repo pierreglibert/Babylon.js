@@ -1,7 +1,13 @@
 import { mapperManager } from './configuration/mappers';
+import { viewerGlobals } from './configuration/globals';
 import { viewerManager } from './viewer/viewerManager';
 import { DefaultViewer } from './viewer/defaultViewer';
 import { AbstractViewer } from './viewer/viewer';
+import { telemetryManager } from './managers/telemetryManager';
+import { ModelLoader } from './loader/modelLoader';
+import { ViewerModel, ModelState } from './model/viewerModel';
+import { AnimationPlayMode, AnimationState } from './model/modelAnimation';
+import { ILoaderPlugin } from './loader/plugins/loaderPlugin';
 
 /**
  * BabylonJS Viewer
@@ -9,24 +15,35 @@ import { AbstractViewer } from './viewer/viewer';
  * An HTML-Based viewer for 3D models, based on BabylonJS and its extensions.
  */
 
+import * as BABYLON from 'babylonjs';
 
-// load babylon and needed modules.
-import 'babylonjs';
+// load needed modules.
 import 'babylonjs-loaders';
-import '../assets/pep.min';
+import 'pepjs';
 
-import { PromisePolyfill } from 'babylonjs';
-
-import { InitTags } from './initializer';
+import { initListeners, InitTags } from './initializer';
 
 // promise polyfill, if needed!
-PromisePolyfill.Apply();
+BABYLON.PromisePolyfill.Apply();
+initListeners();
 
-export let disableInit: boolean = false;
-document.addEventListener("DOMContentLoaded", function (event) {
-    if (disableInit) return;
-    InitTags();
-});
+//deprectaed, here for backwards compatibility
+let disableInit: boolean = viewerGlobals.disableInit;
+
+/**
+ * Dispose all viewers currently registered
+ */
+function disposeAll() {
+    viewerManager.dispose();
+    mapperManager.dispose();
+    telemetryManager.dispose();
+}
+
+const Version = viewerGlobals.version;
+
+console.log("Babylon.js viewer (v" + Version + ")");
 
 // public API for initialization
-export { InitTags, DefaultViewer, AbstractViewer, viewerManager, mapperManager };
+export { BABYLON, Version, InitTags, DefaultViewer, AbstractViewer, viewerGlobals, telemetryManager, disableInit, viewerManager, mapperManager, disposeAll, ModelLoader, ViewerModel, AnimationPlayMode, AnimationState, ModelState, ILoaderPlugin };
+// export publicliy all configuration interfaces
+export * from './configuration';

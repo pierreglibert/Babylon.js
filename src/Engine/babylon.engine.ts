@@ -172,6 +172,9 @@
         public buffer: WebGLBuffer;
     }
 
+    /**
+     * Interface for attribute information associated with buffer instanciation
+     */
     export class InstancingAttributeInfo {
         /**
          * Index/offset of the attribute in the vertex shader
@@ -209,85 +212,160 @@
      * Define options used to create a render target texture
      */
     export class RenderTargetCreationOptions {
+        /**
+         * Specifies is mipmaps must be generated
+         */
         generateMipMaps?: boolean;
+        /** Specifies whether or not a depth should be allocated in the texture (true by default) */
         generateDepthBuffer?: boolean;
+        /** Specifies whether or not a stencil should be allocated in the texture (false by default)*/
         generateStencilBuffer?: boolean;
+        /** Defines texture type (int by default) */
         type?: number;
+        /** Defines sampling mode (trilinear by default) */
         samplingMode?: number;
+        /** Defines format (RGBA by default) */
+        format?: number;
     }
 
     /**
      * Define options used to create a depth texture
      */
     export class DepthTextureCreationOptions {
-        /** Specifies wether or not a stencil should be allocated in the texture */
+        /** Specifies whether or not a stencil should be allocated in the texture */
         generateStencil?: boolean;
-        /** Specifies wether or not bilinear filtering is enable on the texture */
+        /** Specifies whether or not bilinear filtering is enable on the texture */
         bilinearFiltering?: boolean;
         /** Specifies the comparison function to set on the texture. If 0 or undefined, the texture is not in comparison mode */
         comparisonFunction?: number;
+        /** Specifies if the created texture is a cube texture */
+        isCube?: boolean;
     }
 
     /**
-     * Regroup several parameters relative to the browser in use
+     * Class used to describe the capabilities of the engine relatively to the current browser
      */
     export class EngineCapabilities {
-        /** The maximum textures image */
+        /** Maximum textures units per fragment shader */
         public maxTexturesImageUnits: number;
+        /** Maximum texture units per vertex shader */
         public maxVertexTextureImageUnits: number;
+        /** Maximum textures units in the entire pipeline */
         public maxCombinedTexturesImageUnits: number;
-        /** The maximum texture size */
+        /** Maximum texture size */
         public maxTextureSize: number;
+        /** Maximum cube texture size */
         public maxCubemapTextureSize: number;
+        /** Maximum render texture size */
         public maxRenderTextureSize: number;
+        /** Maximum number of vertex attributes */
         public maxVertexAttribs: number;
+        /** Maximum number of varyings */
         public maxVaryingVectors: number;
+        /** Maximum number of uniforms per vertex shader */
         public maxVertexUniformVectors: number;
+        /** Maximum number of uniforms per fragment shader */
         public maxFragmentUniformVectors: number;
+        /** Defines if standard derivates (dx/dy) are supported */
         public standardDerivatives: boolean;
+        /** Defines if s3tc texture compression is supported */
         public s3tc: Nullable<WEBGL_compressed_texture_s3tc>;
+        /** Defines if pvrtc texture compression is supported */
         public pvrtc: any; //WEBGL_compressed_texture_pvrtc;
+        /** Defines if etc1 texture compression is supported */
         public etc1: any; //WEBGL_compressed_texture_etc1;
+        /** Defines if etc2 texture compression is supported */
         public etc2: any; //WEBGL_compressed_texture_etc;
+        /** Defines if astc texture compression is supported */
         public astc: any; //WEBGL_compressed_texture_astc;
+        /** Defines if float textures are supported */
         public textureFloat: boolean;
+        /** Defines if vertex array objects are supported */
         public vertexArrayObject: boolean;
+        /** Gets the webgl extension for anisotropic filtering (null if not supported) */
         public textureAnisotropicFilterExtension: Nullable<EXT_texture_filter_anisotropic>;
+        /** Gets the maximum level of anisotropy supported */
         public maxAnisotropy: number;
+        /** Defines if instancing is supported */
         public instancedArrays: boolean;
+        /** Defines if 32 bits indices are supported */
         public uintIndices: boolean;
+        /** Defines if high precision shaders are supported */
         public highPrecisionShaderSupported: boolean;
+        /** Defines if depth reading in the fragment shader is supported */
         public fragmentDepthSupported: boolean;
+        /** Defines if float texture linear filtering is supported*/
         public textureFloatLinearFiltering: boolean;
+        /** Defines if rendering to float textures is supported */
         public textureFloatRender: boolean;
+        /** Defines if half float textures are supported*/
         public textureHalfFloat: boolean;
+        /** Defines if half float texture linear filtering is supported*/
         public textureHalfFloatLinearFiltering: boolean;
+        /** Defines if rendering to half float textures is supported */
         public textureHalfFloatRender: boolean;
+        /** Defines if textureLOD shader command is supported */
         public textureLOD: boolean;
+        /** Defines if draw buffers extension is supported */
         public drawBuffersExtension: boolean;
+        /** Defines if depth textures are supported */
         public depthTextureExtension: boolean;
+        /** Defines if float color buffer are supported */
         public colorBufferFloat: boolean;
+        /** Gets disjoint timer query extension (null if not supported) */
         public timerQuery: EXT_disjoint_timer_query;
+        /** Defines if timestamp can be used with timer query */
         public canUseTimestampForTimerQuery: boolean;
     }
 
+    /** Interface defining initialization parameters for Engine class */
     export interface EngineOptions extends WebGLContextAttributes {
+        /** 
+         * Defines if the engine should no exceed a specified device ratio
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio
+         */
         limitDeviceRatio?: number;
+        /** 
+         * Defines if webvr should be enabled automatically 
+         * @see http://doc.babylonjs.com/how_to/webvr_camera
+         */
         autoEnableWebVR?: boolean;
+        /** 
+         * Defines if webgl2 should be turned off even if supported 
+         * @see http://doc.babylonjs.com/features/webgl2
+         */
         disableWebGL2Support?: boolean;
+        /** 
+         * Defines if webaudio should be initialized as well
+         * @see http://doc.babylonjs.com/how_to/playing_sounds_and_music
+         */
         audioEngine?: boolean;
+        /** 
+         * Defines if animations should run using a deterministic lock step
+         * @see http://doc.babylonjs.com/babylon101/animations#deterministic-lockstep
+         */
         deterministicLockstep?: boolean;
+        /** Defines the maximum steps to use with deterministic lock step mode */
         lockstepMaxSteps?: number;
+        /** 
+         * Defines that engine should ignore context lost events
+         * If this event happens when this parameter is true, you will have to reload the page to restore rendering
+         */
         doNotHandleContextLost?: boolean;
     }
 
+    /**
+     * Defines the interface used by display changed events
+     */
     export interface IDisplayChangedEventArgs {
+        /** Gets the vrDisplay object (if any) */
         vrDisplay: Nullable<any>;
+        /** Gets a boolean indicating if webVR is supported */
         vrSupported: boolean;
     }
 
     /**
-     * The engine class is responsible for interfacing with all lower-level APIs such as WebGL and Audio.
+     * The engine class is responsible for interfacing with all lower-level APIs such as WebGL and Audio
      */
     export class Engine {
         /** Use this array to turn off some WebGL2 features on known buggy browsers version */
@@ -300,8 +378,12 @@
             { key: "iPad", capture: null, captureConstraint: null, targets: ["textureBindingOptimization"] }
         ];
 
+        /** Gets the list of created engines */
         public static Instances = new Array<Engine>();
 
+        /**
+         * Gets the latest created engine
+         */
         public static get LastCreatedEngine(): Nullable<Engine> {
             if (Engine.Instances.length === 0) {
                 return null;
@@ -310,6 +392,9 @@
             return Engine.Instances[Engine.Instances.length - 1];
         }
 
+        /**
+         * Gets the latest created scene
+         */
         public static get LastCreatedScene(): Nullable<Scene> {
             var lastCreatedEngine = Engine.LastCreatedEngine;
             if (!lastCreatedEngine) {
@@ -325,6 +410,8 @@
 
         /**
          * Will flag all materials in all scenes in all engines as dirty to trigger new shader compilation
+         * @param flag defines which part of the materials must be marked as dirty
+         * @param predicate defines a predicate used to filter which materials should be affected
          */
         public static MarkAllMaterialsAsDirty(flag: number, predicate?: (mat: Material) => boolean): void {
             for (var engineIndex = 0; engineIndex < Engine.Instances.length; engineIndex++) {
@@ -359,10 +446,8 @@
         private static _TEXTUREFORMAT_LUMINANCE_ALPHA = 2;
         private static _TEXTUREFORMAT_RGB = 4;
         private static _TEXTUREFORMAT_RGBA = 5;
-        private static _TEXTUREFORMAT_R32F = 6;
-        private static _TEXTUREFORMAT_RG32F = 7;
-        private static _TEXTUREFORMAT_RGB32F = 8;
-        private static _TEXTUREFORMAT_RGBA32F = 9;
+        private static _TEXTUREFORMAT_R = 6;
+        private static _TEXTUREFORMAT_RG = 7;
 
         private static _TEXTURETYPE_UNSIGNED_INT = 0;
         private static _TEXTURETYPE_FLOAT = 1;
@@ -374,38 +459,46 @@
         private static _LESS = 0x0201; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than the stored value.
         private static _EQUAL = 0x0202; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is equals to the stored value.
         private static _LEQUAL = 0x0203; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than or equal to the stored value.
-        private static _GREATER = 0x0204; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than the stored value.
+        private static _GREATER = 0x0204; // Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than the stored value.
         private static _GEQUAL = 0x0206; //	Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than or equal to the stored value.
         private static _NOTEQUAL = 0x0205; //  Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is not equal to the stored value.
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will never pass. i.e. Nothing will be drawn */
         public static get NEVER(): number {
             return Engine._NEVER;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will always pass. i.e. Pixels will be drawn in the order they are drawn */
         public static get ALWAYS(): number {
             return Engine._ALWAYS;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than the stored value */
         public static get LESS(): number {
             return Engine._LESS;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is equals to the stored value */
         public static get EQUAL(): number {
             return Engine._EQUAL;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is less than or equal to the stored value */
         public static get LEQUAL(): number {
             return Engine._LEQUAL;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than the stored value */
         public static get GREATER(): number {
             return Engine._GREATER;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is greater than or equal to the stored value */
         public static get GEQUAL(): number {
             return Engine._GEQUAL;
         }
 
+        /** Passed to depthFunction or stencilFunction to specify depth or stencil tests will pass if the new depth value is not equal to the stored value */
         public static get NOTEQUAL(): number {
             return Engine._NOTEQUAL;
         }
@@ -419,191 +512,273 @@
         private static _INCR_WRAP = 0x8507;
         private static _DECR_WRAP = 0x8508;
 
+        /** Passed to stencilOperation to specify that stencil value must be kept */
         public static get KEEP(): number {
             return Engine._KEEP;
         }
 
+        /** Passed to stencilOperation to specify that stencil value must be replaced */
         public static get REPLACE(): number {
             return Engine._REPLACE;
         }
 
+        /** Passed to stencilOperation to specify that stencil value must be incremented */
         public static get INCR(): number {
             return Engine._INCR;
         }
 
+        /** Passed to stencilOperation to specify that stencil value must be decremented */
         public static get DECR(): number {
             return Engine._DECR;
         }
 
+        /** Passed to stencilOperation to specify that stencil value must be inverted */
         public static get INVERT(): number {
             return Engine._INVERT;
         }
 
+        /** Passed to stencilOperation to specify that stencil value must be incremented with wrapping */
         public static get INCR_WRAP(): number {
             return Engine._INCR_WRAP;
         }
 
+        /** Passed to stencilOperation to specify that stencil value must be decremented with wrapping */
         public static get DECR_WRAP(): number {
             return Engine._DECR_WRAP;
         }
 
+        // Alpha
+
+        /** Defines that alpha blending is disabled */
         public static get ALPHA_DISABLE(): number {
             return Engine._ALPHA_DISABLE;
         }
 
+        /** Defines that alpha blending to SRC + DEST */
         public static get ALPHA_ONEONE(): number {
             return Engine._ALPHA_ONEONE;
         }
 
+        /** Defines that alpha blending to SRC ALPHA * SRC + DEST */
         public static get ALPHA_ADD(): number {
             return Engine._ALPHA_ADD;
         }
 
+        /** Defines that alpha blending to SRC ALPHA * SRC + (1 - SRC ALPHA) * DEST */
         public static get ALPHA_COMBINE(): number {
             return Engine._ALPHA_COMBINE;
         }
 
+        /** Defines that alpha blending to DEST - SRC * DEST */
         public static get ALPHA_SUBTRACT(): number {
             return Engine._ALPHA_SUBTRACT;
         }
 
+        /** Defines that alpha blending to SRC * DEST */
         public static get ALPHA_MULTIPLY(): number {
             return Engine._ALPHA_MULTIPLY;
         }
 
+        /** Defines that alpha blending to SRC ALPHA * SRC + (1 - SRC) * DEST */
         public static get ALPHA_MAXIMIZED(): number {
             return Engine._ALPHA_MAXIMIZED;
         }
 
+        /** Defines that alpha blending to SRC + (1 - SRC ALPHA) * DEST */
         public static get ALPHA_PREMULTIPLIED(): number {
             return Engine._ALPHA_PREMULTIPLIED;
         }
 
+        /** 
+         * Defines that alpha blending to SRC + (1 - SRC ALPHA) * DEST
+         * Alpha will be set to (1 - SRC ALPHA) * DEST ALPHA
+         */
         public static get ALPHA_PREMULTIPLIED_PORTERDUFF(): number {
             return Engine._ALPHA_PREMULTIPLIED_PORTERDUFF;
         }
 
+        /** Defines that alpha blending to CST * SRC + (1 - CST) * DEST */
         public static get ALPHA_INTERPOLATE(): number {
             return Engine._ALPHA_INTERPOLATE;
         }
 
+        /** 
+         * Defines that alpha blending to SRC + (1 - SRC) * DEST 
+         * Alpha will be set to SRC ALPHA + (1 - SRC ALPHA) * DEST ALPHA
+         */
         public static get ALPHA_SCREENMODE(): number {
             return Engine._ALPHA_SCREENMODE;
         }
 
+        // Delays
+
+        /** Defines that the ressource is not delayed*/
         public static get DELAYLOADSTATE_NONE(): number {
             return Engine._DELAYLOADSTATE_NONE;
         }
 
+        /** Defines that the ressource was successfully delay loaded */
         public static get DELAYLOADSTATE_LOADED(): number {
             return Engine._DELAYLOADSTATE_LOADED;
         }
 
+        /** Defines that the ressource is currently delay loading */
         public static get DELAYLOADSTATE_LOADING(): number {
             return Engine._DELAYLOADSTATE_LOADING;
         }
 
+        /** Defines that the ressource is delayed and has not started loading */
         public static get DELAYLOADSTATE_NOTLOADED(): number {
             return Engine._DELAYLOADSTATE_NOTLOADED;
         }
 
+        /** ALPHA */
         public static get TEXTUREFORMAT_ALPHA(): number {
             return Engine._TEXTUREFORMAT_ALPHA;
         }
 
+        /** LUMINANCE */
         public static get TEXTUREFORMAT_LUMINANCE(): number {
             return Engine._TEXTUREFORMAT_LUMINANCE;
         }
 
         /**
-         * R32F
+         * R
          */
-        public static get TEXTUREFORMAT_R32F(): number {
-            return Engine._TEXTUREFORMAT_R32F;
+        public static get TEXTUREFORMAT_R(): number {
+            return Engine._TEXTUREFORMAT_R;
         }       
         
         /**
-         * RG32F
+         * RG
          */
-        public static get TEXTUREFORMAT_RG32F(): number {
-            return Engine._TEXTUREFORMAT_RG32F;
-        }       
-        
-        /**
-         * RGB32F
-         */
-        public static get TEXTUREFORMAT_RGB32F(): number {
-            return Engine._TEXTUREFORMAT_RGB32F;
-        }       
-        
-        /**
-         * RGBA32F
-         */
-        public static get TEXTUREFORMAT_RGBA32F(): number {
-            return Engine._TEXTUREFORMAT_RGBA32F;
-        }             
+        public static get TEXTUREFORMAT_RG(): number {
+            return Engine._TEXTUREFORMAT_RG;
+        }
 
+        /** LUMINANCE_ALPHA */
         public static get TEXTUREFORMAT_LUMINANCE_ALPHA(): number {
             return Engine._TEXTUREFORMAT_LUMINANCE_ALPHA;
         }
 
+        /** RGB */
         public static get TEXTUREFORMAT_RGB(): number {
             return Engine._TEXTUREFORMAT_RGB;
         }
 
+        /** RGBA */
         public static get TEXTUREFORMAT_RGBA(): number {
             return Engine._TEXTUREFORMAT_RGBA;
         }
 
+        /** UNSIGNED_INT */
         public static get TEXTURETYPE_UNSIGNED_INT(): number {
             return Engine._TEXTURETYPE_UNSIGNED_INT;
         }
 
+        /** FLOAT */
         public static get TEXTURETYPE_FLOAT(): number {
             return Engine._TEXTURETYPE_FLOAT;
         }
 
+        /** HALF_FLOAT */
         public static get TEXTURETYPE_HALF_FLOAT(): number {
             return Engine._TEXTURETYPE_HALF_FLOAT;
         }
-
 
         // Texture rescaling mode
         private static _SCALEMODE_FLOOR = 1;
         private static _SCALEMODE_NEAREST = 2;
         private static _SCALEMODE_CEILING = 3;
 
+        /** Defines that texture rescaling will use a floor to find the closer power of 2 size */
         public static get SCALEMODE_FLOOR(): number {
             return Engine._SCALEMODE_FLOOR;
         }
 
+        /** Defines that texture rescaling will look for the nearest power of 2 size */
         public static get SCALEMODE_NEAREST(): number {
             return Engine._SCALEMODE_NEAREST;
         }
 
+        /** Defines that texture rescaling will use a ceil to find the closer power of 2 size */
         public static get SCALEMODE_CEILING(): number {
             return Engine._SCALEMODE_CEILING;
         }
 
+        /**
+         * Returns the current version of the framework
+         */
         public static get Version(): string {
-            return "3.2.0-alpha10";
+            return "3.3.0-alpha.8";
         }
 
         // Updatable statics so stick with vars here
+
+        /**
+         * Gets or sets the epsilon value used by collision engine
+         */
         public static CollisionsEpsilon = 0.001;
+
+        /**
+         * Gets or sets the relative url used to load code if using the engine in non-minified mode
+         */
         public static CodeRepository = "src/";
+        /**
+         * Gets or sets the relative url used to load shaders if using the engine in non-minified mode
+         */
         public static ShadersRepository = "src/Shaders/";
 
         // Public members
+
+        /**
+         * Gets or sets a boolean that indicates if textures must be forced to power of 2 size even if not required
+         */
         public forcePOTTextures = false;
+
+        /**
+         * Gets a boolean indicating if the engine is currently rendering in fullscreen mode
+         */
         public isFullscreen = false;
+
+        /**
+         * Gets a boolean indicating if the pointer is currently locked
+         */
         public isPointerLock = false;
+
+        /**
+         * Gets or sets a boolean indicating if back faces must be culled (true by default)
+         */
         public cullBackFaces = true;
+
+        /**
+         * Gets or sets a boolean indicating if the engine must keep rendering even if the window is not in foregroun
+         */
         public renderEvenInBackground = true;
+
+        /**
+         * Gets or sets a boolean indicating that cache can be kept between frames
+         */
         public preventCacheWipeBetweenFrames = false;
-        // To enable/disable IDB support and avoid XHR on .manifest
+
+        /** 
+         * Gets or sets a boolean to enable/disable IndexedDB support and avoid XHR on .manifest
+         **/
         public enableOfflineSupport = false;
+
+        /** 
+         * Gets or sets a boolean to enable/disable checking manifest if IndexedDB support is enabled (Babylon.js will always consider the database is up to date)
+         **/
+        public disableManifestCheck = false;        
+
+        /**
+         * Gets the list of created scenes
+         */
         public scenes = new Array<Scene>();
+
+        /**
+         * Gets the list of created postprocesses
+         */
         public postProcesses = new Array<PostProcess>();
 
         // Observables
@@ -642,13 +817,28 @@
         private _vrExclusivePointerMode = false;
         private _webVRInitPromise: Promise<IDisplayChangedEventArgs>;
 
+        /**
+         * Gets a boolean indicating that the engine is currently in VR exclusive mode for the pointers
+         * @see https://docs.microsoft.com/en-us/microsoft-edge/webvr/essentials#mouse-input
+         */
         public get isInVRExclusivePointerMode(): boolean {
             return this._vrExclusivePointerMode;
         }
 
         // Uniform buffers list
+
+        /**
+         * Gets or sets a boolean indicating that uniform buffers must be disabled even if they are supported
+         */
         public disableUniformBuffers = false;
+
+        /** @hidden */
         public _uniformBuffers = new Array<UniformBuffer>();
+
+        /**
+         * Gets a boolean indicating that the engine supports uniform buffers
+         * @see http://doc.babylonjs.com/features/webgl2#uniform-buffer-objets
+         */
         public get supportsUniformBuffers(): boolean {
             return this.webGLVersion > 1 && !this.disableUniformBuffers;
         }
@@ -681,27 +871,32 @@
         private _windowIsBackground = false;
         private _webGLVersion = 1.0;
 
+        /**
+         * Gets a boolean indicating that only power of 2 textures are supported
+         * Please note that you can still use non power of 2 textures but in this case the engine will forcefully convert them
+         */
         public get needPOTTextures(): boolean {
             return this._webGLVersion < 2 || this.forcePOTTextures;
         }
 
-        private _badOS = false;
-        public get badOS(): boolean {
-            return this._badOS;
-        }
+        /** @hidden */
+        public _badOS = false;
 
-        private _badDesktopOS = false;
-        public get badDesktopOS(): boolean {
-            return this._badDesktopOS;
-        }
+        /** @hidden */
+        public _badDesktopOS = false;
 
         /**
          * Gets or sets a value indicating if we want to disable texture binding optmization.
-         * This could be required on some buggy drivers which wants to have textures bound in a progressive order
-         * By default Babylon.js will try to let textures bound where they are and only update the samplers to point where the texture is.
+         * This could be required on some buggy drivers which wants to have textures bound in a progressive order.
+         * By default Babylon.js will try to let textures bound where they are and only update the samplers to point where the texture is
          */
         public disableTextureBindingOptimization = false;
 
+        /** 
+         * Gets the audio engine 
+         * @see http://doc.babylonjs.com/how_to/playing_sounds_and_music
+         * @ignorenaming
+         */
         public static audioEngine: AudioEngine;
 
         // Focus
@@ -721,11 +916,22 @@
         private _onVrDisplayConnect: Nullable<(display: any) => void>;
         private _onVrDisplayDisconnect: Nullable<() => void>;
         private _onVrDisplayPresentChange: Nullable<() => void>;
+
+        /**
+         * Observable signaled when VR display mode changes
+         */
         public onVRDisplayChangedObservable = new Observable<IDisplayChangedEventArgs>();
+        /**
+         * Observable signaled when VR request present is complete
+         */
         public onVRRequestPresentComplete = new Observable<boolean>();
+        /**
+         * Observable signaled when VR request present starts
+         */
         public onVRRequestPresentStart = new Observable<Engine>();
 
         private _hardwareScalingLevel: number;
+        /** @hidden */
         protected _caps: EngineCapabilities;
         private _pointerLockRequested: boolean;
         private _isStencilEnable: boolean;
@@ -733,7 +939,9 @@
 
         private _loadingScreen: ILoadingScreen;
 
+        /** @hidden */
         public _drawCalls = new PerfCounter();
+        /** @hidden */
         public _textureCollisions = new PerfCounter();
 
         private _glVersion: string;
@@ -750,12 +958,30 @@
         private _lockstepMaxSteps: number = 4;
 
         // Lost context
+        /**
+         * Observable signaled when a context lost event is raised
+         */
         public onContextLostObservable = new Observable<Engine>();
+        /**
+         * Observable signaled when a context restored event is raised
+         */
         public onContextRestoredObservable = new Observable<Engine>();
         private _onContextLost: (evt: Event) => void;
         private _onContextRestored: (evt: Event) => void;
         private _contextWasLost = false;
         private _doNotHandleContextLost = false;
+
+        /**
+         * Gets or sets a boolean indicating if resources should be retained to be able to handle context lost events
+         * @see http://doc.babylonjs.com/how_to/optimizing_your_scene#handling-webgl-context-lost
+         */
+        public get doNotHandleContextLost(): boolean {
+            return this._doNotHandleContextLost;
+        }
+
+        public set doNotHandleContextLost(value: boolean) {
+            this._doNotHandleContextLost = value;
+        }
 
         // FPS
         private _performanceMonitor = new PerformanceMonitor();
@@ -766,33 +992,51 @@
          */
         public disablePerformanceMonitorInBackground = false;
 
+        /**
+         * Gets the performance monitor attached to this engine
+         * @see http://doc.babylonjs.com/how_to/optimizing_your_scene#engineinstrumentation
+         */
         public get performanceMonitor(): PerformanceMonitor {
             return this._performanceMonitor;
         }
 
         // States
+        /** @hidden */
         protected _depthCullingState = new _DepthCullingState();
+        /** @hidden */
         protected _stencilState = new _StencilState();
+        /** @hidden */
         protected _alphaState = new _AlphaState();
+        /** @hidden */
         protected _alphaMode = Engine.ALPHA_DISABLE;
 
         // Cache
-        private _internalTexturesCache = new Array<InternalTexture>();
+        protected _internalTexturesCache = new Array<InternalTexture>();
+        /** @hidden */
         protected _activeChannel = 0;
-        private _currentTextureChannel = -1;
+        private _currentTextureChannel = -1;    
+        /** @hidden */
         protected _boundTexturesCache: { [key: string]: Nullable<InternalTexture> } = {};
+        /** @hidden */
         protected _currentEffect: Nullable<Effect>;
+        /** @hidden */
         protected _currentProgram: Nullable<WebGLProgram>;
         private _compiledEffects: { [key: string]: Effect } = {}
         private _vertexAttribArraysEnabled: boolean[] = [];
+        /** @hidden */
         protected _cachedViewport: Nullable<Viewport>;
         private _cachedVertexArrayObject: Nullable<WebGLVertexArrayObject>;
+        /** @hidden */
         protected _cachedVertexBuffers: any;
+        /** @hidden */
         protected _cachedIndexBuffer: Nullable<WebGLBuffer>;
+        /** @hidden */
         protected _cachedEffectForVertexBuffers: Nullable<Effect>;
+        /** @hidden */
         protected _currentRenderTarget: Nullable<InternalTexture>;
         private _uintIndicesCurrentlySet = false;
         private _currentBoundBuffer = new Array<Nullable<WebGLBuffer>>();
+        /** @hidden */
         protected _currentFramebuffer: Nullable<WebGLFramebuffer>;
         private _currentBufferPointers = new Array<BufferPointer>();
         private _currentInstanceLocations = new Array<number>();
@@ -828,19 +1072,30 @@
         private _texturesSupported = new Array<string>();
         private _textureFormatInUse: Nullable<string>;
 
+        /**
+         * Gets the list of texture formats supported
+         */
         public get texturesSupported(): Array<string> {
             return this._texturesSupported;
         }
 
+        /**
+         * Gets the list of texture formats in use
+         */
         public get textureFormatInUse(): Nullable<string> {
             return this._textureFormatInUse;
         }
 
+        /**
+         * Gets the current viewport
+         */
         public get currentViewport(): Nullable<Viewport> {
             return this._cachedViewport;
         }
 
-        // Empty texture
+        /**
+         * Gets the default empty texture
+         */
         public get emptyTexture(): InternalTexture {
             if (!this._emptyTexture) {
                 this._emptyTexture = this.createRawTexture(new Uint8Array(4), 1, 1, Engine.TEXTUREFORMAT_RGBA, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -848,6 +1103,10 @@
 
             return this._emptyTexture;
         }
+
+        /**
+         * Gets the default empty 3D texture
+         */        
         public get emptyTexture3D(): InternalTexture {
             if (!this._emptyTexture3D) {
                 this._emptyTexture3D = this.createRawTexture3D(new Uint8Array(4), 1, 1, 1, Engine.TEXTUREFORMAT_RGBA, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -855,6 +1114,10 @@
 
             return this._emptyTexture3D;
         }
+
+        /**
+         * Gets the default empty cube texture
+         */        
         public get emptyCubeTexture(): InternalTexture {
             if (!this._emptyCubeTexture) {
                 var faceData = new Uint8Array(4);
@@ -866,7 +1129,12 @@
         }
 
         /**
-         * @constructor
+         * Defines whether the engine has been created with the premultipliedAlpha option on or not.
+         */
+        public readonly premultipliedAlpha: boolean = true;
+
+        /**
+         * Creates a new engine
          * @param canvasOrContext defines the canvas or WebGL context to use for rendering
          * @param antialias defines enable antialiasing (default: false)
          * @param options defines further options to be sent to the getContext() function
@@ -914,6 +1182,10 @@
                     options.stencil = true;
                 }
 
+                if (options.premultipliedAlpha === false) {
+                    this.premultipliedAlpha = false;
+                }
+
                 this._deterministicLockstep = options.deterministicLockstep;
                 this._lockstepMaxSteps = options.lockstepMaxSteps;
                 this._doNotHandleContextLost = options.doNotHandleContextLost ? true : false;
@@ -952,11 +1224,10 @@
                                         break;
                                 }
                             }
-                            break;
                         }
                     }
                 }
-
+                
                 // GL
                 if (!options.disableWebGL2Support) {
                     try {
@@ -1157,7 +1428,7 @@
             // Detect if we are running on a faulty buggy desktop OS.
             this._badDesktopOS = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-            Tools.Log("Babylon.js engine (v" + Engine.Version + ") launched");
+            console.log("Babylon.js engine (v" + Engine.Version + ") launched");
 
             this.enableOfflineSupport = (Database !== undefined);
         }
@@ -1263,18 +1534,18 @@
             // Checks if some of the format renders first to allow the use of webgl inspector.
             this._caps.colorBufferFloat = this._webGLVersion > 1 && this._gl.getExtension('EXT_color_buffer_float');
 
-            this._caps.textureFloat = this._webGLVersion > 1 || this._gl.getExtension('OES_texture_float');
-            this._caps.textureFloatLinearFiltering = this._caps.textureFloat && this._gl.getExtension('OES_texture_float_linear');
-            this._caps.textureFloatRender = this._caps.textureFloat && this._canRenderToFloatFramebuffer();
+            this._caps.textureFloat = (this._webGLVersion > 1 || this._gl.getExtension('OES_texture_float')) ? true : false;
+            this._caps.textureFloatLinearFiltering = this._caps.textureFloat && this._gl.getExtension('OES_texture_float_linear') ? true : false;
+            this._caps.textureFloatRender = this._caps.textureFloat && this._canRenderToFloatFramebuffer() ? true: false;
 
-            this._caps.textureHalfFloat = this._webGLVersion > 1 || this._gl.getExtension('OES_texture_half_float');
-            this._caps.textureHalfFloatLinearFiltering = this._webGLVersion > 1 || (this._caps.textureHalfFloat && this._gl.getExtension('OES_texture_half_float_linear'));
+            this._caps.textureHalfFloat = (this._webGLVersion > 1 || this._gl.getExtension('OES_texture_half_float')) ? true: false;
+            this._caps.textureHalfFloatLinearFiltering = (this._webGLVersion > 1 || (this._caps.textureHalfFloat && this._gl.getExtension('OES_texture_half_float_linear'))) ? true : false;
             if (this._webGLVersion > 1) {
                 this._gl.HALF_FLOAT_OES = 0x140B;
             }
             this._caps.textureHalfFloatRender = this._caps.textureHalfFloat && this._canRenderToHalfFloatFramebuffer();
 
-            this._caps.textureLOD = this._webGLVersion > 1 || this._gl.getExtension('EXT_shader_texture_lod');
+            this._caps.textureLOD = (this._webGLVersion > 1 || this._gl.getExtension('EXT_shader_texture_lod')) ? true: false;
 
             // Draw buffers
             if (this._webGLVersion > 1) {
@@ -1288,7 +1559,7 @@
                     this._gl.DRAW_FRAMEBUFFER = this._gl.FRAMEBUFFER;
 
                     for (var i = 0; i < 16; i++) {
-                        (<any>this._gl)["COLOR_ATTACHMENT" + i + "_WEBGL"] = drawBuffersExtension["COLOR_ATTACHMENT" + i + "_WEBGL"];
+                        (<any>this._gl)["COLOR_ATTACHMENT" + i + "_WEBGL"] = (<any>drawBuffersExtension)["COLOR_ATTACHMENT" + i + "_WEBGL"];
                     }
                 } else {
                     this._caps.drawBuffersExtension = false;
@@ -1369,6 +1640,9 @@
             }
         }
 
+        /**
+         * Gets version of the current webGL context
+         */
         public get webGLVersion(): number {
             return this._webGLVersion;
         }
@@ -1393,15 +1667,21 @@
             }
         }
 
+        /**
+         * Reset the texture cache to empty state
+         */
         public resetTextureCache() {
             for (var key in this._boundTexturesCache) {
+                if (!this._boundTexturesCache.hasOwnProperty(key)) {
+                    continue;
+                }
                 let boundTexture = this._boundTexturesCache[key];
                 if (boundTexture) {
                     this._removeDesignatedSlot(boundTexture);
                 }
                 this._boundTexturesCache[key] = null;
-            }
-
+            }       
+            
             if (!this.disableTextureBindingOptimization) {
                 this._nextFreeTextureSlots = [];
                 for (let slot = 0; slot < this._maxSimultaneousTextures; slot++) {
@@ -1412,14 +1692,28 @@
             this._currentTextureChannel = -1;
         }
 
+        /**
+         * Gets a boolean indicating that the engine is running in deterministic lock step mode
+         * @see http://doc.babylonjs.com/babylon101/animations#deterministic-lockstep
+         * @returns true if engine is in deterministic lock step mode
+         */
         public isDeterministicLockStep(): boolean {
             return this._deterministicLockstep;
         }
 
+        /**
+         * Gets the max steps when engine is running in deterministic lock step
+         * @see http://doc.babylonjs.com/babylon101/animations#deterministic-lockstep
+         * @returns the max steps
+         */
         public getLockstepMaxSteps(): number {
             return this._lockstepMaxSteps;
         }
 
+        /**
+         * Gets an object containing information about the current webGL context
+         * @returns an object containing the vender, the renderer and the version of the current webGL context
+         */
         public getGlInfo() {
             return {
                 vendor: this._glVendor,
@@ -1428,11 +1722,30 @@
             }
         }
 
+        /**
+         * Gets current aspect ratio
+         * @param camera defines the camera to use to get the aspect ratio
+         * @param useScreen defines if screen size must be used (or the current render target if any)
+         * @returns a number defining the aspect ratio
+         */
         public getAspectRatio(camera: Camera, useScreen = false): number {
             var viewport = camera.viewport;
             return (this.getRenderWidth(useScreen) * viewport.width) / (this.getRenderHeight(useScreen) * viewport.height);
         }
 
+        /**
+         * Gets current screen aspect ratio
+         * @returns a number defining the aspect ratio
+         */
+        public getScreenAspectRatio(): number {
+            return (this.getRenderWidth(true)) / (this.getRenderHeight(true));
+        }        
+
+        /**
+         * Gets the current render width
+         * @param useScreen defines if screen size must be used (or the current render target if any)
+         * @returns a number defining the current render width
+         */
         public getRenderWidth(useScreen = false): number {
             if (!useScreen && this._currentRenderTarget) {
                 return this._currentRenderTarget.width;
@@ -1441,6 +1754,11 @@
             return this._gl.drawingBufferWidth;
         }
 
+        /**
+         * Gets the current render height
+         * @param useScreen defines if screen size must be used (or the current render target if any)
+         * @returns a number defining the current render height
+         */        
         public getRenderHeight(useScreen = false): number {
             if (!useScreen && this._currentRenderTarget) {
                 return this._currentRenderTarget.height;
@@ -1449,10 +1767,18 @@
             return this._gl.drawingBufferHeight;
         }
 
+        /**
+         * Gets the HTML canvas attached with the current webGL context
+         * @returns a HTML canvas
+         */
         public getRenderingCanvas(): Nullable<HTMLCanvasElement> {
             return this._renderingCanvas;
         }
 
+        /**
+         * Gets the client rect of the HTML canvas attached with the current webGL context
+         * @returns a client rectanglee
+         */
         public getRenderingCanvasClientRect(): Nullable<ClientRect> {
             if (!this._renderingCanvas) {
                 return null;
@@ -1460,122 +1786,231 @@
             return this._renderingCanvas.getBoundingClientRect();
         }
 
+        /**
+         * Defines the hardware scaling level.
+         * By default the hardware scaling level is computed from the window device ratio.
+         * if level = 1 then the engine will render at the exact resolution of the canvas. If level = 0.5 then the engine will render at twice the size of the canvas.
+         * @param level defines the level to use
+         */
         public setHardwareScalingLevel(level: number): void {
             this._hardwareScalingLevel = level;
             this.resize();
         }
 
+        /**
+         * Gets the current hardware scaling level.
+         * By default the hardware scaling level is computed from the window device ratio.
+         * if level = 1 then the engine will render at the exact resolution of the canvas. If level = 0.5 then the engine will render at twice the size of the canvas.
+         * @returns a number indicating the current hardware scaling level
+         */        
         public getHardwareScalingLevel(): number {
             return this._hardwareScalingLevel;
         }
 
+        /**
+         * Gets the list of loaded textures
+         * @returns an array containing all loaded textures
+         */
         public getLoadedTexturesCache(): InternalTexture[] {
             return this._internalTexturesCache;
         }
 
+        /**
+         * Gets the object containing all engine capabilities
+         * @returns the EngineCapabilities object
+         */
         public getCaps(): EngineCapabilities {
             return this._caps;
         }
 
-        /** The number of draw calls submitted last frame */
+        /** @hidden */
         public get drawCalls(): number {
             Tools.Warn("drawCalls is deprecated. Please use SceneInstrumentation class");
             return 0;
         }
 
+        /** @hidden */
         public get drawCallsPerfCounter(): Nullable<PerfCounter> {
             Tools.Warn("drawCallsPerfCounter is deprecated. Please use SceneInstrumentation class");
             return null;
         }
 
+        /**
+         * Gets the current depth function
+         * @returns a number defining the depth function
+         */
         public getDepthFunction(): Nullable<number> {
             return this._depthCullingState.depthFunc;
         }
 
+        /**
+         * Sets the current depth function
+         * @param depthFunc defines the function to use
+         */
         public setDepthFunction(depthFunc: number) {
             this._depthCullingState.depthFunc = depthFunc;
         }
 
+        /**
+         * Sets the current depth function to GREATER
+         */        
         public setDepthFunctionToGreater(): void {
             this._depthCullingState.depthFunc = this._gl.GREATER;
         }
 
+        /**
+         * Sets the current depth function to GEQUAL
+         */        
         public setDepthFunctionToGreaterOrEqual(): void {
             this._depthCullingState.depthFunc = this._gl.GEQUAL;
         }
 
+        /**
+         * Sets the current depth function to LESS
+         */          
         public setDepthFunctionToLess(): void {
             this._depthCullingState.depthFunc = this._gl.LESS;
         }
 
+        /**
+         * Sets the current depth function to LEQUAL
+         */                
         public setDepthFunctionToLessOrEqual(): void {
             this._depthCullingState.depthFunc = this._gl.LEQUAL;
         }
 
+        /**
+         * Gets a boolean indicating if stencil buffer is enabled
+         * @returns the current stencil buffer state
+         */
         public getStencilBuffer(): boolean {
             return this._stencilState.stencilTest;
         }
 
+        /**
+         * Enable or disable the stencil buffer
+         * @param enable defines if the stencil buffer must be enabled or disabled
+         */
         public setStencilBuffer(enable: boolean): void {
             this._stencilState.stencilTest = enable;
         }
 
+        /**
+         * Gets the current stencil mask
+         * @returns a number defining the new stencil mask to use
+         */
         public getStencilMask(): number {
             return this._stencilState.stencilMask;
         }
 
+        /**
+         * Sets the current stencil mask
+         * @param mask defines the new stencil mask to use
+         */        
         public setStencilMask(mask: number): void {
             this._stencilState.stencilMask = mask;
         }
 
+        /**
+         * Gets the current stencil function
+         * @returns a number defining the stencil function to use
+         */        
         public getStencilFunction(): number {
             return this._stencilState.stencilFunc;
         }
 
+        /**
+         * Gets the current stencil reference value
+         * @returns a number defining the stencil reference value to use
+         */             
         public getStencilFunctionReference(): number {
             return this._stencilState.stencilFuncRef;
         }
 
+        /**
+         * Gets the current stencil mask
+         * @returns a number defining the stencil mask to use
+         */                 
         public getStencilFunctionMask(): number {
             return this._stencilState.stencilFuncMask;
         }
 
+        /**
+         * Sets the current stencil function
+         * @param stencilFunc defines the new stencil function to use
+         */             
         public setStencilFunction(stencilFunc: number) {
             this._stencilState.stencilFunc = stencilFunc;
         }
 
+        /**
+         * Sets the current stencil reference
+         * @param reference defines the new stencil reference to use
+         */            
         public setStencilFunctionReference(reference: number) {
             this._stencilState.stencilFuncRef = reference;
         }
 
+        /**
+         * Sets the current stencil mask
+         * @param mask defines the new stencil mask to use
+         */            
         public setStencilFunctionMask(mask: number) {
             this._stencilState.stencilFuncMask = mask;
         }
 
+        /**
+         * Gets the current stencil operation when stencil fails
+         * @returns a number defining stencil operation to use when stencil fails
+         */           
         public getStencilOperationFail(): number {
             return this._stencilState.stencilOpStencilFail;
         }
 
+        /**
+         * Gets the current stencil operation when depth fails
+         * @returns a number defining stencil operation to use when depth fails
+         */           
         public getStencilOperationDepthFail(): number {
             return this._stencilState.stencilOpDepthFail;
         }
 
+        /**
+         * Gets the current stencil operation when stencil passes
+         * @returns a number defining stencil operation to use when stencil passes
+         */         
         public getStencilOperationPass(): number {
             return this._stencilState.stencilOpStencilDepthPass;
         }
 
+        /**
+         * Sets the stencil operation to use when stencil fails
+         * @param operation defines the stencil operation to use when stencil fails
+         */         
         public setStencilOperationFail(operation: number): void {
             this._stencilState.stencilOpStencilFail = operation;
         }
 
+        /**
+         * Sets the stencil operation to use when depth fails
+         * @param operation defines the stencil operation to use when depth fails
+         */         
         public setStencilOperationDepthFail(operation: number): void {
             this._stencilState.stencilOpDepthFail = operation;
         }
 
+        /**
+         * Sets the stencil operation to use when stencil passes
+         * @param operation defines the stencil operation to use when stencil passes
+         */        
         public setStencilOperationPass(operation: number): void {
             this._stencilState.stencilOpStencilDepthPass = operation;
         }
 
+        /**
+         * Sets a boolean indicating if the dithering state is enabled or disabled
+         * @param value defines the dithering state
+         */
         public setDitheringState(value: boolean): void {
             if (value) {
                 this._gl.enable(this._gl.DITHER);
@@ -1584,6 +2019,10 @@
             }
         }
 
+        /**
+         * Sets a boolean indicating if the rasterizer state is enabled or disabled
+         * @param value defines the rasterizer state
+         */        
         public setRasterizerState(value: boolean): void {
             if (value) {
                 this._gl.disable(this._gl.RASTERIZER_DISCARD);
@@ -1594,7 +2033,7 @@
 
         /**
          * stop executing a render loop function and remove it from the execution array
-         * @param {Function} [renderFunction] the function to be removed. If not provided all functions will be removed.
+         * @param renderFunction defines the function to be removed. If not provided all functions will be removed.
          */
         public stopRenderLoop(renderFunction?: () => void): void {
             if (!renderFunction) {
@@ -1609,6 +2048,7 @@
             }
         }
 
+        /** @hidden */
         public _renderLoop(): void {
             if (!this._contextWasLost) {
                 var shouldRender = true;
@@ -1643,12 +2083,8 @@
         }
 
         /**
-         * Register and execute a render loop. The engine can have more than one render function.
-         * @param {Function} renderFunction - the function to continuously execute starting the next render loop.
-         * @example
-         * engine.runRenderLoop(function () {
-         *      scene.render()
-         * })
+         * Register and execute a render loop. The engine can have more than one render function
+         * @param renderFunction defines the function to continuously execute
          */
         public runRenderLoop(renderFunction: () => void): void {
             if (this._activeRenderLoops.indexOf(renderFunction) !== -1) {
@@ -1665,9 +2101,9 @@
         }
 
         /**
-         * Toggle full screen mode.
-         * @param {boolean} requestPointerLock - should a pointer lock be requested from the user
-         * @param {any} options - an options object to be sent to the requestFullscreen function
+         * Toggle full screen mode
+         * @param requestPointerLock defines if a pointer lock should be requested from the user
+         * @param options defines an option object to be sent to the requestFullscreen function
          */
         public switchFullscreen(requestPointerLock: boolean): void {
             if (this.isFullscreen) {
@@ -1680,6 +2116,13 @@
             }
         }
 
+        /**
+         * Clear the current render buffer or the current render target (if any is set up)
+         * @param color defines the color to use 
+         * @param backBuffer defines if the back buffer must be cleared
+         * @param depth defines if the depth buffer must be cleared
+         * @param stencil defines if the stencil buffer must be cleared
+         */
         public clear(color: Nullable<Color4>, backBuffer: boolean, depth: boolean, stencil: boolean = false): void {
             this.applyStates();
 
@@ -1699,6 +2142,14 @@
             this._gl.clear(mode);
         }
 
+        /**
+         * Executes a scissor clear (ie. a clear on a specific portion of the screen)
+         * @param x defines the x-coordinate of the top left corner of the clear rectangle
+         * @param y defines the y-coordinate of the corner of the clear rectangle 
+         * @param width defines the width of the clear rectangle
+         * @param height defines the height of the clear rectangle
+         * @param clearColor defines the clear color
+         */
         public scissorClear(x: number, y: number, width: number, height: number, clearColor: Color4): void {
             let gl = this._gl;
 
@@ -1723,11 +2174,29 @@
             }
         }
 
+        private _viewportCached = new BABYLON.Vector4(0, 0, 0, 0);
+        
+        /** @hidden */
+        public _viewport(x: number, y: number, width: number, height: number): void {
+            if (x !== this._viewportCached.x ||
+                y !== this._viewportCached.y ||
+                width !== this._viewportCached.z ||
+                height !== this._viewportCached.w)
+            {
+                this._viewportCached.x = x;
+                this._viewportCached.y = y;
+                this._viewportCached.z = width;
+                this._viewportCached.w = height;
+
+                this._gl.viewport(x, y, width, height);
+            }
+        }
+
         /**
          * Set the WebGL's viewport
-         * @param {BABYLON.Viewport} viewport - the viewport element to be used.
-         * @param {number} [requiredWidth] - the width required for rendering. If not provided the rendering canvas' width is used.
-         * @param {number} [requiredHeight] - the height required for rendering. If not provided the rendering canvas' height is used.
+         * @param viewport defines the viewport element to be used
+         * @param requiredWidth defines the width required for rendering. If not provided the rendering canvas' width is used
+         * @param requiredHeight defines the height required for rendering. If not provided the rendering canvas' height is used
          */
         public setViewport(viewport: Viewport, requiredWidth?: number, requiredHeight?: number): void {
             var width = requiredWidth || this.getRenderWidth();
@@ -1737,35 +2206,44 @@
 
             this._cachedViewport = viewport;
 
-            this._gl.viewport(x * width, y * height, width * viewport.width, height * viewport.height);
+            this._viewport(x * width, y * height, width * viewport.width, height * viewport.height);
         }
 
         /**
          * Directly set the WebGL Viewport
-         * The x, y, width & height are directly passed to the WebGL call
-         * @return the current viewport Object (if any) that is being replaced by this call. You can restore this viewport later on to go back to the original state.
+         * @param x defines the x coordinate of the viewport (in screen space)
+         * @param y defines the y coordinate of the viewport (in screen space)
+         * @param width defines the width of the viewport (in screen space)
+         * @param height defines the height of the viewport (in screen space)
+         * @return the current viewport Object (if any) that is being replaced by this call. You can restore this viewport later on to go back to the original state
          */
         public setDirectViewport(x: number, y: number, width: number, height: number): Nullable<Viewport> {
             let currentViewport = this._cachedViewport;
             this._cachedViewport = null;
 
-            this._gl.viewport(x, y, width, height);
+            this._viewport(x, y, width, height);
 
             return currentViewport;
         }
 
+        /**
+         * Begin a new frame
+         */
         public beginFrame(): void {
             this.onBeginFrameObservable.notifyObservers(this);
             this._measureFps();
         }
 
+        /**
+         * Enf the current frame
+         */
         public endFrame(): void {
-            //force a flush in case we are using a bad OS.
+            // Force a flush in case we are using a bad OS.
             if (this._badOS) {
                 this.flushFramebuffer();
             }
 
-            //submit frame to the vr device, if enabled
+            // Submit frame to the vr device, if enabled
             if (this._vrDisplay && this._vrDisplay.isPresenting) {
                 // TODO: We should only submit the frame if we read frameData successfully.
                 this._vrDisplay.submitFrame();
@@ -1775,11 +2253,7 @@
         }
 
         /**
-         * resize the view according to the canvas' size.
-         * @example
-         *   window.addEventListener("resize", function () {
-         *      engine.resize();
-         *   });
+         * Resize the view according to the canvas' size
          */
         public resize(): void {
             // We're not resizing the size of the canvas while in VR mode & presenting
@@ -1792,9 +2266,9 @@
         }
 
         /**
-         * force a specific size of the canvas
-         * @param {number} width - the new canvas' width
-         * @param {number} height - the new canvas' height
+         * Force a specific size of the canvas
+         * @param width defines the new canvas' width
+         * @param height defines the new canvas' height
          */
         public setSize(width: number, height: number): void {
             if (!this._renderingCanvas) {
@@ -1824,18 +2298,27 @@
         }
 
         // WebVR functions
+
+        /**
+         * Gets a boolean indicating if a webVR device was detected
+         * @returns true if a webVR device was detected
+         */
         public isVRDevicePresent(): boolean {
             return !!this._vrDisplay;
         }
 
+        /**
+         * Gets the current webVR device
+         * @returns the current webVR device (or null)
+         */
         public getVRDevice(): any {
             return this._vrDisplay;
         }
 
         /**
-         * Initializes a webVR display and starts listening to display change events.
-         * The onVRDisplayChangedObservable will be notified upon these changes.
-         * @returns The onVRDisplayChangedObservable.
+         * Initializes a webVR display and starts listening to display change events
+         * The onVRDisplayChangedObservable will be notified upon these changes
+         * @returns The onVRDisplayChangedObservable
          */
         public initWebVR(): Observable<IDisplayChangedEventArgs> {
             this.initWebVRAsync();
@@ -1843,9 +2326,9 @@
         }
 
         /**
-         * Initializes a webVR display and starts listening to display change events.
-         * The onVRDisplayChangedObservable will be notified upon these changes.
-         * @returns A promise containing a VRDisplay and if vr is supported.
+         * Initializes a webVR display and starts listening to display change events
+         * The onVRDisplayChangedObservable will be notified upon these changes
+         * @returns A promise containing a VRDisplay and if vr is supported
          */
         public initWebVRAsync(): Promise<IDisplayChangedEventArgs> {
             var notifyObservers = () => {
@@ -1880,6 +2363,11 @@
             return this._webVRInitPromise;
         }
 
+        /**
+         * Call this function to switch to webVR mode
+         * Will do nothing if webVR is not supported or if there is no webVR device
+         * @see http://doc.babylonjs.com/how_to/webvr_camera
+         */
         public enableVR() {
             if (this._vrDisplay && !this._vrDisplay.isPresenting) {
                 var onResolved = () => {
@@ -1895,6 +2383,11 @@
             }
         }
 
+        /**
+         * Call this function to leave webVR mode
+         * Will do nothing if webVR is not supported or if there is no webVR device
+         * @see http://doc.babylonjs.com/how_to/webvr_camera
+         */
         public disableVR() {
             if (this._vrDisplay && this._vrDisplay.isPresenting) {
                 this._vrDisplay.exitPresent().then(this._onVRFullScreenTriggered).catch(this._onVRFullScreenTriggered);
@@ -1949,8 +2442,9 @@
          * @param requiredHeight The height of the target to render to
          * @param forceFullscreenViewport Forces the viewport to be the entire texture/screen if true
          * @param depthStencilTexture The depth stencil texture to use to render
+         * @param lodLevel defines le lod level to bind to the frame buffer
          */
-        public bindFramebuffer(texture: InternalTexture, faceIndex?: number, requiredWidth?: number, requiredHeight?: number, forceFullscreenViewport?: boolean, depthStencilTexture?: InternalTexture): void {
+        public bindFramebuffer(texture: InternalTexture, faceIndex?: number, requiredWidth?: number, requiredHeight?: number, forceFullscreenViewport?: boolean, depthStencilTexture?: InternalTexture, lodLevel = 0): void {
             if (this._currentRenderTarget) {
                 this.unBindFramebuffer(this._currentRenderTarget);
             }
@@ -1961,14 +2455,14 @@
                 if (faceIndex === undefined) {
                     faceIndex = 0;
                 }
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture._webGLTexture, 0);
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture._webGLTexture, lodLevel);
 
                 if (depthStencilTexture) {
                     if (depthStencilTexture._generateStencilBuffer) {
-                        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, depthStencilTexture, 0);
+                        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, depthStencilTexture._webGLTexture, lodLevel);
                     }
                     else {
-                        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, depthStencilTexture, 0);
+                        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, depthStencilTexture._webGLTexture, lodLevel);
                     }
                 }
             }
@@ -1976,7 +2470,20 @@
             if (this._cachedViewport && !forceFullscreenViewport) {
                 this.setViewport(this._cachedViewport, requiredWidth, requiredHeight);
             } else {
-                gl.viewport(0, 0, requiredWidth || texture.width, requiredHeight || texture.height);
+                if (!requiredWidth) {
+                    requiredWidth = texture.width;
+                    if (lodLevel) {
+                        requiredWidth = requiredWidth / Math.pow(2, lodLevel);
+                    }
+                }
+                if (!requiredHeight) {
+                    requiredHeight = texture.height;
+                    if (lodLevel) {
+                        requiredHeight = requiredHeight / Math.pow(2, lodLevel);
+                    }
+                }
+
+                this._viewport(0, 0, requiredWidth, requiredHeight);
             }
 
             this.wipeCaches();
@@ -1989,6 +2496,12 @@
             }
         }
 
+        /**
+         * Unbind the current render target texture from the webGL context
+         * @param texture defines the render target texture to unbind
+         * @param disableGenerateMipMaps defines a boolean indicating that mipmaps must not be generated
+         * @param onBeforeUnbind defines a function which will be called before the effective unbind
+         */
         public unBindFramebuffer(texture: InternalTexture, disableGenerateMipMaps = false, onBeforeUnbind?: () => void): void {
             this._currentRenderTarget = null;
 
@@ -2020,6 +2533,13 @@
             this.bindUnboundFramebuffer(null);
         }
 
+        /**
+         * Unbind a list of render target textures from the webGL context
+         * This is used only when drawBuffer extension or webGL2 are active
+         * @param textures defines the render target textures to unbind
+         * @param disableGenerateMipMaps defines a boolean indicating that mipmaps must not be generated
+         * @param onBeforeUnbind defines a function which will be called before the effective unbind
+         */        
         public unBindMultiColorAttachmentFramebuffer(textures: InternalTexture[], disableGenerateMipMaps = false, onBeforeUnbind?: () => void): void {
             this._currentRenderTarget = null;
 
@@ -2078,6 +2598,10 @@
             this.bindUnboundFramebuffer(null);
         }
 
+        /**
+         * Force the mipmap generation for the given render target texture
+         * @param texture defines the render target texture to use
+         */
         public generateMipMapsForCubemap(texture: InternalTexture) {
             if (texture.generateMipMaps) {
                 var gl = this._gl;
@@ -2087,10 +2611,16 @@
             }
         }
 
+        /**
+         * Force a webGL flush (ie. a flush of all waiting webGL commands)
+         */
         public flushFramebuffer(): void {
             this._gl.flush();
         }
 
+        /**
+         * Unbind the current render target and bind the default framebuffer
+         */
         public restoreDefaultFramebuffer(): void {
             if (this._currentRenderTarget) {
                 this.unBindFramebuffer(this._currentRenderTarget);
@@ -2105,6 +2635,13 @@
         }
 
         // UBOs
+
+        /**
+         * Create an uniform buffer
+         * @see http://doc.babylonjs.com/features/webgl2#uniform-buffer-objets
+         * @param elements defines the content of the uniform buffer
+         * @returns the webGL uniform buffer
+         */
         public createUniformBuffer(elements: FloatArray): WebGLBuffer {
             var ubo = this._gl.createBuffer();
 
@@ -2126,6 +2663,12 @@
             return ubo;
         }
 
+        /**
+         * Create a dynamic uniform buffer
+         * @see http://doc.babylonjs.com/features/webgl2#uniform-buffer-objets
+         * @param elements defines the content of the uniform buffer
+         * @returns the webGL uniform buffer
+         */        
         public createDynamicUniformBuffer(elements: FloatArray): WebGLBuffer {
             var ubo = this._gl.createBuffer();
 
@@ -2147,6 +2690,14 @@
             return ubo;
         }
 
+        /**
+         * Update an existing uniform buffer
+         * @see http://doc.babylonjs.com/features/webgl2#uniform-buffer-objets
+         * @param uniformBuffer defines the target uniform buffer
+         * @param elements defines the content to update
+         * @param offset defines the offset in the uniform buffer where update should start
+         * @param count defines the size of the data to update
+         */
         public updateUniformBuffer(uniformBuffer: WebGLBuffer, elements: FloatArray, offset?: number, count?: number): void {
             this.bindUniformBuffer(uniformBuffer);
 
@@ -2178,7 +2729,12 @@
             this._cachedVertexBuffers = null;
         }
 
-        public createVertexBuffer(vertices: FloatArray): WebGLBuffer {
+        /**
+         * Creates a vertex buffer
+         * @param data the data for the vertex buffer
+         * @returns the new WebGL static buffer
+         */
+        public createVertexBuffer(data: DataArray): WebGLBuffer {
             var vbo = this._gl.createBuffer();
 
             if (!vbo) {
@@ -2187,10 +2743,10 @@
 
             this.bindArrayBuffer(vbo);
 
-            if (vertices instanceof Float32Array) {
-                this._gl.bufferData(this._gl.ARRAY_BUFFER, <Float32Array>vertices, this._gl.STATIC_DRAW);
+            if (data instanceof Array) {
+                this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array(data), this._gl.STATIC_DRAW);
             } else {
-                this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array(<number[]>vertices), this._gl.STATIC_DRAW);
+                this._gl.bufferData(this._gl.ARRAY_BUFFER, <ArrayBuffer>data, this._gl.STATIC_DRAW);
             }
 
             this._resetVertexBufferBinding();
@@ -2198,7 +2754,12 @@
             return vbo;
         }
 
-        public createDynamicVertexBuffer(vertices: FloatArray): WebGLBuffer {
+        /**
+         * Creates a dynamic vertex buffer
+         * @param data the data for the dynamic vertex buffer
+         * @returns the new WebGL dynamic buffer
+         */
+        public createDynamicVertexBuffer(data: DataArray): WebGLBuffer {
             var vbo = this._gl.createBuffer();
 
             if (!vbo) {
@@ -2207,16 +2768,23 @@
 
             this.bindArrayBuffer(vbo);
 
-            if (vertices instanceof Float32Array) {
-                this._gl.bufferData(this._gl.ARRAY_BUFFER, <Float32Array>vertices, this._gl.DYNAMIC_DRAW);
+            if (data instanceof Array) {
+                this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array(data), this._gl.DYNAMIC_DRAW);
             } else {
-                this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array(<number[]>vertices), this._gl.DYNAMIC_DRAW);
+                this._gl.bufferData(this._gl.ARRAY_BUFFER, <ArrayBuffer>data, this._gl.DYNAMIC_DRAW);
             }
+
             this._resetVertexBufferBinding();
             vbo.references = 1;
             return vbo;
         }
 
+        /**
+         * Update a dynamic index buffer
+         * @param indexBuffer defines the target index buffer
+         * @param indices defines the data to update
+         * @param offset defines the offset in the target index buffer where update should start
+         */
         public updateDynamicIndexBuffer(indexBuffer: WebGLBuffer, indices: IndicesArray, offset: number = 0): void {
             // Force cache update
             this._currentBoundBuffer[this._gl.ELEMENT_ARRAY_BUFFER] = null;
@@ -2234,24 +2802,37 @@
             this._resetIndexBufferBinding();
         }
 
-        public updateDynamicVertexBuffer(vertexBuffer: WebGLBuffer, vertices: FloatArray, offset?: number, count?: number): void {
+        /**
+         * Updates a dynamic vertex buffer.
+         * @param vertexBuffer the vertex buffer to update
+         * @param data the data used to update the vertex buffer
+         * @param byteOffset the byte offset of the data
+         * @param byteLength the byte length of the data
+         */
+        public updateDynamicVertexBuffer(vertexBuffer: WebGLBuffer, data: DataArray, byteOffset?: number, byteLength?: number): void {
             this.bindArrayBuffer(vertexBuffer);
 
-            if (offset === undefined) {
-                offset = 0;
+            if (byteOffset === undefined) {
+                byteOffset = 0;
             }
 
-            if (count === undefined) {
-                if (vertices instanceof Float32Array) {
-                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, offset, <Float32Array>vertices);
+            if (byteLength === undefined) {
+                if (data instanceof Array) {
+                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, byteOffset, new Float32Array(data));
                 } else {
-                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, offset, new Float32Array(<number[]>vertices));
+                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, byteOffset, <ArrayBuffer>data);
                 }
             } else {
-                if (vertices instanceof Float32Array) {
-                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, 0, <Float32Array>vertices.subarray(offset, offset + count));
+                if (data instanceof Array) {
+                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, 0, new Float32Array(data).subarray(byteOffset, byteOffset + byteLength));
                 } else {
-                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, 0, new Float32Array(<number[]>vertices).subarray(offset, offset + count));
+                    if (data instanceof ArrayBuffer) {
+                        data = new Uint8Array(data, byteOffset, byteLength);
+                    } else {
+                        data = new Uint8Array(data.buffer, data.byteOffset + byteOffset, byteLength);
+                    }
+
+                    this._gl.bufferSubData(this._gl.ARRAY_BUFFER, 0, <ArrayBuffer>data);
                 }
             }
 
@@ -2263,6 +2844,12 @@
             this._cachedIndexBuffer = null;
         }
 
+        /**
+         * Creates a new index buffer
+         * @param indices defines the content of the index buffer
+         * @param updatable defines if the index buffer must be updatable
+         * @returns a new webGL buffer
+         */
         public createIndexBuffer(indices: IndicesArray, updatable?: boolean): WebGLBuffer {
             var vbo = this._gl.createBuffer();
 
@@ -2308,6 +2895,10 @@
             return vbo;
         }
 
+        /**
+         * Bind a webGL buffer to the webGL context
+         * @param buffer defines the buffer to bind
+         */
         public bindArrayBuffer(buffer: Nullable<WebGLBuffer>): void {
             if (!this._vaoRecordInProgress) {
                 this._unbindVertexArrayObject();
@@ -2315,14 +2906,29 @@
             this.bindBuffer(buffer, this._gl.ARRAY_BUFFER);
         }
 
+        /**
+         * Bind an uniform buffer to the current webGL context
+         * @param buffer defines the buffer to bind
+         */
         public bindUniformBuffer(buffer: Nullable<WebGLBuffer>): void {
             this._gl.bindBuffer(this._gl.UNIFORM_BUFFER, buffer);
         }
 
+        /**
+         * Bind a buffer to the current webGL context at a given location
+         * @param buffer defines the buffer to bind
+         * @param location defines the index where to bind the buffer
+         */        
         public bindUniformBufferBase(buffer: WebGLBuffer, location: number): void {
             this._gl.bindBufferBase(this._gl.UNIFORM_BUFFER, location, buffer);
         }
 
+        /**
+         * Bind a specific block at a given index in a specific shader program
+         * @param shaderProgram defines the shader program
+         * @param blockName defines the block name
+         * @param index defines the index where to bind the block
+         */
         public bindUniformBlock(shaderProgram: WebGLProgram, blockName: string, index: number): void {
             var uniformLocation = this._gl.getUniformBlockIndex(shaderProgram, blockName);
 
@@ -2343,11 +2949,15 @@
             }
         }
 
+        /**
+         * update the bound buffer with the given data
+         * @param data defines the data to update
+         */
         public updateArrayBuffer(data: Float32Array): void {
             this._gl.bufferSubData(this._gl.ARRAY_BUFFER, 0, data);
         }
 
-        private vertexAttribPointer(buffer: WebGLBuffer, indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): void {
+        private _vertexAttribPointer(buffer: WebGLBuffer, indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): void {
             var pointer = this._currentBufferPointers[indx];
 
             var changed = false;
@@ -2413,7 +3023,7 @@
 
                     var buffer = vertexBuffer.getBuffer();
                     if (buffer) {
-                        this.vertexAttribPointer(buffer, order, vertexBuffer.getSize(), this._gl.FLOAT, false, vertexBuffer.getStrideSize() * 4, vertexBuffer.getOffset() * 4);
+                        this._vertexAttribPointer(buffer, order, vertexBuffer.getSize(), vertexBuffer.type, vertexBuffer.normalized, vertexBuffer.byteStride, vertexBuffer.byteOffset);
 
                         if (vertexBuffer.getIsInstanced()) {
                             this._gl.vertexAttribDivisor(order, vertexBuffer.getInstanceDivisor());
@@ -2427,6 +3037,14 @@
             }
         }
 
+        /**
+         * Records a vertex array object
+         * @see http://doc.babylonjs.com/features/webgl2#vertex-array-objects
+         * @param vertexBuffers defines the list of vertex buffers to store
+         * @param indexBuffer defines the index buffer to store
+         * @param effect defines the effect to store
+         * @returns the new vertex array object
+         */
         public recordVertexArrayObject(vertexBuffers: { [key: string]: VertexBuffer; }, indexBuffer: Nullable<WebGLBuffer>, effect: Effect): WebGLVertexArrayObject {
             var vao = this._gl.createVertexArray();
 
@@ -2445,6 +3063,12 @@
             return vao;
         }
 
+        /**
+         * Bind a specific vertex array object
+         * @see http://doc.babylonjs.com/features/webgl2#vertex-array-objects
+         * @param vertexArrayObject defines the vertex array object to bind
+         * @param indexBuffer defines the index buffer to bind
+         */
         public bindVertexArrayObject(vertexArrayObject: WebGLVertexArrayObject, indexBuffer: Nullable<WebGLBuffer>): void {
             if (this._cachedVertexArrayObject !== vertexArrayObject) {
                 this._cachedVertexArrayObject = vertexArrayObject;
@@ -2458,6 +3082,14 @@
             }
         }
 
+        /**
+         * Bind webGl buffers directly to the webGL context
+         * @param vertexBuffer defines the vertex buffer to bind
+         * @param indexBuffer defines the index buffer to bind
+         * @param vertexDeclaration defines the vertex declaration to use with the vertex buffer
+         * @param vertexStrideSize defines the vertex stride of the vertex buffer
+         * @param effect defines the effect associated with the vertex buffer
+         */
         public bindBuffersDirectly(vertexBuffer: WebGLBuffer, indexBuffer: WebGLBuffer, vertexDeclaration: number[], vertexStrideSize: number, effect: Effect): void {
             if (this._cachedVertexBuffers !== vertexBuffer || this._cachedEffectForVertexBuffers !== effect) {
                 this._cachedVertexBuffers = vertexBuffer;
@@ -2478,7 +3110,7 @@
                         if (order >= 0) {
                             this._gl.enableVertexAttribArray(order);
                             this._vertexAttribArraysEnabled[order] = true;
-                            this.vertexAttribPointer(vertexBuffer, order, vertexDeclaration[index], this._gl.FLOAT, false, vertexStrideSize, offset);
+                            this._vertexAttribPointer(vertexBuffer, order, vertexDeclaration[index], this._gl.FLOAT, false, vertexStrideSize, offset);
                         }
 
                         offset += vertexDeclaration[index] * 4;
@@ -2498,6 +3130,12 @@
             this._gl.bindVertexArray(null);
         }
 
+        /**
+         * Bind a list of vertex buffers to the webGL context
+         * @param vertexBuffers defines the list of vertex buffers to bind
+         * @param indexBuffer defines the index buffer to bind
+         * @param effect defines the effect associated with the vertex buffers
+         */
         public bindBuffers(vertexBuffers: { [key: string]: Nullable<VertexBuffer> }, indexBuffer: Nullable<WebGLBuffer>, effect: Effect): void {
             if (this._cachedVertexBuffers !== vertexBuffers || this._cachedEffectForVertexBuffers !== effect) {
                 this._cachedVertexBuffers = vertexBuffers;
@@ -2509,6 +3147,9 @@
             this._bindIndexBufferWithCache(indexBuffer);
         }
 
+        /**
+         * Unbind all instance attributes
+         */
         public unbindInstanceAttributes() {
             var boundBuffer;
             for (var i = 0, ul = this._currentInstanceLocations.length; i < ul; i++) {
@@ -2524,10 +3165,15 @@
             this._currentInstanceLocations.length = 0;
         }
 
+        /**
+         * Release and free the memory of a vertex array object
+         * @param vao defines the vertex array object to delete
+         */
         public releaseVertexArrayObject(vao: WebGLVertexArrayObject) {
             this._gl.deleteVertexArray(vao);
         }
 
+        /** @hidden */
         public _releaseBuffer(buffer: WebGLBuffer): boolean {
             buffer.references--;
 
@@ -2539,6 +3185,11 @@
             return false;
         }
 
+        /**
+         * Creates a webGL buffer to use with instanciation
+         * @param capacity defines the size of the buffer
+         * @returns the webGL buffer
+         */
         public createInstancesBuffer(capacity: number): WebGLBuffer {
             var buffer = this._gl.createBuffer();
 
@@ -2553,10 +3204,20 @@
             return buffer;
         }
 
+        /**
+         * Delete a webGL buffer used with instanciation
+         * @param buffer defines the webGL buffer to delete
+         */
         public deleteInstancesBuffer(buffer: WebGLBuffer): void {
             this._gl.deleteBuffer(buffer);
         }
 
+        /**
+         * Update the content of a webGL buffer used with instanciation and bind it to the webGL context
+         * @param instancesBuffer defines the webGL buffer to update and bind
+         * @param data defines the data to store in the buffer
+         * @param offsetLocations defines the offsets or attributes information used to determine where data must be stored in the buffer
+         */
         public updateAndBindInstancesBuffer(instancesBuffer: WebGLBuffer, data: Float32Array, offsetLocations: number[] | InstancingAttributeInfo[]): void {
             this.bindArrayBuffer(instancesBuffer);
             if (data) {
@@ -2577,7 +3238,7 @@
                         this._vertexAttribArraysEnabled[ai.index] = true;
                     }
 
-                    this.vertexAttribPointer(instancesBuffer, ai.index, ai.attributeSize, ai.attribyteType || this._gl.FLOAT, ai.normalized || false, stride, ai.offset);
+                    this._vertexAttribPointer(instancesBuffer, ai.index, ai.attributeSize, ai.attribyteType || this._gl.FLOAT, ai.normalized || false, stride, ai.offset);
                     this._gl.vertexAttribDivisor(ai.index, 1);
                     this._currentInstanceLocations.push(ai.index);
                     this._currentInstanceBuffers.push(instancesBuffer);
@@ -2591,7 +3252,7 @@
                         this._vertexAttribArraysEnabled[offsetLocation] = true;
                     }
 
-                    this.vertexAttribPointer(instancesBuffer, offsetLocation, 4, this._gl.FLOAT, false, 64, index * 16);
+                    this._vertexAttribPointer(instancesBuffer, offsetLocation, 4, this._gl.FLOAT, false, 64, index * 16);
                     this._gl.vertexAttribDivisor(offsetLocation, 1);
                     this._currentInstanceLocations.push(offsetLocation);
                     this._currentInstanceBuffers.push(instancesBuffer);
@@ -2599,24 +3260,54 @@
             }
         }
 
+        /**
+         * Apply all cached states (depth, culling, stencil and alpha)
+         */
         public applyStates() {
             this._depthCullingState.apply(this._gl);
             this._stencilState.apply(this._gl);
             this._alphaState.apply(this._gl);
         }
 
+        /**
+         * Send a draw order
+         * @param useTriangles defines if triangles must be used to draw (else wireframe will be used)
+         * @param indexStart defines the starting index
+         * @param indexCount defines the number of index to draw
+         * @param instancesCount defines the number of instances to draw (if instanciation is enabled)
+         */
         public draw(useTriangles: boolean, indexStart: number, indexCount: number, instancesCount?: number): void {
             this.drawElementsType(useTriangles ? Material.TriangleFillMode : Material.WireFrameFillMode, indexStart, indexCount, instancesCount);
         }
 
+        /**
+         * Draw a list of points
+         * @param verticesStart defines the index of first vertex to draw
+         * @param verticesCount defines the count of vertices to draw
+         * @param instancesCount defines the number of instances to draw (if instanciation is enabled)
+         */
         public drawPointClouds(verticesStart: number, verticesCount: number, instancesCount?: number): void {
             this.drawArraysType(Material.PointFillMode, verticesStart, verticesCount, instancesCount);
         }
 
+        /**
+         * Draw a list of unindexed primitives
+         * @param useTriangles defines if triangles must be used to draw (else wireframe will be used)
+         * @param verticesStart defines the index of first vertex to draw 
+         * @param verticesCount defines the count of vertices to draw
+         * @param instancesCount defines the number of instances to draw (if instanciation is enabled)
+         */
         public drawUnIndexed(useTriangles: boolean, verticesStart: number, verticesCount: number, instancesCount?: number): void {
             this.drawArraysType(useTriangles ? Material.TriangleFillMode : Material.WireFrameFillMode, verticesStart, verticesCount, instancesCount);
         }
 
+        /**
+         * Draw a list of indexed primitives
+         * @param fillMode defines the primitive to use
+         * @param indexStart defines the starting index
+         * @param indexCount defines the number of index to draw
+         * @param instancesCount defines the number of instances to draw (if instanciation is enabled)
+         */
         public drawElementsType(fillMode: number, indexStart: number, indexCount: number, instancesCount?: number): void {
             // Apply states
             this.applyStates();
@@ -2624,7 +3315,7 @@
             this._drawCalls.addCount(1, false);
             // Render
 
-            const drawMode = this.DrawMode(fillMode);
+            const drawMode = this._drawMode(fillMode);
             var indexFormat = this._uintIndicesCurrentlySet ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT;
             var mult = this._uintIndicesCurrentlySet ? 4 : 2;
             if (instancesCount) {
@@ -2634,12 +3325,19 @@
             }
         }
 
+        /**
+         * Draw a list of unindexed primitives
+         * @param fillMode defines the primitive to use
+         * @param verticesStart defines the index of first vertex to draw 
+         * @param verticesCount defines the count of vertices to draw
+         * @param instancesCount defines the number of instances to draw (if instanciation is enabled)
+         */
         public drawArraysType(fillMode: number, verticesStart: number, verticesCount: number, instancesCount?: number): void {
             // Apply states
             this.applyStates();
             this._drawCalls.addCount(1, false);
 
-            const drawMode = this.DrawMode(fillMode);
+            const drawMode = this._drawMode(fillMode);
             if (instancesCount) {
                 this._gl.drawArraysInstanced(drawMode, verticesStart, verticesCount, instancesCount);
             } else {
@@ -2647,7 +3345,7 @@
             }
         }
 
-        private DrawMode(fillMode: number): number {
+        private _drawMode(fillMode: number): number {
             switch (fillMode) {
                 // Triangle views
                 case Material.TriangleFillMode:
@@ -2675,6 +3373,8 @@
         }
 
         // Shaders
+        
+        /** @hidden */
         public _releaseEffect(effect: Effect): void {
             if (this._compiledEffects[effect._key]) {
                 delete this._compiledEffects[effect._key];
@@ -2683,6 +3383,7 @@
             }
         }
 
+        /** @hidden */
         public _deleteProgram(program: WebGLProgram): void {
             if (program) {
                 program.__SPECTOR_rebuildProgram = null;
@@ -2698,8 +3399,17 @@
 
 
         /**
-         * @param baseName The base name of the effect (The name of file without .fragment.fx or .vertex.fx)
-         * @param samplers An array of string used to represent textures
+         * Create a new effect (used to store vertex/fragment shaders)
+         * @param baseName defines the base name of the effect (The name of file without .fragment.fx or .vertex.fx)
+         * @param attributesNamesOrOptions defines either a list of attribute names or an EffectCreationOptions object
+         * @param uniformsNamesOrEngine defines either a list of uniform names or the engine to use
+         * @param samplers defines an array of string used to represent textures
+         * @param defines defines the string containing the defines to use to compile the shaders
+         * @param fallbacks defines the list of potential fallbacks to use if shader conmpilation fails
+         * @param onCompiled defines a function to call when the effect creation is successful
+         * @param onError defines a function to call when the effect creation has failed
+         * @param indexParameters defines an object containing the index values to use to compile shaders (like the maximum number of simultaneous lights)
+         * @returns the new Effect
          */
         public createEffect(baseName: any, attributesNamesOrOptions: string[] | EffectCreationOptions, uniformsNamesOrEngine: string[] | Engine, samplers?: string[], defines?: string, fallbacks?: EffectFallbacks,
             onCompiled?: (effect: Effect) => void, onError?: (effect: Effect, errors: string) => void, indexParameters?: any): Effect {
@@ -2722,19 +3432,50 @@
             return effect;
         }
 
+        /**
+         * Create an effect to use with particle systems.
+         * Please note that some parameters like animation sheets or not being billboard are not supported in this configuration
+         * @param fragmentName defines the base name of the effect (The name of file without .fragment.fx)
+         * @param uniformsNames defines a list of attribute names 
+         * @param samplers defines an array of string used to represent textures
+         * @param defines defines the string containing the defines to use to compile the shaders
+         * @param fallbacks defines the list of potential fallbacks to use if shader conmpilation fails
+         * @param onCompiled defines a function to call when the effect creation is successful
+         * @param onError defines a function to call when the effect creation has failed
+         * @returns the new Effect
+         */
         public createEffectForParticles(fragmentName: string, uniformsNames: string[] = [], samplers: string[] = [], defines = "", fallbacks?: EffectFallbacks,
             onCompiled?: (effect: Effect) => void, onError?: (effect: Effect, errors: string) => void): Effect {
+
+            var attributesNamesOrOptions = ParticleSystem._GetAttributeNamesOrOptions();
+            var effectCreationOption = ParticleSystem._GetEffectCreationOptions();
+
+            if (defines.indexOf(" BILLBOARD") === -1) {
+                defines += "\n#define BILLBOARD\n";
+            }
+
+            if (samplers.indexOf("diffuseSampler") === -1) {
+                samplers.push("diffuseSampler");
+            }
 
             return this.createEffect(
                 {
                     vertex: "particles",
                     fragmentElement: fragmentName
                 },
-                ["position", "color", "options"],
-                ["view", "projection"].concat(uniformsNames),
-                ["diffuseSampler"].concat(samplers), defines, fallbacks, onCompiled, onError);
+                attributesNamesOrOptions,
+                effectCreationOption.concat(uniformsNames),
+                samplers, defines, fallbacks, onCompiled, onError);
         }
 
+        /**
+         * Directly creates a webGL program
+         * @param vertexCode defines the vertex shader code to use
+         * @param fragmentCode defines the fragment shader code to use
+         * @param context defines the webGL context to use (if not set, the current one will be used)
+         * @param transformFeedbackVaryings defines the list of transform feedback varyings to use
+         * @returns the new webGL program
+         */
         public createRawShaderProgram(vertexCode: string, fragmentCode: string, context?: WebGLRenderingContext, transformFeedbackVaryings: Nullable<string[]> = null): WebGLProgram {
             context = context || this._gl;
 
@@ -2744,12 +3485,21 @@
             return this._createShaderProgram(vertexShader, fragmentShader, context, transformFeedbackVaryings);
         }
 
+        /**
+         * Creates a webGL program
+         * @param vertexCode  defines the vertex shader code to use
+         * @param fragmentCode defines the fragment shader code to use
+         * @param defines defines the string containing the defines to use to compile the shaders
+         * @param context defines the webGL context to use (if not set, the current one will be used)
+         * @param transformFeedbackVaryings defines the list of transform feedback varyings to use
+         * @returns the new webGL program
+         */
         public createShaderProgram(vertexCode: string, fragmentCode: string, defines: Nullable<string>, context?: WebGLRenderingContext, transformFeedbackVaryings: Nullable<string[]> = null): WebGLProgram {
             context = context || this._gl;
 
             this.onBeforeShaderCompilationObservable.notifyObservers(this);
 
-            var shaderVersion = (this._webGLVersion > 1) ? "#version 300 es\n" : "";
+            var shaderVersion = (this._webGLVersion > 1) ? "#version 300 es\n#define WEBGL2 \n" : "";
             var vertexShader = compileShader(context, vertexCode, "vertex", defines, shaderVersion);
             var fragmentShader = compileShader(context, fragmentCode, "fragment", defines, shaderVersion);
 
@@ -2800,6 +3550,12 @@
             return shaderProgram;
         }
 
+        /**
+         * Gets the list of webGL uniform locations associated with a specific program based on a list of uniform names
+         * @param shaderProgram defines the webGL program to use
+         * @param uniformsNames defines the list of uniform names
+         * @returns an array of webGL uniform locations 
+         */
         public getUniforms(shaderProgram: WebGLProgram, uniformsNames: string[]): Nullable<WebGLUniformLocation>[] {
             var results = new Array<Nullable<WebGLUniformLocation>>();
 
@@ -2810,6 +3566,12 @@
             return results;
         }
 
+        /**
+         * Gets the lsit of active attributes for a given webGL program
+         * @param shaderProgram defines the webGL program to use
+         * @param attributesNames defines the list of attribute names to get
+         * @returns an array of indices indicating the offset of each attribute
+         */
         public getAttributes(shaderProgram: WebGLProgram, attributesNames: string[]): number[] {
             var results = [];
 
@@ -2824,6 +3586,10 @@
             return results;
         }
 
+        /**
+         * Activates an effect, mkaing it the current one (ie. the one used for rendering)
+         * @param effect defines the effect to activate
+         */
         public enableEffect(effect: Nullable<Effect>): void {
             if (!effect) {
                 return;
@@ -2839,6 +3605,11 @@
             effect.onBindObservable.notifyObservers(effect);
         }
 
+        /**
+         * Set the value of an uniform to an array of int32
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of int32 to store
+         */
         public setIntArray(uniform: Nullable<WebGLUniformLocation>, array: Int32Array): void {
             if (!uniform)
                 return;
@@ -2846,6 +3617,11 @@
             this._gl.uniform1iv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of int32 (stored as vec2)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of int32 to store
+         */        
         public setIntArray2(uniform: Nullable<WebGLUniformLocation>, array: Int32Array): void {
             if (!uniform || array.length % 2 !== 0)
                 return;
@@ -2853,6 +3629,11 @@
             this._gl.uniform2iv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of int32 (stored as vec3)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of int32 to store
+         */              
         public setIntArray3(uniform: Nullable<WebGLUniformLocation>, array: Int32Array): void {
             if (!uniform || array.length % 3 !== 0)
                 return;
@@ -2860,6 +3641,11 @@
             this._gl.uniform3iv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of int32 (stored as vec4)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of int32 to store
+         */          
         public setIntArray4(uniform: Nullable<WebGLUniformLocation>, array: Int32Array): void {
             if (!uniform || array.length % 4 !== 0)
                 return;
@@ -2867,6 +3653,11 @@
             this._gl.uniform4iv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of float32
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of float32 to store
+         */         
         public setFloatArray(uniform: Nullable<WebGLUniformLocation>, array: Float32Array): void {
             if (!uniform)
                 return;
@@ -2874,6 +3665,11 @@
             this._gl.uniform1fv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of float32 (stored as vec2)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of float32 to store
+         */           
         public setFloatArray2(uniform: Nullable<WebGLUniformLocation>, array: Float32Array): void {
             if (!uniform || array.length % 2 !== 0)
                 return;
@@ -2881,6 +3677,11 @@
             this._gl.uniform2fv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of float32 (stored as vec3)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of float32 to store
+         */                 
         public setFloatArray3(uniform: Nullable<WebGLUniformLocation>, array: Float32Array): void {
             if (!uniform || array.length % 3 !== 0)
                 return;
@@ -2888,6 +3689,11 @@
             this._gl.uniform3fv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of float32 (stored as vec4)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of float32 to store
+         */                 
         public setFloatArray4(uniform: Nullable<WebGLUniformLocation>, array: Float32Array): void {
             if (!uniform || array.length % 4 !== 0)
                 return;
@@ -2895,6 +3701,11 @@
             this._gl.uniform4fv(uniform, array);
         }
 
+        /**
+         * Set the value of an uniform to an array of number
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of number to store
+         */             
         public setArray(uniform: Nullable<WebGLUniformLocation>, array: number[]): void {
             if (!uniform)
                 return;
@@ -2902,6 +3713,11 @@
             this._gl.uniform1fv(uniform, <any>array);
         }
 
+        /**
+         * Set the value of an uniform to an array of number (stored as vec2)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of number to store
+         */               
         public setArray2(uniform: Nullable<WebGLUniformLocation>, array: number[]): void {
             if (!uniform || array.length % 2 !== 0)
                 return;
@@ -2909,6 +3725,11 @@
             this._gl.uniform2fv(uniform, <any>array);
         }
 
+        /**
+         * Set the value of an uniform to an array of number (stored as vec3)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of number to store
+         */              
         public setArray3(uniform: Nullable<WebGLUniformLocation>, array: number[]): void {
             if (!uniform || array.length % 3 !== 0)
                 return;
@@ -2916,6 +3737,11 @@
             this._gl.uniform3fv(uniform, <any>array);
         }
 
+        /**
+         * Set the value of an uniform to an array of number (stored as vec4)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param array defines the array of number to store
+         */          
         public setArray4(uniform: Nullable<WebGLUniformLocation>, array: number[]): void {
             if (!uniform || array.length % 4 !== 0)
                 return;
@@ -2923,6 +3749,11 @@
             this._gl.uniform4fv(uniform, <any>array);
         }
 
+        /**
+         * Set the value of an uniform to an array of float32 (stored as matrices)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param matrices defines the array of float32 to store
+         */          
         public setMatrices(uniform: Nullable<WebGLUniformLocation>, matrices: Float32Array): void {
             if (!uniform)
                 return;
@@ -2930,6 +3761,11 @@
             this._gl.uniformMatrix4fv(uniform, false, matrices);
         }
 
+        /**
+         * Set the value of an uniform to a matrix
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param matrix defines the matrix to store
+         */             
         public setMatrix(uniform: Nullable<WebGLUniformLocation>, matrix: Matrix): void {
             if (!uniform)
                 return;
@@ -2937,6 +3773,11 @@
             this._gl.uniformMatrix4fv(uniform, false, matrix.toArray());
         }
 
+        /**
+         * Set the value of an uniform to a matrix (3x3)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param matrix defines the Float32Array representing the 3x3 matrix to store
+         */           
         public setMatrix3x3(uniform: Nullable<WebGLUniformLocation>, matrix: Float32Array): void {
             if (!uniform)
                 return;
@@ -2944,6 +3785,11 @@
             this._gl.uniformMatrix3fv(uniform, false, matrix);
         }
 
+        /**
+         * Set the value of an uniform to a matrix (2x2)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param matrix defines the Float32Array representing the 2x2 matrix to store
+         */    
         public setMatrix2x2(uniform: Nullable<WebGLUniformLocation>, matrix: Float32Array): void {
             if (!uniform)
                 return;
@@ -2951,6 +3797,11 @@
             this._gl.uniformMatrix2fv(uniform, false, matrix);
         }
 
+        /**
+         * Set the value of an uniform to a number (int)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param value defines the int number to store
+         */           
         public setInt(uniform: Nullable<WebGLUniformLocation>, value: number): void {
             if (!uniform)
                 return;
@@ -2958,6 +3809,11 @@
             this._gl.uniform1i(uniform, value);
         }
 
+        /**
+         * Set the value of an uniform to a number (float)
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param value defines the float number to store
+         */           
         public setFloat(uniform: Nullable<WebGLUniformLocation>, value: number): void {
             if (!uniform)
                 return;
@@ -2965,6 +3821,12 @@
             this._gl.uniform1f(uniform, value);
         }
 
+        /**
+         * Set the value of an uniform to a vec2
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param x defines the 1st component of the value
+         * @param y defines the 2nd component of the value
+         */
         public setFloat2(uniform: Nullable<WebGLUniformLocation>, x: number, y: number): void {
             if (!uniform)
                 return;
@@ -2972,6 +3834,13 @@
             this._gl.uniform2f(uniform, x, y);
         }
 
+        /**
+         * Set the value of an uniform to a vec3
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param x defines the 1st component of the value
+         * @param y defines the 2nd component of the value
+         * @param z defines the 3rd component of the value
+         */        
         public setFloat3(uniform: Nullable<WebGLUniformLocation>, x: number, y: number, z: number): void {
             if (!uniform)
                 return;
@@ -2979,6 +3848,11 @@
             this._gl.uniform3f(uniform, x, y, z);
         }
 
+        /**
+         * Set the value of an uniform to a boolean
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param bool defines the boolean to store
+         */          
         public setBool(uniform: Nullable<WebGLUniformLocation>, bool: number): void {
             if (!uniform)
                 return;
@@ -2986,6 +3860,14 @@
             this._gl.uniform1i(uniform, bool);
         }
 
+        /**
+         * Set the value of an uniform to a vec4
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param x defines the 1st component of the value
+         * @param y defines the 2nd component of the value
+         * @param z defines the 3rd component of the value
+         * @param w defines the 4th component of the value
+         */           
         public setFloat4(uniform: Nullable<WebGLUniformLocation>, x: number, y: number, z: number, w: number): void {
             if (!uniform)
                 return;
@@ -2993,6 +3875,11 @@
             this._gl.uniform4f(uniform, x, y, z, w);
         }
 
+        /**
+         * Set the value of an uniform to a Color3
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param color3 defines the color to store
+         */            
         public setColor3(uniform: Nullable<WebGLUniformLocation>, color3: Color3): void {
             if (!uniform)
                 return;
@@ -3000,6 +3887,12 @@
             this._gl.uniform3f(uniform, color3.r, color3.g, color3.b);
         }
 
+        /**
+         * Set the value of an uniform to a Color3 and an alpha value
+         * @param uniform defines the webGL uniform location where to store the value
+         * @param color3 defines the color to store
+         * @param alpha defines the alpha component to store
+         */         
         public setColor4(uniform: Nullable<WebGLUniformLocation>, color3: Color3, alpha: number): void {
             if (!uniform)
                 return;
@@ -3020,6 +3913,14 @@
         }        
 
         // States
+
+        /**
+         * Set various states to the webGL context
+         * @param culling defines backface culling state
+         * @param zOffset defines the value to apply to zOffset (0 by default)
+         * @param force defines if states must be applied even if cache is up to date
+         * @param reverseSide defines if culling must be reversed (CCW instead of CW and CW instead of CCW)
+         */
         public setState(culling: boolean, zOffset: number = 0, force?: boolean, reverseSide = false): void {
             // Culling
             if (this._depthCullingState.cull !== culling || force) {
@@ -3042,39 +3943,80 @@
             }
         }
 
+        /**
+         * Set the z offset to apply to current rendering
+         * @param value defines the offset to apply
+         */
         public setZOffset(value: number): void {
             this._depthCullingState.zOffset = value;
         }
 
+        /**
+         * Gets the current value of the zOffset
+         * @returns the current zOffset state
+         */
         public getZOffset(): number {
             return this._depthCullingState.zOffset;
         }
 
+        /**
+         * Enable or disable depth buffering
+         * @param enable defines the state to set
+         */
         public setDepthBuffer(enable: boolean): void {
             this._depthCullingState.depthTest = enable;
         }
 
+        /**
+         * Gets a boolean indicating if depth writing is enabled
+         * @returns the current depth writing state
+         */
         public getDepthWrite(): boolean {
             return this._depthCullingState.depthMask;
         }
 
+        /**
+         * Enable or disable depth writing
+         * @param enable defines the state to set
+         */
         public setDepthWrite(enable: boolean): void {
             this._depthCullingState.depthMask = enable;
         }
-
+        
+        /**
+         * Enable or disable color writing
+         * @param enable defines the state to set
+         */
         public setColorWrite(enable: boolean): void {
             this._gl.colorMask(enable, enable, enable, enable);
             this._colorWrite = enable;
         }
 
+        /**
+         * Gets a boolean indicating if color writing is enabled
+         * @returns the current color writing state
+         */        
         public getColorWrite(): boolean {
             return this._colorWrite;
         }
 
+        /**
+         * Sets alpha constants used by some alpha blending modes
+         * @param r defines the red component
+         * @param g defines the green component
+         * @param b defines the blue component
+         * @param a defines the alpha component
+         */
         public setAlphaConstants(r: number, g: number, b: number, a: number) {
             this._alphaState.setAlphaBlendConstants(r, g, b, a);
         }
 
+        /**
+         * Sets the current alpha mode
+         * @param mode defines the mode to use (one of the BABYLON.Engine.ALPHA_XXX)
+         * @param noDepthWriteChange defines if depth writing state should remains unchanged (false by default)
+         * @see http://doc.babylonjs.com/resources/transparency_and_how_meshes_are_rendered
+         */
         public setAlphaMode(mode: number, noDepthWriteChange: boolean = false): void {
             if (this._alphaMode === mode) {
                 return;
@@ -3131,19 +4073,41 @@
             this._alphaMode = mode;
         }
 
+        /**
+         * Gets the current alpha mode
+         * @see http://doc.babylonjs.com/resources/transparency_and_how_meshes_are_rendered
+         * @returns the current alpha mode
+         */
         public getAlphaMode(): number {
             return this._alphaMode;
         }
 
         // Textures
+
+        /**
+         * Clears the list of texture accessible through engine.
+         * This can help preventing texture load conflict due to name collision.
+         */
+        public clearInternalTexturesCache() {
+            this._internalTexturesCache = [];
+        }
+
+        /**
+         * Force the entire cache to be cleared
+         * You should not have to use this function unless your engine needs to share the webGL context with another engine
+         * @param bruteForce defines a boolean to force clearing ALL caches (including stencil, detoh and alpha states)
+         */
         public wipeCaches(bruteForce?: boolean): void {
             if (this.preventCacheWipeBetweenFrames && !bruteForce) {
                 return;
             }
             this._currentEffect = null;
+            this._unpackFlipYCached = null;
+            this._viewportCached.x = 0;
+            this._viewportCached.y = 0;
+            this._viewportCached.z = 0;
+            this._viewportCached.w = 0;
 
-            // 6/8/2017: deltakosh: Should not be required anymore.
-            // This message is then mostly for the future myself who will scream out loud when seeing that it was actually required :)
             if (bruteForce) {
                 this.resetTextureCache();
                 this._currentProgram = null;
@@ -3175,7 +4139,7 @@
          *
          * Note: The result of this call is not taken into account when a texture is base64.
          *
-         * @param {Array<string>} formatsAvailable- The list of those format families you have created
+         * @param formatsAvailable defines the list of those format families you have created
          * on your server.  Syntax: '-' + format family + '.ktx'.  (Case and order do not matter.)
          *
          * Current families are astc, dxt, pvrtc, etc2, & etc1.
@@ -3195,6 +4159,7 @@
             return null;
         }
 
+        /** @hidden */
         public _createTexture(): WebGLTexture {
             let texture = this._gl.createTexture();
 
@@ -3206,33 +4171,32 @@
         }
 
         /**
-         * Usually called from BABYLON.Texture.ts.  Passed information to create a WebGLTexture.
-         * @param {string} urlArg- This contains one of the following:
-         *                         1. A conventional http URL, e.g. 'http://...' or 'file://...'
-         *                         2. A base64 string of in-line texture data, e.g. 'data:image/jpg;base64,/...'
-         *                         3. An indicator that data being passed using the buffer parameter, e.g. 'data:mytexture.jpg'
-         *
-         * @param {boolean} noMipmap- When true, no mipmaps shall be generated.  Ignored for compressed textures.  They must be in the file.
-         * @param {boolean} invertY- When true, image is flipped when loaded.  You probably want true. Ignored for compressed textures.  Must be flipped in the file.
-         * @param {Scene} scene- Needed for loading to the correct scene.
-         * @param {number} samplingMode- Mode with should be used sample / access the texture.  Default: TRILINEAR
-         * @param {callback} onLoad- Optional callback to be called upon successful completion.
-         * @param {callback} onError- Optional callback to be called upon failure.
-         * @param {ArrayBuffer | HTMLImageElement} buffer- A source of a file previously fetched as either an ArrayBuffer (compressed or image format) or HTMLImageElement (image format)
-         * @param {WebGLTexture} fallback- An internal argument in case the function must be called again, due to etc1 not having alpha capabilities.
-         * @param {number} format-  Internal format.  Default: RGB when extension is '.jpg' else RGBA.  Ignored for compressed textures.
-         *
-         * @returns {WebGLTexture} for assignment back into BABYLON.Texture
+         * Usually called from BABYLON.Texture.ts.
+         * Passed information to create a WebGLTexture
+         * @param urlArg defines a value which contains one of the following:
+         * * A conventional http URL, e.g. 'http://...' or 'file://...'
+         * * A base64 string of in-line texture data, e.g. 'data:image/jpg;base64,/...'
+         * * An indicator that data being passed using the buffer parameter, e.g. 'data:mytexture.jpg'
+         * @param noMipmap defines a boolean indicating that no mipmaps shall be generated.  Ignored for compressed textures.  They must be in the file
+         * @param invertY when true, image is flipped when loaded.  You probably want true. Ignored for compressed textures.  Must be flipped in the file
+         * @param scene needed for loading to the correct scene
+         * @param samplingMode mode with should be used sample / access the texture (Default: BABYLON.Texture.TRILINEAR_SAMPLINGMODE)
+         * @param onLoad optional callback to be called upon successful completion
+         * @param onError optional callback to be called upon failure
+         * @param buffer a source of a file previously fetched as either a base64 string, an ArrayBuffer (compressed or image format), HTMLImageElement (image format), or a Blob
+         * @param fallback an internal argument in case the function must be called again, due to etc1 not having alpha capabilities
+         * @param format internal format.  Default: RGB when extension is '.jpg' else RGBA.  Ignored for compressed textures
+         * @returns a InternalTexture for assignment back into BABYLON.Texture
          */
         public createTexture(urlArg: Nullable<string>, noMipmap: boolean, invertY: boolean, scene: Nullable<Scene>, samplingMode: number = Texture.TRILINEAR_SAMPLINGMODE,
             onLoad: Nullable<() => void> = null, onError: Nullable<(message: string, exception: any) => void> = null,
-            buffer: Nullable<ArrayBuffer | HTMLImageElement> = null, fallBack: Nullable<InternalTexture> = null, format: Nullable<number> = null): InternalTexture {
+            buffer: Nullable<string | ArrayBuffer | HTMLImageElement | Blob> = null, fallback: Nullable<InternalTexture> = null, format: Nullable<number> = null): InternalTexture {
             var url = String(urlArg); // assign a new string, so that the original is still available in case of fallback
             var fromData = url.substr(0, 5) === "data:";
             var fromBlob = url.substr(0, 5) === "blob:";
             var isBase64 = fromData && url.indexOf("base64") !== -1;
 
-            let texture = fallBack ? fallBack : new InternalTexture(this, InternalTexture.DATASOURCE_URL);
+            let texture = fallback ? fallback : new InternalTexture(this, InternalTexture.DATASOURCE_URL);
 
             // establish the file extension, if possible
             var lastDot = url.lastIndexOf('.');
@@ -3242,7 +4206,7 @@
 
             // determine if a ktx file should be substituted
             var isKTX = false;
-            if (this._textureFormatInUse && !isBase64 && !fallBack) {
+            if (this._textureFormatInUse && !isBase64 && !fallback && !buffer) {
                 url = url.substring(0, lastDot) + this._textureFormatInUse;
                 isKTX = true;
             }
@@ -3261,18 +4225,19 @@
             }
 
             let onLoadObserver: Nullable<Observer<InternalTexture>> = null;
-            if (onLoad && !fallBack) {
+            if (onLoad && !fallback) {
                 onLoadObserver = texture.onLoadedObservable.add(onLoad);
             }
 
-            if (!fallBack) this._internalTexturesCache.push(texture);
+            if (!fallback) this._internalTexturesCache.push(texture);
 
             var onerror = (message?: string, exception?: any) => {
                 if (scene) {
                     scene._removePendingData(texture);
                 }
 
-                if (onLoadObserver) {
+                if (onLoadObserver && !isKTX) {
+                    //dont remove the observer if its a ktx file, since the fallback createTexture call will require it.
                     texture.onLoadedObservable.remove(onLoadObserver);
                 }
 
@@ -3357,37 +4322,60 @@
                             return false;
                         }
 
-                        // Using shaders to rescale because canvas.drawImage is lossy
-                        let source = new InternalTexture(this, InternalTexture.DATASOURCE_TEMP);
-                        this._bindTextureDirectly(gl.TEXTURE_2D, source, true);
-                        gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, internalFormat, gl.UNSIGNED_BYTE, img);
+                        let maxTextureSize = this._caps.maxTextureSize;
 
-                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                        if (img.width > maxTextureSize || img.height > maxTextureSize) {
+                            this._prepareWorkingCanvas();
+                            if (!this._workingCanvas || !this._workingContext) {
+                                return false;
+                            }
 
-                        this._rescaleTexture(source, texture, scene, internalFormat, () => {
-                            this._releaseTexture(source);
-                            this._bindTextureDirectly(gl.TEXTURE_2D, texture, true);
+                            this._workingCanvas.width = potWidth;
+                            this._workingCanvas.height = potHeight;
+        
+                            this._workingContext.drawImage(img, 0, 0, img.width, img.height, 0, 0, potWidth, potHeight);
+                            gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, internalFormat, gl.UNSIGNED_BYTE, this._workingCanvas);
+    
+                            texture.width = potWidth;
+                            texture.height = potHeight;
 
-                            continuationCallback();
-                        });
+                            return false;
+                        } else {
+                            // Using shaders when possible to rescale because canvas.drawImage is lossy
+                            let source = new InternalTexture(this, InternalTexture.DATASOURCE_TEMP);
+                            this._bindTextureDirectly(gl.TEXTURE_2D, source, true);
+                            gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, internalFormat, gl.UNSIGNED_BYTE, img);
+
+                            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+                            this._rescaleTexture(source, texture, scene, internalFormat, () => {
+                                this._releaseTexture(source);
+                                this._bindTextureDirectly(gl.TEXTURE_2D, texture, true);
+
+                                continuationCallback();
+                            });
+                        }
 
                         return true;
                     }, samplingMode);
                 };
 
-                if (!fromData || isBase64)
+                if (!fromData || isBase64) {
                     if (buffer instanceof HTMLImageElement) {
                         onload(buffer);
                     } else {
                         Tools.LoadImage(url, onload, onerror, scene ? scene.database : null);
                     }
-                else if (buffer instanceof Array || typeof buffer === "string" || buffer instanceof ArrayBuffer)
+                }
+                else if (typeof buffer === "string" || buffer instanceof ArrayBuffer || buffer instanceof Blob) {
                     Tools.LoadImage(buffer, onload, onerror, scene ? scene.database : null);
-                else
+                }
+                else {
                     onload(<HTMLImageElement>buffer);
+                }
             }
 
             return texture;
@@ -3434,47 +4422,25 @@
             });
         }
 
-        private _getInternalFormat(format: number): number {
-            var internalFormat = this._gl.RGBA;
-            switch (format) {
-                case Engine.TEXTUREFORMAT_ALPHA:
-                    internalFormat = this._gl.ALPHA;
-                    break;
-                case Engine.TEXTUREFORMAT_LUMINANCE:
-                    internalFormat = this._gl.LUMINANCE;
-                    break;
-                case Engine.TEXTUREFORMAT_LUMINANCE_ALPHA:
-                    internalFormat = this._gl.LUMINANCE_ALPHA;
-                    break;
-                case Engine.TEXTUREFORMAT_RGB:
-                case Engine.TEXTUREFORMAT_RGB32F:
-                    internalFormat = this._gl.RGB;
-                    break;
-                case Engine.TEXTUREFORMAT_RGBA:
-                case Engine.TEXTUREFORMAT_RGBA32F:
-                    internalFormat = this._gl.RGBA;
-                    break;
-                case Engine.TEXTUREFORMAT_R32F:
-                    internalFormat = this._gl.RED;
-                    break;       
-                case Engine.TEXTUREFORMAT_RG32F:
-                    internalFormat = this._gl.RG;
-                    break;                                    
-            }
-
-            return internalFormat;
-        }
-
-        public updateRawTexture(texture: Nullable<InternalTexture>, data: Nullable<ArrayBufferView>, format: number, invertY: boolean, compression: Nullable<string> = null, type = Engine.TEXTURETYPE_UNSIGNED_INT): void {
-            if (!texture) {
+        /**
+         * Update a raw texture
+         * @param texture defines the texture to update
+         * @param data defines the data to store in the texture
+         * @param format defines the format of the data
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param compression defines the compression used (null by default)
+         * @param type defines the type fo the data (BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT by default)
+         */
+        public updateRawTexture(texture: Nullable<InternalTexture>, data: Nullable<ArrayBufferView>, format: number, invertY: boolean, compression: Nullable<string> = null, type = Engine.TEXTURETYPE_UNSIGNED_INT): void {            if (!texture) {
                 return;
             }
-
+            // babylon's internalSizedFomat but gl's texImage2D internalFormat
             var internalSizedFomat = this._getRGBABufferInternalSizedFormat(type, format);
+            // babylon's internalFormat but gl's texImage2D format
             var internalFormat = this._getInternalFormat(format);
             var textureType = this._getWebGLTextureType(type);
             this._bindTextureDirectly(this._gl.TEXTURE_2D, texture, true);
-            this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, invertY === undefined ? 1 : (invertY ? 1 : 0));
+            this._unpackFlipY(invertY === undefined ? true : (invertY ? true : false));
 
             if (!this._doNotHandleContextLost) {
                 texture._bufferView = data;
@@ -3487,9 +4453,9 @@
             if (texture.width % 4 !== 0) {
                 this._gl.pixelStorei(this._gl.UNPACK_ALIGNMENT, 1);
             }
-
+            
             if (compression && data) {
-                this._gl.compressedTexImage2D(this._gl.TEXTURE_2D, 0, (<any>this.getCaps().s3tc)[compression], texture.width, texture.height, 0, data);
+                this._gl.compressedTexImage2D(this._gl.TEXTURE_2D, 0, (<any>this.getCaps().s3tc)[compression], texture.width, texture.height, 0, <DataView>data);
             } else {
                 this._gl.texImage2D(this._gl.TEXTURE_2D, 0, internalSizedFomat, texture.width, texture.height, 0, internalFormat, textureType, data);
             }
@@ -3502,6 +4468,19 @@
             texture.isReady = true;
         }
 
+        /**
+         * Creates a raw texture
+         * @param data defines the data to store in the texture
+         * @param width defines the width of the texture
+         * @param height defines the height of the texture
+         * @param format defines the format of the data
+         * @param generateMipMaps defines if the engine should generate the mip levels
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param samplingMode defines the required sampling mode (BABYLON.Texture.NEAREST_SAMPLINGMODE by default)
+         * @param compression defines the compression used (null by default)
+         * @param type defines the type fo the data (BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT by default)
+         * @returns the raw texture inside an InternalTexture
+         */
         public createRawTexture(data: Nullable<ArrayBufferView>, width: number, height: number, format: number, generateMipMaps: boolean, invertY: boolean, samplingMode: number, compression: Nullable<string> = null, type: number = Engine.TEXTURETYPE_UNSIGNED_INT): InternalTexture {
             var texture = new InternalTexture(this, InternalTexture.DATASOURCE_RAW);
             texture.baseWidth = width;
@@ -3540,6 +4519,23 @@
             return texture;
         }
 
+        private _unpackFlipYCached: Nullable<boolean> = null;
+        /** @hidden */
+        public _unpackFlipY(value: boolean) {
+            if (this._unpackFlipYCached !== value) {
+                this._unpackFlipYCached = value;
+                this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, value ? 1 : 0);
+            }
+        }
+
+        /**
+         * Creates a dynamic texture
+         * @param width defines the width of the texture
+         * @param height defines the height of the texture
+         * @param generateMipMaps defines if the engine should generate the mip levels
+         * @param samplingMode defines the required sampling mode (BABYLON.Texture.NEAREST_SAMPLINGMODE by default)
+         * @returns the dynamic texture inside an InternalTexture
+         */
         public createDynamicTexture(width: number, height: number, generateMipMaps: boolean, samplingMode: number): InternalTexture {
             var texture = new InternalTexture(this, InternalTexture.DATASOURCE_DYNAMIC)
             texture.baseWidth = width;
@@ -3564,39 +4560,46 @@
             return texture;
         }
 
+        /**
+         * Update the sampling mode of a given texture
+         * @param samplingMode defines the required sampling mode
+         * @param texture defines the texture to update
+         */
         public updateTextureSamplingMode(samplingMode: number, texture: InternalTexture): void {
             var filters = getSamplingParameters(samplingMode, texture.generateMipMaps, this._gl);
 
             if (texture.isCube) {
-                this._bindTextureDirectly(this._gl.TEXTURE_CUBE_MAP, texture, true);
-
-                this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_MAG_FILTER, filters.mag);
-                this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_MIN_FILTER, filters.min);
+                this._setTextureParameterInteger(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_MAG_FILTER, filters.mag, texture);
+                this._setTextureParameterInteger(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_MIN_FILTER, filters.min);
                 this._bindTextureDirectly(this._gl.TEXTURE_CUBE_MAP, null);
             } else if (texture.is3D) {
-                this._bindTextureDirectly(this._gl.TEXTURE_3D, texture, true);
-
-                this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_MAG_FILTER, filters.mag);
-                this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_MIN_FILTER, filters.min);
+                this._setTextureParameterInteger(this._gl.TEXTURE_3D, this._gl.TEXTURE_MAG_FILTER, filters.mag, texture);
+                this._setTextureParameterInteger(this._gl.TEXTURE_3D, this._gl.TEXTURE_MIN_FILTER, filters.min);
                 this._bindTextureDirectly(this._gl.TEXTURE_3D, null);
             } else {
-                this._bindTextureDirectly(this._gl.TEXTURE_2D, texture, true);
-
-                this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, filters.mag);
-                this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, filters.min);
+                this._setTextureParameterInteger(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, filters.mag, texture);
+                this._setTextureParameterInteger(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, filters.min);
                 this._bindTextureDirectly(this._gl.TEXTURE_2D, null);
             }
 
             texture.samplingMode = samplingMode;
         }
 
+        /**
+         * Update the content of a dynamic texture
+         * @param texture defines the texture to update
+         * @param canvas defines the canvas containing the source
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param premulAlpha defines if alpha is stored as premultiplied
+         * @param format defines the format of the data
+         */
         public updateDynamicTexture(texture: Nullable<InternalTexture>, canvas: HTMLCanvasElement, invertY: boolean, premulAlpha: boolean = false, format?: number): void {
             if (!texture) {
                 return;
             }
 
             this._bindTextureDirectly(this._gl.TEXTURE_2D, texture, true);
-            this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, invertY ? 1 : 0);
+            this._unpackFlipY(invertY);
             if (premulAlpha) {
                 this._gl.pixelStorei(this._gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
             }
@@ -3612,13 +4615,19 @@
             texture.isReady = true;
         }
 
+        /**
+         * Update a video texture
+         * @param texture defines the texture to update
+         * @param video defines the video element to use
+         * @param invertY defines if data must be stored with Y axis inverted
+         */
         public updateVideoTexture(texture: Nullable<InternalTexture>, video: HTMLVideoElement, invertY: boolean): void {
             if (!texture || texture._isDisabled) {
                 return;
             }
 
-            this._bindTextureDirectly(this._gl.TEXTURE_2D, texture, true);
-            this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, invertY ? 0 : 1); // Video are upside down by default
+            var wasPreviouslyBound = this._bindTextureDirectly(this._gl.TEXTURE_2D, texture, true);
+            this._unpackFlipY(!invertY); // Video are upside down by default
 
             try {
                 // Testing video texture support
@@ -3648,7 +4657,7 @@
                     }
 
                     texture._workingContext.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, texture.width, texture.height);
-
+                    
                     this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, texture._workingCanvas);
                 } else {
                     this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, video);
@@ -3658,7 +4667,9 @@
                     this._gl.generateMipmap(this._gl.TEXTURE_2D);
                 }
 
-                this._bindTextureDirectly(this._gl.TEXTURE_2D, null);
+                if (!wasPreviouslyBound) {
+                    this._bindTextureDirectly(this._gl.TEXTURE_2D, null);
+                }
                 //    this.resetTextureCache();
                 texture.isReady = true;
 
@@ -3727,10 +4738,10 @@
             internalTexture.generateMipMaps = false;
             internalTexture._generateDepthBuffer = true;
             internalTexture._generateStencilBuffer = generateStencil;
-            internalTexture.samplingMode = bilinearFiltering ? Texture.NEAREST_SAMPLINGMODE : Texture.BILINEAR_SAMPLINGMODE;
+            internalTexture.samplingMode = bilinearFiltering ? Texture.BILINEAR_SAMPLINGMODE : Texture.NEAREST_SAMPLINGMODE;
             internalTexture.type = Engine.TEXTURETYPE_UNSIGNED_INT;
             internalTexture._comparisonFunction = comparisonFunction;
-
+            
             var gl = this._gl;
             var target = internalTexture.isCube ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
             var samplingParameters = getSamplingParameters(internalTexture.samplingMode, false, gl);
@@ -3757,6 +4768,23 @@
          * @returns The texture
          */
         public createDepthStencilTexture(size: number | { width: number, height: number }, options: DepthTextureCreationOptions) : InternalTexture {
+            if (options.isCube) {
+                let width = (<{ width: number, height: number }>size).width || <number>size;
+                return this._createDepthStencilCubeTexture(width, options);
+            }
+            else {
+                return this._createDepthStencilTexture(size, options);
+            }
+        }
+
+        /**
+         * Creates a depth stencil texture.
+         * This is only available in WebGL 2 or with the depth texture extension available.
+         * @param size The size of face edge in the texture.
+         * @param options The options defining the texture.
+         * @returns The texture
+         */
+        private _createDepthStencilTexture(size: number | { width: number, height: number }, options: DepthTextureCreationOptions) : InternalTexture {
             var internalTexture = new InternalTexture(this, InternalTexture.DATASOURCE_DEPTHTEXTURE);
 
             if (!this._caps.depthTextureExtension) {
@@ -3805,7 +4833,7 @@
          * @param options The options defining the cube texture.
          * @returns The cube texture
          */
-        public createDepthStencilCubeTexture(size: number, options: DepthTextureCreationOptions) : InternalTexture {
+        private _createDepthStencilCubeTexture(size: number, options: DepthTextureCreationOptions) : InternalTexture {
             var internalTexture = new InternalTexture(this, InternalTexture.DATASOURCE_UNKNOWN);
             internalTexture.isCube = true;
 
@@ -3858,23 +4886,29 @@
             this.bindUnboundFramebuffer(internalTexture._framebuffer);
             if (depthStencilTexture.isCube) {
                 if (depthStencilTexture._generateStencilBuffer) {
-                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X, depthStencilTexture, 0);
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X, depthStencilTexture._webGLTexture, 0);
                 }
                 else {
-                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X, depthStencilTexture, 0);
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_CUBE_MAP_POSITIVE_X, depthStencilTexture._webGLTexture, 0);
                 }
             }
             else {
                 if (depthStencilTexture._generateStencilBuffer) {
-                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, depthStencilTexture, 0);
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, depthStencilTexture._webGLTexture, 0);
                 }
                 else {
-                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthStencilTexture, 0);
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthStencilTexture._webGLTexture, 0);
                 }
             }
             this.bindUnboundFramebuffer(null);
         }
 
+        /**
+         * Creates a new render target texture
+         * @param size defines the size of the texture
+         * @param options defines the options used to create the texture
+         * @returns a new render target texture stored in an InternalTexture
+         */
         public createRenderTargetTexture(size: number | { width: number, height: number }, options: boolean | RenderTargetCreationOptions): InternalTexture {
             let fullOptions = new RenderTargetCreationOptions();
 
@@ -3884,12 +4918,14 @@
                 fullOptions.generateStencilBuffer = fullOptions.generateDepthBuffer && options.generateStencilBuffer;
                 fullOptions.type = options.type === undefined ? Engine.TEXTURETYPE_UNSIGNED_INT : options.type;
                 fullOptions.samplingMode = options.samplingMode === undefined ? Texture.TRILINEAR_SAMPLINGMODE : options.samplingMode;
+                fullOptions.format = options.format === undefined ? Engine.TEXTUREFORMAT_RGBA : options.format;
             } else {
                 fullOptions.generateMipMaps = <boolean>options;
                 fullOptions.generateDepthBuffer = true;
                 fullOptions.generateStencilBuffer = false;
                 fullOptions.type = Engine.TEXTURETYPE_UNSIGNED_INT;
                 fullOptions.samplingMode = Texture.TRILINEAR_SAMPLINGMODE;
+                fullOptions.format = Engine.TEXTUREFORMAT_RGBA;
             }
 
             if (fullOptions.type === Engine.TEXTURETYPE_FLOAT && !this._caps.textureFloatLinearFiltering) {
@@ -3920,9 +4956,10 @@
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-            gl.texImage2D(gl.TEXTURE_2D, 0, this._getRGBABufferInternalSizedFormat(fullOptions.type), width, height, 0, gl.RGBA, this._getWebGLTextureType(fullOptions.type), null);
+            gl.texImage2D(gl.TEXTURE_2D, 0, this._getRGBABufferInternalSizedFormat(fullOptions.type, fullOptions.format), width, height, 0, this._getInternalFormat(fullOptions.format), this._getWebGLTextureType(fullOptions.type), null);
 
             // Create the framebuffer
+            var currentFrameBuffer = this._currentFramebuffer;
             var framebuffer = gl.createFramebuffer();
             this.bindUnboundFramebuffer(framebuffer);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture._webGLTexture, 0);
@@ -3936,7 +4973,7 @@
             // Unbind
             this._bindTextureDirectly(gl.TEXTURE_2D, null);
             gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-            this.bindUnboundFramebuffer(null);
+            this.bindUnboundFramebuffer(currentFrameBuffer);
 
             texture._framebuffer = framebuffer;
             texture.baseWidth = width;
@@ -3958,7 +4995,14 @@
             return texture;
         }
 
-        public createMultipleRenderTarget(size: any, options: any): InternalTexture[] {
+        /**
+         * Create a multi render target texture
+         * @see http://doc.babylonjs.com/features/webgl2#multiple-render-target
+         * @param size defines the size of the texture
+         * @param options defines the creation options
+         * @returns the cube texture as an InternalTexture
+         */
+        public createMultipleRenderTarget(size: any, options: IMultiRenderTargetOptions): InternalTexture[] {
             var generateMipMaps = false;
             var generateDepthBuffer = true;
             var generateStencilBuffer = false;
@@ -3968,13 +5012,14 @@
             var defaultType = Engine.TEXTURETYPE_UNSIGNED_INT;
             var defaultSamplingMode = Texture.TRILINEAR_SAMPLINGMODE;
 
-            var types = [], samplingModes = [];
+            var types = new Array<number>();
+            var samplingModes = new Array<number>();
 
             if (options !== undefined) {
-                generateMipMaps = options.generateMipMaps;
+                generateMipMaps = options.generateMipMaps === undefined ? false: options.generateMipMaps;
                 generateDepthBuffer = options.generateDepthBuffer === undefined ? true : options.generateDepthBuffer;
-                generateStencilBuffer = options.generateStencilBuffer;
-                generateDepthTexture = options.generateDepthTexture;
+                generateStencilBuffer = options.generateStencilBuffer === undefined ? false: options.generateStencilBuffer;
+                generateDepthTexture = options.generateDepthTexture === undefined ? false: options.generateDepthTexture;
                 textureCount = options.textureCount || 1;
 
                 if (options.types) {
@@ -4148,6 +5193,13 @@
             return depthStencilBuffer;
         }
 
+        /**
+         * Updates the sample count of a render target texture
+         * @see http://doc.babylonjs.com/features/webgl2#multisample-render-targets
+         * @param texture defines the texture to update
+         * @param samples defines the sample count to set
+         * @returns the effective sample count (could be 0 if multisample render targets are not supported)
+         */
         public updateRenderTargetTextureSampleCount(texture: Nullable<InternalTexture>, samples: number): number {
             if (this.webGLVersion < 2 || !texture) {
                 return 1;
@@ -4212,6 +5264,13 @@
             return samples;
         }
 
+        /**
+         * Update the sample count for a given multiple render target texture
+         * @see http://doc.babylonjs.com/features/webgl2#multisample-render-targets
+         * @param textures defines the textures to update
+         * @param samples defines the sample count to set
+         * @returns the effective sample count (could be 0 if multisample render targets are not supported)
+         */
         public updateMultipleRenderTargetTextureSampleCount(textures: Nullable<InternalTexture[]>, samples: number): number {
             if (this.webGLVersion < 2 || !textures || textures.length == 0) {
                 return 1;
@@ -4288,14 +5347,44 @@
             return samples;
         }
 
+        /** @hidden */
         public _uploadDataToTexture(target: number, lod: number, internalFormat: number, width: number, height: number, format: number, type: number, data: ArrayBufferView) {
             this._gl.texImage2D(target, lod, internalFormat, width, height, 0, format, type, data);
         }
 
+        /** @hidden */
         public _uploadCompressedDataToTexture(target: number, lod: number, internalFormat: number, width: number, height: number, data: ArrayBufferView) {
-            this._gl.compressedTexImage2D(target, lod, internalFormat, width, height, 0, data);
+            this._gl.compressedTexImage2D(target, lod, internalFormat, width, height, 0, <DataView>data);
         }
 
+        /** @hidden */
+        public _uploadImageToTexture(texture: InternalTexture, faceIndex: number, lod: number, image: HTMLImageElement) {
+            var gl = this._gl;
+
+            var textureType = this._getWebGLTextureType(texture.type);
+            var format = this._getInternalFormat(texture.format);
+            var internalFormat = this._getRGBABufferInternalSizedFormat(texture.type, format);
+
+            var bindTarget = texture.isCube ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+
+            this._bindTextureDirectly(bindTarget, texture, true);
+            this._unpackFlipY(texture.invertY);
+
+            var target = gl.TEXTURE_2D;
+            if (texture.isCube) {
+                var target = gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex;
+            }
+
+            gl.texImage2D(target, lod, internalFormat, format, textureType, image);
+            this._bindTextureDirectly(bindTarget, null, true);
+        }
+
+        /**
+         * Creates a new render target cube texture
+         * @param size defines the size of the texture
+         * @param options defines the options used to create the texture
+         * @returns a new render target cube texture stored in an InternalTexture
+         */
         public createRenderTargetCubeTexture(size: number, options?: Partial<RenderTargetCreationOptions>): InternalTexture {
             let fullOptions = {
               generateMipMaps: true,
@@ -4303,6 +5392,7 @@
               generateStencilBuffer: false,
               type: Engine.TEXTURETYPE_UNSIGNED_INT,
               samplingMode: Texture.TRILINEAR_SAMPLINGMODE,
+              format: Engine.TEXTUREFORMAT_RGBA,
               ...options
             };
             fullOptions.generateStencilBuffer = fullOptions.generateDepthBuffer && fullOptions.generateStencilBuffer;
@@ -4333,7 +5423,7 @@
             gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
             for (var face = 0; face < 6; face++) {
-                gl.texImage2D((gl.TEXTURE_CUBE_MAP_POSITIVE_X + face), 0, this._getRGBABufferInternalSizedFormat(fullOptions.type), size, size, 0, gl.RGBA, this._getWebGLTextureType(fullOptions.type), null);
+                gl.texImage2D((gl.TEXTURE_CUBE_MAP_POSITIVE_X + face), 0, this._getRGBABufferInternalSizedFormat(fullOptions.type, fullOptions.format), size, size, 0, this._getInternalFormat(fullOptions.format), this._getWebGLTextureType(fullOptions.type), null);
             }
 
             // Create the framebuffer
@@ -4369,9 +5459,23 @@
             return texture;
         }
 
-        public createPrefilteredCubeTexture(rootUrl: string, scene: Nullable<Scene>, scale: number, offset: number,
+        /**
+         * Create a cube texture from prefiltered data (ie. the mipmaps contain ready to use data for PBR reflection)
+         * @param rootUrl defines the url where the file to load is located
+         * @param scene defines the current scene
+         * @param lodScale defines scale to apply to the mip map selection
+         * @param lodOffset defines offset to apply to the mip map selection
+         * @param onLoad defines an optional callback raised when the texture is loaded
+         * @param onError defines an optional callback raised if there is an issue to load the texture
+         * @param format defines the format of the data
+         * @param forcedExtension defines the extension to use to pick the right loader
+         * @param createPolynomials defines wheter or not to create polynomails harmonics for the texture
+         * @returns the cube texture as an InternalTexture
+         */
+        public createPrefilteredCubeTexture(rootUrl: string, scene: Nullable<Scene>, lodScale: number, lodOffset: number,
             onLoad: Nullable<(internalTexture: Nullable<InternalTexture>) => void> = null,
-            onError: Nullable<(message?: string, exception?: any) => void> = null, format?: number, forcedExtension: any = null): InternalTexture {
+            onError: Nullable<(message?: string, exception?: any) => void> = null, format?: number, forcedExtension: any = null,
+            createPolynomials: boolean = true): InternalTexture {
             var callback = (loadData: any) => {
                 if (!loadData) {
                     if (onLoad) {
@@ -4381,9 +5485,13 @@
                 }
 
                 let texture = loadData.texture as InternalTexture;
+                if (!createPolynomials) {
+                    texture._sphericalPolynomial = new BABYLON.SphericalPolynomial();
+                }
+                else if(loadData.info.sphericalPolynomial){
+                    texture._sphericalPolynomial = loadData.info.sphericalPolynomial;
+                }
                 texture._dataSource = InternalTexture.DATASOURCE_CUBEPREFILTERED;
-                texture._lodGenerationScale = scale;
-                texture._lodGenerationOffset = offset;
 
                 if (this._caps.textureLOD) {
                     // Do not add extra process if texture lod is supported.
@@ -4407,8 +5515,8 @@
                     let smoothness = i / (mipSlices - 1);
                     let roughness = 1 - smoothness;
 
-                    let minLODIndex = offset; // roughness = 0
-                    let maxLODIndex = Scalar.Log2(width) * scale + offset; // roughness = 1
+                    let minLODIndex = lodOffset; // roughness = 0
+                    let maxLODIndex = Scalar.Log2(width) * lodScale + lodOffset; // roughness = 1
 
                     let lodIndex = minLODIndex + (maxLODIndex - minLODIndex) * roughness;
                     let mipmapIndex = Math.round(Math.min(Math.max(lodIndex, 0), maxLODIndex));
@@ -4425,7 +5533,7 @@
                     if (loadData.isDDS) {
                         var info: DDSInfo = loadData.info;
                         var data: any = loadData.data;
-                        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, info.isCompressed ? 1 : 0);
+                        this._unpackFlipY(info.isCompressed);
 
                         DDSTools.UploadDDSLevels(this, this._gl, data, info, true, 6, mipmapIndex);
                     }
@@ -4453,16 +5561,33 @@
                 }
             };
 
-            return this.createCubeTexture(rootUrl, scene, null, false, callback, onError, format, forcedExtension);
+            return this.createCubeTexture(rootUrl, scene, null, false, callback, onError, format, forcedExtension, createPolynomials, lodScale, lodOffset);
         }
 
-        public createCubeTexture(rootUrl: string, scene: Nullable<Scene>, files: Nullable<string[]>, noMipmap?: boolean, onLoad: Nullable<(data?: any) => void> = null, onError: Nullable<(message?: string, exception?: any) => void> = null, format?: number, forcedExtension: any = null): InternalTexture {
+        /**
+         * Creates a cube texture
+         * @param rootUrl defines the url where the files to load is located
+         * @param scene defines the current scene
+         * @param files defines the list of files to load (1 per face)
+         * @param noMipmap defines a boolean indicating that no mipmaps shall be generated (false by default)
+         * @param onLoad defines an optional callback raised when the texture is loaded
+         * @param onError defines an optional callback raised if there is an issue to load the texture
+         * @param format defines the format of the data
+         * @param forcedExtension defines the extension to use to pick the right loader
+         * @param createPolynomials if a polynomial sphere should be created for the cube texture
+         * @param lodScale defines the scale applied to environment texture. This manages the range of LOD level used for IBL according to the roughness
+         * @param lodOffset defines the offset applied to environment texture. This manages first LOD level used for IBL according to the roughness
+         * @returns the cube texture as an InternalTexture
+         */
+        public createCubeTexture(rootUrl: string, scene: Nullable<Scene>, files: Nullable<string[]>, noMipmap?: boolean, onLoad: Nullable<(data?: any) => void> = null, onError: Nullable<(message?: string, exception?: any) => void> = null, format?: number, forcedExtension: any = null, createPolynomials = false, lodScale: number = 0, lodOffset: number = 0): InternalTexture {
             var gl = this._gl;
 
             var texture = new InternalTexture(this, InternalTexture.DATASOURCE_CUBE);
             texture.isCube = true;
             texture.url = rootUrl;
             texture.generateMipMaps = !noMipmap;
+            texture._lodGenerationScale = lodScale;
+            texture._lodGenerationOffset = lodOffset;
 
             if (!this._doNotHandleContextLost) {
                 texture._extension = forcedExtension;
@@ -4471,6 +5596,7 @@
 
             var isKTX = false;
             var isDDS = false;
+            var isEnv = false;
             var lastDot = rootUrl.lastIndexOf('.');
             var extension = forcedExtension ? forcedExtension : (lastDot > -1 ? rootUrl.substring(lastDot).toLowerCase() : "");
             if (this._textureFormatInUse) {
@@ -4479,6 +5605,7 @@
                 isKTX = true;
             } else {
                 isDDS = (extension === ".dds");
+                isEnv = (extension === ".env");
             }
 
             let onerror = (request?: XMLHttpRequest, exception?: any) => {
@@ -4494,7 +5621,7 @@
                     var loadMipmap = ktx.numberOfMipmapLevels > 1 && !noMipmap;
 
                     this._bindTextureDirectly(gl.TEXTURE_CUBE_MAP, texture, true);
-                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+                    this._unpackFlipY(true);
 
                     ktx.uploadLevels(this._gl, !noMipmap);
 
@@ -4504,7 +5631,29 @@
                     texture.height = ktx.pixelHeight;
                     texture.isReady = true;
                 }, undefined, undefined, true, onerror);
-            } else if (isDDS) {
+            }
+            else if (isEnv) {
+                this._loadFile(rootUrl, (data) => {
+                    data = data as ArrayBuffer;
+                    var info = EnvironmentTextureTools.GetEnvInfo(data);
+                    if (info) {
+                        texture.width = info.width;
+                        texture.height = info.width;
+
+                        EnvironmentTextureTools.UploadPolynomials(texture, data, info!);
+                        EnvironmentTextureTools.UploadLevelsAsync(texture, data, info!).then(() => {
+                            texture.isReady = true;
+                            if (onLoad) {
+                                onLoad();
+                            }
+                        });
+                    }
+                    else if (onError) {
+                        onError("Can not parse the environment file", null);
+                    }
+                }, undefined, undefined, true, onerror);
+            }
+            else if (isDDS) {
                 if (files && files.length === 6) {
                     this._cascadeLoadFiles(
                         scene,
@@ -4519,7 +5668,7 @@
                                 loadMipmap = (info.isRGB || info.isLuminance || info.mipmapCount > 1) && !noMipmap;
 
                                 this._bindTextureDirectly(gl.TEXTURE_CUBE_MAP, texture, true);
-                                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, info.isCompressed ? 1 : 0);
+                                this._unpackFlipY(info.isCompressed);
 
                                 DDSTools.UploadDDSLevels(this, this._gl, data, info, loadMipmap, 6, -1, index);
 
@@ -4547,11 +5696,14 @@
                     this._loadFile(rootUrl,
                         data => {
                             var info = DDSTools.GetDDSInfo(data);
-
+                            if(createPolynomials){
+                                info.sphericalPolynomial = new SphericalPolynomial();
+                            }
+                            
                             var loadMipmap = (info.isRGB || info.isLuminance || info.mipmapCount > 1) && !noMipmap;
 
                             this._bindTextureDirectly(gl.TEXTURE_CUBE_MAP, texture, true);
-                            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, info.isCompressed ? 1 : 0);
+                            this._unpackFlipY(info.isCompressed);
 
                             DDSTools.UploadDDSLevels(this, this._gl, data, info, loadMipmap, 6);
 
@@ -4565,7 +5717,7 @@
                             texture.height = info.height;
                             texture.isReady = true;
                             texture.type = info.textureType;
-
+                            
                             if (onLoad) {
                                 onLoad({ isDDS: true, width: info.width, info, data, texture });
                             }
@@ -4585,6 +5737,7 @@
                     var height = width;
 
                     this._prepareWorkingCanvas();
+
                     if (!this._workingCanvas || !this._workingContext) {
                         return;
                     }
@@ -4597,7 +5750,7 @@
                     ];
 
                     this._bindTextureDirectly(gl.TEXTURE_CUBE_MAP, texture, true);
-                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+                    this._unpackFlipY(false);
 
                     let internalFormat = format ? this._getInternalFormat(format) : this._gl.RGBA;
                     for (var index = 0; index < faces.length; index++) {
@@ -4643,6 +5796,16 @@
             //  this.resetTextureCache();
         }
 
+        /**
+         * Update a raw cube texture
+         * @param texture defines the texture to udpdate
+         * @param data defines the data to store
+         * @param format defines the data format
+         * @param type defines the type fo the data (BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT by default)
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param compression defines the compression used (null by default)
+         * @param level defines which level of the texture to update
+         */
         public updateRawCubeTexture(texture: InternalTexture, data: ArrayBufferView[], format: number, type: number, invertY: boolean, compression: Nullable<string> = null, level = 0): void {
             texture._bufferViewArray = data;
             texture.format = format;
@@ -4662,7 +5825,7 @@
             }
 
             this._bindTextureDirectly(gl.TEXTURE_CUBE_MAP, texture, true);
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, invertY === undefined ? 1 : (invertY ? 1 : 0));
+            this._unpackFlipY(invertY === undefined ? true : (invertY ? true : false));
 
             if (texture.width % 4 !== 0) {
                 gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -4673,7 +5836,7 @@
                 let faceData = data[faceIndex];
 
                 if (compression) {
-                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, level, (<any>(this.getCaps().s3tc))[compression], texture.width, texture.height, 0, faceData);
+                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, level, (<any>(this.getCaps().s3tc))[compression], texture.width, texture.height, 0, <DataView>faceData);
                 } else {
                     if (needConversion) {
                         faceData = this._convertRGBtoRGBATextureData(faceData, texture.width, texture.height, type);
@@ -4692,7 +5855,21 @@
             texture.isReady = true;
         }
 
-        public createRawCubeTexture(data: Nullable<ArrayBufferView[]>, size: number, format: number, type: number, generateMipMaps: boolean, invertY: boolean, samplingMode: number, compression: Nullable<string> = null): InternalTexture {
+        /**
+         * Creates a new raw cube texture
+         * @param data defines the array of data to use to create each face
+         * @param size defines the size of the textures
+         * @param format defines the format of the data
+         * @param type defines the type fo the data (like BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT)
+         * @param generateMipMaps  defines if the engine should generate the mip levels
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param samplingMode defines the required sampling mode (like BABYLON.Texture.NEAREST_SAMPLINGMODE)
+         * @param compression defines the compression used (null by default)
+         * @returns the cube texture as an InternalTexture
+         */
+        public createRawCubeTexture(data: Nullable<ArrayBufferView[]>, size: number, format: number, type: number, 
+                                    generateMipMaps: boolean, invertY: boolean, samplingMode: number, 
+                                    compression: Nullable<string> = null): InternalTexture {
             var gl = this._gl;
             var texture = new InternalTexture(this, InternalTexture.DATASOURCE_CUBERAW);
             texture.isCube = true;
@@ -4755,9 +5932,25 @@
             return texture;
         }
 
+        /**
+         * Creates a new raw cube texture from a specified url
+         * @param url defines the url where the data is located
+         * @param scene defines the current scene
+         * @param size defines the size of the textures
+         * @param format defines the format of the data
+         * @param type defines the type fo the data (like BABYLON.Engine.TEXTURETYPE_UNSIGNED_INT)
+         * @param noMipmap defines if the engine should avoid generating the mip levels
+         * @param callback defines a callback used to extract texture data from loaded data
+         * @param mipmapGenerator defines to provide an optional tool to generate mip levels
+         * @param onLoad defines a callback called when texture is loaded
+         * @param onError defines a callback called if there is an error
+         * @param samplingMode defines the required sampling mode (like BABYLON.Texture.NEAREST_SAMPLINGMODE)
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @returns the cube texture as an InternalTexture
+         */        
         public createRawCubeTextureFromUrl(url: string, scene: Scene, size: number, format: number, type: number, noMipmap: boolean,
             callback: (ArrayBuffer: ArrayBuffer) => Nullable<ArrayBufferView[]>,
-            mipmmapGenerator: Nullable<((faces: ArrayBufferView[]) => ArrayBufferView[][])>,
+            mipmapGenerator: Nullable<((faces: ArrayBufferView[]) => ArrayBufferView[][])>,
             onLoad: Nullable<() => void> = null,
             onError: Nullable<(message?: string, exception?: any) => void> = null,
             samplingMode = Texture.TRILINEAR_SAMPLINGMODE,
@@ -4784,7 +5977,7 @@
                     return;
                 }
 
-                if (mipmmapGenerator) {
+                if (mipmapGenerator) {
                     var textureType = this._getWebGLTextureType(type);
                     var internalFormat = this._getInternalFormat(format);
                     var internalSizedFomat = this._getRGBABufferInternalSizedFormat(type);
@@ -4796,9 +5989,9 @@
                     }
 
                     this._bindTextureDirectly(gl.TEXTURE_CUBE_MAP, texture, true);
-                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+                    this._unpackFlipY(false);
 
-                    var mipData = mipmmapGenerator(faceDataArrays);
+                    var mipData = mipmapGenerator(faceDataArrays);
                     for (var level = 0; level < mipData.length; level++) {
                         var mipSize = width >> level;
 
@@ -4834,10 +6027,22 @@
             return texture;
         };
 
-        public updateRawTexture3D(texture: InternalTexture, data: Nullable<ArrayBufferView>, format: number, invertY: boolean, compression: Nullable<string> = null): void {
+        /**
+         * Update a raw 3D texture
+         * @param texture defines the texture to update
+         * @param data defines the data to store
+         * @param format defines the data format
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param compression defines the used compression (can be null)
+         * @param textureType defines the texture Type (Engine.TEXTURETYPE_UNSIGNED_INT, Engine.TEXTURETYPE_FLOAT...)
+         */
+        public updateRawTexture3D(texture: InternalTexture, data: Nullable<ArrayBufferView>, format: number, invertY: boolean, compression: Nullable<string> = null, textureType = Engine.TEXTURETYPE_UNSIGNED_INT): void {
+            var internalType = this._getWebGLTextureType(textureType);
             var internalFormat = this._getInternalFormat(format);
+            var internalSizedFomat = this._getRGBABufferInternalSizedFormat(textureType, format);
+
             this._bindTextureDirectly(this._gl.TEXTURE_3D, texture, true);
-            this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, invertY === undefined ? 1 : (invertY ? 1 : 0));
+            this._unpackFlipY(invertY === undefined ? true : (invertY ? true : false));
 
             if (!this._doNotHandleContextLost) {
                 texture._bufferView = data;
@@ -4853,7 +6058,7 @@
             if (compression && data) {
                 this._gl.compressedTexImage3D(this._gl.TEXTURE_3D, 0, (<any>this.getCaps().s3tc)[compression], texture.width, texture.height, texture.depth, 0, data);
             } else {
-                this._gl.texImage3D(this._gl.TEXTURE_3D, 0, internalFormat, texture.width, texture.height, texture.depth, 0, internalFormat, this._gl.UNSIGNED_BYTE, data);
+                this._gl.texImage3D(this._gl.TEXTURE_3D, 0, internalSizedFomat, texture.width, texture.height, texture.depth, 0, internalFormat, internalType, data);
             }
 
             if (texture.generateMipMaps) {
@@ -4864,7 +6069,21 @@
             texture.isReady = true;
         }
 
-        public createRawTexture3D(data: Nullable<ArrayBufferView>, width: number, height: number, depth: number, format: number, generateMipMaps: boolean, invertY: boolean, samplingMode: number, compression: Nullable<string> = null): InternalTexture {
+        /**
+         * Creates a new raw 3D texture
+         * @param data defines the data used to create the texture
+         * @param width defines the width of the texture
+         * @param height defines the height of the texture
+         * @param depth defines the depth of the texture
+         * @param format defines the format of the texture
+         * @param generateMipMaps defines if the engine must generate mip levels
+         * @param invertY defines if data must be stored with Y axis inverted
+         * @param samplingMode defines the required sampling mode (like BABYLON.Texture.NEAREST_SAMPLINGMODE)
+         * @param compression defines the compressed used (can be null)
+         * @param textureType defines the compressed used (can be null)
+         * @returns a new raw 3D texture (stored in an InternalTexture)
+         */
+        public createRawTexture3D(data: Nullable<ArrayBufferView>, width: number, height: number, depth: number, format: number, generateMipMaps: boolean, invertY: boolean, samplingMode: number, compression: Nullable<string> = null, textureType = Engine.TEXTURETYPE_UNSIGNED_INT): InternalTexture {
             var texture = new InternalTexture(this, InternalTexture.DATASOURCE_RAW3D);
             texture.baseWidth = width;
             texture.baseHeight = height;
@@ -4873,6 +6092,7 @@
             texture.height = height;
             texture.depth = depth;
             texture.format = format;
+            texture.type = textureType;
             texture.generateMipMaps = generateMipMaps;
             texture.samplingMode = samplingMode;
             texture.is3D = true;
@@ -4881,7 +6101,7 @@
                 texture._bufferView = data;
             }
 
-            this.updateRawTexture3D(texture, data, format, invertY, compression);
+            this.updateRawTexture3D(texture, data, format, invertY, compression, textureType);
             this._bindTextureDirectly(this._gl.TEXTURE_3D, texture, true);
 
             // Filters
@@ -4929,8 +6149,9 @@
 
         private _prepareWebGLTexture(texture: InternalTexture, scene: Nullable<Scene>, width: number, height: number, invertY: boolean, noMipmap: boolean, isCompressed: boolean,
             processFunction: (width: number, height: number, continuationCallback: () => void) => boolean, samplingMode: number = Texture.TRILINEAR_SAMPLINGMODE): void {
-            var potWidth = this.needPOTTextures ? Tools.GetExponentOfTwo(width, this.getCaps().maxTextureSize) : width;
-            var potHeight = this.needPOTTextures ? Tools.GetExponentOfTwo(height, this.getCaps().maxTextureSize) : height;
+            var maxTextureSize = this.getCaps().maxTextureSize;    
+            var potWidth = Math.min(maxTextureSize, this.needPOTTextures ? Tools.GetExponentOfTwo(width, maxTextureSize) : width);
+            var potHeight = Math.min(maxTextureSize, this.needPOTTextures ? Tools.GetExponentOfTwo(height, maxTextureSize) : height);
 
             var gl = this._gl;
             if (!gl) {
@@ -4947,7 +6168,7 @@
             }
 
             this._bindTextureDirectly(gl.TEXTURE_2D, texture, true);
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, invertY === undefined ? 1 : (invertY ? 1 : 0));
+            this._unpackFlipY(invertY === undefined ? true : (invertY ? true : false));
 
             texture.baseWidth = width;
             texture.baseHeight = height;
@@ -4994,6 +6215,7 @@
             return rgbaData;
         }
 
+        /** @hidden */
         public _releaseFramebufferObjects(texture: InternalTexture): void {
             var gl = this._gl;
 
@@ -5018,6 +6240,7 @@
             }
         }
 
+        /** @hidden */
         public _releaseTexture(texture: InternalTexture): void {
             var gl = this._gl;
 
@@ -5043,6 +6266,24 @@
             if (texture._lodTextureLow) {
                 texture._lodTextureLow.dispose();
             }
+
+            // Set output texture of post process to null if the texture has been released/disposed
+            this.scenes.forEach((scene)=>{
+                scene.postProcesses.forEach((postProcess)=>{
+                    if(postProcess._outputTexture == texture){
+                        postProcess._outputTexture = null;
+                    }
+                });
+                scene.cameras.forEach((camera)=>{
+                    camera._postProcesses.forEach((postProcess)=>{
+                        if(postProcess){
+                            if(postProcess._outputTexture == texture){
+                                postProcess._outputTexture = null;
+                            }
+                        }
+                    });
+                });
+            })
         }
 
         private setProgram(program: WebGLProgram): void {
@@ -5054,6 +6295,10 @@
 
         private _boundUniforms: { [key: number]: WebGLUniformLocation } = {};
 
+        /**
+         * Binds an effect to the webGL context
+         * @param effect defines the effect to bind
+         */
         public bindSamplers(effect: Effect): void {
             this.setProgram(effect.getProgram());
 
@@ -5148,7 +6393,9 @@
             }
         }
 
-        protected _bindTextureDirectly(target: number, texture: Nullable<InternalTexture>, forTextureDataUpdate = false): void {
+        /** @hidden */
+        protected _bindTextureDirectly(target: number, texture: Nullable<InternalTexture>, forTextureDataUpdate = false, force = false): boolean {
+            var wasPreviouslyBound = false;
             if (forTextureDataUpdate && texture && texture._designatedSlot > -1) {
                 this._activeChannel = texture._designatedSlot;
             }
@@ -5156,7 +6403,7 @@
             let currentTextureBound = this._boundTexturesCache[this._activeChannel];
             let isTextureForRendering = texture && texture._initialSlot > -1;
 
-            if (currentTextureBound !== texture) {
+            if (currentTextureBound !== texture || force) {
                 if (currentTextureBound) {
                     this._removeDesignatedSlot(currentTextureBound);
                 }
@@ -5180,14 +6427,18 @@
                     texture._designatedSlot = this._activeChannel;
                 }
             } else if (forTextureDataUpdate) {
+                wasPreviouslyBound = true;
                 this._activateCurrentTexture();
             }
 
             if (isTextureForRendering && !forTextureDataUpdate) {
                 this._bindSamplerUniformToChannel(texture!._initialSlot, this._activeChannel);
             }
+
+            return wasPreviouslyBound;
         }
 
+        /** @hidden */
         public _bindTexture(channel: number, texture: Nullable<InternalTexture>): void {
             if (channel < 0) {
                 return;
@@ -5201,10 +6452,27 @@
             this._bindTextureDirectly(this._gl.TEXTURE_2D, texture);
         }
 
+        /**
+         * Sets a texture to the webGL context from a postprocess
+         * @param channel defines the channel to use
+         * @param postProcess defines the source postprocess
+         */
         public setTextureFromPostProcess(channel: number, postProcess: Nullable<PostProcess>): void {
             this._bindTexture(channel, postProcess ? postProcess._textures.data[postProcess._currentRenderTextureInd] : null);
         }
 
+        /**
+         * Binds the output of the passed in post process to the texture channel specified
+         * @param channel The channel the texture should be bound to
+         * @param postProcess The post process which's output should be bound
+         */
+        public setTextureFromPostProcessOutput(channel: number, postProcess: Nullable<PostProcess>): void {
+            this._bindTexture(channel, postProcess ? postProcess._outputTexture : null);
+        }
+
+        /**
+         * Unbind all textures from the webGL context
+         */
         public unbindAllTextures(): void {
             for (var channel = 0; channel < this._maxSimultaneousTextures; channel++) {
                 this._activeChannel = channel;
@@ -5216,6 +6484,12 @@
             }
         }
 
+        /**
+         * Sets a texture to the according uniform.
+         * @param channel The texture channel
+         * @param uniform The uniform to set
+         * @param texture The texture to apply
+         */
         public setTexture(channel: number, uniform: Nullable<WebGLUniformLocation>, texture: Nullable<BaseTexture>): void {
             if (channel < 0) {
                 return;
@@ -5228,6 +6502,29 @@
             this._setTexture(channel, texture);
         }
 
+        /**
+         * Sets a depth stencil texture from a render target to the according uniform.
+         * @param channel The texture channel
+         * @param uniform The uniform to set
+         * @param texture The render target texture containing the depth stencil texture to apply
+         */
+        public setDepthStencilTexture(channel: number, uniform: Nullable<WebGLUniformLocation>, texture: Nullable<RenderTargetTexture>): void {
+            if (channel < 0) {
+                return;
+            }
+
+            if (uniform) {
+                this._boundUniforms[channel] = uniform;
+            }
+
+            if (!texture || !texture.depthStencilTexture) {
+                this._setTexture(channel, null);
+            }
+            else {
+                this._setTexture(channel, texture, false, true);
+            }
+        }
+
         private _bindSamplerUniformToChannel(sourceSlot: number, destination: number) {
             let uniform = this._boundUniforms[sourceSlot];
             if (uniform._currentState === destination) {
@@ -5237,7 +6534,19 @@
             uniform._currentState = destination;
         }
 
-        private _setTexture(channel: number, texture: Nullable<BaseTexture>, isPartOfTextureArray = false): boolean {
+        private _getTextureWrapMode(mode: number): number {
+            switch(mode) {
+                case Texture.WRAP_ADDRESSMODE:
+                    return this._gl.REPEAT;
+                case Texture.CLAMP_ADDRESSMODE:
+                    return this._gl.CLAMP_TO_EDGE;
+                case Texture.MIRROR_ADDRESSMODE:
+                    return this._gl.MIRRORED_REPEAT;
+            }
+            return this._gl.REPEAT;
+        }
+
+        private _setTexture(channel: number, texture: Nullable<BaseTexture>, isPartOfTextureArray = false, depthStencilTexture = false): boolean {
             // Not ready?
             if (!texture) {
                 if (this._boundTexturesCache[channel] != null) {
@@ -5261,7 +6570,10 @@
             }
 
             let internalTexture: InternalTexture;
-            if (texture.isReady()) {
+            if (depthStencilTexture) {
+                internalTexture = (<RenderTargetTexture>texture).depthStencilTexture!;
+            }
+            else if (texture.isReady()) {
                 internalTexture = <InternalTexture>texture.getInternalTexture();
             }
             else if (texture.isCube) {
@@ -5278,111 +6590,67 @@
                 channel = this._getCorrectTextureChannel(channel, internalTexture);
             }
 
+            let needToBind = true;
             if (this._boundTexturesCache[channel] === internalTexture) {
                 this._moveBoundTextureOnTop(internalTexture);
                 if (!isPartOfTextureArray) {
                     this._bindSamplerUniformToChannel(internalTexture._initialSlot, channel);
                 }
-                return false;
+                
+                needToBind = false;
             }
 
             this._activeChannel = channel;
 
             if (internalTexture && internalTexture.is3D) {
-                this._bindTextureDirectly(this._gl.TEXTURE_3D, internalTexture, isPartOfTextureArray);
+                if (needToBind) {
+                    this._bindTextureDirectly(this._gl.TEXTURE_3D, internalTexture, isPartOfTextureArray);
+                }
 
                 if (internalTexture && internalTexture._cachedWrapU !== texture.wrapU) {
                     internalTexture._cachedWrapU = texture.wrapU;
-
-                    switch (texture.wrapU) {
-                        case Texture.WRAP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_S, this._gl.REPEAT);
-                            break;
-                        case Texture.CLAMP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
-                            break;
-                        case Texture.MIRROR_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_S, this._gl.MIRRORED_REPEAT);
-                            break;
-                    }
+                    this._setTextureParameterInteger(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_S, this._getTextureWrapMode(texture.wrapU), internalTexture);
                 }
 
                 if (internalTexture && internalTexture._cachedWrapV !== texture.wrapV) {
                     internalTexture._cachedWrapV = texture.wrapV;
-                    switch (texture.wrapV) {
-                        case Texture.WRAP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_T, this._gl.REPEAT);
-                            break;
-                        case Texture.CLAMP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
-                            break;
-                        case Texture.MIRROR_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_T, this._gl.MIRRORED_REPEAT);
-                            break;
-                    }
+                    this._setTextureParameterInteger(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_T, this._getTextureWrapMode(texture.wrapV), internalTexture);
                 }
 
                 if (internalTexture && internalTexture._cachedWrapR !== texture.wrapR) {
                     internalTexture._cachedWrapR = texture.wrapR;
-                    switch (texture.wrapR) {
-                        case Texture.WRAP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_R, this._gl.REPEAT);
-                            break;
-                        case Texture.CLAMP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_R, this._gl.CLAMP_TO_EDGE);
-                            break;
-                        case Texture.MIRROR_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_R, this._gl.MIRRORED_REPEAT);
-                            break;
-                    }
+                    this._setTextureParameterInteger(this._gl.TEXTURE_3D, this._gl.TEXTURE_WRAP_R, this._getTextureWrapMode(texture.wrapR), internalTexture);
                 }
 
                 this._setAnisotropicLevel(this._gl.TEXTURE_3D, texture);
             }
             else if (internalTexture && internalTexture.isCube) {
-                this._bindTextureDirectly(this._gl.TEXTURE_CUBE_MAP, internalTexture, isPartOfTextureArray);
+                if (needToBind) {
+                    this._bindTextureDirectly(this._gl.TEXTURE_CUBE_MAP, internalTexture, isPartOfTextureArray);
+                }                
 
                 if (internalTexture._cachedCoordinatesMode !== texture.coordinatesMode) {
                     internalTexture._cachedCoordinatesMode = texture.coordinatesMode;
                     // CUBIC_MODE and SKYBOX_MODE both require CLAMP_TO_EDGE.  All other modes use REPEAT.
                     var textureWrapMode = (texture.coordinatesMode !== Texture.CUBIC_MODE && texture.coordinatesMode !== Texture.SKYBOX_MODE) ? this._gl.REPEAT : this._gl.CLAMP_TO_EDGE;
-                    this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_WRAP_S, textureWrapMode);
-                    this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_WRAP_T, textureWrapMode);
+                    this._setTextureParameterInteger(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_WRAP_S, textureWrapMode, internalTexture);
+                    this._setTextureParameterInteger(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_WRAP_T, textureWrapMode);
                 }
 
                 this._setAnisotropicLevel(this._gl.TEXTURE_CUBE_MAP, texture);
             } else {
-                this._bindTextureDirectly(this._gl.TEXTURE_2D, internalTexture, isPartOfTextureArray);
+                if (needToBind) {               
+                    this._bindTextureDirectly(this._gl.TEXTURE_2D, internalTexture, isPartOfTextureArray);
+                }
 
                 if (internalTexture && internalTexture._cachedWrapU !== texture.wrapU) {
                     internalTexture._cachedWrapU = texture.wrapU;
-
-                    switch (texture.wrapU) {
-                        case Texture.WRAP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.REPEAT);
-                            break;
-                        case Texture.CLAMP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
-                            break;
-                        case Texture.MIRROR_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.MIRRORED_REPEAT);
-                            break;
-                    }
+                    this._setTextureParameterInteger(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._getTextureWrapMode(texture.wrapU), internalTexture);
                 }
 
                 if (internalTexture && internalTexture._cachedWrapV !== texture.wrapV) {
                     internalTexture._cachedWrapV = texture.wrapV;
-                    switch (texture.wrapV) {
-                        case Texture.WRAP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.REPEAT);
-                            break;
-                        case Texture.CLAMP_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
-                            break;
-                        case Texture.MIRROR_ADDRESSMODE:
-                            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.MIRRORED_REPEAT);
-                            break;
-                    }
+                    this._setTextureParameterInteger(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._getTextureWrapMode(texture.wrapV), internalTexture);
                 }
 
                 this._setAnisotropicLevel(this._gl.TEXTURE_2D, texture);
@@ -5391,6 +6659,12 @@
             return true;
         }
 
+        /**
+         * Sets an array of texture to the webGL context
+         * @param channel defines the channel where the texture array must be set
+         * @param uniform defines the associated uniform location
+         * @param textures defines the array of textures to bind
+         */
         public setTextureArray(channel: number, uniform: Nullable<WebGLUniformLocation>, textures: BaseTexture[]): void {
             if (channel < 0 || !uniform) {
                 return;
@@ -5409,7 +6683,8 @@
             }
         }
 
-        public _setAnisotropicLevel(key: number, texture: BaseTexture) {
+        /** @hidden */
+        public _setAnisotropicLevel(target: number, texture: BaseTexture) {
             var internalTexture = texture.getInternalTexture();
 
             if (!internalTexture) {
@@ -5419,7 +6694,6 @@
             var anisotropicFilterExtension = this._caps.textureAnisotropicFilterExtension;
             var value = texture.anisotropicFilteringLevel;
 
-
             if (internalTexture.samplingMode !== Texture.LINEAR_LINEAR_MIPNEAREST
                 && internalTexture.samplingMode !== Texture.LINEAR_LINEAR_MIPLINEAR
                 && internalTexture.samplingMode !== Texture.LINEAR_LINEAR) {
@@ -5427,11 +6701,31 @@
             }
 
             if (anisotropicFilterExtension && internalTexture._cachedAnisotropicFilteringLevel !== value) {
-                this._gl.texParameterf(key, anisotropicFilterExtension.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(value, this._caps.maxAnisotropy));
+                this._setTextureParameterFloat(target, anisotropicFilterExtension.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(value, this._caps.maxAnisotropy), internalTexture);
                 internalTexture._cachedAnisotropicFilteringLevel = value;
             }
         }
 
+        private _setTextureParameterFloat(target: number, parameter: number, value: number, texture: InternalTexture): void {
+            this._bindTextureDirectly(target, texture, true, true);
+            this._gl.texParameterf(target, parameter, value);
+        }
+
+        private _setTextureParameterInteger(target: number, parameter: number, value: number, texture?: InternalTexture) {
+            if (texture) {
+                this._bindTextureDirectly(target, texture, true, true);
+            }
+            this._gl.texParameteri(target, parameter, value);
+        }
+
+        /**
+         * Reads pixels from the current frame buffer. Please note that this function can be slow
+         * @param x defines the x coordinate of the rectangle where pixels must be read
+         * @param y defines the y coordinate of the rectangle where pixels must be read
+         * @param width defines the width of the rectangle where pixels must be read
+         * @param height defines the height of the rectangle where pixels must be read
+         * @returns a Uint8Array containing RGBA colors
+         */
         public readPixels(x: number, y: number, width: number, height: number): Uint8Array {
             var data = new Uint8Array(height * width * 4);
             this._gl.readPixels(x, y, width, height, this._gl.RGBA, this._gl.UNSIGNED_BYTE, data);
@@ -5491,6 +6785,9 @@
             return this._externalData.remove(key);
         }
 
+        /**
+         * Unbind all vertex attributes from the webGL context
+         */
         public unbindAllAttributes() {
             if (this._mustWipeVertexAttributes) {
                 this._mustWipeVertexAttributes = false;
@@ -5514,6 +6811,9 @@
             }
         }
 
+        /**
+         * Force the engine to release all cached effects. This means that next effect compilation will have to be done completely even if a similar effect was already compiled
+         */
         public releaseEffects() {
             for (var name in this._compiledEffects) {
                 this._deleteProgram(this._compiledEffects[name]._program)
@@ -5522,7 +6822,9 @@
             this._compiledEffects = {};
         }
 
-        // Dispose
+        /**
+         * Dispose and release all associated resources
+         */
         public dispose(): void {
             this.hideLoadingUI();
 
@@ -5563,6 +6865,7 @@
 
             // Unbind
             this.unbindAllAttributes();
+            this._boundUniforms = [];
 
             if (this._dummyFramebuffer) {
                 this._gl.deleteFramebuffer(this._dummyFramebuffer);
@@ -5580,7 +6883,7 @@
                 if (this._renderingCanvas) {
                     this._renderingCanvas.removeEventListener("focus", this._onCanvasFocus);
                     this._renderingCanvas.removeEventListener("blur", this._onCanvasBlur);
-                    this._renderingCanvas.removeEventListener("pointerout", this._onCanvasBlur);
+                    this._renderingCanvas.removeEventListener("pointerout", this._onCanvasPointerOut);
 
                     if (!this._doNotHandleContextLost) {
                         this._renderingCanvas.removeEventListener("webglcontextlost", this._onContextLost);
@@ -5622,6 +6925,7 @@
             this._currentBufferPointers = [];
             this._renderingCanvas = null;
             this._currentProgram = null;
+            this._bindedRenderFunction = null;
 
             this.onResizeObservable.clear();
             this.onCanvasBlurObservable.clear();
@@ -5639,6 +6943,11 @@
         }
 
         // Loading screen
+
+        /**
+         * Display the loading screen
+         * @see http://doc.babylonjs.com/how_to/creating_a_custom_loading_screen
+         */
         public displayLoadingUI(): void {
             if (!Tools.IsWindowObjectExist()) {
                 return;
@@ -5649,6 +6958,10 @@
             }
         }
 
+        /**
+         * Hide the loading screen
+         * @see http://doc.babylonjs.com/how_to/creating_a_custom_loading_screen
+         */        
         public hideLoadingUI(): void {
             if (!Tools.IsWindowObjectExist()) {
                 return;
@@ -5659,36 +6972,65 @@
             }
         }
 
+        /**
+         * Gets the current loading screen object
+         * @see http://doc.babylonjs.com/how_to/creating_a_custom_loading_screen
+         */
         public get loadingScreen(): ILoadingScreen {
             if (!this._loadingScreen && DefaultLoadingScreen && this._renderingCanvas)
                 this._loadingScreen = new DefaultLoadingScreen(this._renderingCanvas)
             return this._loadingScreen;
         }
 
+        /**
+         * Sets the current loading screen object
+         * @see http://doc.babylonjs.com/how_to/creating_a_custom_loading_screen
+         */
         public set loadingScreen(loadingScreen: ILoadingScreen) {
             this._loadingScreen = loadingScreen;
         }
 
+        /**
+         * Sets the current loading screen text
+         * @see http://doc.babylonjs.com/how_to/creating_a_custom_loading_screen
+         */        
         public set loadingUIText(text: string) {
             this.loadingScreen.loadingUIText = text;
         }
 
+        /**
+         * Sets the current loading screen background color
+         * @see http://doc.babylonjs.com/how_to/creating_a_custom_loading_screen
+         */         
         public set loadingUIBackgroundColor(color: string) {
             this.loadingScreen.loadingUIBackgroundColor = color;
         }
 
+        /**
+         * Attach a new callback raised when context lost event is fired
+         * @param callback defines the callback to call
+         */
         public attachContextLostEvent(callback: ((event: WebGLContextEvent) => void)): void {
             if (this._renderingCanvas) {
                 this._renderingCanvas.addEventListener("webglcontextlost", <any>callback, false);
             }
         }
 
+        /**
+         * Attach a new callback raised when context restored event is fired
+         * @param callback defines the callback to call
+         */
         public attachContextRestoredEvent(callback: ((event: WebGLContextEvent) => void)): void {
             if (this._renderingCanvas) {
                 this._renderingCanvas.addEventListener("webglcontextrestored", <any>callback, false);
             }
         }
 
+        /**
+         * Gets the source code of the vertex shader associated with a specific webGL program
+         * @param program defines the program to use
+         * @returns a string containing the source code of the vertex shader associated with the program
+         */
         public getVertexShaderSource(program: WebGLProgram): Nullable<string> {
             var shaders = this._gl.getAttachedShaders(program);
 
@@ -5699,6 +7041,11 @@
             return this._gl.getShaderSource(shaders[0]);
         }
 
+        /**
+         * Gets the source code of the fragment shader associated with a specific webGL program
+         * @param program defines the program to use
+         * @returns a string containing the source code of the fragment shader associated with the program
+         */        
         public getFragmentShaderSource(program: WebGLProgram): Nullable<string> {
             var shaders = this._gl.getAttachedShaders(program);
 
@@ -5709,15 +7056,29 @@
             return this._gl.getShaderSource(shaders[1]);
         }
 
+        /**
+         * Get the current error code of the webGL context
+         * @returns the error code
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError
+         */
         public getError(): number {
             return this._gl.getError();
         }
 
         // FPS
+
+        /**
+         * Gets the current framerate
+         * @returns a number representing the framerate
+         */
         public getFps(): number {
             return this._fps;
         }
 
+        /**
+         * Gets the time spent between current and previous frame
+         * @returns a number representing the delta time in ms
+         */
         public getDeltaTime(): number {
             return this._deltaTime;
         }
@@ -5728,7 +7089,8 @@
             this._deltaTime = this._performanceMonitor.instantaneousFrameTime || 0;
         }
 
-        public _readTexturePixels(texture: InternalTexture, width: number, height: number, faceIndex = -1): ArrayBufferView {
+        /** @hidden */
+        public _readTexturePixels(texture: InternalTexture, width: number, height: number, faceIndex = -1, level = 0): ArrayBufferView {
             let gl = this._gl;
             if (!this._dummyFramebuffer) {
                 let dummy = gl.createFramebuffer();
@@ -5742,9 +7104,9 @@
             gl.bindFramebuffer(gl.FRAMEBUFFER, this._dummyFramebuffer);
 
             if (faceIndex > -1) {
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture._webGLTexture, 0);
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture._webGLTexture, level);
             } else {
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture._webGLTexture, 0);
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture._webGLTexture, level);
             }
 
             let readType = (texture.type !== undefined) ? this._getWebGLTextureType(texture.type) : gl.UNSIGNED_BYTE;
@@ -5761,7 +7123,7 @@
                     break;
             }
 
-            gl.readPixels(0, 0, width, height, gl.RGBA, readType, buffer);
+            gl.readPixels(0, 0, width, height, gl.RGBA, readType, <DataView>buffer);
             gl.bindFramebuffer(gl.FRAMEBUFFER, this._currentFramebuffer);
 
             return buffer;
@@ -5832,6 +7194,7 @@
             return successful;
         }
 
+        /** @hidden */
         public _getWebGLTextureType(type: number): number {
             if (type === Engine.TEXTURETYPE_FLOAT) {
                 return this._gl.FLOAT;
@@ -5844,32 +7207,95 @@
             return this._gl.UNSIGNED_BYTE;
         };
 
-        /** @ignore */
+        private _getInternalFormat(format: number): number {
+            var internalFormat = this._gl.RGBA;
+            switch (format) {
+                case Engine.TEXTUREFORMAT_ALPHA:
+                    internalFormat = this._gl.ALPHA;
+                    break;
+                case Engine.TEXTUREFORMAT_LUMINANCE:
+                    internalFormat = this._gl.LUMINANCE;
+                    break;
+                case Engine.TEXTUREFORMAT_LUMINANCE_ALPHA:
+                    internalFormat = this._gl.LUMINANCE_ALPHA;
+                    break;
+                case Engine.TEXTUREFORMAT_RGB:
+                    internalFormat = this._gl.RGB;
+                    break;
+                case Engine.TEXTUREFORMAT_RGBA:
+                    internalFormat = this._gl.RGBA;
+                    break;
+                case Engine.TEXTUREFORMAT_R:
+                    internalFormat = this._gl.RED;
+                    break;       
+                case Engine.TEXTUREFORMAT_RG:
+                    internalFormat = this._gl.RG;
+                    break;                                    
+            }
+
+            return internalFormat;
+        }        
+
+        /** @hidden */
         public _getRGBABufferInternalSizedFormat(type: number, format?: number): number {
             if (this._webGLVersion === 1) {
+                if (format !== undefined) {
+                    switch(format) {
+                        case Engine.TEXTUREFORMAT_LUMINANCE:
+                            return this._gl.LUMINANCE;
+                        case Engine.TEXTUREFORMAT_ALPHA:
+                            return this._gl.ALPHA;     
+                    }                    
+                }
                 return this._gl.RGBA;
             }
 
             if (type === Engine.TEXTURETYPE_FLOAT) {
-                if (format) {
+                if (format !== undefined) {
                     switch(format) {
-                        case Engine.TEXTUREFORMAT_R32F:
+                        case Engine.TEXTUREFORMAT_R:
                             return this._gl.R32F;
-                        case Engine.TEXTUREFORMAT_RG32F:
+                        case Engine.TEXTUREFORMAT_RG:
                             return this._gl.RG32F;
-                            case Engine.TEXTUREFORMAT_RGB32F:
-                            return this._gl.RGB32F;                            
+                            case Engine.TEXTUREFORMAT_RGB:
+                            return this._gl.RGB32F;
                     }                    
                 }
                 return this._gl.RGBA32F;
             }
-            else if (type === Engine.TEXTURETYPE_HALF_FLOAT) {
+
+            if (type === Engine.TEXTURETYPE_HALF_FLOAT) {
+                if (format) {
+                    switch(format) {
+                        case Engine.TEXTUREFORMAT_R:
+                            return this._gl.R16F;
+                        case Engine.TEXTUREFORMAT_RG:
+                            return this._gl.RG16F;
+                            case Engine.TEXTUREFORMAT_RGB:
+                            return this._gl.RGB16F;
+                    }                    
+                }
                 return this._gl.RGBA16F;
             }
 
+            if (format !== undefined) {
+                switch(format) {
+                    case Engine.TEXTUREFORMAT_LUMINANCE:
+                        return this._gl.LUMINANCE;
+                    case Engine.TEXTUREFORMAT_RGB:
+                        return this._gl.RGB;
+                    case Engine.TEXTUREFORMAT_R:
+                        return this._gl.R8;
+                    case Engine.TEXTUREFORMAT_RG:
+                        return this._gl.RG8;
+                    case Engine.TEXTUREFORMAT_ALPHA:
+                        return this._gl.ALPHA;
+                }
+            }
             return this._gl.RGBA;
         };
 
+        /** @hidden */
         public _getRGBAMultiSampleBufferFormat(type: number): number {
             if (type === Engine.TEXTURETYPE_FLOAT) {
                 return this._gl.RGBA32F;
@@ -5881,24 +7307,50 @@
             return this._gl.RGBA8;
         };
 
+        /**
+         * Create a new webGL query (you must be sure that queries are supported by checking getCaps() function)
+         * @return the new query
+         */
         public createQuery(): WebGLQuery {
             return this._gl.createQuery();
         }
 
+        /**
+         * Delete and release a webGL query
+         * @param query defines the query to delete
+         * @return the current engine
+         */
         public deleteQuery(query: WebGLQuery): Engine {
             this._gl.deleteQuery(query);
 
             return this;
         }
 
+        /**
+         * Check if a given query has resolved and got its value
+         * @param query defines the query to check
+         * @returns true if the query got its value
+         */
         public isQueryResultAvailable(query: WebGLQuery): boolean {
             return this._gl.getQueryParameter(query, this._gl.QUERY_RESULT_AVAILABLE) as boolean;
         }
 
+        /**
+         * Gets the value of a given query
+         * @param query defines the query to check
+         * @returns the value of the query
+         */
         public getQueryResult(query: WebGLQuery): number {
             return this._gl.getQueryParameter(query, this._gl.QUERY_RESULT) as number;
         }
 
+        /**
+         * Initiates an occlusion query
+         * @param algorithmType defines the algorithm to use
+         * @param query defines the query to use
+         * @returns the current engine
+         * @see http://doc.babylonjs.com/features/occlusionquery
+         */
         public beginOcclusionQuery(algorithmType: number, query: WebGLQuery): Engine {
             var glAlgorithm = this.getGlAlgorithmType(algorithmType);
             this._gl.beginQuery(glAlgorithm, query);
@@ -5906,6 +7358,12 @@
             return this;
         }
 
+        /**
+         * Ends an occlusion query
+         * @see http://doc.babylonjs.com/features/occlusionquery
+         * @param algorithmType defines the algorithm to use
+         * @returns the current engine
+         */
         public endOcclusionQuery(algorithmType: number): Engine {
             var glAlgorithm = this.getGlAlgorithmType(algorithmType);
             this._gl.endQuery(glAlgorithm);
@@ -5955,6 +7413,12 @@
         }
 
         private _currentNonTimestampToken: Nullable<_TimeToken>;
+
+        /**
+         * Starts a time query (used to measure time spent by the GPU on a specific frame)
+         * Please note that only one query can be issued at a time
+         * @returns a time token used to track the time span
+         */
         public startTimeQuery(): Nullable<_TimeToken> {
             let timerQuery = this._caps.timerQuery;
             if (!timerQuery) {
@@ -5984,6 +7448,11 @@
             return token;
         }
 
+        /**
+         * Ends a time query
+         * @param token defines the token used to measure the time span
+         * @returns the time spent (in ns)
+         */
         public endTimeQuery(token: _TimeToken): int {
             let timerQuery = this._caps.timerQuery;
             if (!timerQuery || !token) {
@@ -6054,34 +7523,65 @@
         }
 
         // Transform feedback
+
+        /**
+         * Creates a webGL transform feedback object
+         * Please makes sure to check webGLVersion property to check if you are running webGL 2+
+         * @returns the webGL transform feedback object
+         */
         public createTransformFeedback(): WebGLTransformFeedback {
             return this._gl.createTransformFeedback();
         }
 
+        /**
+         * Delete a webGL transform feedback object 
+         * @param value defines the webGL transform feedback object to delete
+         */
         public deleteTransformFeedback(value: WebGLTransformFeedback): void {
             this._gl.deleteTransformFeedback(value);
         }
 
+        /**
+         * Bind a webGL transform feedback object to the webgl context
+         * @param value defines the webGL transform feedback object to bind
+         */        
         public bindTransformFeedback(value: Nullable<WebGLTransformFeedback>): void {
             this._gl.bindTransformFeedback(this._gl.TRANSFORM_FEEDBACK, value);
         }
 
+        /**
+         * Begins a transform feedback operation
+         * @param usePoints defines if points or triangles must be used
+         */              
         public beginTransformFeedback(usePoints: boolean = true): void {
             this._gl.beginTransformFeedback(usePoints ? this._gl.POINTS : this._gl.TRIANGLES);
         }
 
+        /**
+         * Ends a transform feedback operation
+         */           
         public endTransformFeedback(): void {
             this._gl.endTransformFeedback();
         }
 
+        /**
+         * Specify the varyings to use with transform feedback
+         * @param program defines the associated webGL program
+         * @param value defines the list of strings representing the varying names
+         */
         public setTranformFeedbackVaryings(program: WebGLProgram, value: string[]): void {
             this._gl.transformFeedbackVaryings(program, value, this._gl.INTERLEAVED_ATTRIBS);
         }
 
+        /**
+         * Bind a webGL buffer for a transform feedback operation
+         * @param value defines the webGL buffer to bind
+         */          
         public bindTransformFeedbackBuffer(value: Nullable<WebGLBuffer>): void {
             this._gl.bindBufferBase(this._gl.TRANSFORM_FEEDBACK_BUFFER, 0, value);
         }
 
+        /** @hidden */
         public _loadFile(url: string, onSuccess: (data: string | ArrayBuffer, responseURL?: string) => void, onProgress?: (data: any) => void, database?: Database, useArrayBuffer?: boolean, onError?: (request?: XMLHttpRequest, exception?: any) => void): IFileRequest {
             let request = Tools.LoadFile(url, onSuccess, onProgress, database, useArrayBuffer, onError);
             this._activeRequests.push(request);
@@ -6091,7 +7591,7 @@
             return request;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _loadFileAsync(url: string, database?: Database, useArrayBuffer?: boolean): Promise<string | ArrayBuffer> {
             return new Promise((resolve, reject) => {
                 this._loadFile(url, (data) => {
@@ -6131,6 +7631,12 @@
         }
 
         // Statics
+
+        /**
+         * Gets a boolean indicating if the engine can be instanciated (ie. if a webGL context can be found)
+         * @returns true if the engine can be created
+         * @ignorenaming
+         */
         public static isSupported(): boolean {
             try {
                 var tempcanvas = document.createElement("canvas");

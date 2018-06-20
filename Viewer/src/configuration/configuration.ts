@@ -1,4 +1,19 @@
-import { ITemplateConfiguration } from './../templateManager';
+import { EngineOptions, IGlowLayerOptions, DepthOfFieldEffectBlurLevel } from 'babylonjs';
+import { IObserversConfiguration, IModelConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, ICameraConfiguration, ISkyboxConfiguration, IGroundConfiguration, ILightConfiguration, IDefaultRenderingPipelineConfiguration, ITemplateConfiguration } from './interfaces';
+
+export function getConfigurationKey(key: string, configObject: any) {
+    let splits = key.split('.');
+
+    if (splits.length === 0 || !configObject) return;
+    else if (splits.length === 1) {
+        if (configObject[key] !== undefined) {
+            return configObject[key];
+        }
+    } else {
+        let firstKey = splits.shift();
+        return getConfigurationKey(splits.join("."), configObject[firstKey!])
+    }
+}
 
 export interface ViewerConfiguration {
 
@@ -28,13 +43,18 @@ export interface ViewerConfiguration {
     skybox?: boolean | ISkyboxConfiguration;
 
     ground?: boolean | IGroundConfiguration;
-    lights?: { [name: string]: boolean | ILightConfiguration },
+    lights?: {
+        //globalRotation: number,
+        [name: string]: number | boolean | ILightConfiguration
+    },
     // engine configuration. optional!
     engine?: {
+        renderInBackground?: boolean;
         antialiasing?: boolean;
         disableResize?: boolean;
-        engineOptions?: { [key: string]: any };
+        engineOptions?: EngineOptions;
         adaptiveQuality?: boolean;
+        hdEnabled?: boolean;
     },
     //templateStructure?: ITemplateStructure,
     templates?: {
@@ -51,6 +71,15 @@ export interface ViewerConfiguration {
         }
     }
 
+    loaderPlugins?: {
+        extendedMaterial?: boolean;
+        msftLod?: boolean;
+        telemetry?: boolean;
+        minecraft?: boolean;
+
+        [propName: string]: boolean | undefined;
+    };
+
     // features that are being tested.
     // those features' syntax will change and move out! 
     // Don't use in production (or be ready to make the changes :) )
@@ -63,199 +92,25 @@ export interface ViewerConfiguration {
             specular?: { r: number, g: number, b: number };
         }
         hideLoadingDelay?: number;
+        assetsRootURL?: string;
+        environmentMainColor?: { r: number, g: number, b: number };
+        environmentMap?: {
+            /**
+             * Environment map texture path in relative to the asset folder.
+             */
+            texture: string;
+
+            /**
+             * Default rotation to apply to the environment map.
+             */
+            rotationY: number;
+
+            /**
+             * Tint level of the main color on the environment map.
+             */
+            tintLevel: number;
+        }
+        defaultRenderingPipelines?: boolean | IDefaultRenderingPipelineConfiguration;
+        globalLightRotation?: number;
     }
-}
-
-export interface IModelConfiguration {
-    url?: string;
-    loader?: string; // obj, gltf?
-    position?: { x: number, y: number, z: number };
-    rotation?: { x: number, y: number, z: number, w?: number };
-    scaling?: { x: number, y: number, z: number };
-    parentObjectIndex?: number; // the index of the parent object of the model in the loaded meshes array.
-
-    castShadow?: boolean;
-    normalize?: boolean | {
-        center?: boolean;
-        unitSize?: boolean;
-        parentIndex?: number;
-    }; // shoud the model be scaled to unit-size
-
-    title?: string;
-    subtitle?: string;
-    thumbnail?: string; // URL or data-url
-
-    // [propName: string]: any; // further configuration, like title and creator
-}
-
-export interface ISkyboxConfiguration {
-    cubeTexture?: {
-        noMipMap?: boolean;
-        gammaSpace?: boolean;
-        url?: string | Array<string>;
-    };
-    color?: { r: number, g: number, b: number };
-    pbr?: boolean; // deprecated
-    scale?: number;
-    blur?: number; // deprecated
-    material?: {
-        imageProcessingConfiguration?: IImageProcessingConfiguration;
-        [propName: string]: any;
-    };
-    infiniteDIstance?: boolean;
-
-}
-
-export interface IGroundConfiguration {
-    size?: number;
-    receiveShadows?: boolean;
-    shadowLevel?: number;
-    shadowOnly?: boolean; // deprecated
-    mirror?: boolean | {
-        sizeRatio?: number;
-        blurKernel?: number;
-        amount?: number;
-        fresnelWeight?: number;
-        fallOffDistance?: number;
-        textureType?: number;
-    };
-    texture?: string;
-    color?: { r: number, g: number, b: number };
-    opacity?: number;
-    material?: { // deprecated!
-        [propName: string]: any;
-    };
-}
-
-export interface ISceneConfiguration {
-    debug?: boolean;
-    autoRotate?: boolean; // deprecated
-    rotationSpeed?: number; // deprecated
-    defaultCamera?: boolean; // deprecated
-    defaultLight?: boolean; // deprecated
-    clearColor?: { r: number, g: number, b: number, a: number };
-    imageProcessingConfiguration?: IImageProcessingConfiguration;
-    environmentTexture?: string;
-}
-
-export interface ISceneOptimizerConfiguration {
-    targetFrameRate?: number;
-    trackerDuration?: number;
-    autoGeneratePriorities?: boolean;
-    improvementMode?: boolean;
-    degradation?: string; // low, moderate, high
-    types?: {
-        texture?: ISceneOptimizerParameters;
-        hardwareScaling?: ISceneOptimizerParameters;
-        shadow?: ISceneOptimizerParameters;
-        postProcess?: ISceneOptimizerParameters;
-        lensFlare?: ISceneOptimizerParameters;
-        particles?: ISceneOptimizerParameters;
-        renderTarget?: ISceneOptimizerParameters;
-        mergeMeshes?: ISceneOptimizerParameters;
-    }
-}
-
-export interface IObserversConfiguration {
-    onEngineInit?: string;
-    onSceneInit?: string;
-    onModelLoaded?: string;
-}
-
-export interface ICameraConfiguration {
-    position?: { x: number, y: number, z: number };
-    rotation?: { x: number, y: number, z: number, w: number };
-    fov?: number;
-    fovMode?: number;
-    minZ?: number;
-    maxZ?: number;
-    inertia?: number;
-    behaviors?: {
-        [name: string]: number | {
-            type: number;
-            [propName: string]: any;
-        };
-    };
-
-    [propName: string]: any;
-}
-
-export interface ILightConfiguration {
-    type: number;
-    name?: string;
-    disabled?: boolean;
-    position?: { x: number, y: number, z: number };
-    target?: { x: number, y: number, z: number };
-    direction?: { x: number, y: number, z: number };
-    diffuse?: { r: number, g: number, b: number };
-    specular?: { r: number, g: number, b: number };
-    intensity?: number;
-    intensityMode?: number;
-    radius?: number;
-    shadownEnabled?: boolean; // only on specific lights!
-    shadowConfig?: {
-        useBlurExponentialShadowMap?: boolean;
-        useKernelBlur?: boolean;
-        blurKernel?: number;
-        blurScale?: number;
-        minZ?: number;
-        maxZ?: number;
-        frustumSize?: number;
-        angleScale?: number;
-        [propName: string]: any;
-    }
-    [propName: string]: any;
-
-    // no behaviors for light at the moment, but allowing configuration for future reference.
-    behaviors?: {
-        [name: string]: number | {
-            type: number;
-            [propName: string]: any;
-        };
-    };
-}
-
-export interface ISceneOptimizerParameters {
-    priority?: number;
-    maximumSize?: number;
-    step?: number;
-}
-
-export interface IImageProcessingConfiguration {
-    colorGradingEnabled?: boolean;
-    colorCurvesEnabled?: boolean;
-    colorCurves?: {
-        globalHue?: number;
-        globalDensity?: number;
-        globalSaturation?: number;
-        globalExposure?: number;
-        highlightsHue?: number;
-        highlightsDensity?: number;
-        highlightsSaturation?: number;
-        highlightsExposure?: number;
-        midtonesHue?: number;
-        midtonesDensity?: number;
-        midtonesSaturation?: number;
-        midtonesExposure?: number;
-        shadowsHue?: number;
-        shadowsDensity?: number;
-        shadowsSaturation?: number;
-        shadowsExposure?: number;
-    };
-    colorGradingWithGreenDepth?: boolean;
-    colorGradingBGR?: boolean;
-    exposure?: number;
-    toneMappingEnabled?: boolean;
-    contrast?: number;
-    vignetteEnabled?: boolean;
-    vignetteStretch?: number;
-    vignetteCentreX?: number;
-    vignetteCentreY?: number;
-    vignetteWeight?: number;
-    vignetteColor?: { r: number, g: number, b: number, a?: number };
-    vignetteCameraFov?: number;
-    vignetteBlendMode?: number;
-    vignetteM?: boolean;
-    applyByPostProcess?: boolean;
-    isEnabled?: boolean;
 }

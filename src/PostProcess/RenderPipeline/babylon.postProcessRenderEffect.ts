@@ -43,9 +43,12 @@ module BABYLON {
          */
         public get isSupported(): boolean {
             for (var index in this._postProcesses) {
-                for(var ppIndex in this._postProcesses[index]){
-                    if (!this._postProcesses[index][ppIndex].isSupported) {
-                        return false;
+                if (this._postProcesses.hasOwnProperty(index)) {
+                    let pps = this._postProcesses[index];
+                    for(var ppIndex = 0; ppIndex < pps.length; ppIndex++){
+                        if (!pps[ppIndex].isSupported) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -177,7 +180,7 @@ module BABYLON {
                 var cameraName = camera.name;
 
                 for (var j = 0; j < this._indicesForCamera[cameraName].length; j++) {
-                    if (camera._postProcesses[this._indicesForCamera[cameraName][j]] === undefined) {
+                    if (camera._postProcesses[this._indicesForCamera[cameraName][j]] === undefined || camera._postProcesses[this._indicesForCamera[cameraName][j]] === null) {
                         this._postProcesses[this._singleInstance ? 0 : cameraName].forEach((postProcess)=>{
                             cams![i].attachPostProcess(postProcess, this._indicesForCamera[cameraName][j]);
                         });

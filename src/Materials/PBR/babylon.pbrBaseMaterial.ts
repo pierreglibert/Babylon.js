@@ -1,6 +1,7 @@
 ﻿module BABYLON {
     /**
      * Manages the defines for the PBR Material.
+     * @hiddenChildren
      */
     class PBRMaterialDefines extends MaterialDefines implements IImageProcessingConfigurationDefines {
         public PBR = true;
@@ -26,7 +27,7 @@
         public DEPTHPREPASS = false;
         public ALPHABLEND = false;
         public ALPHAFROMALBEDO = false;
-        public ALPHATESTVALUE = 0.5;
+        public ALPHATESTVALUE = "0.5";
         public SPECULAROVERALPHA = false;
         public RADIANCEOVERALPHA = false;
         public ALPHAFRESNEL = false;
@@ -65,13 +66,14 @@
         public LIGHTMAP = false;
         public LIGHTMAPDIRECTUV = 0;
         public USELIGHTMAPASSHADOWMAP = false;
+        public GAMMALIGHTMAP = false;
 
         public REFLECTION = false;
         public REFLECTIONMAP_3D = false;
         public REFLECTIONMAP_SPHERICAL = false;
         public REFLECTIONMAP_PLANAR = false;
         public REFLECTIONMAP_CUBIC = false;
-        public USE_LOCAL_REFLECTIONMAP_CUBIC = false;        
+        public USE_LOCAL_REFLECTIONMAP_CUBIC = false;
         public REFLECTIONMAP_PROJECTION = false;
         public REFLECTIONMAP_SKYBOX = false;
         public REFLECTIONMAP_EXPLICIT = false;
@@ -84,6 +86,7 @@
         public REFLECTIONMAP_OPPOSITEZ = false;
         public LODINREFLECTIONALPHA = false;
         public GAMMAREFLECTION = false;
+        public RGBDREFLECTION = false;
         public RADIANCEOCCLUSION = false;
         public HORIZONOCCLUSION = false;
 
@@ -92,6 +95,7 @@
         public REFRACTIONMAP_OPPOSITEZ = false;
         public LODINREFRACTIONALPHA = false;
         public GAMMAREFRACTION = false;
+        public RGBDREFRACTION = false;
         public LINKREFRACTIONTOTRANSPARENCY = false;
 
         public INSTANCES = false;
@@ -130,6 +134,10 @@
 
         public FORCENORMALFORWARD = false;
 
+        public SPECULARAA = false;
+
+        public UNLIT = false;
+
         /**
          * Initializes the PBR Material defines.
          */
@@ -143,7 +151,7 @@
          */
         public reset(): void {
             super.reset();
-            this.ALPHATESTVALUE = 0.5;
+            this.ALPHATESTVALUE = "0.5";
             this.PBR = true;
         }
     }
@@ -477,9 +485,11 @@
         protected _forceNormalForward = false;
 
         /**
-         * Force metallic workflow.
+         * Enables specular anti aliasing in the PBR shader.
+         * It will both interacts on the Geometry for analytical and IBL lighting.
+         * It also prefilter the roughness map based on the bump values.
          */
-        protected _forceMetallicWorkflow = false;
+        protected _enableSpecularAntiAliasing = false;
 
         /**
          * Default configuration related to image processing available in the PBR Material.
@@ -515,9 +525,11 @@
             }
 
             // Attaches observer.
-            this._imageProcessingObserver = this._imageProcessingConfiguration.onUpdateParameters.add(conf => {
-                this._markAllSubMeshesAsImageProcessingDirty();
-            });
+            if (this._imageProcessingConfiguration) {
+                this._imageProcessingObserver = this._imageProcessingConfiguration.onUpdateParameters.add(conf => {
+                    this._markAllSubMeshesAsImageProcessingDirty();
+                });
+            }
         }
 
         /**
@@ -534,6 +546,11 @@
          * Enables the use of logarithmic depth buffers, which is good for wide depth buffers.
          */
         private _useLogarithmicDepth: boolean;
+
+        /**
+         * If set to true, no lighting calculations will be applied.
+         */
+        private _unlit = false;
 
         /**
          * Instantiates a new PBRMaterial instance.
@@ -596,6 +613,14 @@
 
         /**
          * Sets the transparency mode of the material.
+         *
+         * | Value | Type                                | Description |
+         * | ----- | ----------------------------------- | ----------- |
+         * | 0     | OPAQUE                              |             |
+         * | 1     | ALPHATEST                           |             |
+         * | 2     | ALPHABLEND                          |             |
+         * | 3     | ALPHATESTANDBLEND                   |             |
+         *
          */
         public set transparencyMode(value: Nullable<number>) {
             if (this._transparencyMode === value) {
@@ -784,26 +809,16 @@
                 }
             }
 
-            if (defines._areImageProcessingDirty) {
+            if (defines._areImageProcessingDirty && this._imageProcessingConfiguration) {
                 if (!this._imageProcessingConfiguration.isReady()) {
                     return false;
                 }
             }
 
-            if (!engine.getCaps().standardDerivatives) {
-                let bufferMesh = null;
-                if (mesh.getClassName() === "InstancedMesh") {
-                    bufferMesh = (mesh as InstancedMesh).sourceMesh;
+            if (!engine.getCaps().standardDerivatives && !mesh.isVerticesDataPresent(VertexBuffer.NormalKind)) {
+                mesh.createNormals(true);
+                Tools.Warn("PBRMaterial: Normals have been created for the mesh: " + mesh.name);
                 }
-                else if (mesh.getClassName() === "Mesh") {
-                    bufferMesh = mesh as Mesh;
-                }
-
-                if (bufferMesh && bufferMesh.geometry && bufferMesh.geometry.isReady() && !bufferMesh.geometry.isVerticesDataPresent(VertexBuffer.NormalKind)) {
-                    bufferMesh.createNormals(true);
-                    Tools.Warn("PBRMaterial: Normals have been created for the mesh: " + bufferMesh.name);
-                }
-            }
 
             const effect = this._prepareEffect(mesh, defines, this.onCompiled, this.onError, useInstances);
             if (effect) {
@@ -820,6 +835,18 @@
             this._wasPreviouslyReady = true;
 
             return true;
+        }
+
+        /** 
+         * Specifies if the material uses metallic roughness workflow.
+         * @returns boolean specifiying if the material uses metallic roughness workflow.
+        */
+        public isMetallicWorkflow(): boolean {
+            if (this._metallic != null || this._roughness != null || this._metallicTexture) {
+                return true;
+            }
+
+            return false;
         }
 
         private _prepareEffect(mesh: AbstractMesh, defines: PBRMaterialDefines, onCompiled: Nullable<(effect: Effect) => void> = null, onError: Nullable<(effect: Effect, errors: string) => void> = null, useInstances: Nullable<boolean> = null, useClipPlane: Nullable<boolean> = null): Nullable<Effect> {
@@ -842,6 +869,9 @@
 
             if (defines.FOG) {
                 fallbacks.addFallback(fallbackRank, "FOG");
+            }
+            if (defines.SPECULARAA) {
+                fallbacks.addFallback(fallbackRank, "SPECULARAA");
             }
             if (defines.POINTSIZE) {
                 fallbacks.addFallback(fallbackRank, "POINTSIZE");
@@ -955,8 +985,10 @@
                 "microSurfaceSampler", "environmentBrdfSampler"];
             var uniformBuffers = ["Material", "Scene"];
 
-            ImageProcessingConfiguration.PrepareUniforms(uniforms, defines);
-            ImageProcessingConfiguration.PrepareSamplers(samplers, defines);
+            if (ImageProcessingConfiguration) {
+                ImageProcessingConfiguration.PrepareUniforms(uniforms, defines);
+                ImageProcessingConfiguration.PrepareSamplers(samplers, defines);
+            }
 
             MaterialHelper.PrepareUniformsAndSamplersList(<EffectCreationOptions>{
                 uniformsNames: uniforms,
@@ -989,6 +1021,7 @@
             defines._needNormals = true;
 
             // Textures
+            defines.METALLICWORKFLOW = this.isMetallicWorkflow();
             if (defines._areTexturesDirty) {
                 defines._needUVs = false;
                 if (scene.texturesEnabled) {
@@ -1020,6 +1053,7 @@
                     if (reflectionTexture && StandardMaterial.ReflectionTextureEnabled) {
                         defines.REFLECTION = true;
                         defines.GAMMAREFLECTION = reflectionTexture.gammaSpace;
+                        defines.RGBDREFLECTION = reflectionTexture.isRGBD;
                         defines.REFLECTIONMAP_OPPOSITEZ = this.getScene().useRightHandedSystem ? !reflectionTexture.invertZ : reflectionTexture.invertZ;
                         defines.LODINREFLECTIONALPHA = reflectionTexture.lodLevelInAlpha;
 
@@ -1030,11 +1064,6 @@
                         defines.REFLECTIONMAP_3D = reflectionTexture.isCube;
 
                         switch (reflectionTexture.coordinatesMode) {
-                            case Texture.CUBIC_MODE:
-                            case Texture.INVCUBIC_MODE:
-                                defines.REFLECTIONMAP_CUBIC = true;
-                                defines.USE_LOCAL_REFLECTIONMAP_CUBIC = (<any>reflectionTexture).boundingBoxSize ? true : false;
-                                break;
                             case Texture.EXPLICIT_MODE:
                                 defines.REFLECTIONMAP_EXPLICIT = true;
                                 break;
@@ -1059,7 +1088,13 @@
                             case Texture.FIXED_EQUIRECTANGULAR_MIRRORED_MODE:
                                 defines.REFLECTIONMAP_MIRROREDEQUIRECTANGULAR_FIXED = true;
                                 break;
-                        }
+                            case Texture.CUBIC_MODE:
+                            case Texture.INVCUBIC_MODE:
+                            default:
+                                    defines.REFLECTIONMAP_CUBIC = true;
+                                    defines.USE_LOCAL_REFLECTIONMAP_CUBIC = (<any>reflectionTexture).boundingBoxSize ? true : false;
+                                    break;
+                            }
 
                         if (reflectionTexture.coordinatesMode !== Texture.SKYBOX_MODE) {
                             if (reflectionTexture.sphericalPolynomial) {
@@ -1091,11 +1126,13 @@
                         defines.REFLECTIONMAP_OPPOSITEZ = false;
                         defines.LODINREFLECTIONALPHA = false;
                         defines.GAMMAREFLECTION = false;
+                        defines.RGBDREFLECTION = false;
                     }
 
                     if (this._lightmapTexture && StandardMaterial.LightmapTextureEnabled) {
                         MaterialHelper.PrepareDefinesForMergedUV(this._lightmapTexture, defines, "LIGHTMAP");
                         defines.USELIGHTMAPASSHADOWMAP = this._useLightmapAsShadowmap;
+                        defines.GAMMALIGHTMAP = this._lightmapTexture.gammaSpace;
                     } else {
                         defines.LIGHTMAP = false;
                     }
@@ -1109,19 +1146,16 @@
                     if (StandardMaterial.SpecularTextureEnabled) {
                         if (this._metallicTexture) {
                             MaterialHelper.PrepareDefinesForMergedUV(this._metallicTexture, defines, "REFLECTIVITY");
-                            defines.METALLICWORKFLOW = true;
                             defines.ROUGHNESSSTOREINMETALMAPALPHA = this._useRoughnessFromMetallicTextureAlpha;
                             defines.ROUGHNESSSTOREINMETALMAPGREEN = !this._useRoughnessFromMetallicTextureAlpha && this._useRoughnessFromMetallicTextureGreen;
                             defines.METALLNESSSTOREINMETALMAPBLUE = this._useMetallnessFromMetallicTextureBlue;
                             defines.AOSTOREINMETALMAPRED = this._useAmbientOcclusionFromMetallicTextureRed;
                         }
                         else if (this._reflectivityTexture) {
-                            defines.METALLICWORKFLOW = false;
                             MaterialHelper.PrepareDefinesForMergedUV(this._reflectivityTexture, defines, "REFLECTIVITY");
                             defines.MICROSURFACEFROMREFLECTIVITYMAP = this._useMicroSurfaceFromReflectivityMapAlpha;
                             defines.MICROSURFACEAUTOMATIC = this._useAutoMicroSurfaceFromReflectivityMap;
                         } else {
-                            defines.METALLICWORKFLOW = false;
                             defines.REFLECTIVITY = false;
                         }
 
@@ -1156,6 +1190,7 @@
                         defines.REFRACTION = true;
                         defines.REFRACTIONMAP_3D = refractionTexture.isCube;
                         defines.GAMMAREFRACTION = refractionTexture.gammaSpace;
+                        defines.RGBDREFRACTION = refractionTexture.isRGBD;
                         defines.REFRACTIONMAP_OPPOSITEZ = refractionTexture.invertZ;
                         defines.LODINREFRACTIONALPHA = refractionTexture.lodLevelInAlpha;
 
@@ -1185,26 +1220,22 @@
 
                 defines.RADIANCEOVERALPHA = this._useRadianceOverAlpha;
 
-                if (this._forceMetallicWorkflow || (this._metallic !== undefined && this._metallic !== null) || (this._roughness !== undefined && this._roughness !== null)) {
-                    defines.METALLICWORKFLOW = true;
-                } else {
-                    defines.METALLICWORKFLOW = false;
-                }
-
                 if (!this.backFaceCulling && this._twoSidedLighting) {
                     defines.TWOSIDEDLIGHTING = true;
                 } else {
                     defines.TWOSIDEDLIGHTING = false;
                 }
 
-                defines.ALPHATESTVALUE = this._alphaCutOff;
+                defines.ALPHATESTVALUE = `${this._alphaCutOff}${this._alphaCutOff % 1 === 0 ? "." : ""}`;
                 defines.PREMULTIPLYALPHA = (this.alphaMode === Engine.ALPHA_PREMULTIPLIED || this.alphaMode === Engine.ALPHA_PREMULTIPLIED_PORTERDUFF);
                 defines.ALPHABLEND = this.needAlphaBlendingForMesh(mesh);
                 defines.ALPHAFRESNEL = this._useAlphaFresnel || this._useLinearAlphaFresnel;
                 defines.LINEARALPHAFRESNEL = this._useLinearAlphaFresnel;
+
+                defines.SPECULARAA = scene.getEngine().getCaps().standardDerivatives && this._enableSpecularAntiAliasing;
             }
 
-            if (defines._areImageProcessingDirty) {
+            if (defines._areImageProcessingDirty && this._imageProcessingConfiguration) {
                 this._imageProcessingConfiguration.prepareDefines(defines);
             }
 
@@ -1215,7 +1246,10 @@
             defines.HORIZONOCCLUSION = this._useHorizonOcclusion;
 
             // Misc.
-            MaterialHelper.PrepareDefinesForMisc(mesh, scene, this._useLogarithmicDepth, this.pointsCloud, this.fogEnabled, this._shouldTurnAlphaTestOn(mesh) || this._forceAlphaTest, defines);
+            if (defines._areMiscDirty) {
+                MaterialHelper.PrepareDefinesForMisc(mesh, scene, this._useLogarithmicDepth, this.pointsCloud, this.fogEnabled, this._shouldTurnAlphaTestOn(mesh) || this._forceAlphaTest, defines);
+                defines.UNLIT = this._unlit || ((this.pointsCloud || this.wireframe) && !mesh.isVerticesDataPresent(VertexBuffer.NormalKind));
+            }
 
             // Values that need to be evaluated on every frame
             MaterialHelper.PrepareDefinesForFrameBoundValues(scene, engine, defines, useInstances ? true : false, useClipPlane);
@@ -1597,7 +1631,7 @@
 
             this._uniformBuffer.update();
 
-            this._afterBind(mesh);
+            this._afterBind(mesh, this._activeEffect);
         }
 
         /**

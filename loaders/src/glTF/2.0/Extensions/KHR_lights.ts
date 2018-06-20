@@ -1,8 +1,6 @@
 /// <reference path="../../../../../dist/preview release/babylon.d.ts"/>
 
 module BABYLON.GLTF2.Extensions {
-    // https://github.com/MiiBond/glTF/tree/khr_lights_v1/extensions/Khronos/KHR_lights
-
     const NAME = "KHR_lights";
 
     enum LightType {
@@ -31,16 +29,19 @@ module BABYLON.GLTF2.Extensions {
         lights: ILight[];
     }
 
+    /**
+     * [Specification](https://github.com/MiiBond/glTF/tree/khr_lights_v1/extensions/Khronos/KHR_lights) (Experimental)
+     */
     export class KHR_lights extends GLTFLoaderExtension {
         public readonly name = NAME;
 
-        protected _loadSceneAsync(context: string, scene: ILoaderScene): Nullable<Promise<void>> { 
-            return this._loadExtensionAsync<ILightReference>(context, scene, (context, extension) => {
-                const promise = this._loader._loadSceneAsync(context, scene);
+        protected _loadSceneAsync(context: string, scene: _ILoaderScene): Nullable<Promise<void>> { 
+            return this._loadExtensionAsync<ILightReference>(context, scene, (extensionContext, extension) => {
+                const promise = this._loader._loadSceneAsync(extensionContext, scene);
 
-                const light = GLTFLoader._GetProperty(context, this._lights, extension.light);
+                const light = GLTFLoader._GetProperty(extensionContext, this._lights, extension.light);
                 if (light.type !== LightType.AMBIENT) {
-                    throw new Error(context + ": Only ambient lights are allowed on a scene");
+                    throw new Error(`${extensionContext}: Only ambient lights are allowed on a scene`);
                 }
 
                 this._loader._babylonScene.ambientColor = light.color ? Color3.FromArray(light.color) : Color3.Black();
@@ -49,17 +50,17 @@ module BABYLON.GLTF2.Extensions {
             });
         }
 
-        protected _loadNodeAsync(context: string, node: ILoaderNode): Nullable<Promise<void>> { 
-            return this._loadExtensionAsync<ILightReference>(context, node, (context, extension) => {
-                const promise = this._loader._loadNodeAsync(context, node);
+        protected _loadNodeAsync(context: string, node: _ILoaderNode): Nullable<Promise<void>> { 
+            return this._loadExtensionAsync<ILightReference>(context, node, (extensionContext, extension) => {
+                const promise = this._loader._loadNodeAsync(extensionContext, node);
 
                 let babylonLight: Light;
 
-                const light = GLTFLoader._GetProperty(context, this._lights, extension.light);
+                const light = GLTFLoader._GetProperty(extensionContext, this._lights, extension.light);
                 const name = node._babylonMesh!.name;
                 switch (light.type) {
                     case LightType.AMBIENT: {
-                        throw new Error(context + ": Ambient lights are not allowed on a node");
+                        throw new Error(`${extensionContext}: Ambient lights are not allowed on a node`);
                     }
                     case LightType.DIRECTIONAL: {
                         babylonLight = new DirectionalLight(name, Vector3.Forward(), this._loader._babylonScene);
@@ -78,7 +79,7 @@ module BABYLON.GLTF2.Extensions {
                         break;
                     }
                     default: {
-                        throw new Error(context + ": Invalid light type " + light.type);
+                        throw new Error(`${extensionContext}: Invalid light type (${light.type})`);
                     }
                 }
 
@@ -93,7 +94,7 @@ module BABYLON.GLTF2.Extensions {
         private get _lights(): Array<ILight> {
             const extensions = this._loader._gltf.extensions;
             if (!extensions || !extensions[this.name]) {
-                throw new Error("#/extensions: " + this.name + " not found");
+                throw new Error(`#/extensions: '${this.name}' not found`);
             }
 
             const extension = extensions[this.name] as ILights;

@@ -23,6 +23,25 @@ module BABYLON {
         public onAnimationEndObservable = new Observable<TargetedAnimation>();
 
         /**
+         * This observable will notify when all animations have ended.
+         */
+        public onAnimationGroupEndObservable = new Observable<AnimationGroup>();
+
+        /**
+         * Gets the first frame
+         */
+        public get from(): number {
+            return this._from;
+        }
+
+        /**
+         * Gets the last frame
+         */
+        public get to(): number {
+            return this._to;
+        }
+
+        /**
          * Define if the animations are started
          */
         public get isStarted(): boolean {
@@ -57,6 +76,13 @@ module BABYLON {
          */
         public get targetedAnimations(): Array<TargetedAnimation> {
             return this._targetedAnimations;
+        }
+
+        /**
+         * returning the list of animatables controlled by this animation group.
+         */
+        public get animatables(): Array<Animatable> {
+            return this._animatables;
         }
 
         public constructor(public name: string, scene: Nullable<Scene> = null) {
@@ -94,12 +120,12 @@ module BABYLON {
         /**
          * This function will normalize every animation in the group to make sure they all go from beginFrame to endFrame
          * It can add constant keys at begin or end
-         * @param beginFrame defines the new begin frame for all animations. It can't be bigger than the smallest begin frame of all animations
-         * @param endFrame defines the new end frame for all animations. It can't be smaller than the largest end frame of all animations
+         * @param beginFrame defines the new begin frame for all animations or the smallest begin frame of all animations if null (defaults to null)
+         * @param endFrame defines the new end frame for all animations or the largest end frame of all animations if null (defaults to null)
          */
-        public normalize(beginFrame = -Number.MAX_VALUE, endFrame = Number.MAX_VALUE): AnimationGroup {
-            beginFrame = Math.max(beginFrame, this._from);
-            endFrame = Math.min(endFrame, this._to);
+        public normalize(beginFrame: Nullable<number> = null, endFrame: Nullable<number> = null): AnimationGroup {
+            if (beginFrame == null) beginFrame = this._from;
+            if (endFrame == null) endFrame = this._to;
 
             for (var index = 0; index < this._targetedAnimations.length; index++) {
                 let targetedAnimation = this._targetedAnimations[index];
@@ -130,6 +156,9 @@ module BABYLON {
                 }
             }
 
+            this._from = beginFrame;
+            this._to = endFrame;
+
             return this;
         }
 
@@ -137,17 +166,22 @@ module BABYLON {
          * Start all animations on given targets
          * @param loop defines if animations must loop
          * @param speedRatio defines the ratio to apply to animation speed (1 by default)
+         * @param from defines the from key (optional)
+         * @param to defines the to key (optional)
+         * @returns the current animation group
          */
-        public start(loop = false, speedRatio = 1): AnimationGroup {
+        public start(loop = false, speedRatio = 1, from?: number, to?: number): AnimationGroup {
             if (this._isStarted || this._targetedAnimations.length === 0) {
                 return this;
             }
 
-            for (var index = 0; index < this._targetedAnimations.length; index++) {
-                let targetedAnimation = this._targetedAnimations[index];
-                this._animatables.push(this._scene.beginDirectAnimation(targetedAnimation.target, [targetedAnimation.animation], this._from, this._to, loop, speedRatio, () => {
+            for (const targetedAnimation of this._targetedAnimations) {
+                let animatable = this._scene.beginDirectAnimation(targetedAnimation.target, [targetedAnimation.animation], from !== undefined ? from : this._from, to !== undefined ? to : this._to, loop, speedRatio);
+                animatable.onAnimationEnd = () => {
                     this.onAnimationEndObservable.notifyObservers(targetedAnimation);
-                }));
+                    this._checkAnimationGroupEnded(animatable);
+                }
+                this._animatables.push(animatable);
             }
 
             this._speedRatio = speedRatio;
@@ -179,7 +213,8 @@ module BABYLON {
          * @param loop defines if animations must loop
          */
         public play(loop?: boolean): AnimationGroup {
-            if (this.isStarted) {
+            // only if all animatables are ready and exist
+            if (this.isStarted && this._animatables.length === this._targetedAnimations.length) {
                 if (loop !== undefined) {
                     for (var index = 0; index < this._animatables.length; index++) {
                         let animatable = this._animatables[index];
@@ -188,6 +223,7 @@ module BABYLON {
                 }
                 this.restart();
             } else {
+                this.stop();
                 this.start(loop, this._speedRatio);
             }
 
@@ -234,12 +270,60 @@ module BABYLON {
                 return this;
             }
 
-            for (var index = 0; index < this._animatables.length; index++) {
-                let animatable = this._animatables[index];
-                animatable.stop();
+            var list = this._animatables.slice();
+            for (var index = 0; index < list.length; index++) {
+                list[index].stop();
             }
 
             this._isStarted = false;
+
+            return this;
+        }
+
+        /**
+         * Set animation weight for all animatables
+         * @param weight defines the weight to use
+         * @return the animationGroup
+         * @see http://doc.babylonjs.com/babylon101/animations#animation-weights
+         */
+        public setWeightForAllAnimatables(weight: number): AnimationGroup {
+            for (var index = 0; index < this._animatables.length; index++) {
+                let animatable = this._animatables[index];
+                animatable.weight = weight;
+            }
+
+            return this;
+        }
+
+        /**
+         * Synchronize and normalize all animatables with a source animatable
+         * @param root defines the root animatable to synchronize with
+         * @return the animationGroup
+         * @see http://doc.babylonjs.com/babylon101/animations#animation-weights
+         */
+        public syncAllAnimationsWith(root: Animatable): AnimationGroup {
+            for (var index = 0; index < this._animatables.length; index++) {
+                let animatable = this._animatables[index];
+                animatable.syncWith(root);
+            }
+
+            return this;
+        }
+
+        /**
+         * Goes to a specific frame in this animation group
+         * @param frame the frame number to go to
+         * @return the animationGroup
+         */
+        public goToFrame(frame: number): AnimationGroup {
+            if (!this._isStarted) {
+                return this;
+            }
+
+            for (var index = 0; index < this._animatables.length; index++) {
+                let animatable = this._animatables[index];
+                animatable.goToFrame(frame);
+            }
 
             return this;
         }
@@ -255,6 +339,20 @@ module BABYLON {
 
             if (index > -1) {
                 this._scene.animationGroups.splice(index, 1);
+            }
+        }
+
+        private _checkAnimationGroupEnded(animatable: Animatable) {
+            // animatable should be taken out of the array
+            let idx = this._animatables.indexOf(animatable);
+            if (idx > -1) {
+                this._animatables.splice(idx, 1);
+            }
+
+            // all animatables were removed? animation group ended!
+            if (this._animatables.length === 0) {
+                this._isStarted = false;
+                this.onAnimationGroupEndObservable.notifyObservers(this);
             }
         }
     }

@@ -82,7 +82,7 @@ module BABYLON {
          */
         groundMirrorTextureType: number;
         /**
-         * Specifies a bias applied to the ground vertical position to prevent z-fighyting with
+         * Specifies a bias applied to the ground vertical position to prevent z-fighting with
          * the shown objects.
          */
         groundYBias: number;
@@ -186,7 +186,7 @@ module BABYLON {
         /**
          * Default environment texture URL.
          */
-        private static _environmentTextureCDNUrl = "https://assets.babylonjs.com/environments/environmentSpecular.dds";
+        private static _environmentTextureCDNUrl = "https://assets.babylonjs.com/environments/environmentSpecular.env";
 
         /**
          * Creates the default options for the helper.
@@ -310,6 +310,12 @@ module BABYLON {
         private _options: IEnvironmentHelperOptions;
 
         /**
+         * This observable will be notified with any error during the creation of the environment, 
+         * mainly texture creation errors.
+         */
+        public onErrorObservable: Observable<{ message?: string, exception?: any }>;
+
+        /**
          * constructor
          * @param options 
          * @param scene The scene to add the material to
@@ -320,6 +326,7 @@ module BABYLON {
                 ...options
             }
             this._scene = scene;
+            this.onErrorObservable = new Observable();
 
             this._setupBackground();
             this._setupImageProcessing();
@@ -388,7 +395,7 @@ module BABYLON {
 
         /**
          * Sets the primary color of all the available elements.
-         * @param color 
+         * @param color the main color to affect to the ground and the background
          */
         public setMainColor(color: Color3): void {
             if (this.groundMaterial) {
@@ -508,7 +515,7 @@ module BABYLON {
          * Setup the ground according to the specified options.
          */
         private _setupGround(sceneSize: ISceneSize): void {
-            if (!this._ground) {
+            if (!this._ground || this._ground.isDisposed()) {
                 this._ground = Mesh.CreatePlane("BackgroundPlane", sceneSize.groundSize, this._scene);
                 this._ground.rotation.x = Math.PI / 2; // Face up by default.
                 this._ground.parent = this._rootMesh;
@@ -528,10 +535,7 @@ module BABYLON {
             this._groundMaterial.alpha = this._options.groundOpacity;
             this._groundMaterial.alphaMode = Engine.ALPHA_PREMULTIPLIED_PORTERDUFF;
             this._groundMaterial.shadowLevel = this._options.groundShadowLevel;
-            this._groundMaterial.primaryLevel = 1;
             this._groundMaterial.primaryColor = this._options.groundColor;
-            this._groundMaterial.secondaryLevel = 0;
-            this._groundMaterial.tertiaryLevel = 0;
             this._groundMaterial.useRGBColor = false;
             this._groundMaterial.enableNoise = true;
 
@@ -557,7 +561,7 @@ module BABYLON {
                 return;
             }
 
-            const diffuseTexture = new Texture(this._options.groundTexture, this._scene);
+            const diffuseTexture = new Texture(this._options.groundTexture, this._scene, undefined, undefined, undefined, undefined, this._errorHandler);
             diffuseTexture.gammaSpace = false;
             diffuseTexture.hasAlpha = true;
             this._groundMaterial.diffuseTexture = diffuseTexture;
@@ -619,7 +623,7 @@ module BABYLON {
          * Setup the skybox according to the specified options.
          */
         private _setupSkybox(sceneSize: ISceneSize): void {
-            if (!this._skybox) {
+            if (!this._skybox || this._skybox.isDisposed()) {
                 this._skybox = Mesh.CreateBox("BackgroundSkybox", sceneSize.skyboxSize, this._scene, undefined, Mesh.BACKSIDE);
                 this._skybox.onDisposeObservable.add(() => { this._skybox = null; })
             }
@@ -638,10 +642,7 @@ module BABYLON {
                 this._skyboxMaterial = new BackgroundMaterial("BackgroundSkyboxMaterial", this._scene);
             }
             this._skyboxMaterial.useRGBColor = false;
-            this._skyboxMaterial.primaryLevel = 1;
             this._skyboxMaterial.primaryColor = this._options.skyboxColor;
-            this._skyboxMaterial.secondaryLevel = 0;
-            this._skyboxMaterial.tertiaryLevel = 0;
             this._skyboxMaterial.enableNoise = true;
 
             this._skybox.material = this._skyboxMaterial;
@@ -660,14 +661,18 @@ module BABYLON {
             }
 
             if (this._options.skyboxTexture instanceof BaseTexture) {
-                this._skyboxMaterial.reflectionTexture = this._skyboxTexture;
+                this._skyboxMaterial.reflectionTexture = this._options.skyboxTexture;
                 return;
             }
 
-            this._skyboxTexture = new CubeTexture(this._options.skyboxTexture, this._scene);
+            this._skyboxTexture = new CubeTexture(this._options.skyboxTexture, this._scene, undefined, undefined, undefined, undefined, this._errorHandler);
             this._skyboxTexture.coordinatesMode = Texture.SKYBOX_MODE;
             this._skyboxTexture.gammaSpace = false;
             this._skyboxMaterial.reflectionTexture = this._skyboxTexture;
+        }
+
+        private _errorHandler = (message?: string, exception?: any) => {
+            this.onErrorObservable.notifyObservers({ message: message, exception: exception });
         }
 
         /**

@@ -3,6 +3,57 @@
         animations: Array<Animation>;
     }
 
+    
+    /** Interface used by value gradients (color, factor, ...) */
+    export interface IValueGradient {
+        /**
+         * Gets or sets the gradient value (between 0 and 1)
+         */        
+        gradient: number;
+    }
+
+    /** Class used to store color gradient */
+    export class ColorGradient implements IValueGradient {
+        /**
+         * Gets or sets the gradient value (between 0 and 1)
+         */
+        public gradient: number;
+        /**
+         * Gets or sets first associated color
+         */
+        public color1: Color4;
+        /**
+         * Gets or sets second associated color
+         */
+        public color2?: Color4;
+
+        /** 
+         * Will get a color picked randomly between color1 and color2.
+         * If color2 is undefined then color1 will be used
+         * @param result defines the target Color4 to store the result in
+         */
+        public getColorToRef(result: Color4) {
+            if (!this.color2) {
+                result.copyFrom(this.color1);
+                return;
+            }
+
+            Color4.LerpToRef(this.color1, this.color2, Math.random(), result);
+        }
+    }
+
+    /** Class used to store factor gradient */
+    export class FactorGradient implements IValueGradient {
+        /**
+         * Gets or sets the gradient value (between 0 and 1)
+         */
+        public gradient: number;
+        /**
+         * Gets or sets associated factor
+         */        
+        public factor: number;
+    }  
+
     // See https://stackoverflow.com/questions/12915412/how-do-i-extend-a-host-object-e-g-error-in-typescript
     // and https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
     export class LoadFileError extends Error {
@@ -116,14 +167,16 @@
         /**
          * Provides a slice function that will work even on IE
          * @param data defines the array to slice
+         * @param start defines the start of the data (optional)
+         * @param end defines the end of the data (optional)
          * @returns the new sliced array
          */
-        public static Slice(data: FloatArray): FloatArray {
-            if (data.slice) {
-                return data.slice();
+        public static Slice<T>(data: T, start?: number, end?: number): T {
+            if ((data as any).slice) {
+                return (data as any).slice(start, end);
             }
 
-            return Array.prototype.slice.call(data);
+            return Array.prototype.slice.call(data, start, end);
         }
 
         public static SetImmediate(action: () => void) {
@@ -142,6 +195,21 @@
             } while (count < value);
 
             return count === value;
+        }
+
+        private static _tmpFloatArray = new Float32Array(1);
+        /**
+         * Returns the nearest 32-bit single precision float representation of a Number
+         * @param value A Number.  If the parameter is of a different type, it will get converted
+         * to a number or to NaN if it cannot be converted
+         * @returns number
+         */
+        public static FloatRound(value: number): number {
+            if (Math.fround) {
+                return Math.fround(value);
+            }
+
+            return (Tools._tmpFloatArray[0] = value);
         }
 
 		/**
@@ -482,32 +550,56 @@
             return url;
         }
 
-        public static LoadImage(url: any, onLoad: (img: HTMLImageElement) => void, onError: (message?: string, exception?: any) => void, database: Nullable<Database>): HTMLImageElement {
-            if (url instanceof ArrayBuffer) {
-                url = Tools.EncodeArrayBufferTobase64(url);
+        /**
+         * Loads an image as an HTMLImageElement.
+         * @param input url string, ArrayBuffer, or Blob to load
+         * @param onLoad callback called when the image successfully loads
+         * @param onError callback called when the image fails to load
+         * @param database database for caching
+         * @returns the HTMLImageElement of the loaded image
+         */
+        public static LoadImage(input: string | ArrayBuffer | Blob, onLoad: (img: HTMLImageElement) => void, onError: (message?: string, exception?: any) => void, database: Nullable<Database>): HTMLImageElement {
+            let url: string;
+            let usingObjectURL = false;
+
+            if (input instanceof ArrayBuffer) {
+                url = URL.createObjectURL(new Blob([input]));
+                usingObjectURL = true;
             }
-
-            url = Tools.CleanUrl(url);
-
-            url = Tools.PreprocessUrl(url);
+            else if (input instanceof Blob) {
+                url = URL.createObjectURL(input);
+                usingObjectURL = true;
+            }
+            else {
+                url = Tools.CleanUrl(input);
+                url = Tools.PreprocessUrl(input);
+            }
 
             var img = new Image();
             Tools.SetCorsBehavior(url, img);
 
             const loadHandler = () => {
+                if (usingObjectURL && img.src) {
+                    URL.revokeObjectURL(img.src);
+                }
+
                 img.removeEventListener("load", loadHandler);
                 img.removeEventListener("error", errorHandler);
                 onLoad(img);
             };
 
             const errorHandler = (err: any) => {
+                if (usingObjectURL && img.src) {
+                    URL.revokeObjectURL(img.src);
+                }
+
                 img.removeEventListener("load", loadHandler);
                 img.removeEventListener("error", errorHandler);
 
-                Tools.Error("Error while trying to load image: " + url);
+                Tools.Error("Error while trying to load image: " + input);
 
                 if (onError) {
-                    onError("Error while trying to load image: " + url, err);
+                    onError("Error while trying to load image: " + input, err);
                 }
             };
 
@@ -523,7 +615,6 @@
                     database.loadImageFromDB(url, img);
                 }
             };
-
 
             //ANY database to do!
             if (url.substr(0, 5) !== "data:" && database && database.enableTexturesOffline && Database.IsUASupportingBlobStorage) {
@@ -543,6 +634,7 @@
                                 blobURL = URL.createObjectURL(FilesInput.FilesToLoad[textureName]);
                             }
                             img.src = blobURL;
+                            usingObjectURL = true;
                         }
                         catch (e) {
                             img.src = "";
@@ -714,14 +806,14 @@
 
             script.onerror = (e) => {
                 if (onError) {
-                    onError("Unable to load script", e);
+                    onError(`Unable to load script '${scriptUrl}'`, e);
                 }
             };
 
             head.appendChild(script);
         }
 
-        public static ReadFileAsDataURL(fileToLoad: Blob, callback: (data: any) => void, progressCallback: (this: MSBaseReader, ev: ProgressEvent) => any): IFileRequest {
+        public static ReadFileAsDataURL(fileToLoad: Blob, callback: (data: any) => void, progressCallback: (ev: ProgressEvent) => any): IFileRequest {
             let reader = new FileReader();
 
             let request: IFileRequest = {
@@ -745,7 +837,7 @@
             return request;
         }
 
-        public static ReadFile(fileToLoad: File, callback: (data: any) => void, progressCallBack?: (this: MSBaseReader, ev: ProgressEvent) => any, useArrayBuffer?: boolean): IFileRequest {
+        public static ReadFile(fileToLoad: File, callback: (data: any) => void, progressCallBack?: (ev: ProgressEvent) => any, useArrayBuffer?: boolean): IFileRequest {
             let reader = new FileReader();
             let request: IFileRequest = {
                 onCompleteObservable: new Observable<IFileRequest>(),
@@ -814,6 +906,7 @@
                 if (doNotCopyList && doNotCopyList.indexOf(prop) !== -1) {
                     continue;
                 }
+
                 var sourceValue = source[prop];
                 var typeOfSourceValue = typeof sourceValue;
 
@@ -821,28 +914,33 @@
                     continue;
                 }
 
-                if (typeOfSourceValue === "object") {
-                    if (sourceValue instanceof Array) {
-                        destination[prop] = [];
+                try {
+                    if (typeOfSourceValue === "object") {
+                        if (sourceValue instanceof Array) {
+                            destination[prop] = [];
 
-                        if (sourceValue.length > 0) {
-                            if (typeof sourceValue[0] == "object") {
-                                for (var index = 0; index < sourceValue.length; index++) {
-                                    var clonedValue = cloneValue(sourceValue[index], destination);
+                            if (sourceValue.length > 0) {
+                                if (typeof sourceValue[0] == "object") {
+                                    for (var index = 0; index < sourceValue.length; index++) {
+                                        var clonedValue = cloneValue(sourceValue[index], destination);
 
-                                    if (destination[prop].indexOf(clonedValue) === -1) { // Test if auto inject was not done
-                                        destination[prop].push(clonedValue);
+                                        if (destination[prop].indexOf(clonedValue) === -1) { // Test if auto inject was not done
+                                            destination[prop].push(clonedValue);
+                                        }
                                     }
+                                } else {
+                                    destination[prop] = sourceValue.slice(0);
                                 }
-                            } else {
-                                destination[prop] = sourceValue.slice(0);
                             }
+                        } else {
+                            destination[prop] = cloneValue(sourceValue, destination);
                         }
                     } else {
-                        destination[prop] = cloneValue(sourceValue, destination);
+                        destination[prop] = sourceValue;
                     }
-                } else {
-                    destination[prop] = sourceValue;
+                }
+                catch (e) {
+                    // Just ignore error (it could be because of a read-only property)
                 }
             }
         }
@@ -949,28 +1047,18 @@
                     }
                 }
                 screenshotCanvas.toBlob(function (blob) {
-                    var url = URL.createObjectURL(blob);
                     //Creating a link if the browser have the download attribute on the a tag, to automatically start download generated image.
                     if (("download" in document.createElement("a"))) {
-                        var a = window.document.createElement("a");
-                        a.href = url;
-                        if (fileName) {
-                            a.setAttribute("download", fileName);
-                        }
-                        else {
+                        if (!fileName) {
                             var date = new Date();
-                            var stringDate = (date.getFullYear() + "-" + (date.getMonth() + 1)).slice(-2) + "-" + date.getDate() + "_" + date.getHours() + "-" + ('0' + date.getMinutes()).slice(-2);
-                            a.setAttribute("download", "screenshot_" + stringDate + ".png");
+                            var stringDate = (date.getFullYear() + "-" + (date.getMonth() + 1)).slice(2) + "-" + date.getDate() + "_" + date.getHours() + "-" + ('0' + date.getMinutes()).slice(-2);
+                            fileName = "screenshot_" + stringDate + ".png";
                         }
-                        window.document.body.appendChild(a);
-                        a.addEventListener("click", () => {
-                            if (a.parentElement) {
-                                a.parentElement.removeChild(a);
-                            }
-                        });
-                        a.click();
+                        Tools.Download(blob!, fileName);
                     }
                     else {
+                        var url = URL.createObjectURL(blob);
+                    
                         var newWindow = window.open("");
                         if (!newWindow) return;
                         var img = newWindow.document.createElement("img");
@@ -984,6 +1072,27 @@
 
                 });
             }
+        }
+
+        /**
+         * Downloads a blob in the browser
+         * @param blob defines the blob to download
+         * @param fileName defines the name of the downloaded file
+         */
+        public static Download(blob: Blob, fileName: string): void {
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style.display = "none";
+            a.href = url;
+            a.download = fileName;
+            a.addEventListener("click", () => {
+                if (a.parentElement) {
+                    a.parentElement.removeChild(a);
+                }
+            });
+            a.click();
+            window.URL.revokeObjectURL(url);
         }
 
         public static CreateScreenshot(engine: Engine, camera: Camera, size: any, successCallback?: (data: string) => void, mimeType: string = "image/png"): void {
@@ -1431,7 +1540,7 @@
                 return window.performance.now();
             }
 
-            return new Date().getTime();
+            return Date.now();
         }
 
         /**
@@ -1548,6 +1657,25 @@
                     resolve();
                 }, delay);
             });
+        }
+
+
+        /**
+         * Gets the current gradient from an array of IValueGradient
+         * @param ratio defines the current ratio to get
+         * @param gradients defines the array of IValueGradient
+         * @param updateFunc defines the callback function used to get the final value from the selected gradients
+         */
+        public static GetCurrentGradient(ratio: number, gradients: IValueGradient[], updateFunc: (current: IValueGradient, next: IValueGradient, scale: number) => void) {
+            for (var gradientIndex = 0; gradientIndex < gradients.length - 1; gradientIndex++) {
+                let currentGradient = gradients[gradientIndex];
+                let nextGradient = gradients[gradientIndex + 1];
+
+                if (ratio >= currentGradient.gradient && ratio <= nextGradient.gradient) {
+                    let scale =  (ratio - currentGradient.gradient) / (nextGradient.gradient - currentGradient.gradient);
+                    updateFunc(currentGradient, nextGradient, scale);
+               }
+            }
         }
     }
 

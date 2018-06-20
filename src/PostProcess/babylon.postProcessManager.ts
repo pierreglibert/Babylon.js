@@ -9,7 +9,7 @@
         private _vertexBuffers: { [key: string]: Nullable<VertexBuffer> } = {};
 
         /**
-         * Creates a new instance of @see PostProcess
+         * Creates a new instance PostProcess
          * @param scene The scene that the post process is associated with.
          */
         constructor(scene: Scene) {
@@ -73,7 +73,7 @@
                 return false;
             }
 
-            var postProcesses = postProcesses || (<Nullable<PostProcess[]>>camera._postProcesses);
+            var postProcesses = postProcesses || (<Nullable<PostProcess[]>>camera._postProcesses.filter((pp)=>{return pp != null;}));
 
             if (!postProcesses || postProcesses.length === 0 || !this._scene.postProcessesEnabled) {
                 return false;
@@ -88,8 +88,10 @@
          * @param postProcesses An array of post processes to be run.
          * @param targetTexture The target texture to render to.
          * @param forceFullscreenViewport force gl.viewport to be full screen eg. 0,0,textureWidth,textureHeight
+         * @param faceIndex defines the face to render to if a cubemap is defined as the target
+         * @param lodLevel defines which lod of the texture to render to
          */
-        public directRender(postProcesses: PostProcess[], targetTexture: Nullable<InternalTexture> = null, forceFullscreenViewport = false): void {
+        public directRender(postProcesses: PostProcess[], targetTexture: Nullable<InternalTexture> = null, forceFullscreenViewport = false, faceIndex = 0, lodLevel = 0): void {
             var engine = this._scene.getEngine();
 
             for (var index = 0; index < postProcesses.length; index++) {
@@ -97,7 +99,7 @@
                     postProcesses[index + 1].activate(this._scene.activeCamera, targetTexture);
                 } else {
                     if (targetTexture) {
-                        engine.bindFramebuffer(targetTexture, 0, undefined, undefined, forceFullscreenViewport);
+                        engine.bindFramebuffer(targetTexture, faceIndex, undefined, undefined, forceFullscreenViewport, undefined, lodLevel);
                     } else {
                         engine.restoreDefaultFramebuffer();
                     }
@@ -133,35 +135,38 @@
          * @param postProcesses The array of post processes to render.
          * @param forceFullscreenViewport force gl.viewport to be full screen eg. 0,0,textureWidth,textureHeight (default: false)
          */
-        public _finalizeFrame(doNotPresent?: boolean, targetTexture?: InternalTexture, faceIndex?: number, postProcesses?: PostProcess[], forceFullscreenViewport = false): void {
+        public _finalizeFrame(doNotPresent?: boolean, targetTexture?: InternalTexture, faceIndex?: number, postProcesses?: Array<PostProcess>, forceFullscreenViewport = false): void {
             let camera = this._scene.activeCamera;
 
             if (!camera) {
                 return;
             }
 
-            postProcesses = postProcesses || camera._postProcesses;
+            postProcesses = postProcesses || <Array<PostProcess>>camera._postProcesses.filter((pp)=>{return pp != null;});
             if (postProcesses.length === 0 || !this._scene.postProcessesEnabled) {
                 return;
             }
             var engine = this._scene.getEngine();
 
             for (var index = 0, len = postProcesses.length; index < len; index++) {
+                var pp = postProcesses[index];
+
                 if (index < len - 1) {
-                    postProcesses[index + 1].activate(camera, targetTexture);
+                    pp._outputTexture = postProcesses[index + 1].activate(camera, targetTexture);
                 } else {
                     if (targetTexture) {
                         engine.bindFramebuffer(targetTexture, faceIndex, undefined, undefined, forceFullscreenViewport);
+                        pp._outputTexture = targetTexture;
                     } else {
                         engine.restoreDefaultFramebuffer();
+                        pp._outputTexture = null;
                     }
                 }
 
                 if (doNotPresent) {
                     break;
                 }
-
-                var pp = postProcesses[index];
+                
                 var effect = pp.apply();
 
                 if (effect) {

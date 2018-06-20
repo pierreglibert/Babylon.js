@@ -2,6 +2,7 @@ module BABYLON {
     /**
      * Interface to follow in your material defines to integrate easily the
      * Image proccessing functions.
+     * @hidden
      */
     export interface IImageProcessingConfigurationDefines {
         IMAGEPROCESSING: boolean;
@@ -297,7 +298,6 @@ module BABYLON {
 
         /**
         * An event triggered when the configuration changes and requires Shader to Update some parameters.
-        * @type {BABYLON.Observable}
         */
         public onUpdateParameters = new Observable<ImageProcessingConfiguration>();
 

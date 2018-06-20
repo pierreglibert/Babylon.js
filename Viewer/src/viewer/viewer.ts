@@ -1,56 +1,168 @@
 import { viewerManager } from './viewerManager';
-import { TemplateManager } from './../templateManager';
-import configurationLoader from './../configuration/loader';
-import { CubeTexture, Color3, IEnvironmentHelperOptions, EnvironmentHelper, Effect, SceneOptimizer, SceneOptimizerOptions, Observable, Engine, Scene, ArcRotateCamera, Vector3, SceneLoader, AbstractMesh, Mesh, HemisphericLight, Database, SceneLoaderProgressEvent, ISceneLoaderPlugin, ISceneLoaderPluginAsync, Quaternion, Light, ShadowLight, ShadowGenerator, Tags, AutoRotationBehavior, BouncingBehavior, FramingBehavior, Behavior } from 'babylonjs';
-import { ViewerConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, IObserversConfiguration, IModelConfiguration, ISkyboxConfiguration, IGroundConfiguration, ILightConfiguration, ICameraConfiguration } from '../configuration/configuration';
+import { SceneManager } from '../managers/sceneManager';
+import { ConfigurationLoader } from '../configuration/loader';
+import { Skeleton, AnimationGroup, ParticleSystem, CubeTexture, Color3, IEnvironmentHelperOptions, EnvironmentHelper, Effect, SceneOptimizer, SceneOptimizerOptions, Observable, Engine, Scene, ArcRotateCamera, Vector3, SceneLoader, AbstractMesh, Mesh, HemisphericLight, Database, SceneLoaderProgressEvent, ISceneLoaderPlugin, ISceneLoaderPluginAsync, Quaternion, Light, ShadowLight, ShadowGenerator, Tags, AutoRotationBehavior, BouncingBehavior, FramingBehavior, Behavior, Tools, RenderingManager } from 'babylonjs';
+import { ViewerConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, IObserversConfiguration, IModelConfiguration, ISkyboxConfiguration, IGroundConfiguration, ILightConfiguration, ICameraConfiguration } from '../configuration/';
 
-import * as deepmerge from '../../assets/deepmerge.min.js';
-import { CameraBehavior } from 'src/interfaces';
+import { ViewerModel } from '../model/viewerModel';
+import { GroupModelAnimation } from '../model/modelAnimation';
+import { ModelLoader } from '../loader/modelLoader';
+import { CameraBehavior } from '../interfaces';
+import { viewerGlobals } from '../configuration/globals';
+import { extendClassWithConfig } from '../helper';
+import { telemetryManager } from '../managers/telemetryManager';
+import { deepmerge } from '../helper/';
+import { ObservablesManager } from '../managers/observablesManager';
+import { ConfigurationContainer } from '../configuration/configurationContainer';
+import { TemplateManager } from '../templating/templateManager';
 
+/**
+ * The AbstractViewr is the center of Babylon's viewer.
+ * It is the basic implementation of the default viewer and is responsible of loading and showing the model and the templates
+ */
 export abstract class AbstractViewer {
 
+    /**
+     * The corresponsing template manager of this viewer.
+     */
     public templateManager: TemplateManager;
+    // TODO get the template manager to the default viewer, if no one is extending the abstract viewer
 
+    /**
+     * Babylon Engine corresponding with this viewer
+     */
     public engine: Engine;
-    public scene: Scene;
-    public camera: ArcRotateCamera;
-    public sceneOptimizer: SceneOptimizer;
-    public baseId: string;
+    /**
+     * The ID of this viewer. it will be generated randomly or use the HTML Element's ID.
+     */
+    public readonly baseId: string;
 
     /**
      * The last loader used to load a model. 
-     * 
-     * @type {(ISceneLoaderPlugin | ISceneLoaderPluginAsync)}
-     * @memberof AbstractViewer
+     * @deprecated
      */
     public lastUsedLoader: ISceneLoaderPlugin | ISceneLoaderPluginAsync;
+    /**
+     * The ModelLoader instance connected with this viewer.
+     */
+    public modelLoader: ModelLoader;
 
-    protected configuration: ViewerConfiguration;
-    public environmentHelper: EnvironmentHelper;
+    /**
+     * A flag that controls whether or not the render loop should be executed
+     */
+    public runRenderLoop: boolean = true;
 
-    protected defaultHighpTextureType: number;
-    protected shadowGeneratorBias: number;
-    protected defaultPipelineTextureType: number;
-    protected maxShadows: number;
-    private _hdrSupport: boolean;
+    /**
+     * The scene manager connected with this viewer instance
+     */
+    public sceneManager: SceneManager;
 
-    public get isHdrSupported() {
-        return this._hdrSupport;
+    // observables
+    /**
+     * Will notify when the scene was initialized
+     */
+    public get onSceneInitObservable(): Observable<Scene> {
+        return this.observablesManager.onSceneInitObservable;
+    }
+    /**
+     * will notify when the engine was initialized
+     */
+    public get onEngineInitObservable(): Observable<Engine> {
+        return this.observablesManager.onEngineInitObservable;
+    }
+
+    /**
+     * Will notify when a new model was added to the scene.
+     * Note that added does not neccessarily mean loaded!
+     */
+    public get onModelAddedObservable(): Observable<ViewerModel> {
+        return this.observablesManager.onModelAddedObservable;
+    }
+    /**
+     * will notify after every model load
+     */
+    public get onModelLoadedObservable(): Observable<ViewerModel> {
+        return this.observablesManager.onModelLoadedObservable;
+    }
+    /**
+     * will notify when any model notify of progress
+     */
+    public get onModelLoadProgressObservable(): Observable<SceneLoaderProgressEvent> {
+        return this.observablesManager.onModelLoadProgressObservable;
+    }
+    /**
+     * will notify when any model load failed.
+     */
+    public get onModelLoadErrorObservable(): Observable<{ message: string; exception: any }> {
+        return this.observablesManager.onModelLoadErrorObservable;
+    }
+    /**
+     * Will notify when a model was removed from the scene;
+     */
+    public get onModelRemovedObservable(): Observable<ViewerModel> {
+        return this.observablesManager.onModelRemovedObservable;
+    }
+    /**
+     * will notify when a new loader was initialized.
+     * Used mainly to know when a model starts loading.
+     */
+    public get onLoaderInitObservable(): Observable<ISceneLoaderPlugin | ISceneLoaderPluginAsync> {
+        return this.observablesManager.onLoaderInitObservable;
+    }
+    /**
+     * Observers registered here will be executed when the entire load process has finished.
+     */
+    public get onInitDoneObservable(): Observable<AbstractViewer> {
+        return this.observablesManager.onViewerInitDoneObservable;
+    }
+
+    /**
+     * Functions added to this observable will be executed on each frame rendered.
+     */
+    public get onFrameRenderedObservable(): Observable<AbstractViewer> {
+        return this.observablesManager.onFrameRenderedObservable;
+    }
+
+    public observablesManager: ObservablesManager;
+
+    /**
+     * The canvas associated with this viewer
+     */
+    protected _canvas: HTMLCanvasElement;
+
+    /**
+     * The (single) canvas of this viewer
+     */
+    public get canvas(): HTMLCanvasElement {
+        return this._canvas;
     }
 
 
-    // observables
-    public onSceneInitObservable: Observable<Scene>;
-    public onEngineInitObservable: Observable<Engine>;
-    public onModelLoadedObservable: Observable<AbstractMesh[]>;
-    public onModelLoadProgressObservable: Observable<SceneLoaderProgressEvent>;
-    public onModelLoadErrorObservable: Observable<{ message: string; exception: any }>;
-    public onLoaderInitObservable: Observable<ISceneLoaderPlugin | ISceneLoaderPluginAsync>;
-    public onInitDoneObservable: Observable<AbstractViewer>;
+    /**
+     * is this viewer disposed?
+     */
+    protected _isDisposed: boolean = false;
 
-    public canvas: HTMLCanvasElement;
+    /**
+     * registered onBeforeRender functions.
+     * This functions are also registered at the native scene. The reference can be used to unregister them.
+     */
+    protected _registeredOnBeforeRenderFunctions: Array<() => void>;
+    /**
+     * The configuration loader of this viewer
+     */
+    protected _configurationLoader: ConfigurationLoader;
 
-    protected registeredOnBeforerenderFunctions: Array<() => void>;
+    /**
+     * Is the viewer already initialized. for internal use.
+     */
+    protected _isInit: boolean;
+
+    protected _configurationContainer: ConfigurationContainer;
+
+    public get configurationContainer() {
+        return this._configurationContainer;
+    }
 
     constructor(public containerElement: HTMLElement, initialConfiguration: ViewerConfiguration = {}) {
         // if exists, use the container id. otherwise, generate a random string.
@@ -60,58 +172,98 @@ export abstract class AbstractViewer {
             this.baseId = containerElement.id = 'bjs' + Math.random().toString(32).substr(2, 8);
         }
 
-        this.onSceneInitObservable = new Observable();
-        this.onEngineInitObservable = new Observable();
-        this.onModelLoadedObservable = new Observable();
-        this.onModelLoadProgressObservable = new Observable();
-        this.onModelLoadErrorObservable = new Observable();
-        this.onInitDoneObservable = new Observable();
-        this.onLoaderInitObservable = new Observable();
+        this._registeredOnBeforeRenderFunctions = [];
 
-        this.registeredOnBeforerenderFunctions = [];
+        this._configurationContainer = new ConfigurationContainer();
 
         // add this viewer to the viewer manager
         viewerManager.addViewer(this);
 
-        // create a new template manager. TODO - singleton?
-        this.templateManager = new TemplateManager(containerElement);
+        this.observablesManager = new ObservablesManager();
 
-        this.prepareContainerElement();
+        this.modelLoader = new ModelLoader(this.observablesManager, this._configurationContainer);
+
+        RenderingManager.AUTOCLEAR = false;
 
         // extend the configuration
-        configurationLoader.loadConfiguration(initialConfiguration, (configuration) => {
-            this.configuration = deepmerge(this.configuration || {}, configuration);
-            if (this.configuration.observers) {
-                this.configureObservers(this.configuration.observers);
-            }
-            //this.updateConfiguration(configuration);
-
-            // initialize the templates
-            let templateConfiguration = this.configuration.templates || {};
-            this.templateManager.initTemplate(templateConfiguration);
-            // when done, execute onTemplatesLoaded()
-            this.templateManager.onAllLoaded.add(() => {
-                let canvas = this.templateManager.getCanvas();
-                if (canvas) {
-                    this.canvas = canvas;
-                }
-                this._onTemplateLoaded();
-            });
+        this._configurationLoader = new ConfigurationLoader();
+        this._configurationLoader.loadConfiguration(initialConfiguration, (configuration) => {
+            this._onConfigurationLoaded(configuration);
         });
 
-        //this.onModelLoadedObservable.add(this.initEnvironment.bind(this));
+        this.onSceneInitObservable.add(() => {
+            this.updateConfiguration();
+        });
+
+        this.onInitDoneObservable.add(() => {
+            this._isInit = true;
+            this.engine.runRenderLoop(this._render);
+        });
+
+        this._prepareContainerElement();
 
     }
 
+    /**
+     * get the baseId of this viewer
+     */
     public getBaseId(): string {
         return this.baseId;
     }
 
+    /**
+     * Do we have a canvas to render on, and is it a part of the scene
+     */
     public isCanvasInDOM(): boolean {
-        return !!this.canvas && !!this.canvas.parentElement;
+        return !!this._canvas && !!this._canvas.parentElement;
     }
 
-    protected resize = (): void => {
+    /**
+     * Is the engine currently set to rende even when the page is in background
+     */
+    public get renderInBackground() {
+        return this.engine && this.engine.renderEvenInBackground;
+    }
+
+    /**
+     * Set the viewer's background rendering flag.
+     */
+    public set renderInBackground(value: boolean) {
+        if (this.engine) {
+            this.engine.renderEvenInBackground = value;
+        }
+    }
+
+    /**
+     * Get the configuration object. This is a reference only. 
+     * The configuration can ONLY be updated using the updateConfiguration function.
+     * changing this object will have no direct effect on the scene.
+     */
+    public get configuration(): ViewerConfiguration {
+        return this._configurationContainer.configuration;
+    }
+
+    /**
+     * force resizing the engine.
+     */
+    public forceResize() {
+        this._resize();
+    }
+
+    protected _hdToggled: boolean = false;
+
+    public toggleHD() {
+        this._hdToggled = !this._hdToggled;
+
+        var scale = this._hdToggled ? Math.max(0.5, 1 / (window.devicePixelRatio || 2)) : 1;
+
+        this.engine.setHardwareScalingLevel(scale);
+    }
+
+    /**
+     * The resize function that will be registered with the window object
+     */
+    protected _resize = (): void => {
         // Only resize if Canvas is in the DOM
         if (!this.isCanvasInDOM()) {
             return;
@@ -121,11 +273,80 @@ export abstract class AbstractViewer {
             return;
         }
 
+        if (this.configuration.engine && this.configuration.engine.disableResize) {
+            return;
+        }
+
         this.engine.resize();
     }
 
-    protected render = (): void => {
-        this.scene && this.scene.activeCamera && this.scene.render();
+    protected _onConfigurationLoaded(configuration: ViewerConfiguration) {
+        this._configurationContainer.configuration = deepmerge(this.configuration || {}, configuration);
+        if (this.configuration.observers) {
+            this._configureObservers(this.configuration.observers);
+        }
+        // TODO remove this after testing, as this is done in the updateCOnfiguration as well.
+        if (this.configuration.loaderPlugins) {
+            Object.keys(this.configuration.loaderPlugins).forEach((name => {
+                if (this.configuration.loaderPlugins && this.configuration.loaderPlugins[name]) {
+                    this.modelLoader.addPlugin(name);
+                }
+            }))
+        }
+
+        this.templateManager = new TemplateManager(this.containerElement);
+    }
+
+    /**
+     * Force a single render loop execution.
+     */
+    public forceRender() {
+        this._render(true);
+    }
+
+    /**
+     * render loop that will be executed by the engine
+     */
+    protected _render = (force: boolean = false): void => {
+        if (force || (this.sceneManager.scene && this.sceneManager.scene.activeCamera)) {
+            if (this.runRenderLoop || force) {
+                this.engine.performanceMonitor.enable();
+                this.sceneManager.scene.render();
+                this.onFrameRenderedObservable.notifyObservers(this);
+            } else {
+                this.engine.performanceMonitor.disable();
+
+                // update camera instead of rendering
+                this.sceneManager.scene.activeCamera && this.sceneManager.scene.activeCamera.update();
+            }
+        }
+    }
+
+    /**
+     * Takes a screenshot of the scene and returns it as a base64 encoded png.
+     * @param callback optional callback that will be triggered when screenshot is done.
+     * @param width Optional screenshot width (default to 512).
+     * @param height Optional screenshot height (default to 512).
+     * @returns a promise with the screenshot data
+     */
+    public takeScreenshot(callback?: (data: string) => void, width = 0, height = 0): Promise<string> {
+        width = width || this.canvas.clientWidth;
+        height = height || this.canvas.clientHeight;
+
+        // Create the screenshot
+        return new Promise<string>((resolve, reject) => {
+            try {
+                BABYLON.Tools.CreateScreenshot(this.engine, this.sceneManager.camera, { width, height }, (data) => {
+                    if (callback) {
+                        callback(data);
+                    }
+                    resolve(data);
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
+
     }
 
     /**
@@ -133,247 +354,35 @@ export abstract class AbstractViewer {
      * Only provided information will be updated, old configuration values will be kept.
      * If this.configuration was manually changed, you can trigger this function with no parameters, 
      * and the entire configuration will be updated. 
-     * @param newConfiguration 
+     * @param newConfiguration the partial configuration to update
+     * 
      */
     public updateConfiguration(newConfiguration: Partial<ViewerConfiguration> = this.configuration) {
         // update this.configuration with the new data
-        this.configuration = deepmerge(this.configuration || {}, newConfiguration);
+        this._configurationContainer.configuration = deepmerge(this.configuration || {}, newConfiguration);
 
-        // update scene configuration
-        if (newConfiguration.scene) {
-            this.configureScene(newConfiguration.scene);
-        }
-        // optimizer
-        if (newConfiguration.optimizer) {
-            this.configureOptimizer(newConfiguration.optimizer);
-        }
+        this.sceneManager.updateConfiguration(newConfiguration);
 
         // observers in configuration
         if (newConfiguration.observers) {
-            this.configureObservers(newConfiguration.observers);
+            this._configureObservers(newConfiguration.observers);
         }
 
-        // configure model
-        if (newConfiguration.model && typeof newConfiguration.model === 'object') {
-            this.configureModel(newConfiguration.model);
-        }
-
-        // lights
-        if (newConfiguration.lights) {
-            this.configureLights(newConfiguration.lights);
-        }
-
-        // environment
-        if (newConfiguration.skybox !== undefined || newConfiguration.ground !== undefined) {
-            this.configureEnvironment(newConfiguration.skybox, newConfiguration.ground);
-        }
-
-        // camera
-        if (newConfiguration.camera) {
-            this.configureCamera(newConfiguration.camera);
+        if (newConfiguration.loaderPlugins) {
+            Object.keys(newConfiguration.loaderPlugins).forEach((name => {
+                if (newConfiguration.loaderPlugins && newConfiguration.loaderPlugins[name]) {
+                    this.modelLoader.addPlugin(name);
+                }
+            }));
         }
     }
 
-    protected configureEnvironment(skyboxConifguration?: ISkyboxConfiguration | boolean, groundConfiguration?: IGroundConfiguration | boolean) {
-        if (!skyboxConifguration && !groundConfiguration) {
-            if (this.environmentHelper) {
-                this.environmentHelper.dispose();
-                delete this.environmentHelper;
-            };
-            return Promise.resolve(this.scene);
-        }
-
-        const options: Partial<IEnvironmentHelperOptions> = {
-            createGround: !!groundConfiguration,
-            createSkybox: !!skyboxConifguration,
-            setupImageProcessing: false // will be done at the scene level!
-        };
-
-        if (groundConfiguration) {
-            let groundConfig = (typeof groundConfiguration === 'boolean') ? {} : groundConfiguration;
-
-            let groundSize = groundConfig.size || (typeof skyboxConifguration === 'object' && skyboxConifguration.scale);
-            if (groundSize) {
-                options.groundSize = groundSize;
-            }
-
-            options.enableGroundShadow = groundConfig === true || groundConfig.receiveShadows;
-            if (groundConfig.shadowLevel !== undefined) {
-                options.groundShadowLevel = groundConfig.shadowLevel;
-            }
-            options.enableGroundMirror = !!groundConfig.mirror;
-            if (groundConfig.texture) {
-                options.groundTexture = groundConfig.texture;
-            }
-            if (groundConfig.color) {
-                options.groundColor = new Color3(groundConfig.color.r, groundConfig.color.g, groundConfig.color.b)
-            }
-
-            if (groundConfig.opacity !== undefined) {
-                options.groundOpacity = groundConfig.opacity;
-            }
-
-            if (groundConfig.mirror) {
-                options.enableGroundMirror = true;
-                // to prevent undefines
-                if (typeof groundConfig.mirror === "object") {
-                    if (groundConfig.mirror.amount !== undefined)
-                        options.groundMirrorAmount = groundConfig.mirror.amount;
-                    if (groundConfig.mirror.sizeRatio !== undefined)
-                        options.groundMirrorSizeRatio = groundConfig.mirror.sizeRatio;
-                    if (groundConfig.mirror.blurKernel !== undefined)
-                        options.groundMirrorBlurKernel = groundConfig.mirror.blurKernel;
-                    if (groundConfig.mirror.fresnelWeight !== undefined)
-                        options.groundMirrorFresnelWeight = groundConfig.mirror.fresnelWeight;
-                    if (groundConfig.mirror.fallOffDistance !== undefined)
-                        options.groundMirrorFallOffDistance = groundConfig.mirror.fallOffDistance;
-                    if (this.defaultPipelineTextureType !== undefined)
-                        options.groundMirrorTextureType = this.defaultPipelineTextureType;
-                }
-            }
-
-        }
-
-        let postInitSkyboxMaterial = false;
-        if (skyboxConifguration) {
-            let conf = skyboxConifguration === true ? {} : skyboxConifguration;
-            if (conf.material && conf.material.imageProcessingConfiguration) {
-                options.setupImageProcessing = false; // will be configured later manually.
-            }
-            let skyboxSize = conf.scale;
-            if (skyboxSize) {
-                options.skyboxSize = skyboxSize;
-            }
-            options.sizeAuto = !options.skyboxSize;
-            if (conf.color) {
-                options.skyboxColor = new Color3(conf.color.r, conf.color.g, conf.color.b)
-            }
-            if (conf.cubeTexture && conf.cubeTexture.url) {
-                if (typeof conf.cubeTexture.url === "string") {
-                    options.skyboxTexture = conf.cubeTexture.url;
-                } else {
-                    // init later!
-                    postInitSkyboxMaterial = true;
-                }
-            }
-
-            if (conf.material && conf.material.imageProcessingConfiguration) {
-                postInitSkyboxMaterial = true;
-            }
-        }
-
-        options.setupImageProcessing = false; // TMP
-
-        if (!this.environmentHelper) {
-            this.environmentHelper = this.scene.createDefaultEnvironment(options)!;
-        } else {
-            // there might be a new scene! we need to dispose.
-
-            // get the scene used by the envHelper
-            let scene: Scene = this.environmentHelper.rootMesh.getScene();
-            // is it a different scene? Oh no!
-            if (scene !== this.scene) {
-                this.environmentHelper.dispose();
-                this.environmentHelper = this.scene.createDefaultEnvironment(options)!;
-            } else {
-                this.environmentHelper.updateOptions(options)!;
-            }
-        }
-
-        if (postInitSkyboxMaterial) {
-            let skyboxMaterial = this.environmentHelper.skyboxMaterial;
-            if (skyboxMaterial) {
-                if (typeof skyboxConifguration === 'object' && skyboxConifguration.material && skyboxConifguration.material.imageProcessingConfiguration) {
-                    this.extendClassWithConfig(skyboxMaterial.imageProcessingConfiguration, skyboxConifguration.material.imageProcessingConfiguration);
-                }
-            }
-        }
-    }
-
-    protected configureScene(sceneConfig: ISceneConfiguration, optimizerConfig?: ISceneOptimizerConfiguration) {
-        // sanity check!
-        if (!this.scene) {
-            return;
-        }
-        if (sceneConfig.debug) {
-            this.scene.debugLayer.show();
-        } else {
-            if (this.scene.debugLayer.isVisible()) {
-                this.scene.debugLayer.hide();
-            }
-        }
-
-        if (sceneConfig.clearColor) {
-            let cc = sceneConfig.clearColor;
-            let oldcc = this.scene.clearColor;
-            if (cc.r !== undefined) {
-                oldcc.r = cc.r;
-            }
-            if (cc.g !== undefined) {
-                oldcc.g = cc.g
-            }
-            if (cc.b !== undefined) {
-                oldcc.b = cc.b
-            }
-            if (cc.a !== undefined) {
-                oldcc.a = cc.a
-            }
-        }
-
-        // image processing configuration - optional.
-        if (sceneConfig.imageProcessingConfiguration) {
-            this.extendClassWithConfig(this.scene.imageProcessingConfiguration, sceneConfig.imageProcessingConfiguration);
-        }
-        if (sceneConfig.environmentTexture) {
-            if (this.scene.environmentTexture) {
-                this.scene.environmentTexture.dispose();
-            }
-            const environmentTexture = CubeTexture.CreateFromPrefilteredData(sceneConfig.environmentTexture, this.scene);
-            this.scene.environmentTexture = environmentTexture;
-        }
-
-        if (sceneConfig.autoRotate) {
-            this.camera.useAutoRotationBehavior = true;
-        }
-    }
-
-    protected configureOptimizer(optimizerConfig: ISceneOptimizerConfiguration | boolean) {
-        if (typeof optimizerConfig === 'boolean') {
-            if (this.sceneOptimizer) {
-                this.sceneOptimizer.stop();
-                this.sceneOptimizer.dispose();
-                delete this.sceneOptimizer;
-            }
-            if (optimizerConfig) {
-                this.sceneOptimizer = new SceneOptimizer(this.scene);
-                this.sceneOptimizer.start();
-            }
-        } else {
-            let optimizerOptions: SceneOptimizerOptions = new SceneOptimizerOptions(optimizerConfig.targetFrameRate, optimizerConfig.trackerDuration);
-            // check for degradation
-            if (optimizerConfig.degradation) {
-                switch (optimizerConfig.degradation) {
-                    case "low":
-                        optimizerOptions = SceneOptimizerOptions.LowDegradationAllowed(optimizerConfig.targetFrameRate);
-                        break;
-                    case "moderate":
-                        optimizerOptions = SceneOptimizerOptions.ModerateDegradationAllowed(optimizerConfig.targetFrameRate);
-                        break;
-                    case "hight":
-                        optimizerOptions = SceneOptimizerOptions.HighDegradationAllowed(optimizerConfig.targetFrameRate);
-                        break;
-                }
-            }
-            if (this.sceneOptimizer) {
-                this.sceneOptimizer.stop();
-                this.sceneOptimizer.dispose()
-            }
-            this.sceneOptimizer = new SceneOptimizer(this.scene, optimizerOptions, optimizerConfig.autoGeneratePriorities, optimizerConfig.improvementMode);
-            this.sceneOptimizer.start();
-        }
-    }
-
-    protected configureObservers(observersConfiguration: IObserversConfiguration) {
+    /**
+     * this is used to register native functions using the configuration object.
+     * This will configure the observers.
+     * @param observersConfiguration observers configuration
+     */
+    protected _configureObservers(observersConfiguration: IObserversConfiguration) {
         if (observersConfiguration.onEngineInit) {
             this.onEngineInitObservable.add(window[observersConfiguration.onEngineInit]);
         } else {
@@ -397,259 +406,50 @@ export abstract class AbstractViewer {
         }
     }
 
-    protected configureCamera(cameraConfig: ICameraConfiguration, focusMeshes: Array<AbstractMesh> = this.scene.meshes) {
-        if (!this.scene.activeCamera) {
-            this.scene.createDefaultCamera(true, true, true);
-            this.camera = <ArcRotateCamera>this.scene.activeCamera!;
-        }
-        if (cameraConfig.position) {
-            this.camera.position.copyFromFloats(cameraConfig.position.x || 0, cameraConfig.position.y || 0, cameraConfig.position.z || 0);
-        }
-
-        if (cameraConfig.rotation) {
-            this.camera.rotationQuaternion = new Quaternion(cameraConfig.rotation.x || 0, cameraConfig.rotation.y || 0, cameraConfig.rotation.z || 0, cameraConfig.rotation.w || 0)
-        }
-
-        this.extendClassWithConfig(this.camera, cameraConfig);
-
-        this.camera.minZ = cameraConfig.minZ || this.camera.minZ;
-        this.camera.maxZ = cameraConfig.maxZ || this.camera.maxZ;
-
-        if (cameraConfig.behaviors) {
-            for (let name in cameraConfig.behaviors) {
-                this.setCameraBehavior(cameraConfig.behaviors[name], focusMeshes);
-            }
-        };
-
-        const sceneExtends = this.scene.getWorldExtends((mesh) => {
-            return !this.environmentHelper || (mesh !== this.environmentHelper.ground && mesh !== this.environmentHelper.rootMesh && mesh !== this.environmentHelper.skybox);
-        });
-        const sceneDiagonal = sceneExtends.max.subtract(sceneExtends.min);
-        const sceneDiagonalLenght = sceneDiagonal.length();
-        if (isFinite(sceneDiagonalLenght))
-            this.camera.upperRadiusLimit = sceneDiagonalLenght * 3;
-    }
-
-    protected configureLights(lightsConfiguration: { [name: string]: ILightConfiguration | boolean } = {}, focusMeshes: Array<AbstractMesh> = this.scene.meshes) {
-        // sanity check!
-        if (!Object.keys(lightsConfiguration).length) return;
-
-        let lightsAvailable: Array<string> = this.scene.lights.map(light => light.name);
-        // compare to the global (!) configuration object and dispose unneeded:
-        let lightsToConfigure = Object.keys(this.configuration.lights || []);
-        if (Object.keys(lightsToConfigure).length !== lightsAvailable.length) {
-            lightsAvailable.forEach(lName => {
-                if (lightsToConfigure.indexOf(lName) === -1) {
-                    this.scene.getLightByName(lName)!.dispose()
-                }
-            });
-        }
-
-        Object.keys(lightsConfiguration).forEach((name, idx) => {
-            let lightConfig: ILightConfiguration = { type: 0 };
-            if (typeof lightsConfiguration[name] === 'object') {
-                lightConfig = <ILightConfiguration>lightsConfiguration[name];
-            }
-
-            lightConfig.name = name;
-
-            let light: Light;
-            // light is not already available
-            if (lightsAvailable.indexOf(name) === -1) {
-                let constructor = Light.GetConstructorFromName(lightConfig.type, lightConfig.name, this.scene);
-                if (!constructor) return;
-                light = constructor();
-            } else {
-                // available? get it from the scene
-                light = <Light>this.scene.getLightByName(name);
-                lightsAvailable = lightsAvailable.filter(ln => ln !== name);
-                if (lightConfig.type !== undefined && light.getTypeID() !== lightConfig.type) {
-                    light.dispose();
-                    let constructor = Light.GetConstructorFromName(lightConfig.type, lightConfig.name, this.scene);
-                    if (!constructor) return;
-                    light = constructor();
-                }
-            }
-
-            // if config set the light to false, dispose it.
-            if (lightsConfiguration[name] === false) {
-                light.dispose();
-                return;
-            }
-
-            //enabled
-            var enabled = lightConfig.enabled !== undefined ? lightConfig.enabled : !lightConfig.disabled;
-            light.setEnabled(enabled);
-
-
-            this.extendClassWithConfig(light, lightConfig);
-
-            //position. Some lights don't support shadows
-            if (light instanceof ShadowLight) {
-                if (lightConfig.target) {
-                    if (light.setDirectionToTarget) {
-                        let target = Vector3.Zero().copyFrom(lightConfig.target as Vector3);
-                        light.setDirectionToTarget(target);
-                    }
-                } else if (lightConfig.direction) {
-                    let direction = Vector3.Zero().copyFrom(lightConfig.direction as Vector3);
-                    light.direction = direction;
-                }
-                let shadowGenerator = light.getShadowGenerator();
-                if (lightConfig.shadowEnabled && this.maxShadows) {
-                    if (!shadowGenerator) {
-                        shadowGenerator = new ShadowGenerator(512, light);
-                        // TODO blur kernel definition
-                    }
-                    this.extendClassWithConfig(shadowGenerator, lightConfig.shadowConfig || {});
-                    // add the focues meshes to the shadow list
-                    let shadownMap = shadowGenerator.getShadowMap();
-                    if (!shadownMap) return;
-                    let renderList = shadownMap.renderList;
-                    for (var index = 0; index < focusMeshes.length; index++) {
-                        if (Tags.MatchesQuery(focusMeshes[index], 'castShadow')) {
-                            renderList && renderList.push(focusMeshes[index]);
-                        }
-                    }
-                } else if (shadowGenerator) {
-                    shadowGenerator.dispose();
-                }
-            }
-        });
-
-        // remove the unneeded lights
-        /*lightsAvailable.forEach(name => {
-            let light = this.scene.getLightByName(name);
-            if (light && !Tags.MatchesQuery(light, "fixed")) {
-                light.dispose();
-            }
-        });*/
-    }
-
-    protected configureModel(modelConfiguration: Partial<IModelConfiguration>, focusMeshes: Array<AbstractMesh> = this.scene.meshes) {
-        let meshesWithNoParent: Array<AbstractMesh> = focusMeshes.filter(m => !m.parent);
-        let updateMeshesWithNoParent = (variable: string, value: any, param?: string) => {
-            meshesWithNoParent.forEach(mesh => {
-                if (param) {
-                    mesh[variable][param] = value;
-                } else {
-                    mesh[variable] = value;
-                }
-            });
-        }
-        let updateXYZ = (variable: string, configValues: { x: number, y: number, z: number, w?: number }) => {
-            if (configValues.x !== undefined) {
-                updateMeshesWithNoParent(variable, configValues.x, 'x');
-            }
-            if (configValues.y !== undefined) {
-                updateMeshesWithNoParent(variable, configValues.y, 'y');
-            }
-            if (configValues.z !== undefined) {
-                updateMeshesWithNoParent(variable, configValues.z, 'z');
-            }
-            if (configValues.w !== undefined) {
-                updateMeshesWithNoParent(variable, configValues.w, 'w');
-            }
-        }
-        // position?
-        if (modelConfiguration.position) {
-            updateXYZ('position', modelConfiguration.position);
-        }
-        if (modelConfiguration.rotation) {
-            if (modelConfiguration.rotation.w) {
-                meshesWithNoParent.forEach(mesh => {
-                    if (!mesh.rotationQuaternion) {
-                        mesh.rotationQuaternion = new Quaternion();
-                    }
-                })
-                updateXYZ('rotationQuaternion', modelConfiguration.rotation);
-            } else {
-                updateXYZ('rotation', modelConfiguration.rotation);
-            }
-        }
-        if (modelConfiguration.scaling) {
-            updateXYZ('scaling', modelConfiguration.scaling);
-        }
-
-        if (modelConfiguration.castShadow) {
-            focusMeshes.forEach(mesh => {
-                Tags.AddTagsTo(mesh, 'castShadow');
-            });
-        }
-
-        if (modelConfiguration.normalize) {
-            let center = false;
-            let unitSize = false;
-            let parentIndex;
-            if (modelConfiguration.normalize === true) {
-                center = true;
-                unitSize = true;
-                parentIndex = 0;
-            } else {
-                center = !!modelConfiguration.normalize.center;
-                unitSize = !!modelConfiguration.normalize.unitSize;
-                parentIndex = modelConfiguration.normalize.parentIndex;
-            }
-
-            let meshesToNormalize: Array<AbstractMesh> = [];
-            if (parentIndex !== undefined) {
-                meshesToNormalize.push(focusMeshes[parentIndex]);
-            } else {
-                meshesToNormalize = meshesWithNoParent;
-            }
-
-            if (unitSize) {
-                meshesToNormalize.forEach(mesh => {
-                    mesh.normalizeToUnitCube(true);
-                    mesh.computeWorldMatrix(true);
-                });
-            }
-            if (center) {
-                meshesToNormalize.forEach(mesh => {
-                    const boundingInfo = mesh.getHierarchyBoundingVectors(true);
-                    const sizeVec = boundingInfo.max.subtract(boundingInfo.min);
-                    const halfSizeVec = sizeVec.scale(0.5);
-                    const center = boundingInfo.min.add(halfSizeVec);
-                    mesh.position = center.scale(-1);
-
-                    // Set on ground.
-                    mesh.position.y += halfSizeVec.y;
-
-                    // Recompute Info.
-                    mesh.computeWorldMatrix(true);
-                });
-            }
-        }
-    }
-
+    /**
+     * Dispoe the entire viewer including the scene and the engine
+     */
     public dispose() {
-        window.removeEventListener('resize', this.resize);
-        if (this.sceneOptimizer) {
-            this.sceneOptimizer.stop();
-            this.sceneOptimizer.dispose();
+        if (this._isDisposed) {
+            return;
+        }
+        window.removeEventListener('resize', this._resize);
+
+        if (this.sceneManager) {
+            if (this.sceneManager.scene && this.sceneManager.scene.activeCamera) {
+                this.sceneManager.scene.activeCamera.detachControl(this.canvas);
+            }
+            this.sceneManager.dispose();
         }
 
-        if (this.scene.activeCamera) {
-            this.scene.activeCamera.detachControl(this.canvas);
+        this._fpsTimeoutInterval && clearInterval(this._fpsTimeoutInterval);
+
+
+
+        this.observablesManager.dispose();
+
+        this.modelLoader.dispose();
+
+        if (this.engine) {
+            this.engine.dispose();
         }
 
-        this.scene.dispose();
-        this.engine.dispose();
-
-        this.templateManager.dispose();
+        viewerManager.removeViewer(this);
+        this._isDisposed = true;
     }
 
-    protected abstract prepareContainerElement();
+    /**
+     * This will prepare the container element for the viewer
+     */
+    protected abstract _prepareContainerElement();
 
     /**
      * This function will execute when the HTML templates finished initializing.
      * It should initialize the engine and continue execution.
      * 
-     * @protected
      * @returns {Promise<AbstractViewer>} The viewer object will be returned after the object was loaded.
-     * @memberof AbstractViewer
      */
-    protected onTemplatesLoaded(): Promise<AbstractViewer> {
+    protected _onTemplatesLoaded(): Promise<AbstractViewer> {
         return Promise.resolve(this);
     }
 
@@ -658,22 +458,26 @@ export abstract class AbstractViewer {
      * It will also load a model if preconfigured.
      * But first - it will load the extendible onTemplateLoaded()!
      */
-    private _onTemplateLoaded(): Promise<AbstractViewer> {
-        return this.onTemplatesLoaded().then(() => {
-            let autoLoadModel = !!this.configuration.model;
-            return this.initEngine().then((engine) => {
+    protected _onTemplateLoaded(): Promise<AbstractViewer> {
+        // check if viewer was disposed right after created
+        if (this._isDisposed) {
+            return Promise.reject("viewer was disposed");
+        }
+        return this._onTemplatesLoaded().then(() => {
+            let autoLoad = typeof this.configuration.model === 'string' || (this.configuration.model && this.configuration.model.url);
+            return this._initEngine().then((engine) => {
                 return this.onEngineInitObservable.notifyObserversWithPromise(engine);
             }).then(() => {
-                if (autoLoadModel) {
-                    return this.loadModel();
+                this._initTelemetryEvents();
+                if (autoLoad) {
+                    return this.loadModel(this.configuration.model!).catch(e => { }).then(() => { return this.sceneManager.scene });
                 } else {
-                    return this.scene || this.initScene();
+                    return this.sceneManager.scene || this.sceneManager.initScene(this.configuration.scene);
                 }
-            }).then((scene) => {
-                return this.onSceneInitObservable.notifyObserversWithPromise(scene);
             }).then(() => {
                 return this.onInitDoneObservable.notifyObserversWithPromise(this);
-            }).then(() => {
+            }).catch(e => {
+                Tools.Warn(e.toString());
                 return this;
             });
         })
@@ -686,195 +490,171 @@ export abstract class AbstractViewer {
      * @returns {Promise<Engine>} 
      * @memberof Viewer
      */
-    protected initEngine(): Promise<Engine> {
+    protected _initEngine(): Promise<Engine> {
 
         // init custom shaders
-        this.injectCustomShaders();
+        this._injectCustomShaders();
 
-        let canvasElement = this.templateManager.getCanvas();
-        if (!canvasElement) {
+        //let canvasElement = this.templateManager.getCanvas();
+        if (!this.canvas) {
             return Promise.reject('Canvas element not found!');
         }
         let config = this.configuration.engine || {};
         // TDO enable further configuration
-        this.engine = new Engine(canvasElement, !!config.antialiasing, config.engineOptions);
+
+        // check for webgl2 support, force-disable if needed.
+        if (viewerGlobals.disableWebGL2Support) {
+            config.engineOptions = config.engineOptions || {};
+            config.engineOptions.disableWebGL2Support = true;
+        }
+
+        this.engine = new Engine(this.canvas, !!config.antialiasing, config.engineOptions);
 
         // Disable manifest checking
         Database.IDBStorageEnabled = false;
 
         if (!config.disableResize) {
-            window.addEventListener('resize', this.resize);
+            window.addEventListener('resize', this._resize);
         }
 
-
-        this.engine.runRenderLoop(this.render);
-
-        if (this.configuration.engine && this.configuration.engine.adaptiveQuality) {
-            var scale = Math.max(0.5, 1 / (window.devicePixelRatio || 2));
-            this.engine.setHardwareScalingLevel(scale);
+        if (this.configuration.engine) {
+            if (this.configuration.engine.adaptiveQuality) {
+                var scale = Math.max(0.5, 1 / (window.devicePixelRatio || 2));
+                this.engine.setHardwareScalingLevel(scale);
+            }
+            if (this.configuration.engine.hdEnabled) {
+                this.toggleHD();
+            }
         }
 
-        // set hardware limitations for scene initialization
-        this.handleHardwareLimitations();
+        // create a new template manager for this viewer
+        this.sceneManager = new SceneManager(this.engine, this._configurationContainer, this.observablesManager);
 
         return Promise.resolve(this.engine);
     }
 
-    protected initScene(): Promise<Scene> {
+    private _isLoading: boolean;
 
-        // if the scen exists, dispose it.
-        if (this.scene) {
-            this.scene.dispose();
-        }
+    /**
+     * Initialize a model loading. The returned object (a ViewerModel object) will be loaded in the background.
+     * The difference between this and loadModel is that loadModel will fulfill the promise when the model finished loading.
+     * 
+     * @param modelConfig model configuration to use when loading the model.
+     * @param clearScene should the scene be cleared before loading this model
+     * @returns a ViewerModel object that is not yet fully loaded.
+     */
+    public initModel(modelConfig: string | File | IModelConfiguration, clearScene: boolean = true): ViewerModel {
 
-        // create a new scene
-        this.scene = new Scene(this.engine);
-        // make sure there is a default camera and light.
-        this.scene.createDefaultLight(true);
-
-        if (this.configuration.scene) {
-            this.configureScene(this.configuration.scene);
-
-            // Scene optimizer
-            if (this.configuration.optimizer) {
-                this.configureOptimizer(this.configuration.optimizer);
+        let configuration: IModelConfiguration;
+        if (typeof modelConfig === 'string') {
+            configuration = {
+                url: modelConfig
             }
-        }
-
-        return Promise.resolve(this.scene);
-    }
-
-    private isLoading: boolean;
-    private nextLoading: Function;
-
-    public loadModel(model: any = this.configuration.model, clearScene: boolean = true): Promise<Scene> {
-        // no model was provided? Do nothing!
-        let modelUrl = (typeof model === 'string') ? model : model.url;
-        if (!modelUrl) {
-            return Promise.resolve(this.scene);
-        }
-        if (this.isLoading) {
-            //another model is being model. Wait for it to finish, trigger the load afterwards
-            this.nextLoading = () => {
-                delete this.nextLoading;
-                this.loadModel(model, clearScene);
-            }
-            return Promise.resolve(this.scene);
-        }
-        this.isLoading = true;
-        if ((typeof model === 'string')) {
-            if (this.configuration.model && typeof this.configuration.model === 'object') {
-                this.configuration.model.url = model;
+        } else if (modelConfig instanceof File) {
+            configuration = {
+                file: modelConfig,
+                root: "file:"
             }
         } else {
-            if (this.configuration.model) {
-                deepmerge(this.configuration.model, model)
-            } else {
-                this.configuration.model = model;
-            }
+            configuration = modelConfig
         }
 
-        let parts = modelUrl.split('/');
-        let filename = parts.pop();
-        let base = parts.join('/') + '/';
-        let plugin = (typeof model === 'string') ? undefined : model.loader;
+        if (!configuration.url && !configuration.file) {
+            throw new Error("no model provided");
+        }
 
-        return Promise.resolve(this.scene).then((scene) => {
-            if (!scene) return this.initScene();
+        if (clearScene) {
+            this.sceneManager.clearScene(true, false);
+        }
 
-            if (clearScene) {
-                scene.meshes.forEach(mesh => {
-                    if (Tags.MatchesQuery(mesh, "viewerMesh")) {
-                        mesh.dispose();
-                    }
-                });
+        //merge the configuration for future models:
+        if (this.configuration.model && typeof this.configuration.model === 'object') {
+            let globalConfig = deepmerge({}, this.configuration.model)
+            configuration = deepmerge(globalConfig, configuration);
+            if (modelConfig instanceof File) {
+                configuration.file = modelConfig;
             }
-            return scene!;
-        }).then(() => {
-            return new Promise<Array<AbstractMesh>>((resolve, reject) => {
-                this.lastUsedLoader = SceneLoader.ImportMesh(undefined, base, filename, this.scene, (meshes) => {
-                    meshes.forEach(mesh => {
-                        Tags.AddTagsTo(mesh, "viewerMesh");
-                    });
-                    resolve(meshes);
-                }, (progressEvent) => {
-                    this.onModelLoadProgressObservable.notifyObserversWithPromise(progressEvent);
-                }, (e, m, exception) => {
-                    // console.log(m, exception);
-                    this.onModelLoadErrorObservable.notifyObserversWithPromise({ message: m, exception: exception }).then(() => {
-                        reject(exception);
-                    });
-                }, plugin)!;
-                this.onLoaderInitObservable.notifyObserversWithPromise(this.lastUsedLoader);
-            });
-        }).then((meshes: Array<AbstractMesh>) => {
-            return this.onModelLoadedObservable.notifyObserversWithPromise(meshes)
-                .then(() => {
-                    // update the models' configuration
-                    this.configureModel(this.configuration.model || model, meshes);
-                    this.configureLights(this.configuration.lights);
+        } else {
+            this.configuration.model = configuration;
+        }
 
-                    if (this.configuration.camera) {
-                        this.configureCamera(this.configuration.camera, meshes);
-                    }
-                    return this.initEnvironment(meshes);
-                }).then(() => {
-                    this.isLoading = false;
-                    if (this.nextLoading) {
-                        return this.nextLoading();
-                    }
-                    return this.scene;
-                });
+        this._isLoading = true;
+
+        let model = this.modelLoader.load(configuration);
+
+        this.lastUsedLoader = model.loader;
+        model.onLoadErrorObservable.add((errorObject) => {
+            this.onModelLoadErrorObservable.notifyObserversWithPromise(errorObject);
         });
-    }
+        model.onLoadProgressObservable.add((progressEvent) => {
+            this.onModelLoadProgressObservable.notifyObserversWithPromise(progressEvent);
+        });
+        this.onLoaderInitObservable.notifyObserversWithPromise(this.lastUsedLoader);
 
-    protected initEnvironment(focusMeshes: Array<AbstractMesh> = this.scene.meshes): Promise<Scene> {
-        this.configureEnvironment(this.configuration.skybox, this.configuration.ground);
+        model.onLoadedObservable.add(() => {
+            this._isLoading = false;
+        });
 
-        return Promise.resolve(this.scene);
+        return model;
     }
 
     /**
-		 * Alters render settings to reduce features based on hardware feature limitations
-		 * @param options Viewer options to modify
-		 */
-    protected handleHardwareLimitations() {
-        //flip rendering settings switches based on hardware support
-        let maxVaryingRows = this.engine.getCaps().maxVaryingVectors;
-        let maxFragmentSamplers = this.engine.getCaps().maxTexturesImageUnits;
-
-        //shadows are disabled if there's not enough varyings for a single shadow
-        if ((maxVaryingRows < 8) || (maxFragmentSamplers < 8)) {
-            this.maxShadows = 0;
-        } else {
-            this.maxShadows = 3;
+     * load a model using the provided configuration.
+     * This function, as opposed to initModel, will return a promise that resolves when the model is loaded, and rejects with error.
+     * If you want to attach to the observables of the model, use initModle instead.
+     * 
+     * @param modelConfig the model configuration or URL to load.
+     * @param clearScene Should the scene be cleared before loading the model
+     * @returns a Promise the fulfills when the model finished loading successfully. 
+     */
+    public loadModel(modelConfig: string | File | IModelConfiguration, clearScene: boolean = true): Promise<ViewerModel> {
+        if (this._isLoading) {
+            // We can decide here whether or not to cancel the lst load, but the developer can do that.
+            return Promise.reject("another model is curently being loaded.");
         }
 
-        //can we render to any >= 16-bit targets (required for HDR)
-        let caps = this.engine.getCaps();
-        let linearHalfFloatTargets = caps.textureHalfFloatRender && caps.textureHalfFloatLinearFiltering;
-        let linearFloatTargets = caps.textureFloatRender && caps.textureFloatLinearFiltering;
+        return Promise.resolve(this.sceneManager.scene).then((scene) => {
+            if (!scene) return this.sceneManager.initScene(this.configuration.scene, this.configuration.optimizer);
+            return scene;
+        }).then(() => {
+            let model = this.initModel(modelConfig, clearScene);
+            return new Promise<ViewerModel>((resolve, reject) => {
+                // at this point, configuration.model is an object, not a string
+                model.onLoadedObservable.add(() => {
+                    resolve(model);
+                });
+                model.onLoadErrorObservable.add((error) => {
+                    reject(error);
+                });
+            });
+        })
+    }
 
-        this._hdrSupport = !!(linearFloatTargets || linearHalfFloatTargets);
+    private _fpsTimeoutInterval: number;
 
-        if (linearHalfFloatTargets) {
-            this.defaultHighpTextureType = Engine.TEXTURETYPE_HALF_FLOAT;
-            this.shadowGeneratorBias = 0.002;
-        } else if (linearFloatTargets) {
-            this.defaultHighpTextureType = Engine.TEXTURETYPE_FLOAT;
-            this.shadowGeneratorBias = 0.001;
-        } else {
-            this.defaultHighpTextureType = Engine.TEXTURETYPE_UNSIGNED_INT;
-            this.shadowGeneratorBias = 0.001;
-        }
 
-        this.defaultPipelineTextureType = this._hdrSupport ? this.defaultHighpTextureType : Engine.TEXTURETYPE_UNSIGNED_INT;
+    protected _initTelemetryEvents() {
+        telemetryManager.broadcast("Engine Capabilities", this.baseId, this.engine.getCaps());
+        telemetryManager.broadcast("Platform Details", this.baseId, {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform
+        });
+
+        telemetryManager.flushWebGLErrors(this.engine, this.baseId);
+
+        let trackFPS: Function = () => {
+            telemetryManager.broadcast("Current FPS", this.baseId, { fps: this.engine.getFps() });
+        };
+
+        trackFPS();
+        // Track the FPS again after 60 seconds
+        this._fpsTimeoutInterval = window.setInterval(trackFPS, 60 * 1000);
     }
 
     /**
      * Injects all the spectre shader in the babylon shader store
      */
-    protected injectCustomShaders(): void {
+    protected _injectCustomShaders(): void {
         let customShaders = this.configuration.customShaders;
         // Inject all the spectre shader in the babylon shader store.
         if (!customShaders) {
@@ -891,76 +671,6 @@ export abstract class AbstractViewer {
                 // typescript considers a callback "unsafe", so... '!'
                 Effect.IncludesShadersStore[key] = customShaders!.includes![key];
             });
-        }
-    }
-
-    protected extendClassWithConfig(object: any, config: any) {
-        if (!config) return;
-        Object.keys(config).forEach(key => {
-            if (key in object && typeof object[key] !== 'function') {
-                // if (typeof object[key] === 'function') return;
-                // if it is an object, iterate internally until reaching basic types
-                if (typeof object[key] === 'object') {
-                    this.extendClassWithConfig(object[key], config[key]);
-                } else {
-                    if (config[key] !== undefined) {
-                        object[key] = config[key];
-                    }
-                }
-            }
-        });
-    }
-
-    private setCameraBehavior(behaviorConfig: number | {
-        type: number;
-        [propName: string]: any;
-    }, payload: any) {
-
-        let behavior: Behavior<ArcRotateCamera> | null;
-        let type = (typeof behaviorConfig !== "object") ? behaviorConfig : behaviorConfig.type;
-
-        let config: { [propName: string]: any } = (typeof behaviorConfig === "object") ? behaviorConfig : {};
-
-        // constructing behavior
-        switch (type) {
-            case CameraBehavior.AUTOROTATION:
-                this.camera.useAutoRotationBehavior = true;
-                behavior = this.camera.autoRotationBehavior;
-                break;
-            case CameraBehavior.BOUNCING:
-                this.camera.useBouncingBehavior = true;
-                behavior = this.camera.bouncingBehavior;
-                break;
-            case CameraBehavior.FRAMING:
-                this.camera.useFramingBehavior = true;
-                behavior = this.camera.framingBehavior;
-                break;
-            default:
-                behavior = null;
-                break;
-        }
-
-        if (behavior) {
-            if (typeof behaviorConfig === "object") {
-                this.extendClassWithConfig(behavior, behaviorConfig);
-            }
-            //this.camera.addBehavior(behavior);
-        }
-
-        // post attach configuration. Some functionalities require the attached camera.
-        switch (type) {
-            case CameraBehavior.AUTOROTATION:
-                break;
-            case CameraBehavior.BOUNCING:
-                break;
-            case CameraBehavior.FRAMING:
-                if (config.zoomOnBoundingInfo) {
-                    //payload is an array of meshes
-                    let meshes = <Array<AbstractMesh>>payload;
-                    let bounding = meshes[0].getHierarchyBoundingVectors();
-                    (<FramingBehavior>behavior).zoomOnBoundingInfo(bounding.min, bounding.max);
-                }
-                break;
         }
     }
 }

@@ -1,5 +1,5 @@
 module BABYLON {
-    /** @ignore */
+    /** @hidden */
     export class StandardMaterialDefines extends MaterialDefines implements IImageProcessingConfigurationDefines {
         public MAINUV1 = false;
         public MAINUV2 = false;
@@ -87,6 +87,16 @@ module BABYLON {
         public SAMPLER3DGREENDEPTH = false;
         public SAMPLER3DBGRMAP = false;
         public IMAGEPROCESSINGPOSTPROCESS = false;
+        /**
+         * If the reflection texture on this material is in linear color space
+         * @hidden
+         */
+        public IS_REFLECTION_LINEAR = false;
+        /**
+         * If the refraction texture on this material is in linear color space
+         * @hidden
+         */
+        public IS_REFRACTION_LINEAR = false;
         public EXPOSURE = false;
 
         constructor() {
@@ -110,49 +120,49 @@ module BABYLON {
 
     export class StandardMaterial extends PushMaterial {
         @serializeAsTexture("diffuseTexture")
-        private _diffuseTexture: Nullable<BaseTexture>;;
+        private _diffuseTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesAndMiscDirty")
-        public diffuseTexture: Nullable<BaseTexture>;;
+        public diffuseTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("ambientTexture")
-        private _ambientTexture: Nullable<BaseTexture>;;
+        private _ambientTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        public ambientTexture: Nullable<BaseTexture>;;
+        public ambientTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("opacityTexture")
-        private _opacityTexture: Nullable<BaseTexture>;;
+        private _opacityTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesAndMiscDirty")
-        public opacityTexture: Nullable<BaseTexture>;;
+        public opacityTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("reflectionTexture")
-        private _reflectionTexture: Nullable<BaseTexture>;;
+        private _reflectionTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
         public reflectionTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("emissiveTexture")
-        private _emissiveTexture: Nullable<BaseTexture>;;
+        private _emissiveTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        public emissiveTexture: Nullable<BaseTexture>;;
+        public emissiveTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("specularTexture")
-        private _specularTexture: Nullable<BaseTexture>;;
+        private _specularTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        public specularTexture: Nullable<BaseTexture>;;
+        public specularTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("bumpTexture")
-        private _bumpTexture: Nullable<BaseTexture>;;
+        private _bumpTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        public bumpTexture: Nullable<BaseTexture>;;
+        public bumpTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("lightmapTexture")
-        private _lightmapTexture: Nullable<BaseTexture>;;
+        private _lightmapTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        public lightmapTexture: Nullable<BaseTexture>;;
+        public lightmapTexture: Nullable<BaseTexture>;
 
         @serializeAsTexture("refractionTexture")
-        private _refractionTexture: Nullable<BaseTexture>;;
+        private _refractionTexture: Nullable<BaseTexture>;
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
-        public refractionTexture: Nullable<BaseTexture>;;
+        public refractionTexture: Nullable<BaseTexture>;
 
         @serializeAsColor3("ambient")
         public ambientColor = new Color3(0, 0, 0);
@@ -230,6 +240,12 @@ module BABYLON {
 
         @serialize()
         public invertRefractionY = true;
+
+        /**
+         * Defines the alpha limits in alpha test mode
+         */
+        @serialize()
+        public alphaCutOff = 0.4;        
 
         @serialize("useLightmapAsShadowmap")
         private _useLightmapAsShadowmap = false;
@@ -354,9 +370,11 @@ module BABYLON {
             }
 
             // Attaches observer.
-            this._imageProcessingObserver = this._imageProcessingConfiguration.onUpdateParameters.add(conf => {
-                this._markAllSubMeshesAsImageProcessingDirty();
-            });
+            if (this._imageProcessingConfiguration) {
+                this._imageProcessingObserver = this._imageProcessingConfiguration.onUpdateParameters.add(conf => {
+                    this._markAllSubMeshesAsImageProcessingDirty();
+                });
+            }
         }
 
         /**
@@ -598,10 +616,6 @@ module BABYLON {
                             defines.REFLECTIONMAP_3D = this._reflectionTexture.isCube;
 
                             switch (this._reflectionTexture.coordinatesMode) {
-                                case Texture.CUBIC_MODE:
-                                case Texture.INVCUBIC_MODE:
-                                    defines.setReflectionMode("REFLECTIONMAP_CUBIC");
-                                    break;
                                 case Texture.EXPLICIT_MODE:
                                     defines.setReflectionMode("REFLECTIONMAP_EXPLICIT");
                                     break;
@@ -626,7 +640,12 @@ module BABYLON {
                                 case Texture.FIXED_EQUIRECTANGULAR_MIRRORED_MODE:
                                     defines.setReflectionMode("REFLECTIONMAP_MIRROREDEQUIRECTANGULAR_FIXED");
                                     break;
-                            }
+                                case Texture.CUBIC_MODE:
+                                case Texture.INVCUBIC_MODE:
+                                default:
+                                        defines.setReflectionMode("REFLECTIONMAP_CUBIC");
+                                        break;
+                                }
 
                             defines.USE_LOCAL_REFLECTIONMAP_CUBIC = (<any>this._reflectionTexture).boundingBoxSize ? true : false;
                         }
@@ -718,12 +737,15 @@ module BABYLON {
                 defines.PREMULTIPLYALPHA = (this.alphaMode === Engine.ALPHA_PREMULTIPLIED || this.alphaMode === Engine.ALPHA_PREMULTIPLIED_PORTERDUFF);
             }
 
-            if (defines._areImageProcessingDirty) {
+            if (defines._areImageProcessingDirty && this._imageProcessingConfiguration) {
                 if (!this._imageProcessingConfiguration.isReady()) {
                     return false;
                 }
 
                 this._imageProcessingConfiguration.prepareDefines(defines);
+
+                defines.IS_REFLECTION_LINEAR = (this.reflectionTexture != null && !this.reflectionTexture.gammaSpace);
+                defines.IS_REFRACTION_LINEAR = (this.refractionTexture != null && !this.refractionTexture.gammaSpace);
             }
 
             if (defines._areFresnelDirty) {
@@ -863,15 +885,17 @@ module BABYLON {
                     "vClipPlane", "diffuseMatrix", "ambientMatrix", "opacityMatrix", "reflectionMatrix", "emissiveMatrix", "specularMatrix", "bumpMatrix", "normalMatrix", "lightmapMatrix", "refractionMatrix",
                     "diffuseLeftColor", "diffuseRightColor", "opacityParts", "reflectionLeftColor", "reflectionRightColor", "emissiveLeftColor", "emissiveRightColor", "refractionLeftColor", "refractionRightColor",
                     "vReflectionPosition", "vReflectionSize",
-                    "logarithmicDepthConstant", "vTangentSpaceParams"
+                    "logarithmicDepthConstant", "vTangentSpaceParams", "alphaCutOff"
                 ];
 
                 var samplers = ["diffuseSampler", "ambientSampler", "opacitySampler", "reflectionCubeSampler", "reflection2DSampler", "emissiveSampler", "specularSampler", "bumpSampler", "lightmapSampler", "refractionCubeSampler", "refraction2DSampler"]
 
                 var uniformBuffers = ["Material", "Scene"];
 
-                ImageProcessingConfiguration.PrepareUniforms(uniforms, defines);
-                ImageProcessingConfiguration.PrepareSamplers(samplers, defines);
+                if (ImageProcessingConfiguration) {
+                    ImageProcessingConfiguration.PrepareUniforms(uniforms, defines);
+                    ImageProcessingConfiguration.PrepareSamplers(samplers, defines);
+                }
 
                 MaterialHelper.PrepareUniformsAndSamplersList(<EffectCreationOptions>{
                     uniformsNames: uniforms,
@@ -955,12 +979,19 @@ module BABYLON {
 
         public unbind(): void {
             if (this._activeEffect) {
+                let needFlag = false;
                 if (this._reflectionTexture && this._reflectionTexture.isRenderTarget) {
                     this._activeEffect.setTexture("reflection2DSampler", null);
+                    needFlag = true;
                 }
 
                 if (this._refractionTexture && this._refractionTexture.isRenderTarget) {
                     this._activeEffect.setTexture("refraction2DSampler", null);
+                    needFlag = true;
+                }
+
+                if (needFlag) {
+                    this._markAllSubMeshesAsTexturesDirty();
                 }
             }
 
@@ -1034,6 +1065,10 @@ module BABYLON {
                         if (this._diffuseTexture && StandardMaterial.DiffuseTextureEnabled) {
                             this._uniformBuffer.updateFloat2("vDiffuseInfos", this._diffuseTexture.coordinatesIndex, this._diffuseTexture.level);
                             MaterialHelper.BindTextureMatrix(this._diffuseTexture, this._uniformBuffer, "diffuse");
+
+                            if (this._diffuseTexture.hasAlpha) {
+                                effect.setFloat("alphaCutOff", this.alphaCutOff);
+                            }
                         }
 
                         if (this._ambientTexture && StandardMaterial.AmbientTextureEnabled) {
@@ -1192,7 +1227,7 @@ module BABYLON {
                 MaterialHelper.BindLogDepth(defines, effect, scene);
 
                 // image processing
-                if (!this._imageProcessingConfiguration.applyByPostProcess) {
+                if (this._imageProcessingConfiguration && !this._imageProcessingConfiguration.applyByPostProcess) {
                     this._imageProcessingConfiguration.bind(this._activeEffect);
                 }
             }

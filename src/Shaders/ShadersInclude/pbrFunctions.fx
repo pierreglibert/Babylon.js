@@ -51,9 +51,11 @@ vec3 fresnelSchlickEnvironmentGGX(float VdotN, vec3 reflectance0, vec3 reflectan
 }
 
 // Cook Torance Specular computation.
-vec3 computeSpecularTerm(float NdotH, float NdotL, float NdotV, float VdotH, float roughness, vec3 reflectance0, vec3 reflectance90)
+vec3 computeSpecularTerm(float NdotH, float NdotL, float NdotV, float VdotH, float roughness, vec3 reflectance0, vec3 reflectance90, float geometricRoughnessFactor)
 {
+    roughness = max(roughness, geometricRoughnessFactor);
     float alphaG = convertRoughnessToAverageSlope(roughness);
+
     float distribution = normalDistributionFunction_TrowbridgeReitzGGX(NdotH, alphaG);
     float visibility = smithVisibilityG_TrowbridgeReitzGGX_Walter(NdotL, NdotV, alphaG);
     visibility /= (4.0 * NdotL * NdotV); // Cook Torance Denominator  integated in viibility to avoid issues when visibility function changes.
@@ -135,11 +137,9 @@ float environmentRadianceOcclusion(float ambientOcclusion, float NdotVUnclamped)
     return clamp(square(temp) - 1.0 + ambientOcclusion, 0.0, 1.0);
 }
 
-float environmentHorizonOcclusion(vec3 reflection, vec3 normal) {
-	// http://marmosetco.tumblr.com/post/81245981087
-#ifdef REFLECTIONMAP_OPPOSITEZ
-    reflection.z *= -1.0;
-#endif
+float environmentHorizonOcclusion(vec3 view, vec3 normal) {
+    // http://marmosetco.tumblr.com/post/81245981087
+    vec3 reflection = reflect(view, normal);
     float temp = clamp( 1.0 + 1.1 * dot(reflection, normal), 0.0, 1.0);
     return square(temp);
 }

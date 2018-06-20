@@ -26,26 +26,28 @@
         private _engine: Engine;
         private _meshes: Mesh[];
         private _totalVertices = 0;
-        private _indices: IndicesArray;
-        private _vertexBuffers: { [key: string]: VertexBuffer; };
+        /** @hidden */
+        public _indices: IndicesArray;
+        /** @hidden */
+        public _vertexBuffers: { [key: string]: VertexBuffer; };
         private _isDisposed = false;
         private _extend: { minimum: Vector3, maximum: Vector3 };
         private _boundingBias: Vector2;
-        /** @ignore */
+        /** @hidden */
         public _delayInfo: Array<string>;
         private _indexBuffer: Nullable<WebGLBuffer>;
         private _indexBufferIsUpdatable = false;
-        /** @ignore */
+        /** @hidden */
         public _boundingInfo: Nullable<BoundingInfo>;
-        /** @ignore */
+        /** @hidden */
         public _delayLoadingFunction: Nullable<(any: any, geometry: Geometry) => void>;
-        /** @ignore */
+        /** @hidden */
         public _softwareSkinningRenderId: number;
         private _vertexArrayObjects: { [key: string]: WebGLVertexArrayObject; };
         private _updatable: boolean;
 
         // Cache
-        /** @ignore */
+        /** @hidden */
         public _positions: Nullable<Vector3[]>;
 
         /**
@@ -65,7 +67,7 @@
 
             this._boundingBias = value.clone();
 
-            this.updateBoundingInfo(true, null);
+            this._updateBoundingInfo(true, null);
         }
 
         /**
@@ -116,7 +118,7 @@
             if (mesh) {
                 if (mesh.getClassName() === "LinesMesh") {
                     this.boundingBias = new Vector2(0, (<LinesMesh>mesh).intersectionThreshold);
-                    this.updateExtend();
+                    this._updateExtend();
                 }
 
                 this.applyToMesh(mesh);
@@ -168,7 +170,7 @@
             return true;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _rebuild(): void {
             if (this._vertexArrayObjects) {
                 this._vertexArrayObjects = {};
@@ -187,7 +189,7 @@
         }
 
         /**
-         * Affects all gemetry data in one call
+         * Affects all geometry data in one call
          * @param vertexData defines the geometry data
          * @param updatable defines if the geometry must be flagged as updatable (false as default)
          */
@@ -205,7 +207,6 @@
          */
         public setVerticesData(kind: string, data: FloatArray, updatable: boolean = false, stride?: number): void {
             var buffer = new VertexBuffer(this._engine, data, kind, updatable, this._meshes.length === 0, stride);
-
             this.setVerticesBuffer(buffer);
         }
 
@@ -223,8 +224,9 @@
         /**
          * Affect a vertex buffer to the geometry. the vertexBuffer.getKind() function is used to determine where to store the data
          * @param buffer defines the vertex buffer to use
+         * @param totalVertices defines the total number of vertices for position kind (could be null)
          */
-        public setVerticesBuffer(buffer: VertexBuffer): void {
+        public setVerticesBuffer(buffer: VertexBuffer, totalVertices: Nullable<number> = null): void {
             var kind = buffer.getKind();
             if (this._vertexBuffers[kind]) {
                 this._vertexBuffers[kind].dispose();
@@ -232,13 +234,17 @@
 
             this._vertexBuffers[kind] = buffer;
 
-            if (kind === VertexBuffer.PositionKind) {
+            if (kind === VertexBuffer.PositionKind) {                
                 var data = <FloatArray>buffer.getData();
-                var stride = buffer.getStrideSize();
+                if (totalVertices != null) {
+                    this._totalVertices = totalVertices;
+                } else {
+                    if (data != null) {
+                        this._totalVertices = data.length / (buffer.byteStride / 4);
+                    }
+                }
 
-                this._totalVertices = data.length / stride;
-
-                this.updateExtend(data, stride);
+                this._updateExtend(data);
                 this._resetPointsArrayCache();
 
                 var meshes = this._meshes;
@@ -267,15 +273,16 @@
          * @param kind defines the data kind (Position, normal, etc...)
          * @param data defines the data to use 
          * @param offset defines the offset in the target buffer where to store the data
+         * @param useBytes set to true if the offset is in bytes
          */
-        public updateVerticesDataDirectly(kind: string, data: Float32Array, offset: number): void {
+        public updateVerticesDataDirectly(kind: string, data: DataArray, offset: number, useBytes: boolean = false): void {
             var vertexBuffer = this.getVertexBuffer(kind);
 
             if (!vertexBuffer) {
                 return;
             }
 
-            vertexBuffer.updateDirectly(data, offset);
+            vertexBuffer.updateDirectly(data, offset, useBytes);
             this.notifyUpdate(kind);
         }
 
@@ -285,7 +292,7 @@
          * @param kind defines the data kind (Position, normal, etc...)
          * @param data defines the data to use 
          * @param updateExtends defines if the geometry extends must be recomputed (false by default)
-         */        
+         */
         public updateVerticesData(kind: string, data: FloatArray, updateExtends: boolean = false): void {
             var vertexBuffer = this.getVertexBuffer(kind);
 
@@ -296,18 +303,14 @@
             vertexBuffer.update(data);
 
             if (kind === VertexBuffer.PositionKind) {
-
-                var stride = vertexBuffer.getStrideSize();
-                this._totalVertices = data.length / stride;
-
-                this.updateBoundingInfo(updateExtends, data);
+                this._updateBoundingInfo(updateExtends, data);
             }
             this.notifyUpdate(kind);
         }
 
-        private updateBoundingInfo(updateExtends: boolean, data: Nullable<FloatArray>) {
+        private _updateBoundingInfo(updateExtends: boolean, data: Nullable<FloatArray>) {
             if (updateExtends) {
-                this.updateExtend(data);
+                this._updateExtend(data);
             }
 
             var meshes = this._meshes;
@@ -328,7 +331,7 @@
             }
         }
 
-        /** @ignore */
+        /** @hidden */
         public _bind(effect: Nullable<Effect>, indexToBind?: Nullable<WebGLBuffer>): void {
             if (!effect) {
                 return;
@@ -369,28 +372,52 @@
         }
 
         /**
-         * Gets a specific vertex data attached to this geometry
+         * Gets a specific vertex data attached to this geometry. Float data is constructed if the vertex buffer data cannot be returned directly.
          * @param kind defines the data kind (Position, normal, etc...)
          * @param copyWhenShared defines if the returned array must be cloned upon returning it if the current geometry is shared between multiple meshes
          * @param forceCopy defines a boolean indicating that the returned array must be cloned upon returning it
          * @returns a float array containing vertex data
          */
         public getVerticesData(kind: string, copyWhenShared?: boolean, forceCopy?: boolean): Nullable<FloatArray> {
-            var vertexBuffer = this.getVertexBuffer(kind);
+            const vertexBuffer = this.getVertexBuffer(kind);
             if (!vertexBuffer) {
                 return null;
             }
-            var orig = <FloatArray>vertexBuffer.getData();
-            if (!forceCopy && (!copyWhenShared || this._meshes.length === 1)) {
-                return orig;
-            } else {
-                var len = orig.length;
-                var copy = [];
-                for (var i = 0; i < len; i++) {
-                    copy.push(orig[i]);
-                }
+
+            let data = vertexBuffer.getData();
+            if (!data) {
+                 return null;
+            }
+
+            const tightlyPackedByteStride = vertexBuffer.getSize() * VertexBuffer.GetTypeByteLength(vertexBuffer.type);
+            const count = this._totalVertices * vertexBuffer.getSize();
+
+            if (vertexBuffer.type !== VertexBuffer.FLOAT || vertexBuffer.byteStride !== tightlyPackedByteStride) {
+                const copy = new Array<number>(count);
+                vertexBuffer.forEach(count, (value, index) => {
+                    copy[index] = value;
+                });
                 return copy;
             }
+
+            if (!((data instanceof Array) || (data instanceof Float32Array)) || vertexBuffer.byteOffset !== 0 || data.length !== count) {
+                if (data instanceof Array) {
+                    const offset = vertexBuffer.byteOffset / 4;
+                    return Tools.Slice(data, offset, offset + count);
+                }
+                else if (data instanceof ArrayBuffer) {
+                    return new Float32Array(data, vertexBuffer.byteOffset, count);
+                }
+                else {
+                    return new Float32Array(data.buffer, data.byteOffset + vertexBuffer.byteOffset, count);
+                }
+            }
+
+            if (forceCopy || (copyWhenShared && this._meshes.length !== 1)) {
+                return Tools.Slice(data);
+            }
+
+            return data;
         }
 
         /**
@@ -559,7 +586,7 @@
             return this._indexBuffer;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _releaseVertexArrayObject(effect: Nullable<Effect> = null) {
             if (!effect || !this._vertexArrayObjects) {
                 return;
@@ -624,12 +651,12 @@
             }
         }
 
-        private updateExtend(data: Nullable<FloatArray> = null, stride?: number) {
+        private _updateExtend(data: Nullable<FloatArray> = null) {
             if (!data) {
-                data = <FloatArray>this._vertexBuffers[VertexBuffer.PositionKind].getData();
+                data = this.getVerticesData(VertexBuffer.PositionKind)!;
             }
 
-            this._extend = Tools.ExtractMinAndMax(data, 0, this._totalVertices, this.boundingBias, stride);
+            this._extend = Tools.ExtractMinAndMax(data, 0, this._totalVertices, this.boundingBias, 3);
         }
 
         private _applyToMesh(mesh: Mesh): void {
@@ -646,7 +673,7 @@
 
                 if (kind === VertexBuffer.PositionKind) {
                     if (!this._extend) {
-                        this.updateExtend(this._vertexBuffers[kind].getData());
+                        this._updateExtend();
                     }
                     mesh._boundingInfo = new BoundingInfo(this._extend.minimum, this._extend.maximum);
 
@@ -764,23 +791,23 @@
         }
 
         // Cache
-        /** @ignore */
+        /** @hidden */
         public _resetPointsArrayCache(): void {
             this._positions = null;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _generatePointsArray(): boolean {
             if (this._positions)
                 return true;
 
-            this._positions = [];
-
             var data = this.getVerticesData(VertexBuffer.PositionKind);
 
-            if (!data) {
+            if (!data || data.length === 0) {
                 return false;
             }
+
+            this._positions = [];
 
             for (var index = 0; index < data.length; index += 3) {
                 this._positions.push(Vector3.FromArray(data, index));
@@ -1050,7 +1077,7 @@
             return Tools.RandomId();
         }
 
-        /** @ignore */
+        /** @hidden */
         public static _ImportGeometry(parsedGeometry: any, mesh: Mesh): void {
             var scene = mesh.getScene();
 
@@ -1407,6 +1434,7 @@
     /// Abstract class
     /**
      * Abstract class used to provide common services for all typed geometries
+     * @hidden
      */
     export class _PrimitiveGeometry extends Geometry {
 
@@ -1471,7 +1499,7 @@
         }
 
         // to override
-        /** @ignore */
+        /** @hidden */
         public _regenerateVertexData(): VertexData {
             throw new Error("Abstract method");
         }
@@ -1534,7 +1562,7 @@
             super(id, scene, canBeRegenerated, mesh);
         }
 
-        /** @ignore */
+        /** @hidden */
         public _regenerateVertexData(): VertexData {
             return VertexData.CreateRibbon({ pathArray: this.pathArray, closeArray: this.closeArray, closePath: this.closePath, offset: this.offset, sideOrientation: this.side });
         }

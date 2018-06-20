@@ -57,8 +57,13 @@ interface WebGLRenderingContext {
     R32F: number;
     RG32F: number;
     RGB32F: number;
+    R16F: number;
+    RG16F: number;
+    RGB16F: number;
     RED: number;
     RG: number;
+    R8: number;
+    RG8: number;
 
     UNSIGNED_INT_24_8: number;
     DEPTH24_STENCIL8: number;
@@ -122,7 +127,6 @@ interface MouseEvent {
 }
 
 interface Navigator {
-    getVRDisplays: () => any;
     mozGetVRDevices: (any: any) => any;
     webkitGetUserMedia(constraints: MediaStreamConstraints, successCallback: NavigatorUserMediaSuccessCallback, errorCallback: NavigatorUserMediaErrorCallback): void;
     mozGetUserMedia(constraints: MediaStreamConstraints, successCallback: NavigatorUserMediaSuccessCallback, errorCallback: NavigatorUserMediaErrorCallback): void;
@@ -145,17 +149,6 @@ interface Screen {
 interface Math {
     fround(x: number): number;
     imul(a: number, b: number): number;
-}
-
-interface GamepadPose {
-    hasOrientation: boolean;
-    hasPosition: boolean;
-    position?: Float32Array;
-    linearVelocity?: Float32Array;
-    linearAcceleration?: Float32Array;
-    orientation?: Float32Array;
-    angularVelocity?: Float32Array;
-    angularAcceleration?: Float32Array;
 }
 
 interface EXT_disjoint_timer_query {

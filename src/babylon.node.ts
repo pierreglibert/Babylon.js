@@ -3,7 +3,7 @@
     /**
      * Node is the basic class for all scene objects (Mesh, Light Camera).
      */
-    export class Node {
+    export class Node implements IBehaviorAware<Node> {
         /**
          * Gets or sets the name of the node
          */
@@ -39,11 +39,11 @@
          */
         public doNotSerialize = false;
         
-        /** @ignore */
+        /** @hidden */
         public _isDisposed = false;        
 
         /**
-         * Gets a list of {BABYLON.Animation} associated with the node
+         * Gets a list of Animations associated with the node
          */
         public animations = new Array<Animation>();
         private _ranges: { [name: string]: Nullable<AnimationRange> } = {};
@@ -55,15 +55,16 @@
 
         private _isEnabled = true;
         private _isReady = true;
-        /** @ignore */
+        /** @hidden */
         public _currentRenderId = -1;
         private _parentRenderId = -1;
+        protected _childRenderId = -1;
 
-        /** @ignore */
+        /** @hidden */
         public _waitingParentId: Nullable<string>;
 
         private _scene: Scene;
-        /** @ignore */
+        /** @hidden */
         public _cache: any;
 
         private _parentNode: Nullable<Node>;
@@ -108,6 +109,22 @@
         public get parent(): Nullable<Node> {
             return this._parentNode;
         }
+        
+        private _animationPropertiesOverride: Nullable<AnimationPropertiesOverride> = null;
+
+        /**
+         * Gets or sets the animation properties override
+         */
+        public get animationPropertiesOverride(): Nullable<AnimationPropertiesOverride> {
+            if (!this._animationPropertiesOverride) {
+                return this._scene.animationPropertiesOverride;
+            }
+            return this._animationPropertiesOverride;
+        }
+
+        public set animationPropertiesOverride(value: Nullable<AnimationPropertiesOverride>) {
+            this._animationPropertiesOverride = value;
+        }
 
         /**
          * Gets a string idenfifying the name of the class
@@ -119,7 +136,6 @@
 
         /**
         * An event triggered when the mesh is disposed
-        * @type {BABYLON.Observable}
         */
         public onDisposeObservable = new Observable<Node>();
 
@@ -182,12 +198,8 @@
             behavior.init();
             if (this._scene.isLoading) {
                 // We defer the attach when the scene will be loaded
-                var observer = this._scene.onDataLoadedObservable.add(() => {
+                this._scene.onDataLoadedObservable.addOnce(() => {
                     behavior.attach(this);
-                    setTimeout(() => {
-                        // Need to use a timeout to avoid removing an observer while iterating the list of observers
-                        this._scene.onDataLoadedObservable.remove(observer);
-                    }, 0);
                 });
             } else {
                 behavior.attach(this);
@@ -248,15 +260,20 @@
             return Matrix.Identity();
         }
 
+        /** @hidden */
+        public _getWorldMatrixDeterminant(): number {
+            return 1;
+        }
+
         // override it in derived class if you add new variables to the cache
         // and call the parent class method
-        /** @ignore */
+        /** @hidden */
         public _initCache() {
             this._cache = {};
             this._cache.parent = undefined;
         }
 
-        /** @ignore */
+        /** @hidden */
         public updateCache(force?: boolean): void {
             if (!force && this.isSynchronized())
                 return;
@@ -268,37 +285,37 @@
 
         // override it in derived class if you add new variables to the cache
         // and call the parent class method if !ignoreParentClass
-        /** @ignore */
+        /** @hidden */
         public _updateCache(ignoreParentClass?: boolean): void {
         }
 
         // override it in derived class if you add new variables to the cache
-        /** @ignore */
+        /** @hidden */
         public _isSynchronized(): boolean {
             return true;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _markSyncedWithParent() {
             if (this.parent) {
-                this._parentRenderId = this.parent._currentRenderId;
+                this._parentRenderId = this.parent._childRenderId;
             }
         }
 
-        /** @ignore */
+        /** @hidden */
         public isSynchronizedWithParent(): boolean {
             if (!this.parent) {
                 return true;
             }
 
-            if (this._parentRenderId !== this.parent._currentRenderId) {
+            if (this._parentRenderId !== this.parent._childRenderId) {
                 return false;
             }
 
             return this.parent.isSynchronized();
         }
 
-        /** @ignore */
+        /** @hidden */
         public isSynchronized(updateCache?: boolean): boolean {
             var check = this.hasNewParent();
 
@@ -312,7 +329,7 @@
             return !check;
         }
 
-        /** @ignore */
+        /** @hidden */
         public hasNewParent(update?: boolean): boolean {
             if (this._cache.parent === this.parent)
                 return false;
@@ -337,7 +354,6 @@
          * If the node has a parent, all ancestors will be checked and false will be returned if any are false (not enabled), otherwise will return true
          * @param checkAncestors indicates if this method should check the ancestors. The default is to check the ancestors. If set to false, the method will return the value of this node without checking ancestors
          * @return whether this node (and its parent) is enabled
-         * @see setEnabled
          */
         public isEnabled(checkAncestors: boolean = true): boolean {
             if (checkAncestors === false) {
@@ -358,7 +374,6 @@
         /**
          * Set the enabled state of this node
          * @param value defines the new enabled state
-         * @see isEnabled
          */
         public setEnabled(value: boolean): void {
             this._isEnabled = value;
@@ -368,7 +383,6 @@
          * Is this node a descendant of the given node?
          * The function will iterate up the hierarchy until the ancestor was found or no more parents defined
          * @param ancestor defines the parent node to inspect
-         * @see parent
          * @returns a boolean indicating if this node is a descendant of the given node
          */
         public isDescendantOf(ancestor: Node): boolean {
@@ -382,7 +396,7 @@
             return false;
         }
 
-        /** @ignore */
+        /** @hidden */
         public _getDescendants(results: Node[], directDescendantsOnly: boolean = false, predicate?: (node: Node) => boolean): void {
             if (!this._children) {
                 return;
@@ -452,7 +466,7 @@
             return this.getDescendants(true, predicate);
         }
 
-        /** @ignore */
+        /** @hidden */
         public _setReady(state: boolean): void {
             if (state === this._isReady) {
                 return;
@@ -463,10 +477,10 @@
                 return;
             }
 
-            this._isReady = true;
             if (this.onReady) {
                 this.onReady(this);
             }
+            this._isReady = true;
         }
 
         /**
@@ -575,9 +589,24 @@
         }
 
         /**
-         * Releases all associated resources
+         * Releases resources associated with this node.
+         * @param doNotRecurse Set to true to not recurse into each children (recurse into each children by default)
+         * @param disposeMaterialAndTextures Set to true to also dispose referenced materials and textures (false by default)
          */
-        public dispose(): void {
+        public dispose(doNotRecurse?: boolean, disposeMaterialAndTextures = false): void {
+            if (!doNotRecurse) {
+                const nodes = this.getDescendants(true);
+                for (const node of nodes) {
+                    node.dispose(doNotRecurse, disposeMaterialAndTextures);
+                }
+            } else {
+                const transformNodes = this.getChildTransformNodes(true);
+                for (const transformNode of transformNodes) {
+                    transformNode.parent = null;
+                    transformNode.computeWorldMatrix(true);
+                }
+            }
+
             this.parent = null;
 
             // Callback
@@ -590,7 +619,7 @@
             }
 
             this._behaviors = [];
-            this._isDisposed = true;            
+            this._isDisposed = true;
         }
 
         /**

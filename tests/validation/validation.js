@@ -124,16 +124,20 @@ function evaluate(test, resultCanvas, result, renderImage, index, waitRing, done
     renderImage.src = renderB64;
 
     currentScene.dispose();
+    currentScene = null;
     engine.setHardwareScalingLevel(1);
 
     done(testRes, renderB64);
 }
 
 function processCurrentScene(test, resultCanvas, result, renderImage, index, waitRing, done) {
+    currentScene.useConstantAnimationDeltaTime = true;
+    var renderCount = test.renderCount || 1;
+   
     currentScene.executeWhenReady(function () {
-        var renderCount = test.renderCount || 1;
-
-        currentScene.useConstantAnimationDeltaTime = true;
+        if (currentScene.activeCamera && currentScene.activeCamera.useAutoRotationBehavior) {
+            currentScene.activeCamera.useAutoRotationBehavior = false;
+        }
         engine.runRenderLoop(function () {
             try {
                 currentScene.render();
@@ -217,6 +221,12 @@ function runTest(index, done) {
             });
     }
     else if (test.playgroundId) {
+        if (test.playgroundId[0] !== "#" || test.playgroundId.indexOf("#", 1) === -1) {
+            console.error("Invalid playground id");
+            done(false);
+            return;
+        }
+
         var snippetUrl = "//babylonjs-api2.azurewebsites.net/snippets";
         var pgRoot = "/Playground"
         var xmlHttp = new XMLHttpRequest();
@@ -302,13 +312,31 @@ function runTest(index, done) {
     }
 }
 
-BABYLON.SceneLoader.ShowLoadingScreen = false;
-BABYLON.Database.IDBStorageEnabled = false;
-BABYLON.SceneLoader.ForceFullSceneLoadingForIncremental = true;
-BABYLON.DracoCompression.DecoderUrl = BABYLON.Tools.GetFolderPath(document.location.href) + "../../dist/preview%20release/draco_decoder.js";
+function init() {
+    BABYLON.SceneLoader.ShowLoadingScreen = false;
+    BABYLON.SceneLoader.ForceFullSceneLoadingForIncremental = true;
 
-canvas = document.createElement("canvas");
-canvas.className = "renderCanvas";
-document.body.appendChild(canvas);
-engine = new BABYLON.Engine(canvas, false);
-engine.setDitheringState(false);
+    // Draco configuration
+    BABYLON.DracoCompression.Configuration.decoder = {
+        wasmUrl: "../../dist/preview%20release/draco_wasm_wrapper_gltf.js",
+        wasmBinaryUrl: "../../dist/preview%20release/draco_decoder_gltf.wasm",
+        fallbackUrl: "../../dist/preview%20release/draco_decoder_gltf.js"
+    };
+
+    canvas = document.createElement("canvas");
+    canvas.className = "renderCanvas";
+    document.body.appendChild(canvas);
+    engine = new BABYLON.Engine(canvas, false);
+    engine.enableOfflineSupport = false;
+    engine.setDitheringState(false);
+}
+
+function dispose() {
+    engine.dispose();
+    currentScene = null;
+    engine = null;
+    document.body.removeChild(canvas);
+    canvas = null;
+}
+
+init();

@@ -53,10 +53,69 @@
         '.navbar .select .toDisplayBig a',
         '.navbar .select .toDisplayBig ul li',
         '.navbarBottom',
-        '.navbarBottom .links .link',
-        '.save-message'];
+        '.navbarBottom .links .link'];
 
     var run = function () {
+
+        // #region - Examples playgrounds
+        var examplesButton = document.getElementsByClassName("examplesButton");
+        var isExamplesDisplayed = false;
+        for(var i = 0; i < examplesButton.length; i++) {
+           examplesButton[i].parentElement.onclick = function () {
+            isExamplesDisplayed = !isExamplesDisplayed;
+            if (isExamplesDisplayed) {
+                document.getElementById("exampleList").style.display = "block";
+                document.getElementsByClassName("wrapper")[0].style.width = "calc(100% - 400px)";
+            }
+            else {
+                document.getElementById("exampleList").style.display = "none";
+                document.getElementsByClassName("wrapper")[0].style.width = "100%";
+            }
+        } 
+        }
+        
+
+        var filterBarClear = document.getElementById("filterBarClear");
+        var filterBar = document.getElementById("filterBar");
+        var filter = function () {
+            var filterText = filterBar.value.toLowerCase();
+            if (filterText == "") filterBarClear.style.display = "none";
+            else filterBarClear.style.display = "inline-block";
+
+            var lines = document.getElementsByClassName("itemLine");
+            for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+                var line = lines[lineIndex];
+                if (line.innerText.toLowerCase().indexOf(filterText) > -1) {
+                    line.style.display = "";
+                } else {
+                    line.style.display = "none";
+                }
+            }
+
+            var categories = document.getElementsByClassName("categoryContainer");
+            var displayCount = categories.length;
+
+            for (var categoryIndex = 0; categoryIndex < categories.length; categoryIndex++) {
+                var category = categories[categoryIndex];
+                category.style.display = "block";
+                if (category.clientHeight < 25) {
+                    category.style.display = "none";
+                    displayCount--;
+                }
+            }
+
+            if (displayCount == 0) document.getElementById("noResultsContainer").style.display = "block";
+            else document.getElementById("noResultsContainer").style.display = "none";
+        }
+        filterBar.oninput = function () {
+            filter();
+        }
+        filterBarClear.onclick = function () {
+            filterBar.value = "";
+            filter();
+        }
+        // #endregion
+
         var blockEditorChange = false;
 
         var markDirty = function () {
@@ -64,11 +123,9 @@
                 return;
             }
 
-
-            setToMultipleID("currentScript", "innerHTML", "Custom");
+            // setToMultipleID("currentScript", "innerHTML", "Custom");
             setToMultipleID("safemodeToggle", "addClass", "checked");
             setToMultipleID("minimapToggle", "addClass", "checked");
-
             setToMultipleID('safemodeToggle', 'innerHTML', 'Safe mode <i class="fa fa-check-square" aria-hidden="true"></i>');
         }
 
@@ -108,7 +165,7 @@
                         blockEditorChange = false;
                         compileAndRun();
 
-                        setToMultipleID("currentScript", "innerHTML", title);
+                        // setToMultipleID("currentScript", "innerHTML", title);
 
                         currentSnippetToken = null;
                     }
@@ -134,32 +191,88 @@
         var loadScriptsList = function () {
             var xhr = new XMLHttpRequest();
 
-            xhr.open('GET', 'scripts/scripts.txt', true);
+            xhr.open('GET', 'https://raw.githubusercontent.com/BabylonJS/Documentation/master/examples/list.json', true);
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        scripts = xhr.responseText.split("\n");
+                        scripts = JSON.parse(xhr.response)["examples"];
 
-                        for (var i = 0; i < multipleSize.length; i++) {
-                            var ul = document.getElementById("scriptsList" + multipleSize[i]);
-
-                            var index;
-                            for (index = 0; index < scripts.length; index++) {
-                                var option = document.createElement("li");
-                                var a = document.createElement("a");
-                                a.href = "#";
-                                a.innerHTML = (index + 1) + " - " + scripts[index];
-                                a.scriptLinkIndex = index + 1;
-                                //a.onclick = onScriptClick;
-                                option.scriptLinkIndex = index + 1;
-                                option.onclick = onScriptClick;
-
-                                option.appendChild(a);
-
-                                ul.appendChild(option);
-                            }
+                        function sortScriptsList(a, b) {
+                            if (a.title < b.title) return -1;
+                            else return 1;
+                            return 0;
                         }
+                        scripts.sort(sortScriptsList);
+
+                        var exampleList = document.getElementById("exampleList");
+
+                        for (var i = 0; i < scripts.length; i++) {
+                            scripts[i].samples.sort(sortScriptsList);
+
+                            var exampleCategory = document.createElement("div");
+                            exampleCategory.classList.add("categoryContainer");
+
+                            var exampleCategoryTitle = document.createElement("p");
+                            exampleCategoryTitle.innerText = scripts[i].title;
+                            exampleCategory.appendChild(exampleCategoryTitle);
+
+                            for (var ii = 0; ii < scripts[i].samples.length; ii++) {
+                                var example = document.createElement("div");
+                                example.classList.add("itemLine");
+                                example.id = ii;
+
+                                var exampleImg = document.createElement("img");
+                                exampleImg.src = scripts[i].samples[ii].icon.replace("icons", "https://doc.babylonjs.com/examples/icons");
+                                exampleImg.setAttribute("onClick", "document.getElementById('PGLink_" + scripts[i].samples[ii].PGID + "').click();");
+
+                                var exampleContent = document.createElement("div");
+                                exampleContent.classList.add("itemContent");
+                                exampleContent.setAttribute("onClick", "document.getElementById('PGLink_" + scripts[i].samples[ii].PGID + "').click();");
+
+                                var exampleContentLink = document.createElement("div");
+                                exampleContentLink.classList.add("itemContentLink");
+
+                                var exampleTitle = document.createElement("h3");
+                                exampleTitle.classList.add("exampleCategoryTitle");
+                                exampleTitle.innerText = scripts[i].samples[ii].title;
+                                var exampleDescr = document.createElement("div");
+                                exampleDescr.classList.add("itemLineChild");
+                                exampleDescr.innerText = scripts[i].samples[ii].description;
+
+                                var exampleDocLink = document.createElement("a");
+                                exampleDocLink.classList.add("itemLineDocLink");
+                                exampleDocLink.innerText = "Documentation";
+                                exampleDocLink.href = scripts[i].samples[ii].doc;
+                                exampleDocLink.target = "_blank";
+
+                                var examplePGLink = document.createElement("a");
+                                examplePGLink.id = "PGLink_" + scripts[i].samples[ii].PGID;
+                                examplePGLink.classList.add("itemLinePGLink");
+                                examplePGLink.innerText = "Display";
+                                examplePGLink.href = scripts[i].samples[ii].PGID;
+
+                                exampleContentLink.appendChild(exampleTitle);
+                                exampleContentLink.appendChild(exampleDescr);
+                                exampleContent.appendChild(exampleContentLink);
+                                exampleContent.appendChild(exampleDocLink);
+                                exampleContent.appendChild(examplePGLink);
+
+                                example.appendChild(exampleImg);
+                                example.appendChild(exampleContent);
+
+                                exampleCategory.appendChild(example);
+                            }
+
+                            exampleList.appendChild(exampleCategory);
+                        }
+
+                        var noResultContainer = document.createElement("div");
+                        noResultContainer.id = "noResultsContainer";
+                        noResultContainer.classList.add("categoryContainer");
+                        noResultContainer.style.display = "none";
+                        noResultContainer.innerHTML = "<p id='noResults'>No results found.</p>";
+                        exampleList.appendChild(noResultContainer);
 
                         if (!location.hash) {
                             // Query string
@@ -169,7 +282,47 @@
                                 var query = queryString.replace("?", "");
                                 index = parseInt(query);
                                 if (!isNaN(index)) {
-                                    loadScriptFromIndex(index);
+                                    // Old examples
+                                    //loadScriptFromIndex(index);
+                                    var newPG = "";
+                                    switch(index) {
+                                        case 1 : newPG = "#TAZ2CB#0"; break; // Basic scene
+                                        case 2 : newPG = "#A1210C#0"; break; // Basic elements
+                                        case 3 : newPG = "#CURCZC#0"; break; // Rotation and scaling
+                                        case 4 : newPG = "#DXARSP#0"; break; // Materials
+                                        case 5 : newPG = "#1A3M5C#0"; break; // Cameras
+                                        case 6 : newPG = "#AQRDKW#0"; break; // Lights
+                                        case 7 : newPG = "#QYFDDP#1"; break; // Animations
+                                        case 8 : newPG = "#9RI8CG#0"; break; // Sprites
+                                        case 9 : newPG = "#U8MEB0#0"; break; // Collisions
+                                        case 10 : newPG = "#KQV9SA#0"; break; // Intersections
+                                        case 11 : newPG = "#NU4F6Y#0"; break; // Picking
+                                        case 12 : newPG = "#EF9X5R#0"; break; // Particles
+                                        case 13 : newPG = "#7G0IQW#0"; break; // Environment
+                                        case 14 : newPG = "#95PXRY#0"; break; // Height map
+                                        case 15 : newPG = "#IFYDRS#0"; break; // Shadows
+                                        case 16 : newPG = "#AQZJ4C#0"; break; // Import meshes
+                                        case 17 : newPG = "#J19GYK#0"; break; // Actions
+                                        case 18 : newPG = "#UZ23UH#0"; break; // Drag and drop
+                                        case 19 : newPG = "#AQZJ4C#0"; break; // Fresnel
+                                        case 20 : newPG = "#8ZNVGR#0"; break; // Easing functions
+                                        case 21 : newPG = "#B2ZXG6#0"; break; // Procedural texture
+                                        case 22 : newPG = "#DXAEUY#0"; break; // Basic sounds
+                                        case 23 : newPG = "#EDVU95#0"; break; // Sound on mesh
+                                        case 24 : newPG = "#N96NXC#0"; break; // SSAO rendering pipeline
+                                        case 25 : newPG = "#7D2QDD#0"; break; // SSAO 2
+                                        case 26 : newPG = "#V2DAKC#0"; break; // Volumetric light scattering
+                                        case 27 : newPG = "#XH85A9#0"; break; // Refraction and reflection
+                                        case 28 : newPG = "#8MGKWK#0"; break; // PBR
+                                        case 29 : newPG = "#0K8EYN#0"; break; // Instanced bones
+                                        case 30 : newPG = "#C245A1#0"; break; // Pointer events handling
+                                        case 31 : newPG = "#TAFSN0#2"; break; // WebVR
+                                        case 32 : newPG = "#3VMTI9#0"; break; // GUI
+                                        case 33 : newPG = "#7149G4#0"; break; // Physics
+                                        
+                                        default: newPG = ""; break;
+                                    }
+                                    window.location.href = location.protocol + "//" + location.host + location.pathname + "#" + newPG;
                                 } else if (query.indexOf("=") === -1) {
                                     loadScript("scripts/" + query + ".js", query);
                                 } else {
@@ -211,7 +364,7 @@
             currentSnippetDescription = null;
             currentSnippetTags = null;
             showNoMetadata();
-            jsEditor.setValue('// You have to create a function called createScene. This function must return a BABYLON.Scene object\r\n// You can reference the following variables: scene, canvas\r\n// You must at least define a camera\r\n// More info here: https://doc.babylonjs.com/generals/The_Playground_Tutorial\r\n\r\nvar createScene = function() {\r\n\tvar scene = new BABYLON.Scene(engine);\r\n\tvar camera = new BABYLON.ArcRotateCamera("Camera", 0, Math.PI / 2, 12, BABYLON.Vector3.Zero(), scene);\r\n\tcamera.attachControl(canvas, true);\r\n\r\n\r\n\r\n\treturn scene;\r\n};');
+            jsEditor.setValue('// You have to create a function called createScene. This function must return a BABYLON.Scene object\r\n// You can reference the following variables: scene, canvas\r\n// You must at least define a camera\r\n// More info here: https://doc.babylonjs.com/generals/The_Playground_Tutorial\r\n\r\nvar createScene = function() {\r\n\tvar scene = new BABYLON.Scene(engine);\r\n\tvar camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 12, BABYLON.Vector3.Zero(), scene);\r\n\tcamera.attachControl(canvas, true);\r\n\r\n\r\n\r\n\treturn scene;\r\n};');
             jsEditor.setPosition({ lineNumber: 11, column: 0 });
             jsEditor.focus();
             compileAndRun();
@@ -297,17 +450,14 @@
             }
             document.getElementById("saveFormButtons").style.display = "block";
             document.getElementById("saveFormButtonOk").style.display = "inline-block";
-            document.getElementById("saveMessage").style.display = "block";
         };
         showNoMetadata();
-        document.getElementById("saveMessage").style.display = "none";
 
         var hideNoMetadata = function () {
             document.getElementById("saveFormTitle").readOnly = true;
             document.getElementById("saveFormDescription").readOnly = true;
             document.getElementById("saveFormTags").readOnly = true;
             document.getElementById("saveFormButtonOk").style.display = "none";
-            document.getElementById("saveMessage").style.display = "none";
             setToMultipleID("metadataButton", "display", "inline-block");
         };
 
@@ -462,6 +612,8 @@
 
             } catch (e) {
                 showError(e.message, e);
+                // Also log error in console to help debug playgrounds
+                console.error(e);
             }
         };
         window.addEventListener("resize",
@@ -476,6 +628,11 @@
 
         // Zip
         var addContentToZip = function (zip, name, url, replace, buffer, then) {
+            if (url.substring(0, 5) == "http:" || url.substring(0, 5) == "blob:" || url.substring(0, 6) == "https:") {
+                then();
+                return;
+            }
+
             var xhr = new XMLHttpRequest();
 
             xhr.open('GET', url, true);
@@ -753,11 +910,11 @@
 
             if (debugButton.classList.contains('uncheck')) {
                 setToMultipleID("debugButton", "removeClass", 'uncheck');
-                setToMultipleID("debugButton", "innerHTML", 'Debug layer<i class="fa fa-check-square" aria-hidden="true"></i>');
+                setToMultipleID("debugButton", "innerHTML", 'Inspector<i class="fa fa-check-square" aria-hidden="true"></i>');
                 scene.debugLayer.show();
             } else {
                 setToMultipleID("debugButton", "addClass", 'uncheck');
-                setToMultipleID("debugButton", "innerHTML", 'Debug layer<i class="fa fa-square-o" aria-hidden="true"></i>');
+                setToMultipleID("debugButton", "innerHTML", 'Inspector<i class="fa fa-square-o" aria-hidden="true"></i>');
                 scene.debugLayer.hide();
             }
         }
@@ -864,9 +1021,6 @@
         document.getElementById("saveFormButtonCancel").addEventListener("click", function () {
             document.getElementById("saveLayer").style.display = "none";
         });
-        document.getElementById("saveMessage").addEventListener("click", function () {
-            document.getElementById("saveMessage").style.display = "none";
-        });
         document.getElementById("mainTitle").innerHTML = "v" + BABYLON.Engine.Version;
 
         var previousHash = "";
@@ -932,7 +1086,7 @@
                                     blockEditorChange = false;
                                     compileAndRun();
 
-                                    setToMultipleID("currentScript", "innerHTML", "Custom");
+                                    // setToMultipleID("currentScript", "innerHTML", "Custom");
                                 } else if (firstTime) {
                                     location.href = location.href.replace(location.hash, "");
                                     if (scripts) {

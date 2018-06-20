@@ -33,6 +33,7 @@
         private _capacity: number;
         private _activeCount: number;
         private _currentActiveCount: number;
+        private _accumulatedCount = 0;
         private _renderEffect: Effect;
         private _updateEffect: Effect;
 
@@ -56,8 +57,9 @@
         private _timeDelta = 0;
 
         private _randomTexture: RawTexture;
+        private _randomTexture2: RawTexture;
 
-        private readonly _attributesStrideSize = 14;
+        private _attributesStrideSize = 21;
         private _updateEffectOptions: EffectCreationOptions;
 
         private _randomTextureSize: number;
@@ -119,7 +121,25 @@
         /**
          * Maximum Size of emitting particles.
          */
-        public maxSize = 1;        
+        public maxSize = 1;  
+        
+        /**
+         * Minimum scale of emitting particles on X axis.
+         */
+        public minScaleX = 1;
+        /**
+         * Maximum scale of emitting particles on X axis.
+         */
+        public maxScaleX = 1;        
+
+        /**
+         * Minimum scale of emitting particles on Y axis.
+         */
+        public minScaleY = 1;
+        /**
+         * Maximum scale of emitting particles on Y axis.
+         */
+        public maxScaleY = 1;           
         
         /**
          * Random color of each particle after it has been emitted, between color1 and color2 vectors.
@@ -153,6 +173,15 @@
          * Maximum power of emitting particles.
          */
         public maxEmitPower = 1;        
+
+        /**
+         * Minimum angular speed of emitting particles (Z-axis rotation for each particle).
+         */
+        public minAngularSpeed = 0;
+        /**
+         * Maximum angular speed of emitting particles (Z-axis rotation for each particle).
+         */
+        public maxAngularSpeed = 0;
 
         /**
          * The particle emitter type defines the emitter used by the particle system.
@@ -241,6 +270,12 @@
         }
 
         /**
+         * Forces the particle to write their depth information to the depth buffer. This can help preventing other draw calls
+         * to override the particles.
+         */
+        public forceDepthWrite = false;        
+
+        /**
          * Gets or set the number of active particles
          */
         public get activeParticleCount(): number {
@@ -250,6 +285,42 @@
         public set activeParticleCount(value: number) {
             this._activeCount = Math.min(value, this._capacity);
         }
+
+        private _preWarmDone = false;
+
+        /** Gets or sets a value indicating how many cycles (or frames) must be executed before first rendering (this value has to be set before starting the system). Default is 0 */
+        public preWarmCycles = 0;
+
+        /** Gets or sets a value indicating the time step multiplier to use in pre-warm mode (default is 1) */
+        public preWarmStepOffset = 1;        
+
+        /**
+         * Gets or sets the minimal initial rotation in radians.         
+         */
+        public minInitialRotation = 0;
+        /**
+         * Gets or sets the maximal initial rotation in radians.         
+         */
+        public maxInitialRotation = 0;            
+
+        /**
+         * Is this system ready to be used/rendered
+         * @return true if the system is ready
+         */
+        public isReady(): boolean {
+            if (!this._updateEffect) {
+                this._recreateUpdateEffect();
+                this._recreateRenderEffect();
+                return false;
+            }
+
+
+            if (!this.emitter || !this._updateEffect.isReady() || !this._renderEffect.isReady() || !this.particleTexture || !this.particleTexture.isReady()) {
+                return false;
+            }
+
+            return true;
+        }        
 
         /**
          * Gets Wether the system has been started.
@@ -265,6 +336,7 @@
         public start(): void {
             this._started = true;
             this._stopped = false;
+            this._preWarmDone = false;
         }
 
         /**
@@ -291,6 +363,176 @@
         public getClassName(): string {
             return "GPUParticleSystem";
         }            
+        
+        private _isBillboardBased = true;
+
+        /**
+         * Gets or sets a boolean indicating if the particles must be rendered as billboard or aligned with the direction
+         */
+        public get isBillboardBased(): boolean {
+            return this._isBillboardBased;
+        }      
+        
+        public set isBillboardBased(value: boolean) {
+            if (this._isBillboardBased === value) {
+                return;
+            }
+
+            this._isBillboardBased = value;
+
+            this._releaseBuffers();
+        }        
+        
+        private _colorGradients: Nullable<Array<ColorGradient>> = null;
+        private _colorGradientsTexture: RawTexture;
+
+        /**
+         * Gets the current list of color gradients.
+         * You must use addColorGradient and removeColorGradient to udpate this list
+         * @returns the list of color gradients
+         */
+        public getColorGradients(): Nullable<Array<ColorGradient>> {
+            return this._colorGradients;
+        }
+
+        /**
+         * Gets the current list of size gradients.
+         * You must use addSizeGradient and removeSizeGradient to udpate this list
+         * @returns the list of size gradients
+         */
+        public getSizeGradients(): Nullable<Array<FactorGradient>> {
+            return this._sizeGradients;
+        }               
+        
+        /**
+         * Adds a new color gradient
+         * @param gradient defines the gradient to use (between 0 and 1)
+         * @param color defines the color to affect to the specified gradient
+         * @param color2 defines an additional color used to define a range ([color, color2]) with main color to pick the final color from
+         */
+        public addColorGradient(gradient: number, color1: Color4, color2?: Color4): GPUParticleSystem {
+            if (!this._colorGradients) {
+                this._colorGradients = [];
+            }
+
+            let colorGradient = new ColorGradient();
+            colorGradient.gradient = gradient;
+            colorGradient.color1 = color1;
+            this._colorGradients.push(colorGradient);
+
+            this._colorGradients.sort((a, b) => {
+                if (a.gradient < b.gradient) {
+                    return -1;
+                } else if (a.gradient > b.gradient) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            if (this._colorGradientsTexture) {
+                this._colorGradientsTexture.dispose();
+                (<any>this._colorGradientsTexture) = null;
+            }
+
+            this._releaseBuffers();            
+
+            return this;
+        }
+
+        /**
+         * Remove a specific color gradient
+         * @param gradient defines the gradient to remove
+         */
+        public removeColorGradient(gradient: number): GPUParticleSystem {
+            if (!this._colorGradients) {
+                return this;
+            }
+
+            let index = 0;
+            for (var colorGradient of this._colorGradients) {
+                if (colorGradient.gradient === gradient) {
+                    this._colorGradients.splice(index, 1);
+                    break;
+                }
+                index++;
+            }
+
+            if (this._colorGradientsTexture) {
+                this._colorGradientsTexture.dispose();
+                (<any>this._colorGradientsTexture) = null;
+            }            
+
+            this._releaseBuffers();
+
+            return this;
+        }    
+        
+        private _sizeGradients: Nullable<Array<FactorGradient>> = null;
+        private _sizeGradientsTexture: RawTexture;        
+        
+        /**
+         * Adds a new size gradient
+         * @param gradient defines the gradient to use (between 0 and 1)
+         * @param factor defines the size factor to affect to the specified gradient
+         */
+        public addSizeGradient(gradient: number, factor: number): GPUParticleSystem {
+            if (!this._sizeGradients) {
+                this._sizeGradients = [];
+            }
+
+            let sizeGradient = new FactorGradient();
+            sizeGradient.gradient = gradient;
+            sizeGradient.factor = factor;
+            this._sizeGradients.push(sizeGradient);
+
+            this._sizeGradients.sort((a, b) => {
+                if (a.gradient < b.gradient) {
+                    return -1;
+                } else if (a.gradient > b.gradient) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            if (this._sizeGradientsTexture) {
+                this._sizeGradientsTexture.dispose();
+                (<any>this._sizeGradientsTexture) = null;
+            }
+
+            this._releaseBuffers();                 
+
+            return this;
+        }
+
+        /**
+         * Remove a specific size gradient
+         * @param gradient defines the gradient to remove
+         */
+        public removeSizeGradient(gradient: number): GPUParticleSystem {
+            if (!this._sizeGradients) {
+                return this;
+            }
+
+            let index = 0;
+            for (var sizeGradient of this._sizeGradients) {
+                if (sizeGradient.gradient === gradient) {
+                    this._sizeGradients.splice(index, 1);
+                    break;
+                }
+                index++;
+            }
+
+            if (this._sizeGradientsTexture) {
+                this._sizeGradientsTexture.dispose();
+                (<any>this._sizeGradientsTexture) = null;
+            }
+
+            this._releaseBuffers();               
+
+            return this;
+        }            
 
         /**
          * Instantiates a GPU particle system.
@@ -314,6 +556,11 @@
                 ...options
             };
 
+            var optionsAsNumber = <number>options;
+            if (isFinite(optionsAsNumber)) {
+                fullOptions.capacity = optionsAsNumber;
+            }
+
             this._capacity = fullOptions.capacity;
             this._activeCount = fullOptions.capacity;
             this._currentActiveCount = 0;
@@ -321,19 +568,22 @@
             this._scene.particleSystems.push(this);
 
             this._updateEffectOptions = {
-                attributes: ["position", "age", "life", "seed", "size", "color", "direction"],
-                uniformsNames: ["currentCount", "timeDelta", "generalRandoms", "emitterWM", "lifeTime", "color1", "color2", "sizeRange", "gravity", "emitPower",
-                                "direction1", "direction2", "minEmitBox", "maxEmitBox", "radius", "directionRandomizer", "height", "angle"],
+                attributes: ["position", "age", "life", "seed", "size", "color", "direction", "initialDirection", "angle", "initialSize"],
+                uniformsNames: ["currentCount", "timeDelta", "emitterWM", "lifeTime", "color1", "color2", "sizeRange", "scaleRange","gravity", "emitPower",
+                                "direction1", "direction2", "minEmitBox", "maxEmitBox", "radius", "directionRandomizer", "height", "coneAngle", "stopFactor", 
+                                "angleRange", "radiusRange"],
                 uniformBuffersNames: [],
-                samplers:["randomSampler"],
+                samplers:["randomSampler", "randomSampler2", "sizeGradientSampler"],
                 defines: "",
                 fallbacks: null,  
                 onCompiled: null,
                 onError: null,
                 indexParameters: null,
                 maxSimultaneousLights: 0,                                                      
-                transformFeedbackVaryings: ["outPosition", "outAge", "outLife", "outSeed", "outSize", "outColor", "outDirection"]
+                transformFeedbackVaryings: []
             };
+
+            this.particleEmitterType = new BoxParticleEmitter();
 
             // Random data
             var maxTextureSize = Math.min(this._engine.getCaps().maxTextureSize, fullOptions.randomTextureSize);
@@ -344,12 +594,22 @@
                 d.push(Math.random());
                 d.push(Math.random());
             }
-            this._randomTexture = new RawTexture(new Float32Array(d), maxTextureSize, 1, Engine.TEXTUREFORMAT_RGBA32F, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE, Engine.TEXTURETYPE_FLOAT)
+            this._randomTexture = new RawTexture(new Float32Array(d), maxTextureSize, 1, Engine.TEXTUREFORMAT_RGBA, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE, Engine.TEXTURETYPE_FLOAT);
             this._randomTexture.wrapU = Texture.WRAP_ADDRESSMODE;
             this._randomTexture.wrapV = Texture.WRAP_ADDRESSMODE;
 
+            d = [];
+            for (var i = 0; i < maxTextureSize; ++i) {
+                d.push(Math.random());
+                d.push(Math.random());
+                d.push(Math.random());
+                d.push(Math.random());
+            }
+            this._randomTexture2 = new RawTexture(new Float32Array(d), maxTextureSize, 1, Engine.TEXTUREFORMAT_RGBA, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE, Engine.TEXTURETYPE_FLOAT);
+            this._randomTexture2.wrapU = Texture.WRAP_ADDRESSMODE;
+            this._randomTexture2.wrapV = Texture.WRAP_ADDRESSMODE;
+
             this._randomTextureSize = maxTextureSize;
-            this.particleEmitterType = new BoxParticleEmitter();
         }
 
         private _createUpdateVAO(source: Buffer): WebGLVertexArrayObject {            
@@ -357,10 +617,28 @@
             updateVertexBuffers["position"] = source.createVertexBuffer("position", 0, 3);
             updateVertexBuffers["age"] = source.createVertexBuffer("age", 3, 1);
             updateVertexBuffers["life"] = source.createVertexBuffer("life", 4, 1);
-            updateVertexBuffers["seed"] = source.createVertexBuffer("seed", 5, 1);
-            updateVertexBuffers["size"] = source.createVertexBuffer("size", 6, 1);
-            updateVertexBuffers["color"] = source.createVertexBuffer("color", 7, 4);
-            updateVertexBuffers["direction"] = source.createVertexBuffer("direction", 11, 3);
+            updateVertexBuffers["seed"] = source.createVertexBuffer("seed", 5, 4);
+            updateVertexBuffers["size"] = source.createVertexBuffer("size", 9, 3);
+            let offset = 12;
+            if (this._sizeGradientsTexture) {
+                updateVertexBuffers["initialSize"] = source.createVertexBuffer("initialSize", offset, 3);
+                offset += 3;
+            }
+
+            if (!this._colorGradientsTexture) {
+                updateVertexBuffers["color"] = source.createVertexBuffer("color", offset, 4);
+                offset += 4;
+            }
+
+            updateVertexBuffers["direction"] = source.createVertexBuffer("direction", offset, 3);
+            offset += 3
+
+            if (!this._isBillboardBased) {
+                updateVertexBuffers["initialDirection"] = source.createVertexBuffer("initialDirection", offset, 3);
+                offset += 3;
+            }
+
+            updateVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 2);
            
             let vao = this._engine.recordVertexArrayObject(updateVertexBuffers, null, this._updateEffect);
             this._engine.bindArrayBuffer(null);
@@ -373,8 +651,25 @@
             renderVertexBuffers["position"] = source.createVertexBuffer("position", 0, 3, this._attributesStrideSize, true);
             renderVertexBuffers["age"] = source.createVertexBuffer("age", 3, 1, this._attributesStrideSize, true);
             renderVertexBuffers["life"] = source.createVertexBuffer("life", 4, 1, this._attributesStrideSize, true);
-            renderVertexBuffers["size"] = source.createVertexBuffer("size", 6, 1, this._attributesStrideSize, true);           
-            renderVertexBuffers["color"] = source.createVertexBuffer("color", 7, 4, this._attributesStrideSize, true);
+            renderVertexBuffers["size"] = source.createVertexBuffer("size", 9, 3, this._attributesStrideSize, true);      
+            
+            let offset = 12;
+            if (this._sizeGradientsTexture) {
+                offset += 3;
+            }
+
+            if (!this._colorGradientsTexture) {
+                renderVertexBuffers["color"] = source.createVertexBuffer("color", offset, 4, this._attributesStrideSize, true);
+                offset += 4;
+            }
+            
+            offset += 3; // Direction
+
+            if (!this._isBillboardBased) {
+                renderVertexBuffers["initialDirection"] = source.createVertexBuffer("initialDirection", offset, 3, this._attributesStrideSize, true);
+                offset += 3;
+            }
+            renderVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 2, this._attributesStrideSize, true);
 
             renderVertexBuffers["offset"] = spriteSource.createVertexBuffer("offset", 0, 2);
             renderVertexBuffers["uv"] = spriteSource.createVertexBuffer("uv", 2, 2);
@@ -392,32 +687,69 @@
 
             let engine = this._scene.getEngine();
             var data = new Array<float>();
+
+            if (!this.isBillboardBased) {
+                this._attributesStrideSize += 3;
+            }
+
+            if (this._colorGradientsTexture) {
+                this._attributesStrideSize -= 4;
+            }
+
+            if (this._sizeGradientsTexture) {
+                this._attributesStrideSize += 3;
+            }
+
             for (var particleIndex = 0; particleIndex < this._capacity; particleIndex++) {
-              // position
-              data.push(0.0);
-              data.push(0.0);
-              data.push(0.0);
+                // position
+                data.push(0.0);
+                data.push(0.0);
+                data.push(0.0);
 
-              // Age and life
-              data.push(0.0); // create the particle as a dead one to create a new one at start
-              data.push(0.0);
+                // Age and life
+                data.push(0.0); // create the particle as a dead one to create a new one at start
+                data.push(0.0);
 
-              // Seed
-              data.push(Math.random());
+                // Seed
+                data.push(Math.random());
+                data.push(Math.random());
+                data.push(Math.random());
+                data.push(Math.random());
 
-              // Size
-              data.push(0.0);
+                // Size
+                data.push(0.0);
+                data.push(0.0);
+                data.push(0.0);
 
-              // color
-              data.push(0.0);
-              data.push(0.0);
-              data.push(0.0);                     
-              data.push(0.0); 
+                if (this._sizeGradientsTexture) {
+                    data.push(0.0);
+                    data.push(0.0);
+                    data.push(0.0);  
+                }                
 
-              // direction
-              data.push(0.0);
-              data.push(0.0);
-              data.push(0.0);              
+                if (!this._colorGradientsTexture) {
+                    // color
+                    data.push(0.0);
+                    data.push(0.0);
+                    data.push(0.0);                     
+                    data.push(0.0); 
+                }
+
+                // direction
+                data.push(0.0);
+                data.push(0.0);
+                data.push(0.0);  
+
+                if (!this.isBillboardBased) {
+                    // initialDirection
+                    data.push(0.0);
+                    data.push(0.0);
+                    data.push(0.0);  
+                }
+
+                // angle
+                data.push(0.0);  
+                data.push(0.0); 
             }
 
             // Sprite data
@@ -447,90 +779,207 @@
 
         }
 
-        /** @ignore */
+        /** @hidden */
         public _recreateUpdateEffect() {
             let defines = this.particleEmitterType ? this.particleEmitterType.getEffectDefines() : "";
+
+            if (this._isBillboardBased) {
+                defines += "\n#define BILLBOARD";
+            }   
+
+            if (this._colorGradientsTexture) {
+                defines += "\n#define COLORGRADIENTS";
+            }        
+            
+            if (this._sizeGradientsTexture) {
+                defines += "\n#define SIZEGRADIENTS";
+            }                 
+
             if (this._updateEffect && this._updateEffectOptions.defines === defines) {
                 return;
             }
+
+            this._updateEffectOptions.transformFeedbackVaryings = ["outPosition", "outAge", "outLife", "outSeed", "outSize"];           
+
+            if (this._sizeGradientsTexture) {
+                this._updateEffectOptions.transformFeedbackVaryings.push("outInitialSize");
+            }
+
+            if (!this._colorGradientsTexture) {
+                this._updateEffectOptions.transformFeedbackVaryings.push("outColor");
+            }
+
+            this._updateEffectOptions.transformFeedbackVaryings.push("outDirection");
+
+            if (!this._isBillboardBased) {
+                this._updateEffectOptions.transformFeedbackVaryings.push("outInitialDirection");
+            }
+
+            this._updateEffectOptions.transformFeedbackVaryings.push("outAngle");
+
             this._updateEffectOptions.defines = defines;
             this._updateEffect = new Effect("gpuUpdateParticles", this._updateEffectOptions, this._scene.getEngine());   
         }
 
-        /** @ignore */
+        /** @hidden */
         public _recreateRenderEffect() {
             let defines = "";
             if (this._scene.clipPlane) {
                 defines = "\n#define CLIPPLANE";
             }
 
+            if (this._isBillboardBased) {
+                defines += "\n#define BILLBOARD";
+            }         
+            
+            if (this._colorGradientsTexture) {
+                defines += "\n#define COLORGRADIENTS";
+            }   
+
             if (this._renderEffect && this._renderEffect.defines === defines) {
                 return;
             }
 
             this._renderEffect = new Effect("gpuRenderParticles", 
-                                            ["position", "age", "life", "size", "color", "offset", "uv"], 
+                                            ["position", "age", "life", "size", "color", "offset", "uv", "initialDirection", "angle"], 
                                             ["view", "projection", "colorDead", "invView", "vClipPlane"], 
-                                            ["textureSampler"], this._scene.getEngine(), defines);
+                                            ["textureSampler", "colorGradientSampler"], this._scene.getEngine(), defines);
         }        
 
         /**
          * Animates the particle system for the current frame by emitting new particles and or animating the living ones.
+         * @param preWarm defines if we are in the pre-warmimg phase
          */
-        public animate(): void {           
-            if (!this._stopped) {
-                this._timeDelta = this.updateSpeed * this._scene.getAnimationRatio();   
-                this._actualFrame += this._timeDelta;
+        public animate(preWarm = false): void {           
+            this._timeDelta = this.updateSpeed * (preWarm ? this.preWarmStepOffset : this._scene.getAnimationRatio());
+            this._actualFrame += this._timeDelta;
 
-                if (this.targetStopDuration && this._actualFrame >= this.targetStopDuration)
+            if (!this._stopped) {
+                if (this.targetStopDuration && this._actualFrame >= this.targetStopDuration) {
                     this.stop();
-            } else {
-                this._timeDelta = 0;
+                }
             }             
+        }    
+
+        private _createSizeGradientTexture() {
+            if (!this._sizeGradients || !this._sizeGradients.length || this._sizeGradientsTexture) {
+                return;
+            }
+
+            let textureWidth = 256;
+            let data = new Float32Array(textureWidth);
+
+            for (var x = 0; x < textureWidth; x++) {
+                var ratio = x / textureWidth;
+
+                Tools.GetCurrentGradient(ratio, this._sizeGradients, (currentGradient, nextGradient, scale) => {
+                    data[x] = Scalar.Lerp((<FactorGradient>currentGradient).factor, (<FactorGradient>nextGradient).factor, scale);
+                });
+            }
+
+            this._sizeGradientsTexture = RawTexture.CreateRTexture(data, textureWidth, 1, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE);
         }        
+            
+        private _createColorGradientTexture() {
+            if (!this._colorGradients || !this._colorGradients.length || this._colorGradientsTexture) {
+                return;
+            }
+
+            let textureWidth = 256;
+            let data = new Uint8Array(textureWidth * 4);
+            let tmpColor = Tmp.Color4[0];
+
+            for (var x = 0; x < textureWidth; x++) {
+                var ratio = x / textureWidth;
+
+                Tools.GetCurrentGradient(ratio, this._colorGradients, (currentGradient, nextGradient, scale) => {
+
+                    Color4.LerpToRef((<ColorGradient>currentGradient).color1, (<ColorGradient>nextGradient).color1, scale, tmpColor);
+                    data[x * 4] = tmpColor.r * 255;
+                    data[x * 4 + 1] = tmpColor.g * 255;
+                    data[x * 4 + 2] = tmpColor.b * 255;
+                    data[x * 4 + 3] = tmpColor.a * 255;
+                });
+
+            }
+
+            this._colorGradientsTexture = RawTexture.CreateRGBATexture(data, textureWidth, 1, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+        }
 
         /**
-         * Renders the particle system in its current state.
+         * Renders the particle system in its current state
+         * @param preWarm defines if the system should only update the particles but not render them
          * @returns the current number of particles
          */
-        public render(): number {
+        public render(preWarm = false): number {
             if (!this._started) {
                 return 0;
             }
 
+            this._createColorGradientTexture();
+            this._createSizeGradientTexture();
+
             this._recreateUpdateEffect();
             this._recreateRenderEffect();
 
-            if (!this.emitter || !this._updateEffect.isReady() || !this._renderEffect.isReady() ) {
+            if (!this.isReady()) {
                 return 0;
             }
 
-            if (this._currentRenderId === this._scene.getRenderId()) {
-                return 0;
-            }
+            if (!preWarm) {
+                if (!this._preWarmDone && this.preWarmCycles) {                
+                    for (var index = 0; index < this.preWarmCycles; index++) {
+                        this.animate(true);
+                        this.render(true);
+                    }
 
-            this._currentRenderId = this._scene.getRenderId();      
+                    this._preWarmDone = true;
+                }
+
+                if (this._currentRenderId === this._scene.getRenderId()) {
+                    return 0;
+                }
+
+                this._currentRenderId = this._scene.getRenderId();      
+            }
             
             // Get everything ready to render
-            this. _initialize();
+            this._initialize();
 
-            this._currentActiveCount = Math.min(this._activeCount, this._currentActiveCount + (this.emitRate * this._timeDelta) | 0);
+            this._accumulatedCount += this.emitRate * this._timeDelta;
+            if (this._accumulatedCount > 1) {
+                var intPart = this._accumulatedCount | 0;
+                this._accumulatedCount -= intPart;
+                this._currentActiveCount = Math.min(this._activeCount, this._currentActiveCount + intPart);
+            }
+
+            if (!this._currentActiveCount) {
+                return 0;
+            }
             
             // Enable update effect
-
             this._engine.enableEffect(this._updateEffect);
             this._engine.setState(false);    
             
             this._updateEffect.setFloat("currentCount", this._currentActiveCount);
             this._updateEffect.setFloat("timeDelta", this._timeDelta);
-            this._updateEffect.setFloat3("generalRandoms", Math.random(), Math.random(), Math.random());
+            this._updateEffect.setFloat("stopFactor", this._stopped ? 0 : 1);
             this._updateEffect.setTexture("randomSampler", this._randomTexture);
+            this._updateEffect.setTexture("randomSampler2", this._randomTexture2);
             this._updateEffect.setFloat2("lifeTime", this.minLifeTime, this.maxLifeTime);
             this._updateEffect.setFloat2("emitPower", this.minEmitPower, this.maxEmitPower);
-            this._updateEffect.setDirectColor4("color1", this.color1);
-            this._updateEffect.setDirectColor4("color2", this.color2);
+            if (!this._colorGradientsTexture) {            
+                this._updateEffect.setDirectColor4("color1", this.color1);
+                this._updateEffect.setDirectColor4("color2", this.color2);
+            }
             this._updateEffect.setFloat2("sizeRange", this.minSize, this.maxSize);
+            this._updateEffect.setFloat4("scaleRange", this.minScaleX, this.maxScaleX, this.minScaleY, this.maxScaleY);
+            this._updateEffect.setFloat4("angleRange", this.minAngularSpeed, this.maxAngularSpeed, this.minInitialRotation, this.maxInitialRotation);
             this._updateEffect.setVector3("gravity", this.gravity);
+
+            if (this._sizeGradientsTexture) {      
+                this._updateEffect.setTexture("sizeGradientSampler", this._sizeGradientsTexture);      
+            }
 
             if (this.particleEmitterType) {
                 this.particleEmitterType.applyToShader(this._updateEffect);
@@ -558,37 +1007,53 @@
             this._engine.setRasterizerState(true);
             this._engine.bindTransformFeedbackBuffer(null);
 
-            // Enable render effect
-            this._engine.enableEffect(this._renderEffect);
-            let viewMatrix = this._scene.getViewMatrix();
-            this._renderEffect.setMatrix("view", viewMatrix);
-            this._renderEffect.setMatrix("projection", this._scene.getProjectionMatrix());
-            this._renderEffect.setTexture("textureSampler", this.particleTexture);
-            this._renderEffect.setDirectColor4("colorDead", this.colorDead);
+            if (!preWarm) {
+                // Enable render effect
+                this._engine.enableEffect(this._renderEffect);
+                let viewMatrix = this._scene.getViewMatrix();
+                this._renderEffect.setMatrix("view", viewMatrix);
+                this._renderEffect.setMatrix("projection", this._scene.getProjectionMatrix());
+                this._renderEffect.setTexture("textureSampler", this.particleTexture);
+                if (this._colorGradientsTexture) {
+                    this._renderEffect.setTexture("colorGradientSampler", this._colorGradientsTexture);
+                } else {
+                    this._renderEffect.setDirectColor4("colorDead", this.colorDead);
+                }
 
 
-            if (this._scene.clipPlane) {
-                var clipPlane = this._scene.clipPlane;
-                var invView = viewMatrix.clone();
-                invView.invert();
-                this._renderEffect.setMatrix("invView", invView);
-                this._renderEffect.setFloat4("vClipPlane", clipPlane.normal.x, clipPlane.normal.y, clipPlane.normal.z, clipPlane.d);
-            }            
+                if (this._scene.clipPlane) {
+                    var clipPlane = this._scene.clipPlane;
+                    var invView = viewMatrix.clone();
+                    invView.invert();
+                    this._renderEffect.setMatrix("invView", invView);
+                    this._renderEffect.setFloat4("vClipPlane", clipPlane.normal.x, clipPlane.normal.y, clipPlane.normal.z, clipPlane.d);
+                }            
 
-            // Draw order
-            if (this.blendMode === ParticleSystem.BLENDMODE_ONEONE) {
-                this._engine.setAlphaMode(Engine.ALPHA_ONEONE);
-            } else {
-                this._engine.setAlphaMode(Engine.ALPHA_COMBINE);
-            }            
+                // Draw order
+                switch(this.blendMode)
+                {
+                    case ParticleSystem.BLENDMODE_ADD:
+                        this._engine.setAlphaMode(Engine.ALPHA_ADD);
+                        break;
+                    case ParticleSystem.BLENDMODE_ONEONE:
+                        this._engine.setAlphaMode(Engine.ALPHA_ONEONE);
+                        break;
+                    case ParticleSystem.BLENDMODE_STANDARD:
+                        this._engine.setAlphaMode(Engine.ALPHA_COMBINE);
+                        break;
+                }      
 
-            // Bind source VAO
-            this._engine.bindVertexArrayObject(this._renderVAO[this._targetIndex], null);
+                if (this.forceDepthWrite) {
+                    this._engine.setDepthWrite(true);
+                }
 
-            // Render
-            this._engine.drawArraysType(Material.TriangleFanDrawMode, 0, 4, this._currentActiveCount);   
-            this._engine.setAlphaMode(Engine.ALPHA_DISABLE);         
+                // Bind source VAO
+                this._engine.bindVertexArrayObject(this._renderVAO[this._targetIndex], null);
 
+                // Render
+                this._engine.drawArraysType(Material.TriangleFanDrawMode, 0, 4, this._currentActiveCount);   
+                this._engine.setAlphaMode(Engine.ALPHA_DISABLE);         
+            }
             // Switch VAOs
             this._targetIndex++;
             if (this._targetIndex === 2) {
@@ -626,6 +1091,10 @@
         }
 
         private _releaseVAOs() {
+            if (!this._updateVAO) {
+                return;
+            }
+            
             for (var index = 0; index < this._updateVAO.length; index++) {
                 this._engine.releaseVertexArrayObject(this._updateVAO[index]);
             }
@@ -649,12 +1118,26 @@
 
             this._releaseBuffers();
             this._releaseVAOs();
-         
 
+            if (this._colorGradientsTexture) {
+                this._colorGradientsTexture.dispose();
+                (<any>this._colorGradientsTexture) = null;
+            }
+
+            if (this._sizeGradientsTexture) {
+                this._sizeGradientsTexture.dispose();
+                (<any>this._sizeGradientsTexture) = null;
+            }            
+         
             if (this._randomTexture) {
                 this._randomTexture.dispose();
                 (<any>this._randomTexture) = null;
             }
+
+            if (this._randomTexture2) {
+                this._randomTexture2.dispose();
+                (<any>this._randomTexture2) = null;
+            }            
 
             if (disposeTexture && this.particleTexture) {
                 this.particleTexture.dispose();
@@ -695,49 +1178,7 @@
         public serialize(): any {
             var serializationObject: any = {};
 
-            serializationObject.name = this.name;
-            serializationObject.id = this.id;
-
-            // Emitter
-            if ((<AbstractMesh>this.emitter).position) {
-                var emitterMesh = (<AbstractMesh>this.emitter);
-                serializationObject.emitterId = emitterMesh.id;
-            } else {
-                var emitterPosition = (<Vector3>this.emitter);
-                serializationObject.emitter = emitterPosition.asArray();
-            }
-
-            serializationObject.capacity = this.getCapacity();
-
-            if (this.particleTexture) {
-                serializationObject.textureName = this.particleTexture.name;
-            }
-
-            // Animations
-            Animation.AppendSerializedAnimations(this, serializationObject);
-
-            // Particle system
-            serializationObject.activeParticleCount = this.activeParticleCount;
-            serializationObject.randomTextureSize = this._randomTextureSize;
-            serializationObject.minSize = this.minSize;
-            serializationObject.maxSize = this.maxSize;
-            serializationObject.minEmitPower = this.minEmitPower;
-            serializationObject.maxEmitPower = this.maxEmitPower;
-            serializationObject.minLifeTime = this.minLifeTime;
-            serializationObject.maxLifeTime = this.maxLifeTime;
-            serializationObject.emitRate = this.emitRate;
-            serializationObject.gravity = this.gravity.asArray();
-            serializationObject.color1 = this.color1.asArray();
-            serializationObject.color2 = this.color2.asArray();
-            serializationObject.colorDead = this.colorDead.asArray();
-            serializationObject.updateSpeed = this.updateSpeed;
-            serializationObject.targetStopDuration = this.targetStopDuration;
-            serializationObject.blendMode = this.blendMode;
-
-            // Emitter
-            if (this.particleEmitterType) {
-                serializationObject.particleEmitterType = this.particleEmitterType.serialize();
-            }
+            ParticleSystem._Serialize(serializationObject, this);
 
             return serializationObject;            
         }
@@ -753,70 +1194,8 @@
             var name = parsedParticleSystem.name;
             var particleSystem = new GPUParticleSystem(name, {capacity: parsedParticleSystem.capacity, randomTextureSize: parsedParticleSystem.randomTextureSize}, scene);
 
-            if (parsedParticleSystem.id) {
-                particleSystem.id = parsedParticleSystem.id;
-            }
-
-            // Texture
-            if (parsedParticleSystem.textureName) {
-                particleSystem.particleTexture = new Texture(rootUrl + parsedParticleSystem.textureName, scene);
-                particleSystem.particleTexture.name = parsedParticleSystem.textureName;
-            }
-
-            // Emitter
-            if (parsedParticleSystem.emitterId) {
-                particleSystem.emitter = scene.getLastMeshByID(parsedParticleSystem.emitterId);
-            } else {
-                particleSystem.emitter = Vector3.FromArray(parsedParticleSystem.emitter);
-            }
-
-            // Animations
-            if (parsedParticleSystem.animations) {
-                for (var animationIndex = 0; animationIndex < parsedParticleSystem.animations.length; animationIndex++) {
-                    var parsedAnimation = parsedParticleSystem.animations[animationIndex];
-                    particleSystem.animations.push(Animation.Parse(parsedAnimation));
-                }
-            }
-
-            // Particle system
             particleSystem.activeParticleCount = parsedParticleSystem.activeParticleCount;
-            particleSystem.minSize = parsedParticleSystem.minSize;
-            particleSystem.maxSize = parsedParticleSystem.maxSize;
-            particleSystem.minLifeTime = parsedParticleSystem.minLifeTime;
-            particleSystem.maxLifeTime = parsedParticleSystem.maxLifeTime;
-            particleSystem.minEmitPower = parsedParticleSystem.minEmitPower;
-            particleSystem.maxEmitPower = parsedParticleSystem.maxEmitPower;
-            particleSystem.emitRate = parsedParticleSystem.emitRate;
-            particleSystem.gravity = Vector3.FromArray(parsedParticleSystem.gravity);
-            particleSystem.color1 = Color4.FromArray(parsedParticleSystem.color1);
-            particleSystem.color2 = Color4.FromArray(parsedParticleSystem.color2);
-            particleSystem.colorDead = Color4.FromArray(parsedParticleSystem.colorDead);
-            particleSystem.updateSpeed = parsedParticleSystem.updateSpeed;
-            particleSystem.targetStopDuration = parsedParticleSystem.targetStopDuration;
-            particleSystem.blendMode = parsedParticleSystem.blendMode;
-
-            // Emitter
-            if (parsedParticleSystem.particleEmitterType) {
-                let emitterType: IParticleEmitterType;
-                switch (parsedParticleSystem.particleEmitterType.type) {
-                    case "SphereEmitter":
-                        emitterType = new SphereParticleEmitter();
-                        break;
-                    case "SphereDirectedParticleEmitter":
-                        emitterType = new SphereDirectedParticleEmitter();
-                        break;
-                    case "ConeEmitter":
-                        emitterType = new ConeParticleEmitter();
-                        break;
-                    case "BoxEmitter":
-                    default:
-                        emitterType = new BoxParticleEmitter();
-                        break;                                                
-                }
-
-                emitterType.parse(parsedParticleSystem.particleEmitterType);
-                particleSystem.particleEmitterType = emitterType;
-            }
+            ParticleSystem._Parse(parsedParticleSystem, particleSystem, scene, rootUrl);
 
             return particleSystem;
         }        

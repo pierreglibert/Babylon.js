@@ -58,11 +58,11 @@ module BABYLON {
         positions: Float32Array;
         /**
          * Defines the array containing the indices
-         */        
+         */
         indices: Uint32Array;
         /**
          * Defines the array containing the normals
-         */        
+         */
         normals: Float32Array;
     }
 
@@ -77,9 +77,13 @@ module BABYLON {
         radius: Array<number>;
     }
 
+    /** Defines supported task for worker process */
     export enum WorkerTaskType {
+        /** Initialization */
         INIT,
+        /** Update of geometry */
         UPDATE,
+        /** Evaluate collision */
         COLLIDE
     }
 
@@ -113,8 +117,11 @@ module BABYLON {
         removedGeometries: Array<string>;
     }
 
+    /** Defines kind of replies returned by worker */
     export enum WorkerReplyType {
+        /** Success */
         SUCCESS,
+        /** Unkown error */
         UNKNOWN_ERROR
     }
 
@@ -173,7 +180,7 @@ module BABYLON {
                 let geometry = (<Mesh>mesh).geometry;
                 geometryId = geometry ? geometry.id : null;
             } else if (mesh instanceof InstancedMesh) {
-                let geometry = (<InstancedMesh>mesh).sourceMesh.geometry;
+                let geometry = (<InstancedMesh>mesh).sourceMesh && (<InstancedMesh>mesh).sourceMesh.geometry;
                 geometryId = geometry ? geometry.id : null;
             }
 

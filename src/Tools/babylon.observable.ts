@@ -63,7 +63,7 @@
      * Represent an Observer registered to a given Observable object.
      */
     export class Observer<T> {
-        /** @ignore */
+        /** @hidden */
         public _willBeUnregistered = false;
         /**
          * Gets or sets a property defining that the observer as to be unregistered after the next notification
@@ -140,6 +140,7 @@
 
     /**
      * The Observable class is a simple implementation of the Observable pattern.
+     * 
      * There's one slight particularity though: a given Observable can notify its observer using a particular mask value, only the Observers registered with this mask value will be notified.
      * This enable a more fine grained execution without having to rely on multiple different Observable objects.
      * For instance you may have a given Observable that have four different types of notifications: Move (mask = 0x01), Stop (mask = 0x02), Turn Right (mask = 0X04), Turn Left (mask = 0X08).
@@ -192,6 +193,15 @@
             }
 
             return observer;
+        }
+
+        /**
+         * Create a new Observer with the specified callback and unregisters after the next notification
+         * @param callback the callback that will be executed for that Observer
+         * @returns the new observer created for the callback
+         */
+        public addOnce(callback: (eventData: T, eventState: EventState) => void): Nullable<Observer<T>> {
+            return this.add(callback, undefined, undefined, undefined, true);
         }
 
         /**

@@ -30,6 +30,9 @@ module BABYLON {
         private _captureAnimationsTime = false;
         private _animationsTime = new PerfCounter();
 
+        private _captureCameraRenderTime = false;
+        private _cameraRenderTime = new PerfCounter();
+
         // Observers
         private _onBeforeActiveMeshesEvaluationObserver: Nullable<Observer<Scene>> = null;
         private _onAfterActiveMeshesEvaluationObserver: Nullable<Observer<Scene>> = null;
@@ -53,6 +56,9 @@ module BABYLON {
         private _onAfterPhysicsObserver: Nullable<Observer<Scene>> = null;
 
         private _onAfterAnimationsObserver: Nullable<Observer<Scene>> = null;
+
+        private _onBeforeCameraRenderObserver: Nullable<Observer<Camera>> = null;
+        private _onAfterCameraRenderObserver: Nullable<Observer<Camera>> = null;
 
         // Properties
         /**
@@ -123,20 +129,20 @@ module BABYLON {
             this._captureRenderTargetsRenderTime = value;
 
             if (value) {
-                this._onBeforeRenderTargetsRenderObserver = this.scene.OnBeforeRenderTargetsRenderObservable.add(() => {
+                this._onBeforeRenderTargetsRenderObserver = this.scene.onBeforeRenderTargetsRenderObservable.add(() => {
                     Tools.StartPerformanceCounter("Render targets rendering");
                     this._renderTargetsRenderTime.beginMonitoring();
                 });
 
-                this._onAfterRenderTargetsRenderObserver = this.scene.OnAfterRenderTargetsRenderObservable.add(() => {
+                this._onAfterRenderTargetsRenderObserver = this.scene.onAfterRenderTargetsRenderObservable.add(() => {
                     Tools.EndPerformanceCounter("Render targets rendering");
                     this._renderTargetsRenderTime.endMonitoring(false);
                 });
             } else {
-                this.scene.OnBeforeRenderTargetsRenderObservable.remove(this._onBeforeRenderTargetsRenderObserver);
+                this.scene.onBeforeRenderTargetsRenderObservable.remove(this._onBeforeRenderTargetsRenderObserver);
                 this._onBeforeRenderTargetsRenderObserver = null;
 
-                this.scene.OnAfterRenderTargetsRenderObservable.remove(this._onAfterRenderTargetsRenderObserver);
+                this.scene.onAfterRenderTargetsRenderObservable.remove(this._onAfterRenderTargetsRenderObserver);
                 this._onAfterRenderTargetsRenderObserver = null;
             }
         }
@@ -390,6 +396,48 @@ module BABYLON {
         }
 
         /**
+         * Gets the perf counter used for camera render time capture
+         */
+        public get cameraRenderTimeCounter(): PerfCounter {
+            return this._cameraRenderTime;
+        }
+
+        /**
+         * Gets the camera render time capture status
+         */
+        public get captureCameraRenderTime(): boolean {
+            return this._captureCameraRenderTime;
+        }
+
+        /**
+         * Enable or disable the camera render time capture
+         */
+        public set captureCameraRenderTime(value: boolean) {
+            if (value === this._captureCameraRenderTime) {
+                return;
+            }
+
+            this._captureCameraRenderTime = value;
+
+            if (value) {
+                this._onBeforeCameraRenderObserver = this.scene.onBeforeCameraRenderObservable.add(camera => {
+                    this._cameraRenderTime.beginMonitoring();
+                    Tools.StartPerformanceCounter(`Rendering camera ${camera.name}`);
+                });
+
+                this._onAfterCameraRenderObserver = this.scene.onAfterCameraRenderObservable.add(camera => {
+                    this._cameraRenderTime.endMonitoring(false);
+                    Tools.EndPerformanceCounter(`Rendering camera ${camera.name}`);
+                });
+            } else {
+                this.scene.onBeforeCameraRenderObservable.remove(this._onBeforeCameraRenderObserver);
+                this._onBeforeCameraRenderObserver = null;
+                this.scene.onAfterCameraRenderObservable.remove(this._onAfterCameraRenderObserver);
+                this._onAfterCameraRenderObserver = null;
+            }
+        }
+
+        /**
          * Gets the perf counter used for draw calls
          */
         public get drawCallsCounter(): PerfCounter {
@@ -466,10 +514,10 @@ module BABYLON {
             this.scene.onAfterActiveMeshesEvaluationObservable.remove(this._onAfterActiveMeshesEvaluationObserver);
             this._onAfterActiveMeshesEvaluationObserver = null;
 
-            this.scene.OnBeforeRenderTargetsRenderObservable.remove(this._onBeforeRenderTargetsRenderObserver);
+            this.scene.onBeforeRenderTargetsRenderObservable.remove(this._onBeforeRenderTargetsRenderObserver);
             this._onBeforeRenderTargetsRenderObserver = null;
 
-            this.scene.OnAfterRenderTargetsRenderObservable.remove(this._onAfterRenderTargetsRenderObserver);
+            this.scene.onAfterRenderTargetsRenderObservable.remove(this._onAfterRenderTargetsRenderObserver);
             this._onAfterRenderTargetsRenderObserver = null;
 
             this.scene.onBeforeAnimationsObservable.remove(this._onBeforeAnimationsObserver);
@@ -501,6 +549,12 @@ module BABYLON {
 
             this.scene.onAfterAnimationsObservable.remove(this._onAfterAnimationsObserver);
             this._onAfterAnimationsObserver = null;
+
+            this.scene.onBeforeCameraRenderObservable.remove(this._onBeforeCameraRenderObserver);
+            this._onBeforeCameraRenderObserver = null;
+
+            this.scene.onAfterCameraRenderObservable.remove(this._onAfterCameraRenderObserver);
+            this._onAfterCameraRenderObserver = null;
 
             (<any>this.scene) = null;
         }

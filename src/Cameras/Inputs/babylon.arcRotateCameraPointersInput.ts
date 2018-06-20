@@ -114,7 +114,7 @@ module BABYLON {
                     //but emptying completly pointers collection is required to fix a bug on iPhone : 
                     //when changing orientation while pinching camera, one pointer stay pressed forever if we don't release all pointers  
                     //will be ok to put back pointers.remove(evt.pointerId); when iPhone bug corrected
-                    if (engine.badOS) {
+                    if (engine._badOS) {
                         pointA = pointB = null;
                     }
                     else {
@@ -306,8 +306,8 @@ module BABYLON {
             };
 
             element.addEventListener("mousemove", this._onMouseMove, false);
-            element.addEventListener("MSPointerDown", this._onGestureStart, false);
-            element.addEventListener("MSGestureChange", this._onGesture, false);
+            element.addEventListener("MSPointerDown", <EventListener>this._onGestureStart, false);
+            element.addEventListener("MSGestureChange", <EventListener>this._onGesture, false);
 
             Tools.RegisterTopRootEvents([
                 { name: "blur", handler: this._onLostFocus }
@@ -334,11 +334,11 @@ module BABYLON {
                 }
 
                 if (this._onGestureStart) {
-                    element.removeEventListener("MSPointerDown", this._onGestureStart);
+                    element.removeEventListener("MSPointerDown", <EventListener>this._onGestureStart);
                 }
 
                 if (this._onGesture) {
-                    element.removeEventListener("MSGestureChange", this._onGesture);
+                    element.removeEventListener("MSGestureChange", <EventListener>this._onGesture);
                 }
 
                 this._isPanClick = false;

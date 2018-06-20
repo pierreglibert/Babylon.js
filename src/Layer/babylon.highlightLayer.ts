@@ -141,11 +141,13 @@
         /**
          * Specifies whether or not the inner glow is ACTIVE in the layer.
          */
+        @serialize()
         public innerGlow: boolean = true;
 
         /**
          * Specifies whether or not the outer glow is ACTIVE in the layer.
          */
+        @serialize()
         public outerGlow: boolean = true;
 
         /**
@@ -165,6 +167,7 @@
         /**
          * Gets the horizontal size of the blur.
          */
+        @serialize()
         public get blurHorizontalSize(): number {
             return this._horizontalBlurPostprocess.kernel
         }
@@ -172,6 +175,7 @@
         /**
          * Gets the vertical size of the blur.
          */
+        @serialize()
         public get blurVerticalSize(): number {
             return this._verticalBlurPostprocess.kernel;
         }
@@ -188,6 +192,7 @@
 
         private _instanceGlowingMeshStencilReference = HighlightLayer.GlowingMeshStencilReference++;
 
+        @serialize("options")
         private _options: IHighlightLayerOptions;
         private _downSamplePostprocess: PassPostProcess;
         private _horizontalBlurPostprocess: GlowBlurPostProcess;
@@ -266,6 +271,14 @@
             blurTextureWidth = this._engine.needPOTTextures ? Tools.GetExponentOfTwo(blurTextureWidth, this._maxSize) : blurTextureWidth;
             blurTextureHeight = this._engine.needPOTTextures ? Tools.GetExponentOfTwo(blurTextureHeight, this._maxSize) : blurTextureHeight;
 
+            var textureType = 0;
+            if (this._engine.getCaps().textureHalfFloatRender) {
+                textureType = Engine.TEXTURETYPE_HALF_FLOAT;
+            }
+            else {
+                textureType = Engine.TEXTURETYPE_UNSIGNED_INT;
+            }
+
             this._blurTexture = new RenderTargetTexture("HighlightLayerBlurRTT",
                 {
                     width: blurTextureWidth,
@@ -274,7 +287,7 @@
                 this._scene,
                 false,
                 true,
-                Engine.TEXTURETYPE_HALF_FLOAT);
+                textureType);
             this._blurTexture.wrapU = Texture.CLAMP_ADDRESSMODE;
             this._blurTexture.wrapV = Texture.CLAMP_ADDRESSMODE;
             this._blurTexture.anisotropicFilteringLevel = 16;
@@ -310,7 +323,7 @@
                         width:  blurTextureWidth,
                         height: blurTextureHeight
                     },
-                    null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, Engine.TEXTURETYPE_HALF_FLOAT);
+                    null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, textureType);
                 this._horizontalBlurPostprocess.width = blurTextureWidth;
                 this._horizontalBlurPostprocess.height = blurTextureHeight;
                 this._horizontalBlurPostprocess.onApplyObservable.add(effect => {
@@ -321,7 +334,7 @@
                         width:  blurTextureWidth,
                         height: blurTextureHeight
                     },
-                    null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, Engine.TEXTURETYPE_HALF_FLOAT);
+                    null, Texture.BILINEAR_SAMPLINGMODE, this._scene.getEngine(), false, textureType);
 
                 this._postProcesses = [this._horizontalBlurPostprocess, this._verticalBlurPostprocess];
             }
@@ -667,6 +680,87 @@
             }
 
             super.dispose();
+        }
+
+        /**
+          * Gets the class name of the effect layer
+          * @returns the string with the class name of the effect layer
+          */
+         public getClassName(): string {
+            return "HighlightLayer";
+        }
+
+        /**
+         * Serializes this Highlight layer
+         * @returns a serialized Highlight layer object
+         */
+        public serialize(): any {
+            var serializationObject = SerializationHelper.Serialize(this);
+            serializationObject.customType = "BABYLON.HighlightLayer";
+
+            // Highlighted meshes
+            serializationObject.meshes = [];
+
+            if (this._meshes) {
+                for (var m in this._meshes) {
+                    var mesh = this._meshes[m];
+
+                    if (mesh) {
+                        serializationObject.meshes.push({
+                            glowEmissiveOnly: mesh.glowEmissiveOnly,
+                            color: mesh.color.asArray(),
+                            meshId: mesh.mesh.id
+                        });
+                    }
+                }
+            }
+
+            // Excluded meshes
+            serializationObject.excludedMeshes = [];
+
+            if (this._excludedMeshes) {
+                for (var e in this._excludedMeshes) {
+                    var excludedMesh = this._excludedMeshes[e];
+
+                    if (excludedMesh) {
+                        serializationObject.excludedMeshes.push(excludedMesh.mesh.id);
+                    }
+                }
+            }
+
+            return serializationObject;
+        }
+
+        /**
+         * Creates a Highlight layer from parsed Highlight layer data
+         * @param parsedHightlightLayer defines the Highlight layer data
+         * @param scene defines the current scene
+         * @param rootUrl defines the root URL containing the Highlight layer information
+         * @returns a parsed Highlight layer
+         */
+        public static Parse(parsedHightlightLayer: any, scene: Scene, rootUrl: string): HighlightLayer {
+            var hl = SerializationHelper.Parse(() => new HighlightLayer(parsedHightlightLayer.name, scene, parsedHightlightLayer.options), parsedHightlightLayer, scene, rootUrl);
+            var index;
+
+            // Excluded meshes
+            for (index = 0; index < parsedHightlightLayer.excludedMeshes.length; index++) {
+                var mesh = scene.getMeshByID(parsedHightlightLayer.excludedMeshes[index]);
+                if (mesh) {
+                    hl.addExcludedMesh(<Mesh> mesh);
+                }
+            }
+
+            // Included meshes
+            for (index = 0; index < parsedHightlightLayer.meshes.length; index++) {
+                var highlightedMesh = parsedHightlightLayer.meshes[index];
+                var mesh = scene.getMeshByID(highlightedMesh.meshId);
+
+                if (mesh) {
+                    hl.addMesh(<Mesh> mesh, Color3.FromArray(highlightedMesh.color), highlightedMesh.glowEmissiveOnly);
+                }
+            }
+
+            return hl;
         }
     }
 } 

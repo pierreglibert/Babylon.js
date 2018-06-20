@@ -459,6 +459,15 @@
         public forceNormalForward = false;
 
         /**
+         * Enables specular anti aliasing in the PBR shader.
+         * It will both interacts on the Geometry for analytical and IBL lighting.
+         * It also prefilter the roughness map based on the bump values.
+         */
+        @serialize()
+        @expandToProperty("_markAllSubMeshesAsTexturesDirty")
+        public enableSpecularAntiAliasing = false;
+
+        /**
          * This parameters will enable/disable Horizon occlusion to prevent normal maps to look shiny when the normal
          * makes the reflect vector face the model (under horizon).
          */
@@ -473,6 +482,13 @@
         @serialize()
         @expandToProperty("_markAllSubMeshesAsTexturesDirty")
         public useRadianceOcclusion = true;
+
+        /**
+         * If set to true, no lighting calculations will be applied.
+         */
+        @serialize()
+        @expandToProperty("_markAllSubMeshesAsMiscDirty")
+        public unlit = false;
 
         /**
          * Gets the image processing configuration used either in this material.

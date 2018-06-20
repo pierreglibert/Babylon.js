@@ -1,263 +1,420 @@
 
 
-import { ViewerConfiguration, IModelConfiguration, ILightConfiguration } from './../configuration/configuration';
-import { Template, EventCallback } from './../templateManager';
+import { ViewerConfiguration, IModelConfiguration, ILightConfiguration } from './../configuration';
+import { Template, EventCallback, TemplateManager } from '../templating/templateManager';
 import { AbstractViewer } from './viewer';
-import { SpotLight, MirrorTexture, Plane, ShadowGenerator, Texture, BackgroundMaterial, Observable, ShadowLight, CubeTexture, BouncingBehavior, FramingBehavior, Behavior, Light, Engine, Scene, AutoRotationBehavior, AbstractMesh, Quaternion, StandardMaterial, ArcRotateCamera, ImageProcessingConfiguration, Color3, Vector3, SceneLoader, Mesh, HemisphericLight } from 'babylonjs';
+import { SpotLight, MirrorTexture, Plane, ShadowGenerator, Texture, BackgroundMaterial, Observable, ShadowLight, CubeTexture, BouncingBehavior, FramingBehavior, Behavior, Light, Engine, Scene, AutoRotationBehavior, AbstractMesh, Quaternion, StandardMaterial, ArcRotateCamera, ImageProcessingConfiguration, Color3, Vector3, SceneLoader, Mesh, HemisphericLight, FilesInput } from 'babylonjs';
 import { CameraBehavior } from '../interfaces';
+import { ViewerModel } from '../model/viewerModel';
+import { extendClassWithConfig } from '../helper';
+import { IModelAnimation, AnimationState } from '../model/modelAnimation';
 
+/**
+ * The Default viewer is the default implementation of the AbstractViewer.
+ * It uses the templating system to render a new canvas and controls.
+ */
 export class DefaultViewer extends AbstractViewer {
 
+
+
+    /**
+     * Create a new default viewer
+     * @param containerElement the element in which the templates will be rendered
+     * @param initialConfiguration the initial configuration. Defaults to extending the default configuration
+     */
     constructor(public containerElement: HTMLElement, initialConfiguration: ViewerConfiguration = { extends: 'default' }) {
         super(containerElement, initialConfiguration);
-        this.onModelLoadedObservable.add(this.onModelLoaded);
-    }
 
-    public initScene(): Promise<Scene> {
-        return super.initScene().then(() => {
-            this.extendClassWithConfig(this.scene, this.configuration.scene);
-            return this.scene;
+        this.onModelLoadedObservable.add(this._onModelLoaded);
+        this.onModelRemovedObservable.add(() => {
+            this._configureTemplate();
         })
+
+        this.onEngineInitObservable.add(() => {
+            this.sceneManager.onLightsConfiguredObservable.add((data) => {
+                this._configureLights(data.newConfiguration, data.model!);
+            })
+        });
     }
 
-    protected onTemplatesLoaded() {
-
+    /**
+     * This will be executed when the templates initialize.
+     */
+    protected _onTemplatesLoaded() {
         this.showLoadingScreen();
 
         // navbar
-        this.initNavbar();
+        this._initNavbar();
 
         // close overlay button
-        let closeButton = document.getElementById('close-button');
-        if (closeButton) {
-            closeButton.addEventListener('pointerdown', () => {
-                this.hideOverlayScreen();
-            })
+        let template = this.templateManager.getTemplate('overlay');
+        if (template) {
+
+            let closeButton = template.parent.querySelector('.close-button');
+            if (closeButton) {
+                closeButton.addEventListener('pointerdown', () => {
+                    this.hideOverlayScreen();
+                });
+            }
         }
 
-        return super.onTemplatesLoaded();
+        if (this.configuration.templates && this.configuration.templates.viewer) {
+            if (this.configuration.templates.viewer.params && this.configuration.templates.viewer.params.enableDragAndDrop) {
+                let filesInput = new FilesInput(this.engine, this.sceneManager.scene, () => {
+                }, () => {
+                }, () => {
+                }, () => {
+                }, function () {
+                }, (file: File) => {
+                    this.loadModel(file);
+                }, () => {
+                });
+                filesInput.monitorElementForDragNDrop(this.templateManager.getCanvas()!);
+            }
+        }
+
+
+        return super._onTemplatesLoaded();
     }
 
-    private initNavbar() {
+    private _dropped(evt: EventCallback) {
+
+    }
+
+    private _initNavbar() {
         let navbar = this.templateManager.getTemplate('navBar');
         if (navbar) {
-            let navbarHeight = navbar.parent.clientHeight + 'px';
+            this.onFrameRenderedObservable.add(this._updateProgressBar);
+            this.templateManager.eventManager.registerCallback('navBar', this._handlePointerDown, 'pointerdown');
+            // an example how to trigger the help button. publiclly available
+            this.templateManager.eventManager.registerCallback("navBar", () => {
+                // do your thing
+            }, "pointerdown", ".help-button");
 
-            let navbarShown: boolean = true;
-            let timeoutCancel /*: number*/;
+            this.templateManager.eventManager.registerCallback("navBar", (event: EventCallback) => {
+                const evt = event.event;
+                const element = <HTMLInputElement>(evt.target);
+                if (!this._currentAnimation) return;
+                const gotoFrame = +element.value / 100 * this._currentAnimation.frames;
+                if (isNaN(gotoFrame)) return;
+                this._currentAnimation.goToFrame(gotoFrame);
+            }, "input");
 
-            let triggerNavbar = function (show: boolean = false, evt: PointerEvent) {
-                // only left-click on no-button.
-                if (!navbar || evt.button > 0) return;
-                // clear timeout
-                timeoutCancel && clearTimeout(timeoutCancel);
-                // if state is the same, do nothing
-                if (show === navbarShown) return;
-                //showing? simply show it!
-                if (show) {
-                    navbar.parent.style.bottom = show ? '0px' : '-' + navbarHeight;
-                    navbarShown = show;
-                } else {
-                    let visibilityTimeout = 2000;
-                    if (navbar.configuration.params && navbar.configuration.params.visibilityTimeout !== undefined) {
-                        visibilityTimeout = <number>navbar.configuration.params.visibilityTimeout;
-                    }
-                    // not showing? set timeout until it is removed.
-                    timeoutCancel = setTimeout(function () {
-                        if (navbar) {
-                            navbar.parent.style.bottom = '-' + navbarHeight;
-                        }
-                        navbarShown = show;
-                    }, visibilityTimeout);
+            this.templateManager.eventManager.registerCallback("navBar", (e) => {
+                if (this._resumePlay) {
+                    this._togglePlayPause(true);
                 }
+                this._resumePlay = false;
+            }, "pointerup", ".progress-wrapper");
+
+            if (window.devicePixelRatio === 1 && navbar.configuration.params && !navbar.configuration.params.hideHdButton) {
+                navbar.updateParams({
+                    hideHdButton: true
+                });
             }
-
-            this.templateManager.eventManager.registerCallback('viewer', triggerNavbar.bind(this, false), 'pointerout');
-            this.templateManager.eventManager.registerCallback('viewer', triggerNavbar.bind(this, true), 'pointerdown');
-            this.templateManager.eventManager.registerCallback('viewer', triggerNavbar.bind(this, false), 'pointerup');
-            this.templateManager.eventManager.registerCallback('navBar', triggerNavbar.bind(this, true), 'pointerover');
-
-            // other events
-            let viewerTemplate = this.templateManager.getTemplate('viewer');
-            let viewerElement = viewerTemplate && viewerTemplate.parent;
-            // full screen
-            let triggerFullscren = (eventData: EventCallback) => {
-                if (viewerElement) {
-                    let fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || (<any>document).mozFullScreenElement || (<any>document).msFullscreenElement;
-                    if (!fullscreenElement) {
-                        let requestFullScreen = viewerElement.requestFullscreen || viewerElement.webkitRequestFullscreen || (<any>viewerElement).msRequestFullscreen || (<any>viewerElement).mozRequestFullScreen;
-                        requestFullScreen.call(viewerElement);
-                    } else {
-                        let exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || (<any>document).msExitFullscreen || (<any>document).mozCancelFullScreen
-                        exitFullscreen.call(document);
-                    }
-                }
-            }
-
-            this.templateManager.eventManager.registerCallback('navBar', triggerFullscren, 'pointerdown', '#fullscreen-button');
         }
     }
 
-    protected prepareContainerElement() {
-        this.containerElement.style.position = 'relative';
-        this.containerElement.style.display = 'flex';
+    private _animationList: string[];
+    private _currentAnimation: IModelAnimation;
+    private _isAnimationPaused: boolean;
+    private _resumePlay: boolean;
+
+    private _handlePointerDown = (event: EventCallback) => {
+
+        let pointerDown = <PointerEvent>event.event;
+        if (pointerDown.button !== 0) return;
+        var element = (<HTMLElement>event.event.target);
+
+        if (!element) {
+            return;
+        }
+
+        let parentClasses = element.parentElement!.classList;
+
+        let elementClasses = element.classList;
+
+        let elementName = ""; 0
+
+        for (let i = 0; i < elementClasses.length; ++i) {
+            let className = elementClasses[i];
+            if (className.indexOf("-button") !== -1 || className.indexOf("-wrapper") !== -1) {
+                elementName = className;
+                break;
+            }
+        }
+
+        switch (elementName) {
+            case "speed-button":
+            case "types-button":
+                if (parentClasses.contains("open")) {
+                    parentClasses.remove("open");
+                } else {
+                    parentClasses.add("open");
+                }
+                break;
+            case "play-pause-button":
+                this._togglePlayPause();
+                break;
+            case "label-option-button":
+                var label = element.dataset["value"];
+                if (label) {
+                    this._updateAnimationType(label);
+                }
+                break;
+            case "speed-option-button":
+                if (!this._currentAnimation) {
+                    return;
+                }
+                var speed = element.dataset["value"];
+                if (speed)
+                    this._updateAnimationSpeed(speed);
+                break;
+            case "progress-wrapper":
+                this._resumePlay = !this._isAnimationPaused;
+                if (this._resumePlay) {
+                    this._togglePlayPause(true);
+                }
+                break;
+            case "fullscreen-button":
+                this.toggleFullscreen();
+                break;
+            case "hd-button":
+                this.toggleHD();
+                break;
+            default:
+                return;
+        }
     }
 
-    protected configureModel(modelConfiguration: Partial<IModelConfiguration>, focusMeshes: Array<AbstractMesh> = this.scene.meshes) {
-        super.configureModel(modelConfiguration, focusMeshes);
+    /**
+     * Plays or Pauses animation
+     */
+    private _togglePlayPause = (noUiUpdate?: boolean) => {
+        if (!this._currentAnimation) {
+            return;
+        }
+        if (this._isAnimationPaused) {
+            this._currentAnimation.restart();
+        } else {
+            this._currentAnimation.pause();
+        }
+
+        this._isAnimationPaused = !this._isAnimationPaused;
+
+        if (noUiUpdate) return;
 
         let navbar = this.templateManager.getTemplate('navBar');
         if (!navbar) return;
 
-        let metadataContainer = navbar.parent.querySelector('#model-metadata');
-        if (metadataContainer) {
-            if (modelConfiguration.title !== undefined) {
-                let element = metadataContainer.querySelector('span.model-title');
-                if (element) {
-                    element.innerHTML = modelConfiguration.title;
-                }
+        navbar.updateParams({
+            paused: this._isAnimationPaused,
+        });
+    }
+
+    private _oldIdleRotationValue: number;
+
+    /**
+     * Control progress bar position based on animation current frame
+     */
+    private _updateProgressBar = () => {
+        let navbar = this.templateManager.getTemplate('navBar');
+        if (!navbar) return;
+        var progressSlider = <HTMLInputElement>navbar.parent.querySelector("input.progress-wrapper");
+        if (progressSlider && this._currentAnimation) {
+            const progress = this._currentAnimation.currentFrame / this._currentAnimation.frames * 100;
+            var currentValue = progressSlider.valueAsNumber;
+            if (Math.abs(currentValue - progress) > 0.5) { // Only move if greater than a 1% change
+                progressSlider.value = '' + progress;
             }
 
-            if (modelConfiguration.subtitle !== undefined) {
-                let element = metadataContainer.querySelector('span.model-subtitle');
-                if (element) {
-                    element.innerHTML = modelConfiguration.subtitle;
+            if (this._currentAnimation.state === AnimationState.PLAYING) {
+                if (this.sceneManager.camera.autoRotationBehavior && !this._oldIdleRotationValue) {
+                    this._oldIdleRotationValue = this.sceneManager.camera.autoRotationBehavior.idleRotationSpeed;
+                    this.sceneManager.camera.autoRotationBehavior.idleRotationSpeed = 0;
                 }
-            }
-
-            if (modelConfiguration.thumbnail !== undefined) {
-                (<HTMLDivElement>metadataContainer.querySelector('.thumbnail')).style.backgroundImage = `url('${modelConfiguration.thumbnail}')`;
+            } else {
+                if (this.sceneManager.camera.autoRotationBehavior && this._oldIdleRotationValue) {
+                    this.sceneManager.camera.autoRotationBehavior.idleRotationSpeed = this._oldIdleRotationValue;
+                    this._oldIdleRotationValue = 0;
+                }
             }
         }
     }
 
-    public loadModel(model: any = this.configuration.model): Promise<Scene> {
+    /** 
+     * Update Current Animation Speed
+     */
+    private _updateAnimationSpeed = (speed: string, paramsObject?: any) => {
+        let navbar = this.templateManager.getTemplate('navBar');
+        if (!navbar) return;
+
+        if (speed && this._currentAnimation) {
+            this._currentAnimation.speedRatio = parseFloat(speed);
+            if (!this._isAnimationPaused) {
+                this._currentAnimation.restart();
+            }
+
+            if (paramsObject) {
+                paramsObject.selectedSpeed = speed + "x"
+            } else {
+                navbar.updateParams({
+                    selectedSpeed: speed + "x",
+                });
+            }
+        }
+    }
+
+    /** 
+     * Update Current Animation Type
+     */
+    private _updateAnimationType = (label: string, paramsObject?: any) => {
+        let navbar = this.templateManager.getTemplate('navBar');
+        if (!navbar) return;
+
+        if (label) {
+            this._currentAnimation = this.sceneManager.models[0].setCurrentAnimationByName(label);
+        }
+
+        if (paramsObject) {
+            paramsObject.selectedAnimation = (this._animationList.indexOf(label) + 1);
+            paramsObject.selectedAnimationName = label;
+        } else {
+            navbar.updateParams({
+                selectedAnimation: (this._animationList.indexOf(label) + 1),
+                selectedAnimationName: label
+            });
+        }
+
+        this._updateAnimationSpeed("1.0", paramsObject);
+    }
+
+    public toggleHD() {
+        super.toggleHD();
+
+        // update UI element
+        let navbar = this.templateManager.getTemplate('navBar');
+        if (!navbar) return;
+
+        if (navbar.configuration.params) {
+            navbar.configuration.params.hdEnabled = this._hdToggled;
+        }
+
+        let span = navbar.parent.querySelector("button.hd-button span");
+        if (span) {
+            span.classList.remove(this._hdToggled ? "hd-icon" : "sd-icon");
+            span.classList.add(!this._hdToggled ? "hd-icon" : "sd-icon")
+        }
+    }
+
+    /**
+     * Toggle fullscreen of the entire viewer
+     */
+    public toggleFullscreen = () => {
+        let viewerTemplate = this.templateManager.getTemplate('viewer');
+        let viewerElement = viewerTemplate && viewerTemplate.parent;
+
+        if (viewerElement) {
+            let fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || (<any>document).mozFullScreenElement || (<any>document).msFullscreenElement;
+            if (!fullscreenElement) {
+                let requestFullScreen = viewerElement.requestFullscreen || viewerElement.webkitRequestFullscreen || (<any>viewerElement).msRequestFullscreen || (<any>viewerElement).mozRequestFullScreen;
+                requestFullScreen.call(viewerElement);
+            } else {
+                let exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || (<any>document).msExitFullscreen || (<any>document).mozCancelFullScreen
+                exitFullscreen.call(document);
+            }
+        }
+    }
+
+    /**
+     * Preparing the container element to present the viewer
+     */
+    protected _prepareContainerElement() {
+        this.containerElement.style.position = 'relative';
+        this.containerElement.style.height = '100%';
+        this.containerElement.style.display = 'flex';
+    }
+
+    /**
+     * This function will configure the templates and update them after a model was loaded
+     * It is mainly responsible to changing the title and subtitle etc'.
+     * @param model the model to be used to configure the templates by
+     */
+    protected _configureTemplate(model?: ViewerModel) {
+        let navbar = this.templateManager.getTemplate('navBar');
+        if (!navbar) return;
+
+        let newParams: any = navbar.configuration.params || {};
+
+        if (!model) {
+            newParams.animations = null;
+        } else {
+
+            let animationNames = model.getAnimationNames();
+            newParams.animations = animationNames;
+            if (animationNames.length) {
+                this._isAnimationPaused = (model.configuration.animation && !model.configuration.animation.autoStart) || !model.configuration.animation;
+                this._animationList = animationNames;
+                newParams.paused = this._isAnimationPaused;
+                let animationIndex = 0;
+                if (model.configuration.animation && typeof model.configuration.animation.autoStart === 'string') {
+                    animationIndex = animationNames.indexOf(model.configuration.animation.autoStart);
+                    if (animationIndex === -1) {
+                        animationIndex = 0;
+                    }
+                }
+                this._updateAnimationType(animationNames[animationIndex], newParams);
+            } else {
+                newParams.animations = null;
+            }
+
+            if (model.configuration.thumbnail) {
+                newParams.logoImage = model.configuration.thumbnail
+            }
+        }
+        navbar.updateParams(newParams, false);
+    }
+
+    /**
+     * This will load a new model to the default viewer
+     * overriding the AbstractViewer's loadModel.
+     * The scene will automatically be cleared of the old models, if exist.
+     * @param model the configuration object (or URL) to load.
+     */
+    public loadModel(model?: string | File | IModelConfiguration): Promise<ViewerModel> {
+        if (!model) {
+            model = this.configuration.model;
+        }
         this.showLoadingScreen();
-        return super.loadModel(model, true).catch((error) => {
+        return super.loadModel(model!, true).catch((error) => {
             console.log(error);
             this.hideLoadingScreen();
             this.showOverlayScreen('error');
-            return this.scene;
+            return Promise.reject(error);
         });
     }
 
-    private onModelLoaded = (meshes: Array<AbstractMesh>) => {
+    private _onModelLoaded = (model: ViewerModel) => {
+        this._configureTemplate(model);
         // with a short timeout, making sure everything is there already.
-        let hideLoadingDelay = 500;
+        let hideLoadingDelay = 20;
         if (this.configuration.lab && this.configuration.lab.hideLoadingDelay !== undefined) {
             hideLoadingDelay = this.configuration.lab.hideLoadingDelay;
         }
         setTimeout(() => {
-            this.hideLoadingScreen();
+            this.sceneManager.scene.executeWhenReady(() => {
+                this.hideLoadingScreen();
+            });
         }, hideLoadingDelay);
 
-        meshes[0].rotation.y += Math.PI;
-
-        return; //this.initEnvironment(meshes);
+        return;
     }
 
-    /*protected initEnvironment(focusMeshes: Array<AbstractMesh> = []): Promise<Scene> {
-        if (this.configuration.skybox) {
-            // Define a general environment textue
-            let texture;
-            // this is obligatory, but still - making sure it is there.
-            if (this.configuration.skybox.cubeTexture) {
-                if (typeof this.configuration.skybox.cubeTexture.url === 'string') {
-                    texture = CubeTexture.CreateFromPrefilteredData(this.configuration.skybox.cubeTexture.url, this.scene);
-                } else {
-                    texture = CubeTexture.CreateFromImages(this.configuration.skybox.cubeTexture.url, this.scene, this.configuration.skybox.cubeTexture.noMipMap);
-                }
-            }
-            if (texture) {
-                this.extendClassWithConfig(texture, this.configuration.skybox.cubeTexture);
-
-                let scale = this.configuration.skybox.scale || this.scene.activeCamera && (this.scene.activeCamera.maxZ - this.scene.activeCamera.minZ) / 2 || 1;
-
-                let box = this.scene.createDefaultSkybox(texture, this.configuration.skybox.pbr, scale, this.configuration.skybox.blur);
-
-                // before extending, set the material's imageprocessing configuration object, if needed:
-                if (this.configuration.skybox.material && this.configuration.skybox.material.imageProcessingConfiguration && box) {
-                    (<StandardMaterial>box.material).imageProcessingConfiguration = new ImageProcessingConfiguration();
-                }
-
-                this.extendClassWithConfig(box, this.configuration.skybox);
-
-                box && focusMeshes.push(box);
-            }
-        }
-
-        if (this.configuration.ground) {
-            let groundConfig = (typeof this.configuration.ground === 'boolean') ? {} : this.configuration.ground;
-
-            let groundSize = groundConfig.size || (this.configuration.skybox && this.configuration.skybox.scale) || 3000;
-
-            let ground = Mesh.CreatePlane("BackgroundPlane", groundSize, this.scene);
-            let backgroundMaterial = new BackgroundMaterial('groundmat', this.scene);
-            ground.rotation.x = Math.PI / 2; // Face up by default.
-            ground.receiveShadows = groundConfig.receiveShadows || false;
-
-            // position the ground correctly
-            let groundPosition = focusMeshes[0].getHierarchyBoundingVectors().min.y;
-            ground.position.y = groundPosition;
-
-            // default values
-            backgroundMaterial.alpha = 0.9;
-            backgroundMaterial.alphaMode = Engine.ALPHA_PREMULTIPLIED_PORTERDUFF;
-            backgroundMaterial.shadowLevel = 0.5;
-            backgroundMaterial.primaryLevel = 1;
-            backgroundMaterial.primaryColor = new Color3(0.2, 0.2, 0.3).toLinearSpace().scale(3);
-            backgroundMaterial.secondaryLevel = 0;
-            backgroundMaterial.tertiaryLevel = 0;
-            backgroundMaterial.useRGBColor = false;
-            backgroundMaterial.enableNoise = true;
-
-            // if config provided, extend the default values
-            if (groundConfig.material) {
-                this.extendClassWithConfig(ground, ground.material);
-            }
-
-            ground.material = backgroundMaterial;
-            if (this.configuration.ground === true || groundConfig.shadowOnly) {
-                // shadow only:
-                ground.receiveShadows = true;
-                const diffuseTexture = new Texture("https://assets.babylonjs.com/environments/backgroundGround.png", this.scene);
-                diffuseTexture.gammaSpace = false;
-                diffuseTexture.hasAlpha = true;
-                backgroundMaterial.diffuseTexture = diffuseTexture;
-            } else if (groundConfig.mirror) {
-                var mirror = new MirrorTexture("mirror", 512, this.scene);
-                mirror.mirrorPlane = new Plane(0, -1, 0, 0);
-                mirror.renderList = mirror.renderList || [];
-                focusMeshes.length && focusMeshes.forEach(m => {
-                    m && mirror.renderList && mirror.renderList.push(m);
-                });
-
-                backgroundMaterial.reflectionTexture = mirror;
-            } else {
-                if (groundConfig.material) {
-                    if (groundConfig.material.diffuseTexture) {
-                        const diffuseTexture = new Texture(groundConfig.material.diffuseTexture, this.scene);
-                        backgroundMaterial.diffuseTexture = diffuseTexture;
-                    }
-                }
-                // ground.material = new StandardMaterial('groundmat', this.scene);
-            }
-            //default configuration
-            if (this.configuration.ground === true) {
-                ground.receiveShadows = true;
-                if (ground.material)
-                    ground.material.alpha = 0.4;
-            }
-
-
-
-
-            this.extendClassWithConfig(ground, groundConfig);
-        }
-
-        return Promise.resolve(this.scene);
-    }*/
-
+    /**
+     * Show the overlay and the defined sub-screen.
+     * Mainly used for help and errors
+     * @param subScreen the name of the subScreen. Those can be defined in the configuration object
+     */
     public showOverlayScreen(subScreen: string) {
         let template = this.templateManager.getTemplate('overlay');
         if (!template) return Promise.resolve('Overlay template not found');
@@ -265,7 +422,6 @@ export class DefaultViewer extends AbstractViewer {
         return template.show((template => {
 
             var canvasRect = this.containerElement.getBoundingClientRect();
-            var canvasPositioning = window.getComputedStyle(this.containerElement).position;
 
             template.parent.style.display = 'flex';
             template.parent.style.width = canvasRect.width + "px";
@@ -283,6 +439,9 @@ export class DefaultViewer extends AbstractViewer {
         }));
     }
 
+    /**
+     * Hide the overlay screen.
+     */
     public hideOverlayScreen() {
         let template = this.templateManager.getTemplate('overlay');
         if (!template) return Promise.resolve('Overlay template not found');
@@ -302,15 +461,38 @@ export class DefaultViewer extends AbstractViewer {
                     htmlElement.style.display = 'none';
                 }
             }
-
-            /*return this.templateManager.getTemplate(subScreen).show((template => {
-                template.parent.style.display = 'none';
-                return Promise.resolve(template);
-            }));*/
             return Promise.resolve(template);
         }));
     }
 
+    /**
+     * show the viewer (in case it was hidden)
+     * 
+     * @param visibilityFunction an optional function to execute in order to show the container
+     */
+    public show(visibilityFunction?: ((template: Template) => Promise<Template>)): Promise<Template> {
+        let template = this.templateManager.getTemplate('main');
+        //not possible, but yet:
+        if (!template) return Promise.reject('Main template not found');
+        return template.show(visibilityFunction);
+    }
+
+    /**
+     * hide the viewer (in case it is visible)
+     * 
+     * @param visibilityFunction an optional function to execute in order to hide the container
+     */
+    public hide(visibilityFunction?: ((template: Template) => Promise<Template>)) {
+        let template = this.templateManager.getTemplate('main');
+        //not possible, but yet:
+        if (!template) return Promise.reject('Main template not found');
+        return template.hide(visibilityFunction);
+    }
+
+    /**
+     * Show the loading screen.
+     * The loading screen can be configured using the configuration object
+     */
     public showLoadingScreen() {
         let template = this.templateManager.getTemplate('loadingScreen');
         if (!template) return Promise.resolve('Loading Screen template not found');
@@ -318,18 +500,26 @@ export class DefaultViewer extends AbstractViewer {
         return template.show((template => {
 
             var canvasRect = this.containerElement.getBoundingClientRect();
-            var canvasPositioning = window.getComputedStyle(this.containerElement).position;
+            // var canvasPositioning = window.getComputedStyle(this.containerElement).position;
 
             template.parent.style.display = 'flex';
             template.parent.style.width = canvasRect.width + "px";
             template.parent.style.height = canvasRect.height + "px";
             template.parent.style.opacity = "1";
             // from the configuration!!!
-            template.parent.style.backgroundColor = "black";
+            let color = "black";
+            if (this.configuration.templates && this.configuration.templates.loadingScreen) {
+                color = (this.configuration.templates.loadingScreen.params &&
+                    <string>this.configuration.templates.loadingScreen.params.backgroundColor) || color;
+            }
+            template.parent.style.backgroundColor = color;
             return Promise.resolve(template);
         }));
     }
 
+    /**
+     * Hide the loading screen
+     */
     public hideLoadingScreen() {
         let template = this.templateManager.getTemplate('loadingScreen');
         if (!template) return Promise.resolve('Loading Screen template not found');
@@ -345,11 +535,38 @@ export class DefaultViewer extends AbstractViewer {
         }));
     }
 
-    protected configureLights(lightsConfiguration: { [name: string]: ILightConfiguration | boolean } = {}, focusMeshes: Array<AbstractMesh> = this.scene.meshes) {
-        super.configureLights(lightsConfiguration, focusMeshes);
+    public dispose() {
+        this.templateManager.dispose();
+        super.dispose();
+    }
+
+    protected _onConfigurationLoaded(configuration: ViewerConfiguration) {
+
+        super._onConfigurationLoaded(configuration);
+
+        // initialize the templates
+        let templateConfiguration = this.configuration.templates || {};
+
+        this.templateManager.initTemplate(templateConfiguration);
+        // when done, execute onTemplatesLoaded()
+        this.templateManager.onAllLoaded.add(() => {
+            let canvas = this.templateManager.getCanvas();
+            if (canvas) {
+                this._canvas = canvas;
+            }
+            this._onTemplateLoaded();
+        });
+    }
+
+    /**
+     * An extension of the light configuration of the abstract viewer.
+     * @param lightsConfiguration the light configuration to use
+     * @param model the model that will be used to configure the lights (if the lights are model-dependant)
+     */
+    private _configureLights(lightsConfiguration: { [name: string]: ILightConfiguration | boolean | number } = {}, model?: ViewerModel) {
         // labs feature - flashlight
         if (this.configuration.lab && this.configuration.lab.flashlight) {
-            let pointerPosition = BABYLON.Vector3.Zero();
+            let pointerPosition = Vector3.Zero();
             let lightTarget;
             let angle = 0.5;
             let exponent = Math.PI / 2;
@@ -358,7 +575,7 @@ export class DefaultViewer extends AbstractViewer {
                 angle = this.configuration.lab.flashlight.angle || angle;
             }
             var flashlight = new SpotLight("flashlight", Vector3.Zero(),
-                Vector3.Zero(), exponent, angle, this.scene);
+                Vector3.Zero(), exponent, angle, this.sceneManager.scene);
             if (typeof this.configuration.lab.flashlight === "object") {
                 flashlight.intensity = this.configuration.lab.flashlight.intensity || flashlight.intensity;
                 if (this.configuration.lab.flashlight.diffuse) {
@@ -373,8 +590,8 @@ export class DefaultViewer extends AbstractViewer {
                 }
 
             }
-            this.scene.constantlyUpdateMeshUnderPointer = true;
-            this.scene.onPointerObservable.add((eventData, eventState) => {
+            this.sceneManager.scene.constantlyUpdateMeshUnderPointer = true;
+            this.sceneManager.scene.onPointerObservable.add((eventData, eventState) => {
                 if (eventData.type === 4 && eventData.pickInfo) {
                     lightTarget = (eventData.pickInfo.pickedPoint);
                 } else {
@@ -382,15 +599,15 @@ export class DefaultViewer extends AbstractViewer {
                 }
             });
             let updateFlashlightFunction = () => {
-                if (this.camera && flashlight) {
-                    flashlight.position.copyFrom(this.camera.position);
+                if (this.sceneManager.camera && flashlight) {
+                    flashlight.position.copyFrom(this.sceneManager.camera.position);
                     if (lightTarget) {
                         lightTarget.subtractToRef(flashlight.position, flashlight.direction);
                     }
                 }
             }
-            this.scene.registerBeforeRender(updateFlashlightFunction);
-            this.registeredOnBeforerenderFunctions.push(updateFlashlightFunction);
+            this.sceneManager.scene.registerBeforeRender(updateFlashlightFunction);
+            this._registeredOnBeforeRenderFunctions.push(updateFlashlightFunction);
         }
     }
 }

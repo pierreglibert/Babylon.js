@@ -159,7 +159,7 @@
                 this._particlesIntersect = options ? <boolean>options.particleIntersection : false;
                 this._bSphereOnly= options ? <boolean>options.boundingSphereOnly : false;
                 this._bSphereRadiusFactor = (options && options.bSphereRadiusFactor) ? options.bSphereRadiusFactor : 1.0;
-                if (options && options.updatable) {
+                if (options && options.updatable !== undefined) {
                     this._updatable = options.updatable;
                 } else {
                     this._updatable = true;
@@ -200,10 +200,11 @@
                 vertexData.indices = (this._depthSort) ? this._indices : this._indices32;
                 vertexData.set(this._positions32, VertexBuffer.PositionKind);
                 vertexData.set(this._normals32, VertexBuffer.NormalKind);
-                if (this._uvs32) {
-                    vertexData.set(this._uvs32, VertexBuffer.UVKind);;
+
+                if (this._uvs32.length > 0) {
+                    vertexData.set(this._uvs32, VertexBuffer.UVKind);
                 }
-                if (this._colors32) {
+                if (this._colors32.length > 0) {
                     vertexData.set(this._colors32, VertexBuffer.ColorKind);
                 }
                 var mesh = new Mesh(this.name, this._scene);

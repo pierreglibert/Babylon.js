@@ -226,6 +226,12 @@ declare module INSPECTOR {
         'PhysicsImpostor': {
             type: typeof BABYLON.PhysicsImpostor;
         };
+        'ImageProcessingConfiguration': {
+            type: typeof BABYLON.ImageProcessingConfiguration;
+        };
+        'ColorCurves': {
+            type: typeof BABYLON.ColorCurves;
+        };
     };
 }
 
@@ -294,6 +300,7 @@ declare module INSPECTOR {
         getProperties(): Array<PropertyLine>;
         getTools(): Array<AbstractTreeTool>;
         setPOV(): void;
+        getCurrentActiveCamera(): string;
     }
 }
 
@@ -420,13 +427,20 @@ declare module INSPECTOR {
         private _headerRow;
         private _detailRows;
         private _sortDirection;
+        private _searchDetails;
+        private _details;
         constructor(dr?: Array<PropertyLine>);
         details: Array<PropertyLine>;
         protected _build(): void;
         /** Updates the HTML of the detail panel */
-        update(): void;
+        update(_items?: Array<PropertyLine>): void;
+        /** Add the search bar for the details */
+        private _addSearchBarDetails();
+        /** Search an element by name  */
+        searchByName(searchName: string): void;
         /** Add all lines in the html div. Does not sort them! */
         private _addDetails();
+        private _addSearchDetails(_items);
         /**
          * Sort the details row by comparing the given property of each row
          */
@@ -435,6 +449,10 @@ declare module INSPECTOR {
          * Removes all data in the detail panel but keep the header row
          */
         clean(): void;
+        /**
+         * Clean the rows only
+         */
+        cleanRow(): void;
         /** Overrides basicelement.dispose */
         dispose(): void;
         /**
@@ -453,7 +471,9 @@ declare module INSPECTOR {
         private _property;
         /** The obj this property refers to */
         private _obj;
-        constructor(prop: string, obj: any);
+        /** The obj parent  */
+        private _parentObj;
+        constructor(prop: string, obj: any, parentObj?: any);
         readonly name: string;
         value: any;
         readonly type: string;
@@ -670,9 +690,17 @@ declare module INSPECTOR {
      * At each keypress on the input, the treepanel will be filtered.
      */
     class SearchBar extends BasicElement {
-        private _tab;
+        private _propTab;
         private _inputElement;
         constructor(tab: PropertyTab);
+        /** Delete all characters typped in the input element */
+        reset(): void;
+        update(): void;
+    }
+    class SearchBarDetails extends BasicElement {
+        private _detailTab;
+        private _inputElement;
+        constructor(tab: DetailPanel);
         /** Delete all characters typped in the input element */
         reset(): void;
         update(): void;
@@ -985,8 +1013,11 @@ declare module INSPECTOR {
         private _engine;
         private _glInfo;
         private _updateLoopHandler;
+        private _refreshRateCounter;
+        private refreshRate;
         private _sceneInstrumentation;
         private _engineInstrumentation;
+        private _inputElement;
         private _connectToInstrumentation();
         constructor(tabbar: TabBar, insp: Inspector);
         private _createStatLabel(content, parent);
@@ -994,6 +1025,43 @@ declare module INSPECTOR {
         private _update();
         dispose(): void;
         active(b: boolean): void;
+    }
+}
+
+
+
+
+declare function Split(elements: HTMLElement[], options: any): any;
+declare module INSPECTOR {
+    class GLTFTab extends Tab {
+        private static _LoaderDefaults;
+        private _inspector;
+        private _actions;
+        private _detailsPanel;
+        private _split;
+        static readonly IsSupported: boolean;
+        /** @hidden */
+        static _Initialize(): void;
+        constructor(tabbar: TabBar, inspector: Inspector);
+        dispose(): void;
+        private _addImport();
+        private static _EnumeratePublic(obj, callback);
+        private _getLoaderDefaultsAsync();
+        private _openDetailsPanel();
+        private _closeDetailsPanel();
+        private _showLoaderDefaults(defaults);
+        private _showLoaderExtensionDefaults(defaults);
+        private _addExport();
+        private static _IsSkyBox(transformNode);
+    }
+}
+
+declare module INSPECTOR {
+    class ToolsTab extends Tab {
+        private _inspector;
+        private _scene;
+        constructor(tabbar: TabBar, insp: Inspector);
+        dispose(): void;
     }
 }
 
@@ -1051,7 +1119,7 @@ declare module INSPECTOR {
     abstract class AbstractTool {
         private _elem;
         protected _inspector: Inspector;
-        constructor(icon: string, parent: HTMLElement, inspector: Inspector, tooltip: string);
+        constructor(iconSet: string, icon: string, parent: HTMLElement, inspector: Inspector, tooltip: string);
         toHtml(): HTMLElement;
         /**
          * Returns the total width in pixel of this tool, 0 by default
@@ -1146,6 +1214,13 @@ declare module INSPECTOR {
 }
 
 declare module INSPECTOR {
+    class FullscreenTool extends AbstractTool {
+        constructor(parent: HTMLElement, inspector: Inspector);
+        action(): void;
+    }
+}
+
+declare module INSPECTOR {
     class TreeItem extends BasicElement {
         private _tab;
         private _adapter;
@@ -1230,6 +1305,8 @@ declare module INSPECTOR {
 declare module INSPECTOR {
     interface ICameraPOV {
         setPOV: () => void;
+        getCurrentActiveCamera: () => string;
+        id: () => string;
     }
     /**
      *

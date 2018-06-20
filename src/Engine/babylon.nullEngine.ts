@@ -290,6 +290,9 @@
             return {};
         }
 
+        public _releaseTexture(texture: InternalTexture): void {
+        }
+
         public createTexture(urlArg: string, noMipmap: boolean, invertY: boolean, scene: Scene, samplingMode: number = Texture.TRILINEAR_SAMPLINGMODE, onLoad: Nullable<() => void> = null, onError: Nullable<(message: string, exception: any) => void> = null, buffer: Nullable<ArrayBuffer | HTMLImageElement> = null, fallBack?: InternalTexture, format?: number): InternalTexture {
             var texture = new InternalTexture(this, InternalTexture.DATASOURCE_URL);
             var url = String(urlArg);
@@ -311,6 +314,8 @@
             if (onLoad) {
                 onLoad();
             }
+
+            this._internalTexturesCache.push(texture);
 
             return texture;
         }
@@ -349,6 +354,9 @@
             texture.type = fullOptions.type;
             texture._generateDepthBuffer = fullOptions.generateDepthBuffer;
             texture._generateStencilBuffer = fullOptions.generateStencilBuffer ? true : false;
+
+            this._internalTexturesCache.push(texture);
+
             return texture;
         }
 
@@ -392,13 +400,22 @@
         public updateDynamicIndexBuffer(indexBuffer: WebGLBuffer, indices: IndicesArray, offset: number = 0): void {
         }
 
-        public updateDynamicVertexBuffer(vertexBuffer: WebGLBuffer, vertices: FloatArray, offset?: number, count?: number): void {
+        /**
+         * Updates a dynamic vertex buffer.
+         * @param vertexBuffer the vertex buffer to update
+         * @param data the data used to update the vertex buffer
+         * @param byteOffset the byte offset of the data (optional)
+         * @param byteLength the byte length of the data (optional)
+         */
+        public updateDynamicVertexBuffer(vertexBuffer: WebGLBuffer, vertices: FloatArray, byteOffset?: number, byteLength?: number): void {
         }
 
-        protected _bindTextureDirectly(target: number, texture: InternalTexture): void {
+        protected _bindTextureDirectly(target: number, texture: InternalTexture): boolean {
             if (this._boundTexturesCache[this._activeChannel] !== texture) {
                 this._boundTexturesCache[this._activeChannel] = texture;
+                return true;
             }
+            return false;
         }
 
         public _bindTexture(channel: number, texture: InternalTexture): void {
@@ -417,6 +434,9 @@
             }
 
             return false;
+        }
+
+        public releaseEffects() {
         }
     }
 }

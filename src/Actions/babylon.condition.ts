@@ -1,29 +1,69 @@
 ﻿module BABYLON {
+    /**
+     * A Condition applied to an Action 
+     */
     export class Condition {
+        /**
+         * Internal only - manager for action
+         * @hidden 
+         */
         public _actionManager: ActionManager;
 
+        /**
+         * Internal only
+         * @hidden 
+         */
         public _evaluationId: number;
+
+        /**
+         * Internal only
+         * @hidden 
+         */
         public _currentResult: boolean;
 
+        /**
+         * Creates a new Condition
+         * @param actionManager the manager of the action the condition is applied to 
+         */
         constructor(actionManager: ActionManager) {
             this._actionManager = actionManager;
         }
 
+        /**
+         * Check if the current condition is valid
+         * @returns a boolean
+         */
         public isValid(): boolean {
             return true;
         }
 
+        /**
+         * Internal only 
+         * @hidden 
+         */
         public _getProperty(propertyPath: string): string {
             return this._actionManager._getProperty(propertyPath);
         }
 
+        /**
+         * Internal only 
+         * @hidden 
+         */
         public _getEffectiveTarget(target: any, propertyPath: string): any {
             return this._actionManager._getEffectiveTarget(target, propertyPath);
         }
         
+        /**
+         * Serialize placeholder for child classes
+         * @returns the serialized object
+         */
         public serialize(): any {
         }
         
+        /**
+         * Internal only 
+         * @hidden 
+         */
         protected _serialize(serializedCondition: any): any {
             return { 
                 type: 2, // Condition
@@ -34,37 +74,102 @@
         }
     }
 
+    /**
+     * Defines specific conditional operators as extensions of Condition
+     */
     export class ValueCondition extends Condition {
-        // Statics
+        
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private static _IsEqual = 0;
+
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private static _IsDifferent = 1;
+
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private static _IsGreater = 2;
+
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private static _IsLesser = 3;
 
+        /**
+         * returns the number for IsEqual
+         */
         public static get IsEqual(): number {
             return ValueCondition._IsEqual;
         }
 
+        /**
+         * Returns the number for IsDifferent
+         */
         public static get IsDifferent(): number {
             return ValueCondition._IsDifferent;
         }
 
+        /**
+         * Returns the number for IsGreater
+         */
         public static get IsGreater(): number {
             return ValueCondition._IsGreater;
         }
 
+        /**
+         * Returns the number for IsLesser
+         */
         public static get IsLesser(): number {
             return ValueCondition._IsLesser;
         }
 
-        // Members
+        /**
+         * Internal only The action manager for the condition
+         * @hidden 
+         */
         public _actionManager: ActionManager;
 
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private _target: any;
+
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private _effectiveTarget: any;
+
+        /**
+         * Internal only 
+         * @hidden 
+         */
         private _property: string;
 
-        constructor(actionManager: ActionManager, target: any, public propertyPath: string, public value: any, public operator: number = ValueCondition.IsEqual) {
+        /**
+         * Creates a new ValueCondition
+         * @param actionManager manager for the action the condition applies to
+         * @param target for the action
+         * @param propertyPath path to specify the property of the target the conditional operator uses 
+         * @param value the value compared by the conditional operator against the current value of the property
+         * @param operator the conditional operator, default ValueCondition.IsEqual
+         */
+        constructor(actionManager: ActionManager, target: any, 
+            /** path to specify the property of the target the conditional operator uses  */
+            public propertyPath: string, 
+            /** the value compared by the conditional operator against the current value of the property */
+            public value: any, 
+            /** the conditional operator, default ValueCondition.IsEqual */
+            public operator: number = ValueCondition.IsEqual) {
             super(actionManager);
 
             this._target = target;
@@ -72,7 +177,10 @@
             this._property = this._getProperty(this.propertyPath);
         }
 
-        // Methods
+        /**
+         * Compares the given value with the property value for the specified conditional operator
+         * @returns the result of the comparison
+         */
         public isValid(): boolean {
             switch (this.operator) {
                 case ValueCondition.IsGreater:
@@ -94,6 +202,10 @@
             return false;
         }
         
+        /**
+         * Serialize the ValueCondition into a JSON compatible object
+         * @returns serialization object
+         */
         public serialize(): any {
             return this._serialize({
                name: "ValueCondition",
@@ -106,6 +218,11 @@
             });
         }
         
+        /**
+         * Gets the name of the conditional operator for the ValueCondition
+         * @param operator the conditional operator
+         * @returns the name 
+         */
         public static GetOperatorName(operator: number): string {
             switch (operator) {
                 case ValueCondition._IsEqual: return "IsEqual";
@@ -117,37 +234,77 @@
         }
     }
 
+    /**
+     * Defines a predicate condition as an extension of Condition
+     */
     export class PredicateCondition extends Condition {
-        // Members
+        
+        /**
+         * Internal only - manager for action
+         * @hidden 
+         */
         public _actionManager: ActionManager;
 
 
-        constructor(actionManager: ActionManager, public predicate: () => boolean) {
+        /**
+         * Creates a new PredicateCondition
+         * @param actionManager manager for the action the condition applies to
+         * @param predicate defines the predicate function used to validate the condition
+         */
+        constructor(actionManager: ActionManager, 
+            /** defines the predicate function used to validate the condition */
+            public predicate: () => boolean) {
             super(actionManager);
         }
 
+        /**
+         * @returns the validity of the predicate condition
+         */
         public isValid(): boolean {
             return this.predicate();
         }
     }
 
+    /**
+     * Defines a state condition as an extension of Condition
+     */
     export class StateCondition extends Condition {
-        // Members
+        
+        /**
+         * Internal only - manager for action
+         * @hidden 
+         */
         public _actionManager: ActionManager;
 
+        /**
+         * Internal only
+         * @hidden 
+         */
         private _target: any;
 
+        /**
+         * Creates a new StateCondition
+         * @param actionManager manager for the action the condition applies to
+         * @param target of the condition
+         * @param value to compare with target state 
+         */
         constructor(actionManager: ActionManager, target: any, public value: string) {
             super(actionManager);
 
             this._target = target;
         }
 
-        // Methods
+        /**
+         * @returns the validity of the state
+         */
         public isValid(): boolean {
             return this._target.state === this.value;
         }
         
+        /**
+         * Serialize the StateCondition into a JSON compatible object
+         * @returns serialization object
+         */
         public serialize(): any {
             return this._serialize({
                name: "StateCondition",

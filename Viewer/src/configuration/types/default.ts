@@ -1,124 +1,116 @@
-import { ViewerConfiguration } from './../configuration';
+import { ViewerConfiguration } from '../configuration';
+import { defaultTemplate, fillContainer, loadingScreen, defaultViewer, navbar, overlay, help, share, error } from 'babylonjs-viewer-assets';
+import { babylonFont } from 'babylonjs-viewer-assets';
+import * as images from 'babylonjs-viewer-assets';
 
+/**
+ * The default configuration of the viewer, including templates (canvas, overly, loading screen)
+ * This configuration doesn't hold specific parameters, and only defines objects that are needed for the viewer to fully work correctly.
+ */
 export let defaultConfiguration: ViewerConfiguration = {
     version: "3.2.0-alpha4",
     templates: {
         main: {
-            html: require("../../../assets/templates/default/defaultTemplate.html")
+            html: defaultTemplate,
+            params: {
+                babylonFont: babylonFont,
+                noEscape: true
+            }
+        },
+        fillContainer: {
+            html: fillContainer,
+            params: {
+                disable: false
+            }
         },
         loadingScreen: {
-            html: require("../../../assets/templates/default/loadingScreen.html"),
+            html: loadingScreen,
             params: {
                 backgroundColor: "#000000",
-                loadingImage: require('../../../assets/img/loading.png')
+                loadingImage: images.loading
             }
         },
         viewer: {
-            html: require("../../../assets/templates/default/defaultViewer.html"),
-            events: {
-                pointerout: true,
-                pointerdown: true,
-                pointerup: true
+            html: defaultViewer,
+            params: {
+                enableDragAndDrop: false
             }
         },
         navBar: {
-            html: require("../../../assets/templates/default/navbar.html"),
+            html: navbar,
             params: {
-                buttons: {
-                    /*"help-button": {
-                        altText: "Help",
-                        image: require('../../../assets/img/help-circle.png')
-                    },*/
-                    "fullscreen-button": {
-                        altText: "Fullscreen",
-                        image: require('../../../assets/img/fullscreen.png')
-                    }
+                speedList: {
+                    "0.5x": "0.5",
+                    "1.0x": "1.0",
+                    "1.5x": "1.5",
+                    "2.0x": "2.0",
                 },
-                visibilityTimeout: 2000
+                logoImage: images.babylonLogo,
+                logoText: 'BabylonJS',
+                logoLink: 'https://babylonjs.com',
+                hideHelp: true,
+                hideHdButton: true,
+                disableOnFullscreen: false,
+                text: {
+                    hdButton: "Toggle HD",
+                    fullscreenButton: "Fullscreen",
+                    helpButton: "Help"
+                }
             },
             events: {
-                pointerdown: { 'fullscreen-button': true/*, '#help-button': true*/ },
-                pointerover: true
+                pointerdown: {
+                    '.navbar-control': true,
+                    '.help-button': true
+                },
+                input: {
+                    '.progress-wrapper': true
+                },
+                pointerup: {
+                    '.progress-wrapper': true
+                }
             }
         },
         overlay: {
-            html: require("../../../assets/templates/default/overlay.html"),
+            html: overlay,
             params: {
-                closeImage: require('../../../assets/img/close.png'),
+                closeImage: images.close,
                 closeText: 'Close'
             }
         },
         help: {
-            html: require("../../../assets/templates/default/help.html")
+            html: help
         },
         share: {
-            html: require("../../../assets/templates/default/share.html")
+            html: share
         },
         error: {
-            html: require("../../../assets/templates/default/error.html")
+            html: error
         }
 
     },
     camera: {
         behaviors: {
-            autoRotate: 0,
+            autoRotate: {
+                type: 0
+            },
             framing: {
                 type: 2,
                 zoomOnBoundingInfo: true,
                 zoomStopsAnimation: false
+            },
+            bouncing: {
+                type: 1
             }
         }
     },
-    /*lights: {
-        "default": {
-            type: 1,
-            shadowEnabled: true,
-            direction: { x: -0.2, y: -0.8, z: 0 },
-            position: { x: 10, y: 10, z: 0 },
-            intensity: 4.5,
-            shadowConfig: {
-                useBlurExponentialShadowMap: true,
-                useKernelBlur: true,
-                blurKernel: 64,
-                blurScale: 4
-            }
-        }
-    },*/
     skybox: {
-        /*cubeTexture: {
-            url: 'https://playground.babylonjs.com/textures/environment.dds',
-            gammaSpace: false
-        },*/
-        pbr: true,
-        blur: 0.7,
-        infiniteDIstance: false,
-        /*material: {
-            imageProcessingConfiguration: {
-                colorCurves: {
-                    globalDensity: 89,
-                    globalHue: 58.88,
-                    globalSaturation: 94
-                },
-                colorCurvesEnabled: true,
-                exposure: 1.5,
-                contrast: 1.66,
-                toneMappingEnabled: true,
-                vignetteEnabled: true,
-                vignetteWeight: 5,
-                vignetteColor: { r: 0.8, g: 0.6, b: 0.4 },
-                vignetteM: true
-            }
-        }*/
     },
-    ground: true,
+    ground: {
+        receiveShadows: true
+    },
     engine: {
         antialiasing: true
     },
     scene: {
-        imageProcessingConfiguration: {
-            exposure: 1.4,
-            contrast: 1.66,
-            toneMappingEnabled: true
-        }
     }
 }
