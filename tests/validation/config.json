@@ -1,6 +1,12 @@
 ﻿{
   "root": "https://rawgit.com/BabylonJS/Website/master",
-  "tests": [
+  "tests": [  
+    {
+      "title": "Particle Helper",
+      "playgroundId": "#1VGT5D#2",
+      "renderCount": 50,
+      "referenceImage": "particle_helper.png"
+    },     
     {
       "title": "Chibi Rex",
       "playgroundId": "#QATUCH#4",
@@ -469,6 +475,16 @@
       "title": "Local cubemaps",
       "playgroundId": "#RNASML#4",
       "referenceImage": "local cubemaps.png"
+    },
+    {
+      "title": "TGA",
+      "playgroundId": "#ZI77S7#0",
+      "referenceImage": "tga.png"
+    },
+    {
+      "title": "DDS",
+      "playgroundId": "#ZI77S7#3",
+      "referenceImage": "dds.png"
     }
   ]
 }

@@ -7,7 +7,16 @@ module BABYLON {
         private _dragPlane: Mesh;
         private _scene:Scene;
         private _pointerObserver:Nullable<Observer<PointerInfo>>;
+        private _beforeRenderObserver:Nullable<Observer<Scene>>;
         private static _planeScene:Scene;
+        /**
+         * The maximum tolerated angle between the drag plane and dragging pointer rays to trigger pointer events. Set to 0 to allow any angle (default: 0)
+         */
+        public maxDragAngle = 0;
+        /**
+         * @hidden
+         */
+        public _useAlternatePickedPointAboveMaxDragAngle = false;
         /**
          * The id of the pointer that is currently interacting with the behavior (-1 when no pointer is active)
          */
@@ -62,19 +71,19 @@ module BABYLON {
          */
         public useObjectOrienationForDragging = true;
 
+        private _options:{dragAxis?:Vector3, dragPlaneNormal?:Vector3};
         /**
          * Creates a pointer drag behavior that can be attached to a mesh
          * @param options The drag axis or normal of the plane that will be dragged across. If no options are specified the drag plane will always face the ray's origin (eg. camera)
          */
-        constructor(private options:{dragAxis?:Vector3, dragPlaneNormal?:Vector3}){
+        constructor(options?:{dragAxis?:Vector3, dragPlaneNormal?:Vector3}){
+            this._options = options ? options : {};
+            
             var optionCount = 0;
-            if(options === undefined){
-                options = {}
-            }
-            if(options.dragAxis){
+            if(this._options.dragAxis){
                 optionCount++;
             }
-            if(options.dragPlaneNormal){
+            if(this._options.dragPlaneNormal){
                 optionCount++;
             }
             if(optionCount > 1){
@@ -95,6 +104,7 @@ module BABYLON {
         public init() {}
 
         private _tmpVector = new Vector3(0,0,0);
+        private _alternatePickedPoint = new Vector3(0,0,0);
         private _worldDragAxis = new Vector3(0,0,0);
         /**
          * Attaches the drag behavior the passed in mesh
@@ -110,6 +120,7 @@ module BABYLON {
                     PointerDragBehavior._planeScene = this._scene;
                 }else{
                     PointerDragBehavior._planeScene = new BABYLON.Scene(this._scene.getEngine());
+                    PointerDragBehavior._planeScene.detachControl();
                     this._scene.getEngine().scenes.pop();
                 }
             }
@@ -158,9 +169,9 @@ module BABYLON {
                             }
                             
                             // depending on the drag mode option drag accordingly
-                            if(this.options.dragAxis){
+                            if(this._options.dragAxis){
                                 // Convert local drag axis to world
-                                Vector3.TransformCoordinatesToRef(this.options.dragAxis, this._attachedNode.getWorldMatrix().getRotationMatrix(), this._worldDragAxis);
+                                Vector3.TransformCoordinatesToRef(this._options.dragAxis, this._attachedNode.getWorldMatrix().getRotationMatrix(), this._worldDragAxis);
 
                                 // Project delta drag from the drag plane onto the drag axis
                                 pickedPoint.subtractToRef(this.lastDragPosition, this._tmpVector);
@@ -178,7 +189,7 @@ module BABYLON {
                 }
             });
 
-            this._scene.onBeforeRenderObservable.add(()=>{
+            this._beforeRenderObserver = this._scene.onBeforeRenderObservable.add(()=>{
                 if(this._moving && this.moveAttached){
                     // Slowly move mesh to avoid jitter
                     targetPosition.subtractToRef((<Mesh>this._attachedNode).absolutePosition, this._tmpVector);
@@ -200,6 +211,35 @@ module BABYLON {
             if(!ray){
                 return null;
             }
+
+            // Calculate angle between plane normal and ray
+            var angle = Math.acos(Vector3.Dot(this._dragPlane.forward, ray.direction));
+            // Correct if ray is casted from oposite side
+            if(angle > Math.PI/2){
+                angle = Math.PI - angle;
+            }
+
+            // If the angle is too perpendicular to the plane pick another point on the plane where it is looking
+            if(this.maxDragAngle > 0 && angle > this.maxDragAngle){
+                if(this._useAlternatePickedPointAboveMaxDragAngle){
+                    // Invert ray direction along the towards object axis
+                    this._tmpVector.copyFrom(ray.direction);
+                    (<Mesh>this._attachedNode).absolutePosition.subtractToRef(ray.origin, this._alternatePickedPoint);
+                    this._alternatePickedPoint.normalize();
+                    this._alternatePickedPoint.scaleInPlace(-2*Vector3.Dot(this._alternatePickedPoint, this._tmpVector));
+                    this._tmpVector.addInPlace(this._alternatePickedPoint);
+                    
+                    // Project resulting vector onto the drag plane and add it to the attached nodes absolute position to get a picked point
+                    var dot = Vector3.Dot(this._dragPlane.forward, this._tmpVector);
+                    this._dragPlane.forward.scaleToRef(-dot, this._alternatePickedPoint);
+                    this._alternatePickedPoint.addInPlace(this._tmpVector);
+                    this._alternatePickedPoint.addInPlace((<Mesh>this._attachedNode).absolutePosition);
+                    return this._alternatePickedPoint
+                }else{
+                    return null;
+                }
+            }
+
             var pickResult = PointerDragBehavior._planeScene.pickWithRay(ray, (m)=>{return m == this._dragPlane})
             if (pickResult && pickResult.hit && pickResult.pickedMesh && pickResult.pickedPoint) {
                 return pickResult.pickedPoint;
@@ -219,8 +259,8 @@ module BABYLON {
         // Position the drag plane based on the attached mesh position, for single axis rotate the plane along the axis to face the camera
         private _updateDragPlanePosition(ray:Ray, dragPlanePosition:Vector3){
             this._pointA.copyFrom(dragPlanePosition);
-            if(this.options.dragAxis){
-                this.useObjectOrienationForDragging ? Vector3.TransformCoordinatesToRef(this.options.dragAxis, this._attachedNode.getWorldMatrix().getRotationMatrix(), this._localAxis) : this._localAxis.copyFrom(this.options.dragAxis);
+            if(this._options.dragAxis){
+                this.useObjectOrienationForDragging ? Vector3.TransformCoordinatesToRef(this._options.dragAxis, this._attachedNode.getWorldMatrix().getRotationMatrix(), this._localAxis) : this._localAxis.copyFrom(this._options.dragAxis);
 
                 // Calculate plane normal in direction of camera but perpendicular to drag axis
                 this._pointA.addToRef(this._localAxis, this._pointB); // towards drag axis
@@ -237,8 +277,8 @@ module BABYLON {
                 this._dragPlane.position.copyFrom(this._pointA);
                 this._pointA.subtractToRef(this._lookAt, this._lookAt);
                 this._dragPlane.lookAt(this._lookAt);
-            }else if(this.options.dragPlaneNormal){
-                this.useObjectOrienationForDragging ? Vector3.TransformCoordinatesToRef(this.options.dragPlaneNormal, this._attachedNode.getWorldMatrix().getRotationMatrix(),this._localAxis) : this._localAxis.copyFrom(this.options.dragPlaneNormal);
+            }else if(this._options.dragPlaneNormal){
+                this.useObjectOrienationForDragging ? Vector3.TransformCoordinatesToRef(this._options.dragPlaneNormal, this._attachedNode.getWorldMatrix().getRotationMatrix(),this._localAxis) : this._localAxis.copyFrom(this._options.dragPlaneNormal);
                 this._dragPlane.position.copyFrom(this._pointA);
                 this._pointA.subtractToRef(this._localAxis, this._lookAt);
                 this._dragPlane.lookAt(this._lookAt);
@@ -255,6 +295,9 @@ module BABYLON {
         public detach(): void {
             if(this._pointerObserver){
                 this._scene.onPointerObservable.remove(this._pointerObserver);
+            }
+            if(this._beforeRenderObserver){
+                this._scene.onBeforeRenderObservable.remove(this._beforeRenderObserver);
             }
         }
     }

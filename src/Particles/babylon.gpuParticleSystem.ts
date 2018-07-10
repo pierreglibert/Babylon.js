@@ -63,7 +63,9 @@
         private _updateEffectOptions: EffectCreationOptions;
 
         private _randomTextureSize: number;
-        private _actualFrame = 0;        
+        private _actualFrame = 0;      
+        
+        private readonly _rawTextureWidth = 256;
 
         /**
          * List of animations used by the particle system.
@@ -301,7 +303,46 @@
         /**
          * Gets or sets the maximal initial rotation in radians.         
          */
-        public maxInitialRotation = 0;            
+        public maxInitialRotation = 0;   
+        
+        /**
+         * If using a spritesheet (isAnimationSheetEnabled) defines the speed of the sprite loop (default is 1 meaning the animation will play once during the entire particle lifetime)
+         */
+        public spriteCellChangeSpeed = 1;
+        /**
+         * If using a spritesheet (isAnimationSheetEnabled) defines the first sprite cell to display
+         */
+        public startSpriteCellID = 0;
+        /**
+         * If using a spritesheet (isAnimationSheetEnabled) defines the last sprite cell to display
+         */
+        public endSpriteCellID = 0;
+        /**
+         * If using a spritesheet (isAnimationSheetEnabled), defines the sprite cell width to use
+         */
+        public spriteCellWidth = 0;
+        /**
+         * If using a spritesheet (isAnimationSheetEnabled), defines the sprite cell height to use
+         */
+        public spriteCellHeight = 0;
+
+        /** Gets or sets a Vector2 used to move the pivot (by default (0,0)) */
+        public translationPivot = new Vector2(0, 0);     
+        
+        /**
+         * Gets or sets the billboard mode to use when isBillboardBased = true.
+         * Only BABYLON.AbstractMesh.BILLBOARDMODE_ALL and AbstractMesh.BILLBOARDMODE_Y are supported so far
+         */
+        public billboardMode = AbstractMesh.BILLBOARDMODE_ALL;        
+                
+        private _isAnimationSheetEnabled: boolean;
+
+        /**
+         * Gets whether an animation sprite sheet is enabled or not on the particle system
+         */
+        public get isAnimationSheetEnabled(): boolean {
+            return this._isAnimationSheetEnabled;
+        }        
 
         /**
          * Is this system ready to be used/rendered
@@ -402,13 +443,55 @@
          */
         public getSizeGradients(): Nullable<Array<FactorGradient>> {
             return this._sizeGradients;
-        }               
+        }      
+        
+        /**
+         * Gets the current list of angular speed gradients.
+         * You must use addAngularSpeedGradient and removeAngularSpeedGradient to udpate this list
+         * @returns the list of angular speed gradients
+         */
+        public getAngularSpeedGradients(): Nullable<Array<FactorGradient>> {
+            return this._angularSpeedGradients;
+        } 
+
+        /**
+         * Gets the current list of velocity gradients.
+         * You must use addVelocityGradient and removeVelocityGradient to udpate this list
+         * @returns the list of angular speed gradients
+         */
+        public getVelocityGradients(): Nullable<Array<FactorGradient>> {
+            return this._velocityGradients;
+        }         
+
+        private _removeGradient(gradient: number, gradients: Nullable<IValueGradient[]>, texture: RawTexture): GPUParticleSystem {
+            if (!gradients) {
+                return this;
+            }
+
+            let index = 0;
+            for (var valueGradient of gradients) {
+                if (valueGradient.gradient === gradient) {
+                    gradients.splice(index, 1);
+                    break;
+                }
+                index++;
+            }
+
+            if (texture) {
+                texture.dispose();
+            }            
+
+            this._releaseBuffers();
+
+            return this;
+        }    
         
         /**
          * Adds a new color gradient
          * @param gradient defines the gradient to use (between 0 and 1)
          * @param color defines the color to affect to the specified gradient
          * @param color2 defines an additional color used to define a range ([color, color2]) with main color to pick the final color from
+         * @returns the current particle system
          */
         public addColorGradient(gradient: number, color1: Color4, color2?: Color4): GPUParticleSystem {
             if (!this._colorGradients) {
@@ -443,50 +526,31 @@
         /**
          * Remove a specific color gradient
          * @param gradient defines the gradient to remove
+         * @returns the current particle system
          */
         public removeColorGradient(gradient: number): GPUParticleSystem {
-            if (!this._colorGradients) {
-                return this;
-            }
-
-            let index = 0;
-            for (var colorGradient of this._colorGradients) {
-                if (colorGradient.gradient === gradient) {
-                    this._colorGradients.splice(index, 1);
-                    break;
-                }
-                index++;
-            }
-
-            if (this._colorGradientsTexture) {
-                this._colorGradientsTexture.dispose();
-                (<any>this._colorGradientsTexture) = null;
-            }            
-
-            this._releaseBuffers();
+            this._removeGradient(gradient, this._colorGradients, this._colorGradientsTexture);
+            (<any>this._colorGradientsTexture) = null;
 
             return this;
         }    
+
+        private _angularSpeedGradients: Nullable<Array<FactorGradient>> = null;
+        private _angularSpeedGradientsTexture: RawTexture;    
         
         private _sizeGradients: Nullable<Array<FactorGradient>> = null;
-        private _sizeGradientsTexture: RawTexture;        
+        private _sizeGradientsTexture: RawTexture;     
         
-        /**
-         * Adds a new size gradient
-         * @param gradient defines the gradient to use (between 0 and 1)
-         * @param factor defines the size factor to affect to the specified gradient
-         */
-        public addSizeGradient(gradient: number, factor: number): GPUParticleSystem {
-            if (!this._sizeGradients) {
-                this._sizeGradients = [];
-            }
+        private _velocityGradients: Nullable<Array<FactorGradient>> = null;
+        private _velocityGradientsTexture: RawTexture;    
 
-            let sizeGradient = new FactorGradient();
-            sizeGradient.gradient = gradient;
-            sizeGradient.factor = factor;
-            this._sizeGradients.push(sizeGradient);
+        private _addFactorGradient(factorGradients: FactorGradient[], gradient: number, factor: number) {
+            let valueGradient = new FactorGradient();
+            valueGradient.gradient = gradient;
+            valueGradient.factor1 = factor;
+            factorGradients.push(valueGradient);
 
-            this._sizeGradients.sort((a, b) => {
+            factorGradients.sort((a, b) => {
                 if (a.gradient < b.gradient) {
                     return -1;
                 } else if (a.gradient > b.gradient) {
@@ -495,6 +559,22 @@
 
                 return 0;
             });
+
+            this._releaseBuffers();               
+        }
+        
+        /**
+         * Adds a new size gradient
+         * @param gradient defines the gradient to use (between 0 and 1)
+         * @param factor defines the size factor to affect to the specified gradient
+         * @returns the current particle system
+         */
+        public addSizeGradient(gradient: number, factor: number): GPUParticleSystem {
+            if (!this._sizeGradients) {
+                this._sizeGradients = [];
+            }
+
+            this._addFactorGradient(this._sizeGradients, gradient, factor);
 
             if (this._sizeGradientsTexture) {
                 this._sizeGradientsTexture.dispose();
@@ -509,46 +589,105 @@
         /**
          * Remove a specific size gradient
          * @param gradient defines the gradient to remove
+         * @returns the current particle system
          */
         public removeSizeGradient(gradient: number): GPUParticleSystem {
-            if (!this._sizeGradients) {
-                return this;
+            this._removeGradient(gradient, this._sizeGradients, this._sizeGradientsTexture);
+            (<any>this._sizeGradientsTexture) = null;
+
+            return this;            
+        }   
+        
+        /**
+         * Adds a new angular speed gradient
+         * @param gradient defines the gradient to use (between 0 and 1)
+         * @param factor defines the size factor to affect to the specified gradient    
+         * @returns the current particle system     
+         */
+        public addAngularSpeedGradient(gradient: number, factor: number): GPUParticleSystem {
+            if (!this._angularSpeedGradients) {
+                this._angularSpeedGradients = [];
             }
 
-            let index = 0;
-            for (var sizeGradient of this._sizeGradients) {
-                if (sizeGradient.gradient === gradient) {
-                    this._sizeGradients.splice(index, 1);
-                    break;
-                }
-                index++;
+            this._addFactorGradient(this._angularSpeedGradients, gradient, factor);
+
+            if (this._angularSpeedGradientsTexture) {
+                this._angularSpeedGradientsTexture.dispose();
+                (<any>this._angularSpeedGradientsTexture) = null;
             }
 
-            if (this._sizeGradientsTexture) {
-                this._sizeGradientsTexture.dispose();
-                (<any>this._sizeGradientsTexture) = null;
-            }
-
-            this._releaseBuffers();               
+            this._releaseBuffers();   
 
             return this;
-        }            
+        }
+
+        /**
+         * Remove a specific angular speed gradient
+         * @param gradient defines the gradient to remove
+         * @returns the current particle system
+         */
+        public removeAngularSpeedGradient(gradient: number): GPUParticleSystem {
+            this._removeGradient(gradient, this._angularSpeedGradients, this._angularSpeedGradientsTexture);
+            (<any>this._angularSpeedGradientsTexture) = null;
+
+            return this;           
+        }           
+        
+        /**
+         * Adds a new velocity gradient
+         * @param gradient defines the gradient to use (between 0 and 1)
+         * @param factor defines the size factor to affect to the specified gradient    
+         * @returns the current particle system     
+         */
+        public addVelocityGradient(gradient: number, factor: number): GPUParticleSystem {
+            if (!this._velocityGradients) {
+                this._velocityGradients = [];
+            }
+
+            this._addFactorGradient(this._velocityGradients, gradient, factor);
+
+            if (this._velocityGradientsTexture) {
+                this._velocityGradientsTexture.dispose();
+                (<any>this._velocityGradientsTexture) = null;
+            }
+
+            this._releaseBuffers();   
+
+            return this;
+        }
+
+        /**
+         * Remove a specific velocity gradient
+         * @param gradient defines the gradient to remove
+         * @returns the current particle system
+         */
+        public removeVelocityGradient(gradient: number): GPUParticleSystem {
+            this._removeGradient(gradient, this._velocityGradients, this._velocityGradientsTexture);
+            (<any>this._velocityGradientsTexture) = null;
+
+            return this;           
+        }          
 
         /**
          * Instantiates a GPU particle system.
          * Particles are often small sprites used to simulate hard-to-reproduce phenomena like fire, smoke, water, or abstract visual effects like magic glitter and faery dust.
          * @param name The name of the particle system
-         * @param capacity The max number of particles alive at the same time
+         * @param options The options used to create the system
          * @param scene The scene the particle system belongs to
+         * @param isAnimationSheetEnabled Must be true if using a spritesheet to animate the particles texture
          */
         constructor(name: string, options: Partial<{
                         capacity: number,
                         randomTextureSize: number
-                    }>, scene: Scene) {
+                    }>, scene: Scene, isAnimationSheetEnabled: boolean = false) {
             this.id = name;
             this.name = name;
             this._scene = scene || Engine.LastCreatedScene;
             this._engine = this._scene.getEngine();
+
+            if (!options.randomTextureSize) {
+                delete options.randomTextureSize;
+            }
 
             let fullOptions = {
                 capacity: 50000,
@@ -564,16 +703,17 @@
             this._capacity = fullOptions.capacity;
             this._activeCount = fullOptions.capacity;
             this._currentActiveCount = 0;
+            this._isAnimationSheetEnabled = isAnimationSheetEnabled;
 
             this._scene.particleSystems.push(this);
 
             this._updateEffectOptions = {
-                attributes: ["position", "age", "life", "seed", "size", "color", "direction", "initialDirection", "angle", "initialSize"],
+                attributes: ["position", "age", "life", "seed", "size", "color", "direction", "initialDirection", "angle", "cellIndex"],
                 uniformsNames: ["currentCount", "timeDelta", "emitterWM", "lifeTime", "color1", "color2", "sizeRange", "scaleRange","gravity", "emitPower",
                                 "direction1", "direction2", "minEmitBox", "maxEmitBox", "radius", "directionRandomizer", "height", "coneAngle", "stopFactor", 
-                                "angleRange", "radiusRange"],
+                                "angleRange", "radiusRange", "cellInfos"],
                 uniformBuffersNames: [],
-                samplers:["randomSampler", "randomSampler2", "sizeGradientSampler"],
+                samplers:["randomSampler", "randomSampler2", "sizeGradientSampler", "angularSpeedGradientSampler", "velocityGradientSampler"],
                 defines: "",
                 fallbacks: null,  
                 onCompiled: null,
@@ -620,10 +760,6 @@
             updateVertexBuffers["seed"] = source.createVertexBuffer("seed", 5, 4);
             updateVertexBuffers["size"] = source.createVertexBuffer("size", 9, 3);
             let offset = 12;
-            if (this._sizeGradientsTexture) {
-                updateVertexBuffers["initialSize"] = source.createVertexBuffer("initialSize", offset, 3);
-                offset += 3;
-            }
 
             if (!this._colorGradientsTexture) {
                 updateVertexBuffers["color"] = source.createVertexBuffer("color", offset, 4);
@@ -638,7 +774,18 @@
                 offset += 3;
             }
 
-            updateVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 2);
+            if (this._angularSpeedGradientsTexture) {
+                updateVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 1);
+                offset += 1;
+            } else {
+                updateVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 2);
+                offset += 2;
+            }
+
+            if (this._isAnimationSheetEnabled) {
+                updateVertexBuffers["cellIndex"] = source.createVertexBuffer("cellIndex", offset, 1);
+                offset += 1;
+            }            
            
             let vao = this._engine.recordVertexArrayObject(updateVertexBuffers, null, this._updateEffect);
             this._engine.bindArrayBuffer(null);
@@ -654,9 +801,6 @@
             renderVertexBuffers["size"] = source.createVertexBuffer("size", 9, 3, this._attributesStrideSize, true);      
             
             let offset = 12;
-            if (this._sizeGradientsTexture) {
-                offset += 3;
-            }
 
             if (!this._colorGradientsTexture) {
                 renderVertexBuffers["color"] = source.createVertexBuffer("color", offset, 4, this._attributesStrideSize, true);
@@ -669,7 +813,18 @@
                 renderVertexBuffers["initialDirection"] = source.createVertexBuffer("initialDirection", offset, 3, this._attributesStrideSize, true);
                 offset += 3;
             }
-            renderVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 2, this._attributesStrideSize, true);
+
+            renderVertexBuffers["angle"] = source.createVertexBuffer("angle", offset, 1, this._attributesStrideSize, true);
+            if (this._angularSpeedGradientsTexture) {
+                offset++;
+            } else {
+                offset += 2;
+            }
+
+            if (this._isAnimationSheetEnabled) {
+                renderVertexBuffers["cellIndex"] = source.createVertexBuffer("cellIndex", offset, 1, this._attributesStrideSize, true);
+                offset += 1;
+            }               
 
             renderVertexBuffers["offset"] = spriteSource.createVertexBuffer("offset", 0, 2);
             renderVertexBuffers["uv"] = spriteSource.createVertexBuffer("uv", 2, 2);
@@ -696,9 +851,13 @@
                 this._attributesStrideSize -= 4;
             }
 
-            if (this._sizeGradientsTexture) {
-                this._attributesStrideSize += 3;
-            }
+            if (this._angularSpeedGradientsTexture) {
+                this._attributesStrideSize -= 1;
+            }            
+
+            if (this._isAnimationSheetEnabled) {
+                this._attributesStrideSize += 1;
+            }            
 
             for (var particleIndex = 0; particleIndex < this._capacity; particleIndex++) {
                 // position
@@ -720,12 +879,6 @@
                 data.push(0.0);
                 data.push(0.0);
                 data.push(0.0);
-
-                if (this._sizeGradientsTexture) {
-                    data.push(0.0);
-                    data.push(0.0);
-                    data.push(0.0);  
-                }                
 
                 if (!this._colorGradientsTexture) {
                     // color
@@ -749,7 +902,14 @@
 
                 // angle
                 data.push(0.0);  
-                data.push(0.0); 
+
+                if (!this._angularSpeedGradientsTexture) {
+                    data.push(0.0); 
+                }
+
+                if (this._isAnimationSheetEnabled) {
+                    data.push(0.0); 
+                }                
             }
 
             // Sprite data
@@ -793,17 +953,25 @@
             
             if (this._sizeGradientsTexture) {
                 defines += "\n#define SIZEGRADIENTS";
-            }                 
+            }     
+
+            if (this._angularSpeedGradientsTexture) {
+                defines += "\n#define ANGULARSPEEDGRADIENTS";
+            }               
+            
+            if (this._velocityGradientsTexture) {
+                defines += "\n#define VELOCITYGRADIENTS";
+            }                    
+            
+            if (this.isAnimationSheetEnabled) {
+                defines += "\n#define ANIMATESHEET";
+            }             
 
             if (this._updateEffect && this._updateEffectOptions.defines === defines) {
                 return;
             }
 
             this._updateEffectOptions.transformFeedbackVaryings = ["outPosition", "outAge", "outLife", "outSeed", "outSize"];           
-
-            if (this._sizeGradientsTexture) {
-                this._updateEffectOptions.transformFeedbackVaryings.push("outInitialSize");
-            }
 
             if (!this._colorGradientsTexture) {
                 this._updateEffectOptions.transformFeedbackVaryings.push("outColor");
@@ -816,6 +984,10 @@
             }
 
             this._updateEffectOptions.transformFeedbackVaryings.push("outAngle");
+
+            if (this.isAnimationSheetEnabled) {
+                this._updateEffectOptions.transformFeedbackVaryings.push("outCellIndex");
+            }               
 
             this._updateEffectOptions.defines = defines;
             this._updateEffect = new Effect("gpuUpdateParticles", this._updateEffectOptions, this._scene.getEngine());   
@@ -830,19 +1002,32 @@
 
             if (this._isBillboardBased) {
                 defines += "\n#define BILLBOARD";
+
+                switch (this.billboardMode) {
+                    case AbstractMesh.BILLBOARDMODE_Y:
+                        defines += "\n#define BILLBOARDY";
+                        break;
+                    case AbstractMesh.BILLBOARDMODE_ALL:
+                    default:
+                        break;
+                }                
             }         
             
             if (this._colorGradientsTexture) {
                 defines += "\n#define COLORGRADIENTS";
             }   
 
+            if (this.isAnimationSheetEnabled) {
+                defines += "\n#define ANIMATESHEET";
+            }                 
+
             if (this._renderEffect && this._renderEffect.defines === defines) {
                 return;
             }
 
             this._renderEffect = new Effect("gpuRenderParticles", 
-                                            ["position", "age", "life", "size", "color", "offset", "uv", "initialDirection", "angle"], 
-                                            ["view", "projection", "colorDead", "invView", "vClipPlane"], 
+                                            ["position", "age", "life", "size", "color", "offset", "uv", "initialDirection", "angle", "cellIndex"], 
+                                            ["view", "projection", "colorDead", "invView", "vClipPlane", "sheetInfos", "translationPivot", "eyePosition"], 
                                             ["textureSampler", "colorGradientSampler"], this._scene.getEngine(), defines);
         }        
 
@@ -861,36 +1046,48 @@
             }             
         }    
 
-        private _createSizeGradientTexture() {
-            if (!this._sizeGradients || !this._sizeGradients.length || this._sizeGradientsTexture) {
+        private _createFactorGradientTexture(factorGradients: Nullable<IValueGradient[]>, textureName: string) {
+            let texture:RawTexture = (<any>this)[textureName];
+
+            if (!factorGradients || !factorGradients.length || texture) {
                 return;
             }
 
-            let textureWidth = 256;
-            let data = new Float32Array(textureWidth);
+            let data = new Float32Array(this._rawTextureWidth);
 
-            for (var x = 0; x < textureWidth; x++) {
-                var ratio = x / textureWidth;
+            for (var x = 0; x < this._rawTextureWidth; x++) {
+                var ratio = x / this._rawTextureWidth;
 
-                Tools.GetCurrentGradient(ratio, this._sizeGradients, (currentGradient, nextGradient, scale) => {
-                    data[x] = Scalar.Lerp((<FactorGradient>currentGradient).factor, (<FactorGradient>nextGradient).factor, scale);
+                Tools.GetCurrentGradient(ratio, factorGradients, (currentGradient, nextGradient, scale) => {
+                    data[x] = Scalar.Lerp((<FactorGradient>currentGradient).factor1, (<FactorGradient>nextGradient).factor1, scale);
                 });
             }
 
-            this._sizeGradientsTexture = RawTexture.CreateRTexture(data, textureWidth, 1, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE);
-        }        
+            (<any>this)[textureName] = RawTexture.CreateRTexture(data, this._rawTextureWidth, 1, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+        }            
+
+        private _createSizeGradientTexture() {
+            this._createFactorGradientTexture(this._sizeGradients, "_sizeGradientsTexture");
+        }     
+        
+        private _createAngularSpeedGradientTexture() {
+            this._createFactorGradientTexture(this._angularSpeedGradients, "_angularSpeedGradientsTexture");
+        }     
+
+        private _createVelocityGradientTexture() {
+            this._createFactorGradientTexture(this._velocityGradients, "_velocityGradientsTexture");
+        }          
             
         private _createColorGradientTexture() {
             if (!this._colorGradients || !this._colorGradients.length || this._colorGradientsTexture) {
                 return;
             }
 
-            let textureWidth = 256;
-            let data = new Uint8Array(textureWidth * 4);
+            let data = new Uint8Array(this._rawTextureWidth * 4);
             let tmpColor = Tmp.Color4[0];
 
-            for (var x = 0; x < textureWidth; x++) {
-                var ratio = x / textureWidth;
+            for (var x = 0; x < this._rawTextureWidth; x++) {
+                var ratio = x / this._rawTextureWidth;
 
                 Tools.GetCurrentGradient(ratio, this._colorGradients, (currentGradient, nextGradient, scale) => {
 
@@ -903,7 +1100,7 @@
 
             }
 
-            this._colorGradientsTexture = RawTexture.CreateRGBATexture(data, textureWidth, 1, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+            this._colorGradientsTexture = RawTexture.CreateRGBATexture(data, this._rawTextureWidth, 1, this._scene, false, false, Texture.NEAREST_SAMPLINGMODE);
         }
 
         /**
@@ -918,6 +1115,8 @@
 
             this._createColorGradientTexture();
             this._createSizeGradientTexture();
+            this._createAngularSpeedGradientTexture();
+            this._createVelocityGradientTexture();
 
             this._recreateUpdateEffect();
             this._recreateRenderEffect();
@@ -981,9 +1180,20 @@
                 this._updateEffect.setTexture("sizeGradientSampler", this._sizeGradientsTexture);      
             }
 
+            if (this._angularSpeedGradientsTexture) {      
+                this._updateEffect.setTexture("angularSpeedGradientSampler", this._angularSpeedGradientsTexture);      
+            }
+
+            if (this._velocityGradientsTexture) {      
+                this._updateEffect.setTexture("velocityGradientSampler", this._velocityGradientsTexture);      
+            }
+
             if (this.particleEmitterType) {
                 this.particleEmitterType.applyToShader(this._updateEffect);
             }
+            if (this._isAnimationSheetEnabled) {
+                this._updateEffect.setFloat3("cellInfos", this.startSpriteCellID, this.endSpriteCellID, this.spriteCellChangeSpeed);
+            }            
 
             let emitterWM: Matrix;
             if ((<AbstractMesh>this.emitter).position) {
@@ -1001,7 +1211,7 @@
             // Update
             this._engine.bindTransformFeedbackBuffer(this._targetBuffer.getBuffer());
             this._engine.setRasterizerState(false);
-            this._engine.beginTransformFeedback();
+            this._engine.beginTransformFeedback(true);
             this._engine.drawArraysType(Material.PointListDrawMode, 0, this._currentActiveCount);
             this._engine.endTransformFeedback();
             this._engine.setRasterizerState(true);
@@ -1014,12 +1224,22 @@
                 this._renderEffect.setMatrix("view", viewMatrix);
                 this._renderEffect.setMatrix("projection", this._scene.getProjectionMatrix());
                 this._renderEffect.setTexture("textureSampler", this.particleTexture);
+                this._renderEffect.setVector2("translationPivot", this.translationPivot);
                 if (this._colorGradientsTexture) {
                     this._renderEffect.setTexture("colorGradientSampler", this._colorGradientsTexture);
                 } else {
                     this._renderEffect.setDirectColor4("colorDead", this.colorDead);
                 }
 
+                if (this._isAnimationSheetEnabled && this.particleTexture) {
+                    let baseSize = this.particleTexture.getBaseSize();
+                    this._renderEffect.setFloat3("sheetInfos", this.spriteCellWidth / baseSize.width, this.spriteCellHeight / baseSize.height, baseSize.width / this.spriteCellWidth);
+                }
+
+                if (this._isBillboardBased) {
+                    var camera = this._scene.activeCamera!;
+                    this._renderEffect.setVector3("eyePosition", camera.globalPosition);
+                }
 
                 if (this._scene.clipPlane) {
                     var clipPlane = this._scene.clipPlane;
@@ -1127,7 +1347,17 @@
             if (this._sizeGradientsTexture) {
                 this._sizeGradientsTexture.dispose();
                 (<any>this._sizeGradientsTexture) = null;
-            }            
+            }    
+            
+            if (this._angularSpeedGradientsTexture) {
+                this._angularSpeedGradientsTexture.dispose();
+                (<any>this._angularSpeedGradientsTexture) = null;
+            }             
+
+            if (this._velocityGradientsTexture) {
+                this._velocityGradientsTexture.dispose();
+                (<any>this._velocityGradientsTexture) = null;
+            }                
          
             if (this._randomTexture) {
                 this._randomTexture.dispose();
@@ -1179,6 +1409,7 @@
             var serializationObject: any = {};
 
             ParticleSystem._Serialize(serializationObject, this);
+            serializationObject.activeParticleCount = this.activeParticleCount;
 
             return serializationObject;            
         }
@@ -1194,7 +1425,9 @@
             var name = parsedParticleSystem.name;
             var particleSystem = new GPUParticleSystem(name, {capacity: parsedParticleSystem.capacity, randomTextureSize: parsedParticleSystem.randomTextureSize}, scene);
 
-            particleSystem.activeParticleCount = parsedParticleSystem.activeParticleCount;
+            if (parsedParticleSystem.activeParticleCount) {
+                particleSystem.activeParticleCount = parsedParticleSystem.activeParticleCount;
+            }
             ParticleSystem._Parse(parsedParticleSystem, particleSystem, scene, rootUrl);
 
             return particleSystem;

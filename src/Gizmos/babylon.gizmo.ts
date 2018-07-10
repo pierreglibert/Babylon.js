@@ -7,10 +7,21 @@ module BABYLON {
          * The root mesh of the gizmo
          */
         protected _rootMesh:Mesh;
+        private _attachedMesh:Nullable<AbstractMesh>;
+        private _scaleFactor = 3;
+        private _tmpMatrix = new Matrix();
         /**
          * Mesh that the gizmo will be attached to. (eg. on a drag gizmo the mesh that will be dragged)
+         * * When set, interactions will be enabled
          */
-        public attachedMesh:Nullable<AbstractMesh>;
+        public get attachedMesh(){
+            return this._attachedMesh;
+        }
+        public set attachedMesh(value){
+            this._attachedMesh = value;
+            this._rootMesh.setEnabled(value?true:false);
+            this._attachedMeshChanged(value);
+        }
         /**
          * If set the gizmo's rotation will be updated to match the attached mesh each frame (Default: true)
          */
@@ -24,18 +35,7 @@ module BABYLON {
          */
         protected _updateScale = true;
         protected _interactionsEnabled = true;
-        protected _onInteractionsEnabledChanged(value:boolean){
-        }
-
-        /**
-         * If interactions are enabled with this gizmo. (eg. dragging/rotation)
-         */
-        public set interactionsEnabled(value:boolean){
-            this._interactionsEnabled = value;
-            this._onInteractionsEnabledChanged(value);
-        }
-        public get interactionsEnabled(){
-            return this._interactionsEnabled;
+        protected _attachedMeshChanged(value:Nullable<AbstractMesh>){
         }
 
         private _beforeRenderObserver:Nullable<Observer<Scene>>;
@@ -44,25 +44,47 @@ module BABYLON {
          * Creates a gizmo
          * @param gizmoLayer The utility layer the gizmo will be added to
          */
-        constructor(/** The utility layer the gizmo will be added to */ public gizmoLayer:UtilityLayerRenderer){
+        constructor(/** The utility layer the gizmo will be added to */ public gizmoLayer:UtilityLayerRenderer=UtilityLayerRenderer.DefaultUtilityLayer){
             this._rootMesh = new BABYLON.Mesh("gizmoRootNode",gizmoLayer.utilityLayerScene);
+            var tempVector = new Vector3();
             this._beforeRenderObserver = this.gizmoLayer.utilityLayerScene.onBeforeRenderObservable.add(()=>{
-                if(this._updateScale && this.gizmoLayer.utilityLayerScene.activeCamera && this.attachedMesh){
-                    var dist = this.attachedMesh.position.subtract(this.gizmoLayer.utilityLayerScene.activeCamera.position).length()/3;
-                    this._rootMesh.scaling.set(dist, dist, dist);
-                }
                 if(this.attachedMesh){
                     if(this.updateGizmoRotationToMatchAttachedMesh){
                         if(!this._rootMesh.rotationQuaternion){
-                            this._rootMesh.rotationQuaternion = new BABYLON.Quaternion();
+                            this._rootMesh.rotationQuaternion = Quaternion.RotationYawPitchRoll(this._rootMesh.rotation.y, this._rootMesh.rotation.x, this._rootMesh.rotation.z);
                         }
-                        Quaternion.FromRotationMatrixToRef(this.attachedMesh.getWorldMatrix().getRotationMatrix(), this._rootMesh.rotationQuaternion);
+
+                        // Remove scaling before getting rotation matrix to get rotation matrix unmodified by scale
+                        tempVector.copyFrom(this.attachedMesh.scaling);
+                        if(this.attachedMesh.scaling.x < 0){
+                            this.attachedMesh.scaling.x *= -1;
+                        }
+                        if(this.attachedMesh.scaling.y < 0){
+                            this.attachedMesh.scaling.y *= -1;
+                        }
+                        if(this.attachedMesh.scaling.z < 0){
+                            this.attachedMesh.scaling.z *= -1;
+                        }
+                        this.attachedMesh.computeWorldMatrix().getRotationMatrixToRef(this._tmpMatrix);
+                        this.attachedMesh.scaling.copyFrom(tempVector);
+                        this.attachedMesh.computeWorldMatrix();
+                        Quaternion.FromRotationMatrixToRef(this._tmpMatrix, this._rootMesh.rotationQuaternion);
                     }
                     if(this.updateGizmoPositionToMatchAttachedMesh){
                         this._rootMesh.position.copyFrom(this.attachedMesh.absolutePosition);
                     }
+                    if(this._updateScale && this.gizmoLayer.utilityLayerScene.activeCamera && this.attachedMesh){
+                        var cameraPosition = this.gizmoLayer.utilityLayerScene.activeCamera.position;
+                        if((<WebVRFreeCamera>this.gizmoLayer.utilityLayerScene.activeCamera).devicePosition){
+                            cameraPosition = (<WebVRFreeCamera>this.gizmoLayer.utilityLayerScene.activeCamera).devicePosition;
+                        }
+                        this._rootMesh.position.subtractToRef(cameraPosition, tempVector);
+                        var dist = tempVector.length()/this._scaleFactor;
+                        this._rootMesh.scaling.set(dist, dist, dist);
+                    }
                 }
             })
+            this.attachedMesh = null;
         }
         /**
          * Disposes of the gizmo

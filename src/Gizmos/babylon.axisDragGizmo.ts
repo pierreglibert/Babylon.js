@@ -3,15 +3,27 @@ module BABYLON {
      * Single axis drag gizmo
      */
     export class AxisDragGizmo extends Gizmo {
-        private _dragBehavior:PointerDragBehavior;
+        /**
+         * Drag behavior responsible for the gizmos dragging interactions
+         */
+        public dragBehavior:PointerDragBehavior;
         private _pointerObserver:Nullable<Observer<PointerInfo>> = null;
+        /**
+         * Drag distance in babylon units that the gizmo will snap to when dragged (Default: 0)
+         */
+        public snapDistance = 0;
+        /**
+         * Event that fires each time the gizmo snaps to a new location.
+         * * snapDistance is the the change in distance
+         */
+        public onSnapObservable = new Observable<{snapDistance:number}>();
         /**
          * Creates an AxisDragGizmo
          * @param gizmoLayer The utility layer the gizmo will be added to
          * @param dragAxis The axis which the gizmo will be able to drag on
          * @param color The color of the gizmo
          */
-        constructor(gizmoLayer:UtilityLayerRenderer, dragAxis:Vector3, color:Color3){
+        constructor(dragAxis:Vector3, color:Color3 = Color3.Gray(), gizmoLayer:UtilityLayerRenderer = UtilityLayerRenderer.DefaultUtilityLayer){
             super(gizmoLayer);
             
             // Create Material
@@ -42,16 +54,30 @@ module BABYLON {
 
             this._rootMesh.addChild(arrow)
 
+            var currentSnapDragDistance = 0;
+            var tmpVector = new Vector3();
+            var tmpSnapEvent = {snapDistance: 0};
             // Add drag behavior to handle events when the gizmo is dragged
-            this._dragBehavior = new PointerDragBehavior({dragAxis: dragAxis});
-            this._dragBehavior.moveAttached = false;
-            this._rootMesh.addBehavior(this._dragBehavior);
-            this._dragBehavior.onDragObservable.add((event)=>{
-                if(!this.interactionsEnabled){
-                    return;
-                }
+            this.dragBehavior = new PointerDragBehavior({dragAxis: dragAxis});
+            this.dragBehavior.moveAttached = false;
+            this._rootMesh.addBehavior(this.dragBehavior);
+            this.dragBehavior.onDragObservable.add((event)=>{
                 if(this.attachedMesh){
-                    this.attachedMesh.position.addInPlace(event.delta);
+                    // Snapping logic
+                    if(this.snapDistance == 0){
+                        this.attachedMesh.position.addInPlace(event.delta);
+                    }else{
+                        currentSnapDragDistance+=event.dragDistance
+                        if(Math.abs(currentSnapDragDistance)>this.snapDistance){
+                            var dragSteps = Math.floor(Math.abs(currentSnapDragDistance)/this.snapDistance);
+                            currentSnapDragDistance = currentSnapDragDistance % this.snapDistance;
+                            event.delta.normalizeToRef(tmpVector);
+                            tmpVector.scaleInPlace(this.snapDistance*dragSteps);
+                            this.attachedMesh.position.addInPlace(tmpVector);
+                            tmpSnapEvent.snapDistance = this.snapDistance*dragSteps;
+                            this.onSnapObservable.notifyObservers(tmpSnapEvent);
+                        }
+                    }
                 }
             })
 
@@ -67,15 +93,18 @@ module BABYLON {
                 }
             });
         }
-        protected _onInteractionsEnabledChanged(value:boolean){
-            this._dragBehavior.enabled = value;
+        protected _attachedMeshChanged(value:Nullable<AbstractMesh>){
+            if(this.dragBehavior){
+                this.dragBehavior.enabled = value?true:false;
+            }
         }
         /**
          * Disposes of the gizmo
          */
         public dispose(){
+            this.onSnapObservable.clear();
             this.gizmoLayer.utilityLayerScene.onPointerObservable.remove(this._pointerObserver);
-            this._dragBehavior.detach();
+            this.dragBehavior.detach();
             super.dispose();
         } 
     }

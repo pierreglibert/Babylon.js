@@ -19,6 +19,8 @@ declare module 'babylonjs-viewer' {
     import { ViewerModel, ModelState } from 'babylonjs-viewer/model/viewerModel';
     import { AnimationPlayMode, AnimationState } from 'babylonjs-viewer/model/modelAnimation';
     import { ILoaderPlugin } from 'babylonjs-viewer/loader/plugins/loaderPlugin';
+    import { AbstractViewerNavbarButton } from 'babylonjs-viewer/templating/viewerTemplatePlugin';
+    import { registerCustomOptimizer } from 'babylonjs-viewer/optimizer/custom';
     /**
         * BabylonJS Viewer
         *
@@ -34,7 +36,7 @@ declare module 'babylonjs-viewer' {
         */
     function disposeAll(): void;
     const Version: string;
-    export { BABYLON, Version, InitTags, DefaultViewer, AbstractViewer, viewerGlobals, telemetryManager, disableInit, viewerManager, mapperManager, disposeAll, ModelLoader, ViewerModel, AnimationPlayMode, AnimationState, ModelState, ILoaderPlugin };
+    export { BABYLON, Version, InitTags, DefaultViewer, AbstractViewer, viewerGlobals, telemetryManager, disableInit, viewerManager, mapperManager, disposeAll, ModelLoader, ViewerModel, AnimationPlayMode, AnimationState, ModelState, ILoaderPlugin, AbstractViewerNavbarButton, registerCustomOptimizer };
     export * from 'babylonjs-viewer/configuration';
 }
 
@@ -152,23 +154,26 @@ declare module 'babylonjs-viewer/viewer/defaultViewer' {
     import { Template } from 'babylonjs-viewer/templating/templateManager';
     import { AbstractViewer } from 'babylonjs-viewer/viewer/viewer';
     import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
+    import { IViewerTemplatePlugin } from 'babylonjs-viewer/templating/viewerTemplatePlugin';
     /**
         * The Default viewer is the default implementation of the AbstractViewer.
         * It uses the templating system to render a new canvas and controls.
         */
     export class DefaultViewer extends AbstractViewer {
             containerElement: HTMLElement;
+            fullscreenElement?: HTMLElement;
             /**
                 * Create a new default viewer
                 * @param containerElement the element in which the templates will be rendered
                 * @param initialConfiguration the initial configuration. Defaults to extending the default configuration
                 */
             constructor(containerElement: HTMLElement, initialConfiguration?: ViewerConfiguration);
+            registerTemplatePlugin(plugin: IViewerTemplatePlugin): void;
             /**
                 * This will be executed when the templates initialize.
                 */
             protected _onTemplatesLoaded(): Promise<AbstractViewer>;
-            toggleHD(): void;
+            toggleVR(): void;
             /**
                 * Toggle fullscreen of the entire viewer
                 */
@@ -227,14 +232,14 @@ declare module 'babylonjs-viewer/viewer/defaultViewer' {
 }
 
 declare module 'babylonjs-viewer/viewer/viewer' {
-    import { SceneManager } from 'babylonjs-viewer/managers/sceneManager';
+    import { Engine, ISceneLoaderPlugin, ISceneLoaderPluginAsync, Observable, Scene, SceneLoaderProgressEvent } from 'babylonjs';
+    import { IModelConfiguration, IObserversConfiguration, ViewerConfiguration } from 'babylonjs-viewer/configuration';
+    import { ConfigurationContainer } from 'babylonjs-viewer/configuration/configurationContainer';
     import { ConfigurationLoader } from 'babylonjs-viewer/configuration/loader';
-    import { Observable, Engine, Scene, SceneLoaderProgressEvent, ISceneLoaderPlugin, ISceneLoaderPluginAsync } from 'babylonjs';
-    import { ViewerConfiguration, IObserversConfiguration, IModelConfiguration } from 'babylonjs-viewer/configuration';
-    import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
     import { ModelLoader } from 'babylonjs-viewer/loader/modelLoader';
     import { ObservablesManager } from 'babylonjs-viewer/managers/observablesManager';
-    import { ConfigurationContainer } from 'babylonjs-viewer/configuration/configurationContainer';
+    import { SceneManager } from 'babylonjs-viewer/managers/sceneManager';
+    import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
     import { TemplateManager } from 'babylonjs-viewer/templating/templateManager';
     /**
         * The AbstractViewr is the center of Babylon's viewer.
@@ -369,6 +374,9 @@ declare module 'babylonjs-viewer/viewer/viewer' {
             forceResize(): void;
             protected _hdToggled: boolean;
             toggleHD(): void;
+            protected _vrToggled: boolean;
+            protected _vrScale: number;
+            toggleVR(): void;
             /**
                 * The resize function that will be registered with the window object
                 */
@@ -395,10 +403,10 @@ declare module 'babylonjs-viewer/viewer/viewer' {
                 * Only provided information will be updated, old configuration values will be kept.
                 * If this.configuration was manually changed, you can trigger this function with no parameters,
                 * and the entire configuration will be updated.
-                * @param newConfiguration the partial configuration to update
+                * @param newConfiguration the partial configuration to update or a URL to a JSON holding the updated configuration
                 *
                 */
-            updateConfiguration(newConfiguration?: Partial<ViewerConfiguration>): void;
+            updateConfiguration(newConfiguration?: Partial<ViewerConfiguration> | string): void;
             /**
                 * this is used to register native functions using the configuration object.
                 * This will configure the observers.
@@ -509,11 +517,11 @@ declare module 'babylonjs-viewer/managers/telemetryManager' {
 }
 
 declare module 'babylonjs-viewer/loader/modelLoader' {
-    import { IModelConfiguration } from "babylonjs-viewer/configuration/interfaces/modelConfiguration";
-    import { ViewerModel } from "babylonjs-viewer/model/viewerModel";
+    import { ConfigurationContainer } from 'babylonjs-viewer/configuration/configurationContainer';
+    import { IModelConfiguration } from 'babylonjs-viewer/configuration/interfaces/modelConfiguration';
+    import { ObservablesManager } from 'babylonjs-viewer/managers/observablesManager';
+    import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
     import { ILoaderPlugin } from 'babylonjs-viewer/loader/plugins';
-    import { ObservablesManager } from "babylonjs-viewer/managers/observablesManager";
-    import { ConfigurationContainer } from "babylonjs-viewer/configuration/configurationContainer";
     /**
         * An instance of the class is in charge of loading the model correctly.
         * This class will continously be expended with tasks required from the specific loaders Babylon has.
@@ -521,6 +529,7 @@ declare module 'babylonjs-viewer/loader/modelLoader' {
         * A Model loader is unique per (Abstract)Viewer. It is being generated by the viewer
         */
     export class ModelLoader {
+            readonly baseUrl: string;
             /**
                 * Create a new Model loader
                 * @param _viewer the viewer using this model loader
@@ -547,7 +556,7 @@ declare module 'babylonjs-viewer/loader/modelLoader' {
 }
 
 declare module 'babylonjs-viewer/model/viewerModel' {
-    import { ISceneLoaderPlugin, ISceneLoaderPluginAsync, AnimationGroup, AbstractMesh, Observable, SceneLoaderProgressEvent, ParticleSystem, Skeleton, IDisposable, Nullable, Animation, Material } from "babylonjs";
+    import { ISceneLoaderPlugin, ISceneLoaderPluginAsync, AnimationGroup, AbstractMesh, Observable, SceneLoaderProgressEvent, IParticleSystem, Skeleton, IDisposable, Nullable, Animation, Material } from "babylonjs";
     import { GLTF2 } from "babylonjs-loaders";
     import { IModelConfiguration } from "babylonjs-viewer/configuration/interfaces/modelConfiguration";
     import { IModelAnimation } from "babylonjs-viewer/model/modelAnimation";
@@ -582,7 +591,7 @@ declare module 'babylonjs-viewer/model/viewerModel' {
             /**
                 * ParticleSystems connected to this model
                 */
-            particleSystems: Array<ParticleSystem>;
+            particleSystems: Array<IParticleSystem>;
             /**
                 * Skeletons defined in this model
                 */
@@ -712,7 +721,7 @@ declare module 'babylonjs-viewer/model/viewerModel' {
 }
 
 declare module 'babylonjs-viewer/model/modelAnimation' {
-    import { AnimationGroup, Vector3 } from "babylonjs";
+    import { AnimationGroup, Vector3 } from 'babylonjs';
     /**
         * Animation play mode enum - is the animation looping or playing once
         */
@@ -940,6 +949,41 @@ declare module 'babylonjs-viewer/loader/plugins/loaderPlugin' {
     }
 }
 
+declare module 'babylonjs-viewer/templating/viewerTemplatePlugin' {
+    import { EventCallback, Template } from "babylonjs-viewer/templating/templateManager";
+    export interface IViewerTemplatePlugin {
+        readonly templateName: string;
+        readonly eventsToAttach?: Array<string>;
+        interactionPredicate(event: EventCallback): boolean;
+        onEvent?(event: EventCallback): void;
+        addHTMLTemplate?(template: Template): void;
+    }
+    export abstract class AbstractViewerNavbarButton implements IViewerTemplatePlugin {
+        readonly templateName: string;
+        readonly eventsToAttach: Array<string>;
+        protected _prepend: boolean;
+        protected _buttonName: string;
+        protected _buttonClass: string;
+        protected _htmlTemplate: string;
+        constructor(buttonName: string, buttonClass?: string, htmlTemplate?: string);
+        interactionPredicate(event: EventCallback): boolean;
+        abstract onEvent(event: EventCallback): void;
+        addHTMLTemplate(template: Template): void;
+        protected _generateHTMLElement(template: Template): Element | DocumentFragment;
+    }
+}
+
+declare module 'babylonjs-viewer/optimizer/custom' {
+    import { SceneManager } from "babylonjs-viewer/managers/sceneManager";
+    /**
+      *
+      * @param name the name of the custom optimizer configuration
+      * @param upgrade set to true if you want to upgrade optimizer and false if you want to degrade
+      */
+    export function getCustomOptimizerByName(name: string, upgrade?: boolean): (sceneManager: SceneManager) => boolean;
+    export function registerCustomOptimizer(name: string, optimizer: (sceneManager: SceneManager) => boolean): void;
+}
+
 declare module 'babylonjs-viewer/initializer' {
     /**
         * Will attach an init function the the DOMContentLoaded event.
@@ -961,7 +1005,7 @@ declare module 'babylonjs-viewer/configuration' {
 
 declare module 'babylonjs-viewer/configuration/configuration' {
     import { EngineOptions } from 'babylonjs';
-    import { IObserversConfiguration, IModelConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, ICameraConfiguration, ISkyboxConfiguration, IGroundConfiguration, ILightConfiguration, IDefaultRenderingPipelineConfiguration, ITemplateConfiguration } from 'babylonjs-viewer/configuration/interfaces';
+    import { ICameraConfiguration, IDefaultRenderingPipelineConfiguration, IGroundConfiguration, ILightConfiguration, IModelConfiguration, IObserversConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, ISkyboxConfiguration, ITemplateConfiguration, IVRConfiguration } from 'babylonjs-viewer/configuration/interfaces';
     export function getConfigurationKey(key: string, configObject: any): any;
     export interface ViewerConfiguration {
             version?: string;
@@ -1010,6 +1054,7 @@ declare module 'babylonjs-viewer/configuration/configuration' {
                     minecraft?: boolean;
                     [propName: string]: boolean | undefined;
             };
+            vr?: IVRConfiguration;
             lab?: {
                     flashlight?: boolean | {
                             exponent?: number;
@@ -1146,6 +1191,8 @@ declare module 'babylonjs-viewer/templating/templateManager' {
                 * The event is a native browser event (like mouse or pointer events)
                 */
             onEventTriggered: Observable<EventCallback>;
+            onParamsUpdated: Observable<Template>;
+            onHTMLRendered: Observable<Template>;
             /**
                 * is the template loaded?
                 */
@@ -1180,6 +1227,7 @@ declare module 'babylonjs-viewer/templating/templateManager' {
             updateParams(params: {
                     [key: string]: string | number | boolean | object;
             }, append?: boolean): void;
+            redraw(): void;
             /**
                 * Get the template'S configuration
                 */
@@ -1219,9 +1267,104 @@ declare module 'babylonjs-viewer/templating/templateManager' {
     }
 }
 
+declare module 'babylonjs-viewer/configuration/configurationContainer' {
+    import { ViewerConfiguration } from 'babylonjs-viewer/configuration/configuration';
+    import { Color3, Scene } from 'babylonjs';
+    export class ConfigurationContainer {
+        configuration: ViewerConfiguration;
+        viewerId: string;
+        mainColor: Color3;
+        reflectionColor: Color3;
+        scene?: Scene;
+    }
+}
+
+declare module 'babylonjs-viewer/configuration/loader' {
+    import { ViewerConfiguration } from 'babylonjs-viewer/configuration/configuration';
+    /**
+        * The configuration loader will load the configuration object from any source and will use the defined mapper to
+        * parse the object and return a conform ViewerConfiguration.
+        * It is a private member of the scene.
+        */
+    export class ConfigurationLoader {
+            constructor(_enableCache?: boolean);
+            /**
+                * load a configuration object that is defined in the initial configuration provided.
+                * The viewer configuration can extend different types of configuration objects and have an extra configuration defined.
+                *
+                * @param initConfig the initial configuration that has the definitions of further configuration to load.
+                * @param callback an optional callback that will be called sync, if noconfiguration needs to be loaded or configuration is payload-only
+                * @returns A promise that delivers the extended viewer configuration, when done.
+                */
+            loadConfiguration(initConfig?: ViewerConfiguration, callback?: (config: ViewerConfiguration) => void): Promise<ViewerConfiguration>;
+            /**
+                * Dispose the configuration loader. This will cancel file requests, if active.
+                */
+            dispose(): void;
+    }
+}
+
+declare module 'babylonjs-viewer/managers/observablesManager' {
+    import { Engine, ISceneLoaderPlugin, ISceneLoaderPluginAsync, Observable, Scene, SceneLoaderProgressEvent } from 'babylonjs';
+    import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
+    export class ObservablesManager {
+            /**
+                * Will notify when the scene was initialized
+                */
+            onSceneInitObservable: Observable<Scene>;
+            /**
+                * will notify when the engine was initialized
+                */
+            onEngineInitObservable: Observable<Engine>;
+            /**
+                * Will notify when a new model was added to the scene.
+                * Note that added does not neccessarily mean loaded!
+                */
+            onModelAddedObservable: Observable<ViewerModel>;
+            /**
+                * will notify after every model load
+                */
+            onModelLoadedObservable: Observable<ViewerModel>;
+            /**
+                * will notify when any model notify of progress
+                */
+            onModelLoadProgressObservable: Observable<SceneLoaderProgressEvent>;
+            /**
+                * will notify when any model load failed.
+                */
+            onModelLoadErrorObservable: Observable<{
+                    message: string;
+                    exception: any;
+            }>;
+            /**
+                * Will notify when a model was removed from the scene;
+                */
+            onModelRemovedObservable: Observable<ViewerModel>;
+            /**
+                * will notify when a new loader was initialized.
+                * Used mainly to know when a model starts loading.
+                */
+            onLoaderInitObservable: Observable<ISceneLoaderPlugin | ISceneLoaderPluginAsync>;
+            /**
+                * Observers registered here will be executed when the entire load process has finished.
+                */
+            onViewerInitDoneObservable: Observable<any>;
+            /**
+                * Will notify when the viewer init started (after configuration was loaded)
+                */
+            onViewerInitStartedObservable: Observable<any>;
+            /**
+                * Functions added to this observable will be executed on each frame rendered.
+                */
+            onFrameRenderedObservable: Observable<any>;
+            constructor();
+            dispose(): void;
+    }
+}
+
 declare module 'babylonjs-viewer/managers/sceneManager' {
-    import { Scene, ArcRotateCamera, Engine, Light, SceneOptimizer, EnvironmentHelper, Color3, Observable, DefaultRenderingPipeline, Nullable } from 'babylonjs';
-    import { ILightConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, ICameraConfiguration, ISkyboxConfiguration, ViewerConfiguration, IGroundConfiguration, IModelConfiguration } from 'babylonjs-viewer/configuration';
+    import { Scene, ArcRotateCamera, Engine, Light, SceneOptimizer, EnvironmentHelper, Color3, Observable, DefaultRenderingPipeline, Nullable, VRExperienceHelper } from 'babylonjs';
+    import { ILightConfiguration, ISceneConfiguration, ISceneOptimizerConfiguration, ICameraConfiguration, ISkyboxConfiguration, ViewerConfiguration, IGroundConfiguration, IModelConfiguration, IVRConfiguration } from 'babylonjs-viewer/configuration';
     import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
     import { ViewerLabs } from 'babylonjs-viewer/labs/viewerLabs';
     import { ObservablesManager } from 'babylonjs-viewer/managers/observablesManager';
@@ -1272,6 +1415,10 @@ declare module 'babylonjs-viewer/managers/sceneManager' {
                     ground?: IGroundConfiguration | boolean;
             }>>;
             /**
+                * Will notify after the model(s) were configured. Can be used to further configure models
+                */
+            onVRConfiguredObservable: Observable<IPostConfigurationCallback<VRExperienceHelper, IVRConfiguration>>;
+            /**
                 * The Babylon Scene of this viewer
                 */
             scene: Scene;
@@ -1304,6 +1451,8 @@ declare module 'babylonjs-viewer/managers/sceneManager' {
                 */
             labs: ViewerLabs;
             readonly defaultRenderingPipeline: Nullable<DefaultRenderingPipeline>;
+            protected _vrHelper?: VRExperienceHelper;
+            readonly vrHelper: VRExperienceHelper | undefined;
             constructor(_engine: Engine, _configurationContainer: ConfigurationContainer, _observablesManager?: ObservablesManager | undefined);
             /**
                 * Returns a boolean representing HDR support
@@ -1361,6 +1510,11 @@ declare module 'babylonjs-viewer/managers/sceneManager' {
                 */
             protected _configureOptimizer(optimizerConfig: ISceneOptimizerConfiguration | boolean): void;
             /**
+                * configure all models using the configuration.
+                * @param modelConfiguration the configuration to use to reconfigure the models
+                */
+            protected _configureVR(vrConfig: IVRConfiguration): void;
+            /**
                 * (Re) configure the camera. The camera will only be created once and from this point will only be reconfigured.
                 * @param cameraConfig the new camera configuration
                 * @param model optionally use the model to configure the camera.
@@ -1392,97 +1546,6 @@ declare module 'babylonjs-viewer/managers/sceneManager' {
                 * Dispoe the entire viewer including the scene and the engine
                 */
             dispose(): void;
-    }
-}
-
-declare module 'babylonjs-viewer/configuration/loader' {
-    import { ViewerConfiguration } from 'babylonjs-viewer/configuration/configuration';
-    /**
-        * The configuration loader will load the configuration object from any source and will use the defined mapper to
-        * parse the object and return a conform ViewerConfiguration.
-        * It is a private member of the scene.
-        */
-    export class ConfigurationLoader {
-            constructor(_enableCache?: boolean);
-            /**
-                * load a configuration object that is defined in the initial configuration provided.
-                * The viewer configuration can extend different types of configuration objects and have an extra configuration defined.
-                *
-                * @param initConfig the initial configuration that has the definitions of further configuration to load.
-                * @param callback an optional callback that will be called sync, if noconfiguration needs to be loaded or configuration is payload-only
-                * @returns A promise that delivers the extended viewer configuration, when done.
-                */
-            loadConfiguration(initConfig?: ViewerConfiguration, callback?: (config: ViewerConfiguration) => void): Promise<ViewerConfiguration>;
-            /**
-                * Dispose the configuration loader. This will cancel file requests, if active.
-                */
-            dispose(): void;
-    }
-}
-
-declare module 'babylonjs-viewer/managers/observablesManager' {
-    import { Observable, Scene, Engine, SceneLoaderProgressEvent, ISceneLoaderPlugin, ISceneLoaderPluginAsync } from "babylonjs";
-    import { ViewerModel } from "babylonjs-viewer/model/viewerModel";
-    export class ObservablesManager {
-            /**
-                * Will notify when the scene was initialized
-                */
-            onSceneInitObservable: Observable<Scene>;
-            /**
-                * will notify when the engine was initialized
-                */
-            onEngineInitObservable: Observable<Engine>;
-            /**
-                * Will notify when a new model was added to the scene.
-                * Note that added does not neccessarily mean loaded!
-                */
-            onModelAddedObservable: Observable<ViewerModel>;
-            /**
-                * will notify after every model load
-                */
-            onModelLoadedObservable: Observable<ViewerModel>;
-            /**
-                * will notify when any model notify of progress
-                */
-            onModelLoadProgressObservable: Observable<SceneLoaderProgressEvent>;
-            /**
-                * will notify when any model load failed.
-                */
-            onModelLoadErrorObservable: Observable<{
-                    message: string;
-                    exception: any;
-            }>;
-            /**
-                * Will notify when a model was removed from the scene;
-                */
-            onModelRemovedObservable: Observable<ViewerModel>;
-            /**
-                * will notify when a new loader was initialized.
-                * Used mainly to know when a model starts loading.
-                */
-            onLoaderInitObservable: Observable<ISceneLoaderPlugin | ISceneLoaderPluginAsync>;
-            /**
-                * Observers registered here will be executed when the entire load process has finished.
-                */
-            onViewerInitDoneObservable: Observable<any>;
-            /**
-                * Functions added to this observable will be executed on each frame rendered.
-                */
-            onFrameRenderedObservable: Observable<any>;
-            constructor();
-            dispose(): void;
-    }
-}
-
-declare module 'babylonjs-viewer/configuration/configurationContainer' {
-    import { ViewerConfiguration } from 'babylonjs-viewer/configuration/configuration';
-    import { Color3, Scene } from 'babylonjs';
-    export class ConfigurationContainer {
-        configuration: ViewerConfiguration;
-        viewerId: string;
-        mainColor: Color3;
-        reflectionColor: Color3;
-        scene?: Scene;
     }
 }
 
@@ -1588,6 +1651,7 @@ declare module 'babylonjs-viewer/configuration/interfaces' {
     export * from 'babylonjs-viewer/configuration/interfaces/sceneOptimizerConfiguration';
     export * from 'babylonjs-viewer/configuration/interfaces/skyboxConfiguration';
     export * from 'babylonjs-viewer/configuration/interfaces/templateConfiguration';
+    export * from 'babylonjs-viewer/configuration/interfaces/vrConfiguration';
 }
 
 declare module 'babylonjs-viewer/templating/eventManager' {
@@ -1718,10 +1782,10 @@ declare module 'babylonjs-viewer/loader/plugins/telemetryLoaderPlugin' {
 }
 
 declare module 'babylonjs-viewer/loader/plugins/msftLodLoaderPlugin' {
-    import { ILoaderPlugin } from "babylonjs-viewer/loader/plugins/loaderPlugin";
-    import { ViewerModel } from "babylonjs-viewer/model/viewerModel";
-    import { ISceneLoaderPlugin, ISceneLoaderPluginAsync } from "babylonjs";
-    import { IGLTFLoaderExtension } from "babylonjs-loaders";
+    import { ISceneLoaderPlugin, ISceneLoaderPluginAsync } from 'babylonjs';
+    import { IGLTFLoaderExtension } from 'babylonjs-loaders';
+    import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
+    import { ILoaderPlugin } from 'babylonjs-viewer/loader/plugins/loaderPlugin';
     /**
       * A loder plugin to use MSFT_lod extension correctly (glTF)
       */
@@ -1732,9 +1796,9 @@ declare module 'babylonjs-viewer/loader/plugins/msftLodLoaderPlugin' {
 }
 
 declare module 'babylonjs-viewer/loader/plugins/applyMaterialConfig' {
-    import { ILoaderPlugin } from "babylonjs-viewer/loader/plugins/loaderPlugin";
-    import { ViewerModel } from "babylonjs-viewer/model/viewerModel";
-    import { ISceneLoaderPlugin, ISceneLoaderPluginAsync, Material } from "babylonjs";
+    import { ISceneLoaderPlugin, ISceneLoaderPluginAsync, Material } from 'babylonjs';
+    import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
+    import { ILoaderPlugin } from 'babylonjs-viewer/loader/plugins/loaderPlugin';
     /**
       * Force-apply material configuration right after a material was loaded.
       */
@@ -1745,8 +1809,8 @@ declare module 'babylonjs-viewer/loader/plugins/applyMaterialConfig' {
 }
 
 declare module 'babylonjs-viewer/loader/plugins/extendedMaterialLoaderPlugin' {
-    import { ILoaderPlugin } from "babylonjs-viewer/loader/plugins/loaderPlugin";
-    import { Material } from "babylonjs";
+    import { Material } from 'babylonjs';
+    import { ILoaderPlugin } from 'babylonjs-viewer/loader/plugins/loaderPlugin';
     /**
       * A (PBR) material will be extended using this function.
       * This function will hold extra default configuration for the viewer, if not implemented in Babylon itself.
@@ -2209,6 +2273,25 @@ declare module 'babylonjs-viewer/configuration/interfaces/templateConfiguration'
                             [id: string]: boolean;
                     } | undefined;
             };
+    }
+}
+
+declare module 'babylonjs-viewer/configuration/interfaces/vrConfiguration' {
+    import { VRExperienceHelperOptions } from "babylonjs";
+    export interface IVRConfiguration {
+        disabled?: boolean;
+        objectScaleFactor?: number;
+        disableInteractions?: boolean;
+        disableTeleportation?: boolean;
+        overrideFloorMeshName?: string;
+        vrOptions?: VRExperienceHelperOptions;
+        modelHeightCorrection?: number | boolean;
+        rotateUsingControllers?: boolean;
+        cameraPosition?: {
+            x: number;
+            y: number;
+            z: number;
+        };
     }
 }
 

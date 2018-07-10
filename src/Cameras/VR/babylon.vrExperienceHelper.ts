@@ -167,7 +167,6 @@ module BABYLON {
 
         public _setLaserPointerParent(mesh:AbstractMesh){
             var makeNotPick = (root: AbstractMesh) => {
-                root.name += " laserPointer";
                 root.isPickable = false;
                 root.getChildMeshes().forEach((c) => {
                     makeNotPick(c);
@@ -906,7 +905,7 @@ module BABYLON {
         }
 
         /**
-         * Enables controllers and user interactions suck as selecting and object or clicking on an object.
+         * Enables controllers and user interactions such as selecting and object or clicking on an object.
          */
         public enableInteractions() {
             if (!this._interactionsEnabled) {
@@ -921,7 +920,7 @@ module BABYLON {
                 }
 
                 this.raySelectionPredicate = (mesh) => {
-                    return mesh.isVisible;
+                    return mesh.isVisible && mesh.isPickable;
                 }
 
                 this.meshSelectionPredicate = (mesh) => {
@@ -931,8 +930,7 @@ module BABYLON {
                 this._raySelectionPredicate = (mesh) => {
                     if (this._isTeleportationFloor(mesh) || (mesh.name.indexOf("gazeTracker") === -1
                         && mesh.name.indexOf("teleportationTarget") === -1
-                        && mesh.name.indexOf("torusTeleportation") === -1
-                        && mesh.name.indexOf("laserPointer") === -1)) {
+                        && mesh.name.indexOf("torusTeleportation") === -1)) {
                         return this.raySelectionPredicate(mesh);
                     }
                     return false;
