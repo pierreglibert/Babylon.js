@@ -1035,7 +1035,7 @@ var BABYLON;
                         for (var _a = 0, _b = bufferMesh.subMeshes; _a < _b.length; _a++) {
                             var submesh = _b[_a];
                             uvCoordsPresent = false;
-                            var babylonMaterial = submesh.getMaterial();
+                            var babylonMaterial = submesh.getMaterial() || bufferMesh.getScene().defaultMaterial;
                             var materialIndex = null;
                             if (babylonMaterial) {
                                 if (bufferMesh instanceof BABYLON.LinesMesh) {
@@ -1052,8 +1052,9 @@ var BABYLON;
                                     materialIndex = this._materials.length - 1;
                                 }
                                 else if (babylonMaterial instanceof BABYLON.MultiMaterial) {
-                                    babylonMaterial = babylonMaterial.subMaterials[submesh.materialIndex];
-                                    if (babylonMaterial) {
+                                    var subMaterial = babylonMaterial.subMaterials[submesh.materialIndex];
+                                    if (subMaterial) {
+                                        babylonMaterial = subMaterial;
                                         materialIndex = this._materialMap[babylonMaterial.uniqueId];
                                     }
                                 }
@@ -1100,7 +1101,7 @@ var BABYLON;
                                 meshPrimitive.indices = this._accessors.length - 1;
                             }
                             if (materialIndex != null && Object.keys(meshPrimitive.attributes).length > 0) {
-                                var sideOrientation = this._babylonScene.materials[materialIndex].sideOrientation;
+                                var sideOrientation = babylonMaterial.sideOrientation;
                                 if (this._convertToRightHandedSystem && sideOrientation === BABYLON.Material.ClockWiseSideOrientation) {
                                     //Overwrite the indices to be counter-clockwise
                                     var byteOffset = indexBufferViewIndex != null ? this._bufferViews[indexBufferViewIndex].byteOffset : null;
@@ -1179,12 +1180,15 @@ var BABYLON;
                             }
                             directDescendents = babylonTransformNode.getDescendants(true);
                             if (!glTFNode.children && directDescendents && directDescendents.length) {
-                                glTFNode.children = [];
+                                var children = [];
                                 for (var _a = 0, directDescendents_1 = directDescendents; _a < directDescendents_1.length; _a++) {
                                     var descendent = directDescendents_1[_a];
                                     if (_this._nodeMap[descendent.uniqueId] != null) {
-                                        glTFNode.children.push(_this._nodeMap[descendent.uniqueId]);
+                                        children.push(_this._nodeMap[descendent.uniqueId]);
                                     }
+                                }
+                                if (children.length) {
+                                    glTFNode.children = children;
                                 }
                             }
                         }
@@ -1218,9 +1222,12 @@ var BABYLON;
                     var babylonTransformNode = nodes_2[_i];
                     if (shouldExportTransformNode(babylonTransformNode)) {
                         node = this.createNode(babylonTransformNode, binaryWriter);
-                        this._nodes.push(node);
-                        nodeIndex = this._nodes.length - 1;
-                        nodeMap[babylonTransformNode.uniqueId] = nodeIndex;
+                        var directDescendents = babylonTransformNode.getDescendants(true, function (node) { return (node instanceof BABYLON.TransformNode); });
+                        if (directDescendents.length || node.mesh != null) {
+                            this._nodes.push(node);
+                            nodeIndex = this._nodes.length - 1;
+                            nodeMap[babylonTransformNode.uniqueId] = nodeIndex;
+                        }
                         if (!babylonScene.animationGroups.length && babylonTransformNode.animations.length) {
                             GLTF2._GLTFAnimation._CreateNodeAnimationFromTransformNodeAnimations(babylonTransformNode, runtimeGLTFAnimation, idleGLTFAnimations, nodeMap, this._nodes, binaryWriter, this._bufferViews, this._accessors, this._convertToRightHandedSystem, this._animationSampleRate);
                         }
@@ -3406,10 +3413,12 @@ var BABYLON;
                 quaternion[1] *= -1;
             };
             _GLTFUtilities._NormalizeTangentFromRef = function (tangent) {
-                var length = Math.sqrt(tangent.x * tangent.x + tangent.y * tangent.y + tangent.z + tangent.z);
-                tangent.x /= length;
-                tangent.y /= length;
-                tangent.z /= length;
+                var length = Math.sqrt(tangent.x * tangent.x + tangent.y * tangent.y + tangent.z * tangent.z);
+                if (length > 0) {
+                    tangent.x /= length;
+                    tangent.y /= length;
+                    tangent.z /= length;
+                }
             };
             return _GLTFUtilities;
         }());

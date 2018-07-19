@@ -179,7 +179,11 @@ function showError(errorMessage, errorEvent) {
         var checkTypescriptSupport = function(xhr) {
             var filename = location.pathname.substring(location.pathname.lastIndexOf('/') + 1);
             if (xhr.responseText.indexOf("class Playground") !== -1) {// Typescript content
-                if (filename !== "ts.html") {
+                if(!filename) {
+                    window.location.href = location.protocol + "//" + location.host + "/ts.html" + window.location.hash;
+                    return false;
+                }
+                else if (filename !== "ts.html") {
                     window.location.href = location.protocol + "//" + location.host + location.pathname.replace(filename, "ts.html") + window.location.hash;
                     return false;
                 }
@@ -237,9 +241,17 @@ function showError(errorMessage, errorEvent) {
         };
 
         var loadScriptsList = function () {
-            var xhr = new XMLHttpRequest();
 
-            xhr.open('GET', 'https://raw.githubusercontent.com/BabylonJS/Documentation/master/examples/list.json', true);
+            var exampleList = document.getElementById("exampleList");
+           
+            var xhr = new XMLHttpRequest();
+            //Open Typescript or Javascript examples
+            if(exampleList.className != 'typescript') {
+                xhr.open('GET', 'https://raw.githubusercontent.com/BabylonJS/Documentation/master/examples/list.json', true);
+            }
+            else {
+                xhr.open('GET', 'https://raw.githubusercontent.com/BabylonJS/Documentation/master/examples/list_ts.json', true);
+            }
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
@@ -253,7 +265,7 @@ function showError(errorMessage, errorEvent) {
                         }
                         scripts.sort(sortScriptsList);
 
-                        var exampleList = document.getElementById("exampleList");
+                                                
 
                         if (exampleList) {
                             for (var i = 0; i < scripts.length; i++) {

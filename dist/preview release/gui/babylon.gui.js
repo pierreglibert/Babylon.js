@@ -2149,6 +2149,7 @@ var BABYLON;
             /** @hidden */
             Control.prototype._resetFontCache = function () {
                 this._fontSet = true;
+                this._markAsDirty();
             };
             /**
              * Gets coordinates in local control space
@@ -5810,10 +5811,15 @@ var BABYLON;
                 _this._isFocused = false;
                 _this._blinkIsEven = false;
                 _this._cursorOffset = 0;
+                _this._deadKey = false;
+                _this._addKey = true;
+                _this._currentKey = "";
                 /** Gets or sets a string representing the message displayed on mobile when the control gets the focus */
                 _this.promptMessage = "Please enter text:";
                 /** Observable raised when the text changes */
                 _this.onTextChangedObservable = new BABYLON.Observable();
+                /** Observable raised just before an entered character is to be added */
+                _this.onBeforeKeyAddObservable = new BABYLON.Observable();
                 /** Observable raised when the control gets the focus */
                 _this.onFocusObservable = new BABYLON.Observable();
                 /** Observable raised when the control loses the focus */
@@ -5959,6 +5965,39 @@ var BABYLON;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(InputText.prototype, "deadKey", {
+                /** Gets or sets the dead key flag */
+                get: function () {
+                    return this._deadKey;
+                },
+                set: function (flag) {
+                    this._deadKey = flag;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(InputText.prototype, "addKey", {
+                /** Gets or sets if the current key should be added */
+                get: function () {
+                    return this._addKey;
+                },
+                set: function (flag) {
+                    this._addKey = flag;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(InputText.prototype, "currentKey", {
+                /** Gets or sets the value of the current key being entered */
+                get: function () {
+                    return this._currentKey;
+                },
+                set: function (key) {
+                    this._currentKey = key;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(InputText.prototype, "text", {
                 /** Gets or sets the text displayed in the control */
                 get: function () {
@@ -6026,7 +6065,7 @@ var BABYLON;
                 // Specific cases
                 switch (keyCode) {
                     case 32: //SPACE
-                        key = " "; //ie11 key for space is "Spacebar" 
+                        key = " "; //ie11 key for space is "Spacebar"
                         break;
                     case 8: // BACKSPACE
                         if (this._text && this._text.length > 0) {
@@ -6077,21 +6116,30 @@ var BABYLON;
                         this._blinkIsEven = false;
                         this._markAsDirty();
                         return;
+                    case 222: // Dead
+                        this.deadKey = true;
+                        return;
                 }
                 // Printable characters
-                if ((keyCode === -1) || // Direct access
-                    (keyCode === 32) || // Space
-                    (keyCode > 47 && keyCode < 58) || // Numbers
-                    (keyCode > 64 && keyCode < 91) || // Letters
-                    (keyCode > 185 && keyCode < 193) || // Special characters
-                    (keyCode > 218 && keyCode < 223) || // Special characters
-                    (keyCode > 95 && keyCode < 112)) { // Numpad
-                    if (this._cursorOffset === 0) {
-                        this.text += key;
-                    }
-                    else {
-                        var insertPosition = this._text.length - this._cursorOffset;
-                        this.text = this._text.slice(0, insertPosition) + key + this._text.slice(insertPosition);
+                if (key &&
+                    ((keyCode === -1) || // Direct access
+                        (keyCode === 32) || // Space
+                        (keyCode > 47 && keyCode < 58) || // Numbers
+                        (keyCode > 64 && keyCode < 91) || // Letters
+                        (keyCode > 185 && keyCode < 193) || // Special characters
+                        (keyCode > 218 && keyCode < 223) || // Special characters
+                        (keyCode > 95 && keyCode < 112))) { // Numpad
+                    this._currentKey = key;
+                    this.onBeforeKeyAddObservable.notifyObservers(this);
+                    key = this._currentKey;
+                    if (this._addKey) {
+                        if (this._cursorOffset === 0) {
+                            this.text += key;
+                        }
+                        else {
+                            var insertPosition = this._text.length - this._cursorOffset;
+                            this.text = this._text.slice(0, insertPosition) + key + this._text.slice(insertPosition);
+                        }
                     }
                 }
             };
@@ -6134,7 +6182,7 @@ var BABYLON;
                     if (this.color) {
                         context.fillStyle = this.color;
                     }
-                    var text = this._text;
+                    var text = this._beforeRenderText(this._text);
                     if (!this._isFocused && !this._text && this._placeholderText) {
                         text = this._placeholderText;
                         if (this._placeholderColor) {
@@ -6237,6 +6285,9 @@ var BABYLON;
             InputText.prototype._onPointerUp = function (target, coordinates, pointerId, buttonIndex, notifyClick) {
                 _super.prototype._onPointerUp.call(this, target, coordinates, pointerId, buttonIndex, notifyClick);
             };
+            InputText.prototype._beforeRenderText = function (text) {
+                return text;
+            };
             InputText.prototype.dispose = function () {
                 _super.prototype.dispose.call(this);
                 this.onBlurObservable.clear();
@@ -6246,6 +6297,33 @@ var BABYLON;
             return InputText;
         }(GUI.Control));
         GUI.InputText = InputText;
+    })(GUI = BABYLON.GUI || (BABYLON.GUI = {}));
+})(BABYLON || (BABYLON = {}));
+
+/// <reference path="../../../../dist/preview release/babylon.d.ts"/>
+
+var BABYLON;
+(function (BABYLON) {
+    var GUI;
+    (function (GUI) {
+        /**
+         * Class used to create a password control
+         */
+        var InputPassword = /** @class */ (function (_super) {
+            __extends(InputPassword, _super);
+            function InputPassword() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            InputPassword.prototype._beforeRenderText = function (text) {
+                var txt = "";
+                for (var i = 0; i < text.length; i++) {
+                    txt += "\u2022";
+                }
+                return txt;
+            };
+            return InputPassword;
+        }(GUI.InputText));
+        GUI.InputPassword = InputPassword;
     })(GUI = BABYLON.GUI || (BABYLON.GUI = {}));
 })(BABYLON || (BABYLON = {}));
 
@@ -7911,6 +7989,14 @@ var BABYLON;
                 configurable: true
             });
             /**
+             * Force the container to update the layout. Please note that it will not take blockLayout property in account
+             * @returns the current container
+             */
+            Container3D.prototype.updateLayout = function () {
+                this._arrangeChildren();
+                return this;
+            };
+            /**
              * Gets a boolean indicating if the given control is in the children of this control
              * @param control defines the control to check
              * @returns true if the control is in the child list
@@ -8614,7 +8700,7 @@ var BABYLON;
         var VolumeBasedPanel = /** @class */ (function (_super) {
             __extends(VolumeBasedPanel, _super);
             /**
-             * Creates new SpherePanel
+             * Creates new VolumeBasedPanel
              */
             function VolumeBasedPanel() {
                 var _this = _super.call(this) || this;
@@ -8714,9 +8800,13 @@ var BABYLON;
                     }
                     controlCount++;
                     child.mesh.computeWorldMatrix(true);
-                    child.mesh.getWorldMatrix().multiplyToRef(currentInverseWorld, BABYLON.Tmp.Matrix[0]);
-                    var boundingBox = child.mesh.getBoundingInfo().boundingBox;
-                    var extendSize = BABYLON.Vector3.TransformNormal(boundingBox.extendSize, BABYLON.Tmp.Matrix[0]);
+                    //   child.mesh.getWorldMatrix().multiplyToRef(currentInverseWorld, Tmp.Matrix[0]);
+                    var boundingBox = child.mesh.getHierarchyBoundingVectors();
+                    var extendSize = BABYLON.Tmp.Vector3[0];
+                    var diff = BABYLON.Tmp.Vector3[1];
+                    boundingBox.max.subtractToRef(boundingBox.min, diff);
+                    diff.scaleInPlace(0.5);
+                    BABYLON.Vector3.TransformNormalToRef(diff, currentInverseWorld, extendSize);
                     this._cellWidth = Math.max(this._cellWidth, extendSize.x * 2);
                     this._cellHeight = Math.max(this._cellHeight, extendSize.y * 2);
                 }

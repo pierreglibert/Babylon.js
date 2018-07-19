@@ -24,9 +24,13 @@
   - Added support for size gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#size)
   - Added support for life time gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#lifetime)
   - Added support for angular speed gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#rotation)
-- Added SceneComponent to help decoupling Scene from its components ([sebavan](http://www.github.com/sebavan))
-- Playground can now be used with TypeScript directly!. [Demo](https://www.babylonjs-playground.com/ts.html) ([Deltakosh](https://github.com/deltakosh), [NasimiAsl](https://github.com/NasimiAsl)) 
+  - Added support for noise textures. [Doc](http://doc.babylonjs.com/babylon101/particles#noise-texture)
+- Added SceneComponent to help decoupling Scene from its components. ([sebavan](http://www.github.com/sebavan))
+- Playground can now be used with TypeScript directly!. [Demo](https://www.babylonjs-playground.com/ts.html) ([Deltakosh](https://github.com/deltakosh), [NasimiAsl](https://github.com/NasimiAsl))
 - New GUI control: [InputPassword](https://doc.babylonjs.com/how_to/gui#inputpassword) ([theom](https://github.com/theom))
+- Added dead key support and before key add observable to InputText. [Doc](https://doc.babylonjs.com/how_to/gui#using-onbeforekeyaddobservable-for-extended-keyboard-layouts-and-input-masks)([theom](https://github.com/theom))
+- GUI and Inspector are now ES-Modules ([RaananW](https://github.com/RaananW))
+- Added support for noise procedural textures. [Doc](http://doc.babylonjs.com/how_to/how_to_use_procedural_textures#noise-procedural-texture) ([Deltakosh](https://github.com/deltakosh))
 
 ## Updates
 
@@ -71,6 +75,9 @@
 - Added predicate function `targetMask` argument to `scene.beginWeightedAnimation`, `scene.beginAnimation`, `scene.stopAnimation`, and `animatable.stop` to allow for selective application of animations.  ([fmmoret](http://github.com/fmmoret))
 - Oculus GO and GearVR 3dof controllers will now rotate with the user's head if they turn around in their room ([TrevorDev](https://github.com/TrevorDev))
 - Added onPoseUpdatedFromDeviceObservable to webVRCamera to detect when the camera's pose has been updated ([TrevorDev](https://github.com/TrevorDev))
+- Added attachToBoxBehavior to attach UI to a bounding box ([TrevorDev](https://github.com/TrevorDev))
+- Gizmo manager's internal gizmos are now public ([TrevorDev](https://github.com/TrevorDev))
+- Ability to customize meshes on gizmos ([TrevorDev](https://github.com/TrevorDev))
 
 ### glTF Loader
 
@@ -95,6 +102,8 @@
 - The default viewer has a plugin system with which new buttons can be added externally ([RaananW](https://github.com/RaananW))
 - The extended configuration is now the default when not providing the "extended" parameter ([RaananW](https://github.com/RaananW))
 - viewer.updateConfiguration also accepts a URL to download configuration remotely ([RaananW](https://github.com/RaananW))
+- Viewer supports 3D printing on windows 10 ([RaananW](https://github.com/RaananW))
+- The viewer's environment map is using the new .env feature ([RaananW](https://github.com/RaananW))
 
 ### Documentation
 
@@ -113,7 +122,7 @@
 - Parse geometry when load binary mesh ([SinhNQ](https://github.com/quocsinh))
 - Removing observers during observable notify should not skip over valid observers ([TrevorDev](https://github.com/TrevorDev))
 - Initializing gamepadManager should register the gamepad update events ([TrevorDev](https://github.com/TrevorDev))
-- Do not generate mipmaps for HDRCubeTexture if OES_texture_float_linear isn't supported ([PeapBoy](https://github.com/NicolasBuecher))
+- Do not generate mipmaps for RawCubeTexture if OES_texture_float_linear and/or EXT_color_buffer_float extensions are not supported ([PeapBoy](https://github.com/NicolasBuecher))
 
 ### Core Engine
 
@@ -127,6 +136,7 @@
 - Fixed `updatable` parameter setting in the SPS ([jerome](https://github.com/jbousquie))
 - Angular and linear velocity were using the wrong method to copy values to the physics engine ([RaananW](https://github.com/RaananW))
 - Fixed env texture generation in Byte Mode ([sebavan](http://www.github.com/sebavan))
+- Oimo.js now receives quaternion and not euler when a body is being constructed ([RaananW](https://github.com/RaananW))
 
 ### Viewer
 
@@ -144,7 +154,7 @@
 - Viewer is not using Engine.LastCreatedScene anymore, to support multiple viewers in a single page [#4500](https://github.com/BabylonJS/Babylon.js/issues/4500) ([RaananW](https://github.com/RaananW))
 - Template location was ignored if html was defined ([RaananW](https://github.com/RaananW))
 - Drag and Drop only worked if a model was already loaded before ([RaananW](https://github.com/RaananW))
-- It was not possible to add new custom optimizers, only to use existing ones ([RaananW](https://github.com/RaananW))
+- It was not possible to add new custom optimizers, only use existing ones ([RaananW](https://github.com/RaananW))
 
 ### Loaders
 
@@ -154,3 +164,4 @@
 ## Breaking changes
 
 - Fixing support for R and RG texture formats made us remove TextureFormat_R32F and TextureFormat_RG32F as they were mixing formats and types. Please, use the respective TextureFormat_R and TextureFormat_RG with the Float types ([sebavan](http://www.github.com/sebavan))
+- Replacing `scene.onRenderingGroupObservable` by `onBeforeRenderingGroupObservable` and `onAfterRenderingGroupObservable` to prevent the stage check ([sebavan](http://www.github.com/sebavan))

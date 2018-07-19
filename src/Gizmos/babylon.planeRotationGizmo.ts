@@ -39,7 +39,17 @@ module BABYLON {
 
             // Build mesh on root node
             var parentMesh = new BABYLON.AbstractMesh("", gizmoLayer.utilityLayerScene);
-            var rotationMesh = BABYLON.Mesh.CreateTorus("torus", 3, 0.15, 20, gizmoLayer.utilityLayerScene, false);
+
+            // Create circle out of lines
+            var tessellation = 20;
+            var radius = 2;
+            var points = new Array<Vector3>();
+            for(var i = 0;i < tessellation;i++){
+                var radian = (2*Math.PI) * (i/(tessellation-1));
+                points.push(new Vector3(radius*Math.sin(radian), 0, radius*Math.cos(radian)));
+            }
+            let rotationMesh = Mesh.CreateLines("", points, gizmoLayer.utilityLayerScene);
+            rotationMesh.color = coloredMaterial.emissiveColor;
             
             // Position arrow pointing in its drag axis
             rotationMesh.scaling.scaleInPlace(0.1);
@@ -133,15 +143,17 @@ module BABYLON {
             })
 
             this._pointerObserver = gizmoLayer.utilityLayerScene.onPointerObservable.add((pointerInfo, eventState)=>{
-                if(pointerInfo.pickInfo && (this._rootMesh.getChildMeshes().indexOf(<Mesh>pointerInfo.pickInfo.pickedMesh) != -1)){
-                    this._rootMesh.getChildMeshes().forEach((m)=>{
-                        m.material = hoverMaterial;
-                    });
-                }else{
-                    this._rootMesh.getChildMeshes().forEach((m)=>{
-                        m.material = coloredMaterial;
-                    });
+                if(this._customMeshSet){
+                    return;
                 }
+                var isHovered = pointerInfo.pickInfo && (this._rootMesh.getChildMeshes().indexOf(<Mesh>pointerInfo.pickInfo.pickedMesh) != -1);
+                var material = isHovered ? hoverMaterial : coloredMaterial;
+                this._rootMesh.getChildMeshes().forEach((m)=>{
+                    m.material = material;
+                    if((<LinesMesh>m).color){
+                        (<LinesMesh>m).color = material.emissiveColor
+                    }
+                });
             });
         }
 
@@ -159,6 +171,6 @@ module BABYLON {
             this.gizmoLayer.utilityLayerScene.onPointerObservable.remove(this._pointerObserver);
             this.dragBehavior.detach();
             super.dispose();
-        } 
+        }
     }
 }
