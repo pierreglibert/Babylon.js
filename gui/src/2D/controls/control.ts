@@ -11,6 +11,11 @@ import { Matrix2D, Vector2WithInfo } from "../math2D";
  * @see http://doc.babylonjs.com/how_to/gui#controls
  */
 export class Control {
+    /**
+     * Gets or sets a boolean indicating if alpha must be an inherited value (false by default)
+     */
+    public static AllowAlphaInheritance = false;
+
     private _alpha = 1;
     private _alphaSet = false;
     private _zIndex = 0;
@@ -76,9 +81,15 @@ export class Control {
     private _enterCount = -1;
     private _doNotRender = false;
     private _downPointerIds: { [id: number]: boolean } = {};
-
+    protected _isEnabled = true;
+    protected _disabledColor = "#9a9a9a";
     /** @hidden */
     public _tag: any;
+
+    /**
+     * Gets or sets an object used to store user defined information for the node
+     */
+    public metadata: any = null;
 
     /** Gets or sets a boolean indicating if the control can be hit with pointer events */
     public isHitTestVisible = true;
@@ -86,6 +97,9 @@ export class Control {
     public isPointerBlocker = false;
     /** Gets or sets a boolean indicating if the control can be focusable */
     public isFocusInvisible = false;
+
+    /** Gets or sets a boolean indicating if the children are clipped to the current control bounds */
+    public clipChildren = true;
 
     /** Gets or sets a value indicating the offset to apply on X axis to render the shadow */
     public shadowOffsetX = 0;
@@ -95,6 +109,9 @@ export class Control {
     public shadowBlur = 0;
     /** Gets or sets a value indicating the color of the shadow (black by default ie. "#000") */
     public shadowColor = '#000';
+
+    /** Gets or sets the cursor to use when the control is hovered */
+    public hoverCursor = "";
 
     /** @hidden */
     protected _linkOffsetX = new ValueAndUnit(0);
@@ -144,8 +161,13 @@ export class Control {
     public onDirtyObservable = new Observable<Control>();
 
     /**
-   * An event triggered after the control is drawn
-   */
+     * An event triggered before drawing the control
+     */
+    public onBeforeDrawObservable = new Observable<Control>();
+
+    /**
+     * An event triggered after the control was drawn
+     */
     public onAfterDrawObservable = new Observable<Control>();
 
     /** Gets or set information about font offsets (used to render and align text) */
@@ -171,7 +193,7 @@ export class Control {
         this._markAsDirty();
     }
 
-    /** Gets or sets a value indicating the scale factor on X axis (1 by default) 
+    /** Gets or sets a value indicating the scale factor on X axis (1 by default)
      * @see http://doc.babylonjs.com/how_to/gui#rotation-and-scaling
     */
     public get scaleX(): number {
@@ -188,7 +210,7 @@ export class Control {
         this._markMatrixAsDirty();
     }
 
-    /** Gets or sets a value indicating the scale factor on Y axis (1 by default) 
+    /** Gets or sets a value indicating the scale factor on Y axis (1 by default)
      * @see http://doc.babylonjs.com/how_to/gui#rotation-and-scaling
     */
     public get scaleY(): number {
@@ -205,7 +227,7 @@ export class Control {
         this._markMatrixAsDirty();
     }
 
-    /** Gets or sets the rotation angle (0 by default) 
+    /** Gets or sets the rotation angle (0 by default)
      * @see http://doc.babylonjs.com/how_to/gui#rotation-and-scaling
     */
     public get rotation(): number {
@@ -256,8 +278,8 @@ export class Control {
         this._markMatrixAsDirty();
     }
 
-    /** 
-     * Gets or sets the horizontal alignment 
+    /**
+     * Gets or sets the horizontal alignment
      * @see http://doc.babylonjs.com/how_to/gui#alignments
      */
     public get horizontalAlignment(): number {
@@ -273,8 +295,8 @@ export class Control {
         this._markAsDirty();
     }
 
-    /** 
-     * Gets or sets the vertical alignment 
+    /**
+     * Gets or sets the vertical alignment
      * @see http://doc.babylonjs.com/how_to/gui#alignments
      */
     public get verticalAlignment(): number {
@@ -290,15 +312,15 @@ export class Control {
         this._markAsDirty();
     }
 
-    /** 
-     * Gets or sets control width 
+    /**
+     * Gets or sets control width
      * @see http://doc.babylonjs.com/how_to/gui#position-and-size
      */
     public get width(): string | number {
         return this._width.toString(this._host);
     }
 
-    /** 
+    /**
      * Gets control width in pixel
      * @see http://doc.babylonjs.com/how_to/gui#position-and-size
      */
@@ -316,15 +338,15 @@ export class Control {
         }
     }
 
-    /** 
-     * Gets or sets control height 
+    /**
+     * Gets or sets control height
      * @see http://doc.babylonjs.com/how_to/gui#position-and-size
      */
     public get height(): string | number {
         return this._height.toString(this._host);
     }
 
-    /** 
+    /**
      * Gets control height in pixel
      * @see http://doc.babylonjs.com/how_to/gui#position-and-size
      */
@@ -499,12 +521,19 @@ export class Control {
         }
 
         this._isVisible = value;
-        this._markAsDirty();
+        this._markAsDirty(true);
     }
 
     /** Gets a boolean indicating that the control needs to update its rendering */
     public get isDirty(): boolean {
         return this._isDirty;
+    }
+
+    /**
+     * Gets the current linked mesh (or null if none)
+     */
+    public get linkedMesh(): Nullable<AbstractMesh> {
+        return this._linkedMesh;
     }
 
     /**
@@ -693,6 +722,32 @@ export class Control {
         return this._currentMeasure.top + this._currentMeasure.height / 2;
     }
 
+    /** Gets or sets if control is Enabled*/
+    public get isEnabled(): boolean {
+        return this._isEnabled;
+    }
+
+    public set isEnabled(value: boolean) {
+        if (this._isEnabled === value) {
+            return;
+        }
+
+        this._isEnabled = value;
+        this._markAsDirty();
+    }
+    /** Gets or sets background color of control if it's disabled*/
+    public get disabledColor(): string {
+        return this._disabledColor;
+    }
+
+    public set disabledColor(value: string) {
+        if (this._disabledColor === value) {
+            return;
+        }
+
+        this._disabledColor = value;
+        this._markAsDirty();
+    }
     // Functions
 
     /**
@@ -715,8 +770,25 @@ export class Control {
         this._markAsDirty();
     }
 
-    /** 
-     * Gets coordinates in local control space 
+    /**
+     * Determines if a container is an ascendant of the current control
+     * @param container defines the container to look for
+     * @returns true if the container is one of the ascendant of the control
+     */
+    public isAscendant(container: Control): boolean {
+        if (!this.parent) {
+            return false;
+        }
+
+        if (this.parent === container) {
+            return true;
+        }
+
+        return this.parent.isAscendant(container);
+    }
+
+    /**
+     * Gets coordinates in local control space
      * @param globalCoordinates defines the coordinates to transform
      * @returns the new coordinates in local space
      */
@@ -728,8 +800,8 @@ export class Control {
         return result;
     }
 
-    /** 
-     * Gets coordinates in local control space 
+    /**
+     * Gets coordinates in local control space
      * @param globalCoordinates defines the coordinates to transform
      * @param result defines the target vector2 where to store the result
      * @returns the current control
@@ -740,8 +812,8 @@ export class Control {
         return this;
     }
 
-    /** 
-     * Gets coordinates in parent local control space 
+    /**
+     * Gets coordinates in parent local control space
      * @param globalCoordinates defines the coordinates to transform
      * @returns the new coordinates in parent local space
      */
@@ -839,11 +911,20 @@ export class Control {
     /** @hidden */
     public _markMatrixAsDirty(): void {
         this._isMatrixDirty = true;
-        this._markAsDirty();
+        this._flagDescendantsAsMatrixDirty();
     }
 
     /** @hidden */
-    public _markAsDirty(): void {
+    public _flagDescendantsAsMatrixDirty(): void {
+        // No child
+    }
+
+    /** @hidden */
+    public _markAsDirty(force = false): void {
+        if (!this._isVisible && !force) {
+            return;
+        }
+
         this._isDirty = true;
 
         if (!this._host) {
@@ -892,6 +973,7 @@ export class Control {
             this._cachedOffsetX = offsetX;
             this._cachedOffsetY = offsetY;
             this._isMatrixDirty = false;
+            this._flagDescendantsAsMatrixDirty();
 
             Matrix2D.ComposeToRef(-offsetX, -offsetY, this._rotation, this._scaleX, this._scaleY, this._root ? this._root._transformMatrix : null, this._transformMatrix);
 
@@ -901,6 +983,10 @@ export class Control {
 
     /** @hidden */
     protected _applyStates(context: CanvasRenderingContext2D): void {
+        if (this._isFontSizeInPercentage) {
+            this._fontSet = true;
+        }
+
         if (this._fontSet) {
             this._prepareFont();
             this._fontSet = false;
@@ -914,8 +1000,10 @@ export class Control {
             context.fillStyle = this._color;
         }
 
-        if (this._alphaSet) {
-            context.globalAlpha = this._alpha;
+        if (Control.AllowAlphaInheritance) {
+            context.globalAlpha *= this._alpha;
+        } else if (this._alphaSet) {
+            context.globalAlpha = this.parent ? this.parent.alpha * this._alpha : this._alpha;
         }
     }
 
@@ -972,8 +1060,14 @@ export class Control {
         }
 
         // Clip
-        this._clip(context);
-        context.clip();
+        if (this.clipChildren) {
+            this._clip(context);
+            context.clip();
+        }
+
+        if (this.onBeforeDrawObservable.hasObservers()) {
+            this.onBeforeDrawObservable.notifyObservers(this);
+        }
 
         return true;
     }
@@ -1031,7 +1125,7 @@ export class Control {
 
         switch (this.horizontalAlignment) {
             case Control.HORIZONTAL_ALIGNMENT_LEFT:
-                x = 0
+                x = 0;
                 break;
             case Control.HORIZONTAL_ALIGNMENT_RIGHT:
                 x = parentWidth - width;
@@ -1150,6 +1244,9 @@ export class Control {
 
     /** @hidden */
     public _processPicking(x: number, y: number, type: number, pointerId: number, buttonIndex: number): boolean {
+        if (!this._isEnabled) {
+            return false;
+        }
         if (!this.isHitTestVisible || !this.isVisible || this._doNotRender) {
             return false;
         }
@@ -1167,11 +1264,14 @@ export class Control {
     public _onPointerMove(target: Control, coordinates: Vector2): void {
         var canNotify: boolean = this.onPointerMoveObservable.notifyObservers(coordinates, -1, target, this);
 
-        if (canNotify && this.parent != null) this.parent._onPointerMove(target, coordinates);
+        if (canNotify && this.parent != null) { this.parent._onPointerMove(target, coordinates); }
     }
 
     /** @hidden */
     public _onPointerEnter(target: Control): boolean {
+        if (!this._isEnabled) {
+            return false;
+        }
         if (this._enterCount > 0) {
             return false;
         }
@@ -1183,22 +1283,33 @@ export class Control {
 
         var canNotify: boolean = this.onPointerEnterObservable.notifyObservers(this, -1, target, this);
 
-        if (canNotify && this.parent != null) this.parent._onPointerEnter(target);
+        if (canNotify && this.parent != null) { this.parent._onPointerEnter(target); }
 
         return true;
     }
 
     /** @hidden */
     public _onPointerOut(target: Control): void {
+        if (!this._isEnabled || target === this) {
+            return;
+        }
         this._enterCount = 0;
 
-        var canNotify: boolean = this.onPointerOutObservable.notifyObservers(this, -1, target, this);
+        var canNotify: boolean = true;
 
-        if (canNotify && this.parent != null) this.parent._onPointerOut(target);
+        if (!target.isAscendant(this)) {
+            canNotify = this.onPointerOutObservable.notifyObservers(this, -1, target, this);
+        }
+
+        if (canNotify && this.parent != null) { this.parent._onPointerOut(target); }
     }
 
     /** @hidden */
     public _onPointerDown(target: Control, coordinates: Vector2, pointerId: number, buttonIndex: number): boolean {
+        // Prevent pointerout to lose control context.
+        // Event redundancy is checked inside the function.
+        this._onPointerEnter(this);
+
         if (this._downCount !== 0) {
             return false;
         }
@@ -1209,13 +1320,16 @@ export class Control {
 
         var canNotify: boolean = this.onPointerDownObservable.notifyObservers(new Vector2WithInfo(coordinates, buttonIndex), -1, target, this);
 
-        if (canNotify && this.parent != null) this.parent._onPointerDown(target, coordinates, pointerId, buttonIndex);
+        if (canNotify && this.parent != null) { this.parent._onPointerDown(target, coordinates, pointerId, buttonIndex); }
 
         return true;
     }
 
     /** @hidden */
     public _onPointerUp(target: Control, coordinates: Vector2, pointerId: number, buttonIndex: number, notifyClick: boolean): void {
+        if (!this._isEnabled) {
+            return;
+        }
         this._downCount = 0;
 
         delete this._downPointerIds[pointerId];
@@ -1226,7 +1340,7 @@ export class Control {
         }
         var canNotify: boolean = this.onPointerUpObservable.notifyObservers(new Vector2WithInfo(coordinates, buttonIndex), -1, target, this);
 
-        if (canNotify && this.parent != null) this.parent._onPointerUp(target, coordinates, pointerId, buttonIndex, canNotifyClick);
+        if (canNotify && this.parent != null) { this.parent._onPointerUp(target, coordinates, pointerId, buttonIndex, canNotifyClick); }
     }
 
     /** @hidden */
@@ -1242,6 +1356,9 @@ export class Control {
 
     /** @hidden */
     public _processObservables(type: number, x: number, y: number, pointerId: number, buttonIndex: number): boolean {
+        if (!this._isEnabled) {
+            return false;
+        }
         this._dummyVector2.copyFromFloats(x, y);
         if (type === PointerEventTypes.POINTERMOVE) {
             this._onPointerMove(this, this._dummyVector2);
@@ -1283,9 +1400,9 @@ export class Control {
         }
 
         if (this._style) {
-            this._font = (this._style.fontWeight ? this._style.fontWeight : this._style.fontStyle) + " " + this.fontSizeInPixels + "px " + this._style.fontFamily;
+            this._font = this._style.fontStyle + " " + this._style.fontWeight + " " + this.fontSizeInPixels + "px " + this._style.fontFamily;
         } else {
-            this._font = (this._fontWeight ? this._fontWeight : this._fontStyle) + " " + this.fontSizeInPixels + "px " + this._fontFamily;
+            this._font = this._fontStyle + " " + this._fontWeight + " " + this.fontSizeInPixels + "px " + this._fontFamily;
         }
 
         this._fontOffset = Control._GetFontOffset(this._font);
@@ -1294,6 +1411,7 @@ export class Control {
     /** Releases associated resources */
     public dispose() {
         this.onDirtyObservable.clear();
+        this.onBeforeDrawObservable.clear();
         this.onAfterDrawObservable.clear();
         this.onPointerDownObservable.clear();
         this.onPointerEnterObservable.clear();
@@ -1312,9 +1430,11 @@ export class Control {
             this._root = null;
         }
 
-        var index = this._host._linkedControls.indexOf(this);
-        if (index > -1) {
-            this.linkWithMesh(null);
+        if (this._host) {
+            var index = this._host._linkedControls.indexOf(this);
+            if (index > -1) {
+                this.linkWithMesh(null);
+            }
         }
     }
 
@@ -1395,9 +1515,7 @@ export class Control {
         Control._FontHeightSizes[font] = result;
 
         return result;
-    };
-
-
+    }
 
     /**
      * Creates a stack panel that can be used to render headers

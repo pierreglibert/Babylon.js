@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
-- '6'
+- '8'
 git:
   depth: 3
 cache:
@@ -21,6 +21,8 @@ jobs:
     script: gulp tests-whatsnew
   - env: JOB=DocumentationCheck
     script: gulp typedoc-check
+  - env: JOB=Styling
+    script: gulp tsLint
   - env: JOB=Build
     script: gulp typescript-all
   - env: JOB=Tests
@@ -31,8 +33,9 @@ jobs:
     - set -e
     - gulp typescript-all
     - gulp tests-unit
-#    - travis_retry gulp tests-validation-virtualscreen
-#    - travis_retry gulp tests-validation-browserstack
+    - travis_retry gulp tests-validation-virtualscreen
+    - travis_retry gulp tests-validation-browserstack
+    - gulp tests-modules
     - travis_retry gulp tests-viewer-validation-virtualscreen
     - travis_retry gulp tests-viewer-validation-browserstack
 notifications:

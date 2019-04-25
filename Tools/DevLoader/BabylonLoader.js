@@ -130,7 +130,7 @@ var BABYLONDEVTOOLS;
             var style = document.createElement('link');
             style.href = url;
             style.rel = "stylesheet";
-            style.type = "text/css"
+            style.type = "text/css";
             document.head.appendChild(style);
         }
 
@@ -153,6 +153,10 @@ var BABYLONDEVTOOLS;
                     for (; i < library.files.length; i++) {
                         var file = library.files[i];
                         if (file.indexOf('lib.d.ts') > 0) {
+                            continue;
+                        }
+                        // Manage exclude files.
+                        if (library.excludeFromLoader && library.excludeFromLoader.indexOf(file) > -1) {
                             continue;
                         }
 

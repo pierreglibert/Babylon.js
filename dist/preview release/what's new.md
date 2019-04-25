@@ -1,167 +1,135 @@
-# 3.3.0
+# 4.0.0
 
 ## Major updates
 
-- Added new `MixMaterial` to the Materials Library allowing to mix up to 8 textures ([julien-moreau](https://github.com/julien-moreau))
-- Added new `PhotoDome` object to display 360 photos. [Demo](https://www.babylonjs-playground.com/#14KRGG#0) ([SzeyinLee](https://github.com/SzeyinLee))
-- New GUI 3D controls toolset. [Complete doc + demos](http://doc.babylonjs.com/how_to/gui3d) ([Deltakosh](https://github.com/deltakosh))
-- Added [Environment Texture Tools](https://doc.babylonjs.com/how_to/physically_based_rendering#creating-a-compressed-environment-texture) to reduce the size of the usual .DDS file ([sebavan](http://www.github.com/sebavan))
-- New GUI control: the [Grid](http://doc.babylonjs.com/how_to/gui#grid) ([Deltakosh](https://github.com/deltakosh))
-- Gizmo and GizmoManager classes used to manipulate meshes in a scene. Gizmo types include: position, scale, rotation and bounding box. [Doc](http://doc.babylonjs.com/how_to/gizmo) ([TrevorDev](https://github.com/TrevorDev))
-- New behaviors: PointerDragBehavior, SixDofDragBehavior and MultiPointerScaleBehavior to enable smooth drag and drop/scaling with mouse or 6dof controller on a mesh. [Doc](http://doc.babylonjs.com/how_to/meshbehavior) ([TrevorDev](https://github.com/TrevorDev))
-- Particle system improvements ([Deltakosh](https://github.com/deltakosh))
-  - Added a ParticleHelper class to create some pre-configured particle systems in a one-liner method style. [Doc](https://doc.babylonjs.com/How_To/ParticleHelper) ([Deltakosh](https://github.com/deltakosh)) / ([DevChris](https://github.com/yovanoc))
-  - Improved CPU particles rendering performance (up to x2 on low end devices)
-  - Added support for `isBillboardBased`. [Doc](http://doc.babylonjs.com/babylon101/particles#alignment)
-  - Added support for billboard mode. [Doc](https://doc.babylonjs.com/babylon101/particles#alignment)
-  - Added support for `minScaleX`, `minScaleY`, `maxScaleX`, `maxScaleY`. [Doc](https://doc.babylonjs.com/babylon101/particles#size)
-  - Added support for `radiusRange` for sphere emitter. [Doc](https://doc.babylonjs.com/babylon101/particles#sphere-emitter)
-  - Added support for `radiusRange` and `heightRange` for cone emitter. [Doc](https://doc.babylonjs.com/babylon101/particles#cone-emitter)
-  - Added support for `ParticleSystem.BLENDMODE_ADD` alpha mode. [Doc](https://doc.babylonjs.com/babylon101/particles#particle-blending)
-  - Added support for color gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#particle-colors)
-  - Added support for pre-warming. [Doc](https://doc.babylonjs.com/babylon101/particles#pre-warming)
-  - Added support for `minInitialRotation` and `maxInitialRotation`. [Doc](https://doc.babylonjs.com/babylon101/particles#rotation)
-  - Added support for size gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#size)
-  - Added support for life time gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#lifetime)
-  - Added support for angular speed gradients. [Doc](https://doc.babylonjs.com/babylon101/particles#rotation)
-  - Added support for noise textures. [Doc](http://doc.babylonjs.com/babylon101/particles#noise-texture)
-- Added SceneComponent to help decoupling Scene from its components. ([sebavan](http://www.github.com/sebavan))
-- Playground can now be used with TypeScript directly!. [Demo](https://www.babylonjs-playground.com/ts.html) ([Deltakosh](https://github.com/deltakosh), [NasimiAsl](https://github.com/NasimiAsl))
-- New GUI control: [InputPassword](https://doc.babylonjs.com/how_to/gui#inputpassword) ([theom](https://github.com/theom))
-- Added dead key support and before key add observable to InputText. [Doc](https://doc.babylonjs.com/how_to/gui#using-onbeforekeyaddobservable-for-extended-keyboard-layouts-and-input-masks)([theom](https://github.com/theom))
-- GUI and Inspector are now ES-Modules ([RaananW](https://github.com/RaananW))
-- Added support for noise procedural textures. [Doc](http://doc.babylonjs.com/how_to/how_to_use_procedural_textures#noise-procedural-texture) ([Deltakosh](https://github.com/deltakosh))
+- Added support for [parallel shader compilation](https://www.khronos.org/registry/webgl/extensions/KHR_parallel_shader_compile/) ([Deltakosh](https://github.com/deltakosh))
+- Added FlyCamera for free navigation in 3D space, with a limited set of settings ([Phuein](https://github.com/phuein)) [@NEED DEMO]
+- Added [Object Based Motion Blur](http://doc.babylonjs.com/how_to/using_motionblurpostprocess) post-process ([julien-moreau](https://github.com/julien-moreau))
+- WebXR ([TrevorDev](https://github.com/TrevorDev)) [@NEED DEMO]
+  - Add customAnimationFrameRequester to allow sessions to hook into engine's render loop ([TrevorDev](https://github.com/TrevorDev))
+  - camera customDefaultRenderTarget to allow cameras to render to a custom render target (eg. xr framebuffer) instead of the canvas ([TrevorDev](https://github.com/TrevorDev))
+  - webXR camera which can be updated by a webXRSession ([TrevorDev](https://github.com/TrevorDev))
+  - webXRSessionManager to bridge xrSession to babylon's camera/engine ([TrevorDev](https://github.com/TrevorDev))
+  - webXRExperienceHelper to setup a default XR experience ([TrevorDev](https://github.com/TrevorDev))
+  - WebXREnterExitUI and WebXRManagedOutputCanvas classes to configure the XR experience ([TrevorDev](https://github.com/TrevorDev))
+  - WebXRInput manage controllers for the XR experience ([TrevorDev](https://github.com/TrevorDev))
+  - WebXR camera rotation using parent container ([TrevorDev](https://github.com/TrevorDev))
+- GUI:
+  - Added new [ImageBasedSlider](http://doc.babylonjs.com/how_to/gui#imagebasedslider) to let users customize sliders using images ([Deltakosh](https://github.com/deltakosh))
+  - Added support for clipboard events to let users perform `cut`, `copy` and `paste` events ([Saket Saurabh](https://github.com/ssaket))
 
 ## Updates
 
-- All NPM packages have `latest`and `preview` streams [#3055](https://github.com/BabylonJS/Babylon.js/issues/3055) ([RaananW](https://github.com/RaananW))
-- Added New Tools Tab in the inspector (env texture and screenshot tools so far) ([sebavan](http://www.github.com/sebavan))
-- Added `TextBlock.computeExpectedHeight`, added `TextWrapping.Ellipsis` as `TextBlock.wordWrapping` possible value ([adrientetar](https://github.com/adrientetar))
+### GUI
+
+- Added `button.image` and `button.textBlock` to simplify access to button internal parts ([Deltakosh](https://github.com/deltakosh))
+- Added `sldier.displayThumb` to show/hide slider's thumb ([Deltakosh](https://github.com/deltakosh))
+- Added `grid.rowCount`, `grid.columnCount` and `grid.getChildrenAt()` ([Deltakosh](https://github.com/deltakosh))
+- Added `Control.AllowAlphaInheritance` to let users control the way alpha is used (inherited or not) ([Deltakosh](https://github.com/deltakosh))
+- Added support for performing operations like select all, text highlight, delete selected in `inputText` ([Saket Saurabh](https://github.com/ssaket))
+- Added `inputText.onTextCopyObservable`, `inputText.onTextCutObservable` and `inputText.onTextPasteObservable` to inputText ([Saket Saurabh](https://github.com/ssaket))
+- Added `AdvancedDynamicTexture.onClipboardObservable` to observe for clipboard events in AdvancedDynamicTexture([Saket Saurabh](https://github.com/ssaket))
+- Added `inputText.onFocusSelectAll` to allow complete selection of text on focus event.([Saket Saurabh](https://github.com/ssaket))
 
 ### Core Engine
 
-- Added new `BoundingInfo.scale()` function to let users control the size of the bounding info ([Deltakosh](https://github.com/deltakosh))
-- Added new `Animatable.waitAsync` function to use Promises with animations. Demo [Here](https://www.babylonjs-playground.com/#HZBCXR) ([Deltakosh](https://github.com/deltakosh))
-- Added the choice of [forming a closed loop](http://doc.babylonjs.com/how_to/how_to_use_curve3#catmull-rom-spline) to the catmull-rom-spline curve3 ([johnk](https://github.com/babylonjsguide))
-- Added support for specifying the center of rotation to textures ([bghgary](http://www.github.com/bghgary))
-- Added webVR support for Oculus Go ([TrevorDev](https://github.com/TrevorDev))
-- Added ability to not generate polynomials harmonics upon prefiltered texture creation ([sebavan](http://www.github.com/sebavan))
-- Added predicate function to customize the list of mesh included in the computation of bounding vectors in the ```getHierarchyBoundingVectors``` method ([sebavan](http://www.github.com/sebavan))
-- Added webVR constructor options: disable laser pointer toggle, teleportation floor meshes ([TrevorDev](https://github.com/TrevorDev))
-- Get a root mesh from an asset container, load a mesh from a file with a single string url ([TrevorDev](https://github.com/TrevorDev))
-- UtilityLayer class to render another scene as a layer on top of an existing scene ([TrevorDev](https://github.com/TrevorDev))
-- AnimationGroup has now onAnimationGroupEnd observable ([RaananW](https://github.com/RaananW))
-- New `serialize` and `Parse` functions to serialize and parse all procedural textures from the Procedural Textures Library ([julien-moreau](https://github.com/julien-moreau))
-- Added a new `mesh.ignoreNonUniformScaling` to turn off non uniform scaling compensation ([Deltakosh](https://github.com/deltakosh))
-- AssetsManager tasks will only run when their state is INIT. It is now possible to remove a task from the assets manager ([RaananW](https://github.com/RaananW))
-- Added sprite isVisible field ([TrevorDev](https://github.com/TrevorDev))
-- EnvironmentHelper will recreate ground and skybox meshes if force-disposed ([RaananW](https://github.com/RaananW))
-- Added viewport caching mechanism in engine ([sebavan](http://www.github.com/sebavan))
-- Added unpackFlipY caching mechanism in engine ([sebavan](http://www.github.com/sebavan))
-- Added rebind optimization of video texture ([sebavan](http://www.github.com/sebavan))
-- Fix Background Material effect caching ([sebavan](http://www.github.com/sebavan))
-- Prevent texture ```getSize``` to generate garbage collection ([sebavan](http://www.github.com/sebavan))
-- Prevent ```lodGenerationScale``` and ```lodGenerationOffset``` to force rebind ([sebavan](http://www.github.com/sebavan))
-- Added poster property on VideoTexture ([sebavan](http://www.github.com/sebavan))
-- Added ```onUserActionRequestedObservable``` to workaround and detect autoplay video policy restriction on VideoTexture ([sebavan](http://www.github.com/sebavan))
-- `Sound` now accepts `MediaStream` as source to enable easier WebAudio and WebRTC integrations ([menduz](https://github.com/menduz))
-- Vector x, y and z constructor parameters are now optional and default to 0 ([TrevorDev](https://github.com/TrevorDev))
-- New vertical mode for sliders in 2D GUI. [Demo](https://www.babylonjs-playground.com/#U9AC0N#53) ([Saket Saurabh](https://github.com/ssaket))
-- Added and removed camera methods in the default pipeline ([TrevorDev](https://github.com/TrevorDev))
-- Added internal texture `format` support for RenderTargetCubeTexture ([PeapBoy](https://github.com/NicolasBuecher))
-- Added canvas toBlob polyfill in tools ([sebavan](http://www.github.com/sebavan))
-- Added `RawCubeTexture` class with RGBD and mipmap support ([bghgary](http://www.github.com/bghgary))
-- Added effect layer per rendering group addressing [Issue 4463](https://github.com/BabylonJS/Babylon.js/issues/4463) ([sebavan](http://www.github.com/sebavan))
-- Added predicate function `targetMask` argument to `scene.beginWeightedAnimation`, `scene.beginAnimation`, `scene.stopAnimation`, and `animatable.stop` to allow for selective application of animations.  ([fmmoret](http://github.com/fmmoret))
-- Oculus GO and GearVR 3dof controllers will now rotate with the user's head if they turn around in their room ([TrevorDev](https://github.com/TrevorDev))
-- Added onPoseUpdatedFromDeviceObservable to webVRCamera to detect when the camera's pose has been updated ([TrevorDev](https://github.com/TrevorDev))
-- Added attachToBoxBehavior to attach UI to a bounding box ([TrevorDev](https://github.com/TrevorDev))
-- Gizmo manager's internal gizmos are now public ([TrevorDev](https://github.com/TrevorDev))
-- Ability to customize meshes on gizmos ([TrevorDev](https://github.com/TrevorDev))
+- Added `Engine.onNewSceneAddedObservable` ([Deltakosh](https://github.com/deltakosh))
+- Added new `PassCubePostProcess` to render cube map content ([Deltakosh](https://github.com/deltakosh))
+- Added support for utility layer for SkeletonViewer ([Deltakosh](https://github.com/deltakosh))
+- Improved shader precision detection ([Deltakosh](https://github.com/deltakosh))
+- Added support for bone matrix texture. Now skeletons will use a texture instead of uniforms when possible ([Deltakosh](https://github.com/deltakosh))
+- Refactored of the SolidParticleSystem code for performance and code quality improvement ([barroij](https://github.com/barroij))
+- Added utility function `Tools.BuildArray` for array initialisation ([barroij](https://github.com/barroij))
+- Introduced a new `IOfflineSupport` interface to hide IndexedDB ([Deltakosh](https://github.com/deltakosh))
+- `PBRMaterial` and `StandardMaterial` now use hot swapping feature for shaders. This means they can keep using a previous shader while a new one is being compiled ([Deltakosh](https://github.com/deltakosh))
+- Performance oriented changes ([barroij](https://github.com/barroij))
+  - Prevented avoidable matrix inversion or square root computation
+  - Enabled a removal in O(1) from the `transformNodes` array and `materials` array of the `Scene`. As a consequence, the order of the element within these arrays might change during a removal
+  - Enabled a removal in O(1) from the `instances` array of a `Mesh`. As a consequence, the order of the element within this array might change during a removal
+  - Stopped calling `Array.splice` on the `scene.meshes` array and on the `engine._uniformBuffer` when removing an element. As a consequence, the order of the element within these arrays might change during a removal
+  - Added an option `useMaterialMeshMap` in the `Scene` constructor options. When set to true, each `Material` isntance will have and will keep up-to-date a map of its bound meshes. This is to avoid browsing all the meshes of the scene to retrieve the ones bound to the current material when disposing the Material. Disabled by default
+  - Added an option `useClonedMeshhMap` in the `Scene` constructor options. When set to true, each `Mesh` will have and will keep up-to-date a map of cloned meshes. This is to avoid browsing all the meshes of the scene to retrieve the ones that have the current mesh as source mesh. Disabled by default
+  - Added `blockfreeActiveMeshesAndRenderingGroups` property in the `Scene`, following the same model as `blockMaterialDirtyMechanism`. This is to avoid calling `Scene.freeActiveMeshes` and `Scene.freeRenderingGroups` for each disposed mesh when we dispose several meshes in a row. One have to set `blockfreeActiveMeshesAndRenderingGroups` to `true` just before disposing the meshes, and set it back to `false` just after
+  - Prevented code from doing useless and possible time consuming computation when disposing the `ShaderMaterial` of a `LinesMesh`
+  - Make a better use of the `isIdentity` cached value wihtin a `Matrix`
+  - Make sure we browse all the submeshes only once in `Material.markAsDirty` function
+  - Added an `Vector3.UnprojectRayToRef` static function to avoid computing and inverting the projection matrix twice when updating a Ray.
+- Align `BoundingBox` and `BoundingSphere` API and behavior for clarity and simplicity. As a consequence, the `BoundingBox`'s method `setWorldMatrix` has been removed and the underlying world matrix cannot be modified but by calling `reConstruct` or `update`. ([barroij](https://github.com/barroij))
+- Make sure that `Material.markAsDirty` and all the `markXXXDirty` methods early out when `scene.blockMaterialDirtyMechanism` is true. ([barroij](https://github.com/barroij))
+- Add updateUpVectorFromRotation to target camera to allow the up vector to be computed from rotation ([TrevorDev](https://github.com/TrevorDev))
+- Added opacity texture support to `GridMaterial` ([Deltakosh](https://github.com/deltakosh))
+- Added support for deserializing morph target animations in animation groups
+- AssetContainer dispose method ([TrevorDev](https://github.com/TrevorDev))
+- Loading texture with KTX will fallback to non-KTX loader if KTX loader fails ([TrevorDev](https://github.com/TrevorDev))
+- `Layer` are now supported in `RenderTargetTexture` ([Sebavan](https://github.com/Sebavan))
 
 ### glTF Loader
 
-- Added support for KHR_texture_transform ([bghgary](http://www.github.com/bghgary))
-- Added `onNodeLODsLoadedObservable` and `onMaterialLODsLoadedObservable` to MSFT_lod loader extension ([bghgary](http://www.github.com/bghgary))
-- Added glTF loader settings to the GLTF tab in the debug layer ([bghgary](http://www.github.com/bghgary))
-- Added debug logging and performance counters ([bghgary](http://www.github.com/bghgary))
-- Added support for EXT_lights_imageBased ([bghgary](http://www.github.com/bghgary))
+- Added support for mesh instancing for improved performance when multiple nodes point to the same mesh ([bghgary](https://github.com/bghgary))
+- Create `TransformNode` objects instead of `Mesh` objects for glTF nodes without geometry ([bghgary](https://github.com/bghgary))
+- Added glTF JSON pointers to metadata of nodes, materials, and textures ([bghgary](https://github.com/bghgary))
+
+### glTF Serializer
 
 ### Viewer
 
-- No fullscreen button on small devices ([RaananW](https://github.com/RaananW))
-- Nav-Bar is now displayed on fullscreen per default ([RaananW](https://github.com/RaananW))
-- Viewer configuration supports deprecated values using the new configurationCompatibility processor  ([RaananW](https://github.com/RaananW))
-- Shadows will only render while models are entering the scene or animating ([RaananW](https://github.com/RaananW))
-- Support for model drag and drop onto the canvas ([RaananW](https://github.com/RaananW))
-- New lab feature - global light rotation [#4347](https://github.com/BabylonJS/Babylon.js/issues/4347) ([RaananW](https://github.com/RaananW))
-- New NPM package - babylonjs-viewer-assets, to separate the binary assets and the code of the viewer ([RaananW](https://github.com/RaananW))
-- A new HD-Toggler button allows setting a better hardware scaling rate ([RaananW](https://github.com/RaananW))
-- An initial support for WebVR is implemented ([RaananW](https://github.com/RaananW))
-- It is now possible to choose the element that goes fullscreen in the default viewer ([RaananW](https://github.com/RaananW))
-- The default viewer has a plugin system with which new buttons can be added externally ([RaananW](https://github.com/RaananW))
-- The extended configuration is now the default when not providing the "extended" parameter ([RaananW](https://github.com/RaananW))
-- viewer.updateConfiguration also accepts a URL to download configuration remotely ([RaananW](https://github.com/RaananW))
-- Viewer supports 3D printing on windows 10 ([RaananW](https://github.com/RaananW))
-- The viewer's environment map is using the new .env feature ([RaananW](https://github.com/RaananW))
-
-### Documentation
-
-- Added all code comments for GUI
+### Materials Library
 
 ## Bug fixes
-
-- VR experience helper will now fire pointer events even when no mesh is currently hit ([TrevorDev](https://github.com/TrevorDev))
-- RawTexture.CreateAlphaTexture no longer fails to create a usable texture ([TrevorDev](https://github.com/TrevorDev))
-- SceneSerializer.SerializeMesh now serializes all materials kinds (not only StandardMaterial) ([julien-moreau](https://github.com/julien-moreau))
-- WindowsMotionController's trackpad field will be updated prior to it's onTrackpadChangedObservable event ([TrevorDev](https://github.com/TrevorDev))
-- VR experience helper's controllers will not fire pointer events when laser's are disabled, instead the camera ray pointer event will be used ([TrevorDev](https://github.com/TrevorDev))
-- Node's setParent(node.parent) will no longer throw an exception when parent is undefined and will behave the same as setParent(null) ([TrevorDev](https://github.com/TrevorDev))
-- Mesh.MergeMeshes flips triangles on meshes with negative scaling ([SvenFrankson](http://svenfrankson.com))
-- Avoid firing button events multiple times when calling vrController.attachMesh() ([TrevorDev](https://github.com/TrevorDev))
-- Parse geometry when load binary mesh ([SinhNQ](https://github.com/quocsinh))
-- Removing observers during observable notify should not skip over valid observers ([TrevorDev](https://github.com/TrevorDev))
-- Initializing gamepadManager should register the gamepad update events ([TrevorDev](https://github.com/TrevorDev))
-- Do not generate mipmaps for RawCubeTexture if OES_texture_float_linear and/or EXT_color_buffer_float extensions are not supported ([PeapBoy](https://github.com/NicolasBuecher))
+- Removed bones from rootNodes where they should never have been ([Deltakosh](https://github.com/deltakosh))
+- Refocusing on input gui with pointer events ([TrevorDev](https://github.com/TrevorDev))
+- Gizmo scaling not consistent when camera is parented ([TrevorDev](https://github.com/TrevorDev))
+- Context loss causing unexpected results with dynamic textures, geometries with the same name and reflectionTextures ([TrevorDev](https://github.com/TrevorDev))
+- CreateScreenshotUsingRenderTarget stretches mirror textures when setting both width and height ([TrevorDev](https://github.com/TrevorDev))
+- VR helper only updating vr cameras position when entering vr, rotation was missing ([TrevorDev](https://github.com/TrevorDev))
+- Fix VR controllers after gltfLoader transformNode change ([TrevorDev](https://github.com/TrevorDev))
+- Bounding Box fixedDragMeshScreenSize stopped working and allow rotating through bounding box ([TrevorDev](https://github.com/TrevorDev))
+- VR helper would rotate non vr camera while in VR ([TrevorDev](https://github.com/TrevorDev))
+- PointerDragBahavior using Mesh as base type, causing type-checking problems with AbstractMesh ([Poolminer](https://github.com/Poolminer/))
 
 ### Core Engine
-
-- Fixed ```shadowEnabled``` property on lights. Shadows are not visible anymore when disabled ([sebavan](http://www.github.com/sebavan))
-- Physics `unregisterOnPhysicsCollide` didn't remove callback correctly [#4291](https://github.com/BabylonJS/Babylon.js/issues/4291) ([RaananW](https://github.com/RaananW))
-- Added missing getter and setter for global exposure in ColorCurves ([RaananW](https://github.com/RaananW))
-- Fixed an issue with view matrix when `ArcRotateCamera` was used with collisions ([Deltakosh](https://github.com/deltakosh))
-- Fixed a bug with setting `unlit` on `PBRMaterial` after the material is ready (Wrong dirty flags) ([bghgary](http://www.github.com/bghgary))
-- Fixed `HighlightLayer` support on browsers not supporting HalfFloat ([sebavan](http://www.github.com/sebavan))
-- Fixed support for R and RG texture formats ([sebavan](http://www.github.com/sebavan))
-- Fixed `updatable` parameter setting in the SPS ([jerome](https://github.com/jbousquie))
-- Angular and linear velocity were using the wrong method to copy values to the physics engine ([RaananW](https://github.com/RaananW))
-- Fixed env texture generation in Byte Mode ([sebavan](http://www.github.com/sebavan))
-- Oimo.js now receives quaternion and not euler when a body is being constructed ([RaananW](https://github.com/RaananW))
+- Fixed a bug with `mesh.alwaysSelectAsActiveMesh` preventing layerMask to be taken in account ([Deltakosh](https://github.com/deltakosh))
+- Fixed a bug with pointer up being fire twice ([Deltakosh](https://github.com/deltakosh))
+- Fixed a bug with particle systems being update once per camera instead of once per frame ([Deltakosh](https://github.com/deltakosh))
+- Handle properly the `LinesMesh` `intersectionThreshold` by using its value directly when the intersection against a `Ray` is checked, instead of extending the `BoundingInfo` accordingly + Addded an `InstancesLinesMesh` class used to create instance of `LinesMesh` so that each instance can have its own `intersectionThreshold` value ([barroij](https://github.com/barroij))
+- Fixed the `LineEdgesRenderer` used for edge rendering of `LinesMesh` handle properly LinesMesh made of disconnected lines + Make it work for instance of `LinesMesh` ([barroij](https://github.com/barroij))
+- Fixed `Matrix.toNormalMatrix`function ([barroij](https://github.com/barroij))
+- Add missing effect layer to asset container ([TrevorDev](https://github.com/TrevorDev))
+- Fixed effect layer compatibility with multi materials ([Sebavan](https://github.com/Sebavan))
+- Added a `DeepImmutable<T>` type to specifiy that a referenced object should be considered recursively immutable, meaning that all its properties are `readonly` and that if a property is a reference to an object, this object is also recursively immutable. ([barroij](https://github.com/barroij))
+- Fixed `VideoTexture` poster property when autoplay is turned off.
 
 ### Viewer
-
-- Fix Navbar Interaction on Mozilla/Firefox ([SzeyinLee](https://github.com/SzeyinLee))
-- Fix Animation Slider Interaction on Mozilla/Firefox ([sebavan](http://www.github.com/sebavan))
-- Fix Animation Slider Clickable area size Cross Plat ([sebavan](http://www.github.com/sebavan))
-- Ground material didn't take the default main color is no material definition was provided ([RaananW](https://github.com/RaananW))
-- Model configuration was not extended correctly if loaded more than one model ([RaananW](https://github.com/RaananW))
-- It wasn't possible to disable camera behavior(s) using configuration  [#4348](https://github.com/BabylonJS/Babylon.js/issues/4348) ([RaananW](https://github.com/RaananW))
-- Animation blending was always set to true, ignoring configuration [#4412](https://github.com/BabylonJS/Babylon.js/issues/4412) ([RaananW](https://github.com/RaananW))
-- Animation navbar now updates correctly when a new model is loaded [#4441](https://github.com/BabylonJS/Babylon.js/issues/4441) ([RaananW](https://github.com/RaananW))
-- Non-normalized meshes didn't center and focus correctly ([RaananW](https://github.com/RaananW))
-- Meshes with skeletons could have incorrect animations ([RaananW](https://github.com/RaananW))
-- Removed element IDs from viewer's templates to allow muitiple viewers in a single page [#4500](https://github.com/BabylonJS/Babylon.js/issues/4500) ([RaananW](https://github.com/RaananW))
-- Viewer is not using Engine.LastCreatedScene anymore, to support multiple viewers in a single page [#4500](https://github.com/BabylonJS/Babylon.js/issues/4500) ([RaananW](https://github.com/RaananW))
-- Template location was ignored if html was defined ([RaananW](https://github.com/RaananW))
-- Drag and Drop only worked if a model was already loaded before ([RaananW](https://github.com/RaananW))
-- It was not possible to add new custom optimizers, only use existing ones ([RaananW](https://github.com/RaananW))
 
 ### Loaders
 
-- STL Loader only supported binary downloads and no data: urls [#4473](https://github.com/BabylonJS/Babylon.js/issues/4473) ([RaananW](https://github.com/RaananW))
-- OBJ Loader is now an async loader [#4571](https://github.com/BabylonJS/Babylon.js/issues/4571) ([RaananW](https://github.com/RaananW))
-
 ## Breaking changes
 
-- Fixing support for R and RG texture formats made us remove TextureFormat_R32F and TextureFormat_RG32F as they were mixing formats and types. Please, use the respective TextureFormat_R and TextureFormat_RG with the Float types ([sebavan](http://www.github.com/sebavan))
-- Replacing `scene.onRenderingGroupObservable` by `onBeforeRenderingGroupObservable` and `onAfterRenderingGroupObservable` to prevent the stage check ([sebavan](http://www.github.com/sebavan))
+- `Database.IDBStorageEnabled` is now false by default ([Deltakosh](https://github.com/deltakosh))
+- `Database.openAsync` was renamed by `Database.open` ([Deltakosh](https://github.com/deltakosh))
+- `scene.database` was renamed to `scene.offlineProvider` ([Deltakosh](https://github.com/deltakosh))
+- `BoundingBox.setWorldMatrix` was removed. `BoundingBox.getWorldMatrix` now returns a `DeepImmutable<Matrix>` ([barroij](https://github.com/barroij))
+- `Matrix`'s accessor `m` and method `toArray` and `asArray` now returns a `DeepImmutable<Float32Array>` as the matrix underlying array is not supposed to be modified manually from the outside of the class ([barroij](https://github.com/barroij))
+- Removed some deprecated (flagged since 3.0) properties and functions ([Deltakosh](https://github.com/deltakosh))
+  - `scene.getInterFramePerfCounter()`: use SceneInstrumentation class instead
+  - `scene.interFramePerfCounter`: use SceneInstrumentation class instead
+  - `scene.getLastFrameDuration()`: use SceneInstrumentation class instead
+  - `scene.lastFramePerfCounter`: use SceneInstrumentation class instead
+  - `scene.getEvaluateActiveMeshesDuration()`: use SceneInstrumentation class instead
+  - `scene.evaluateActiveMeshesDurationPerfCounter`: use SceneInstrumentation class instead
+  - `scene.getRenderTargetsDuration()`: use SceneInstrumentation class instead
+  - `scene.getRenderDuration()`: use SceneInstrumentation class instead
+  - `scene.renderDurationPerfCounter`: use SceneInstrumentation class instead
+  - `scene.getParticlesDuration()`: use SceneInstrumentation class instead
+  - `scene.particlesDurationPerfCounter`: use SceneInstrumentation class instead
+  - `scene.getSpritesDuration()`: use SceneInstrumentation class instead
+  - `scene.spriteDuractionPerfCounter`: use SceneInstrumentation class instead
+  - `engine.drawCalls`: use SceneInstrumentation class instead
+  - `engine.drawCallsPerfCounter`: use SceneInstrumentation class instead
+  - `shadowGenerator.useVarianceShadowMap`: use useExponentialShadowMap instead
+  - `shadowGenerator.useBlurVarianceShadowMap`: use useBlurExponentialShadowMap instead
+- The glTF loader now creates `InstancedMesh` objects when two nodes point to the same mesh ([bghgary](https://github.com/bghgary))
+- The glTF loader now creates `TransformNode` objects instead of `Mesh` objects for glTF nodes without geometry ([bghgary](https://github.com/bghgary))
+  - _Note: The root node is still a `Mesh` object and is still the first in the returned list of meshes_
+  - `TransformNode` objects are excluded from the returned list of meshes when importing mesh
+  - `TransformNode` objects do not raise `onMeshLoaded` events

@@ -10,7 +10,7 @@ module BABYLON {
         /**
          * Node of the mesh corrisponding to the direction the ray should be cast from the controller
          */
-        public pointingPoseNode: AbstractMesh;
+        public pointingPoseNode: TransformNode;
         /**
          * Map of the button meshes contained in the controller
          */
@@ -32,7 +32,7 @@ module BABYLON {
         /**
          * The mesh
          */
-        value: AbstractMesh;
+        value: TransformNode;
     }
 
     /**
@@ -42,11 +42,11 @@ module BABYLON {
         /**
          * The mesh that should be displayed when pressed
          */
-        pressed: AbstractMesh;
+        pressed: TransformNode;
         /**
          * The mesh that should be displayed when not pressed
          */
-        unpressed: AbstractMesh;
+        unpressed: TransformNode;
     }
 
     /**
@@ -56,11 +56,11 @@ module BABYLON {
         /**
          * The mesh that should be set when at its min
          */
-        min: AbstractMesh;
+        min: TransformNode;
         /**
          * The mesh that should be set when at its max
          */
-        max: AbstractMesh;
+        max: TransformNode;
     }
 
     /**
@@ -113,7 +113,7 @@ module BABYLON {
             },
             // A mapping of the axis name to glTF model node name
             // that should be transformed by axis value.
-            // This array mirrors the browserGamepad.axes array, such that 
+            // This array mirrors the browserGamepad.axes array, such that
             // the mesh corresponding to axis 0 is in this array index 0.
             axisMeshNames: [
                 'THUMBSTICK_X',
@@ -189,7 +189,7 @@ module BABYLON {
             return this.onTrackpadValuesChangedObservable;
         }
 
-        private _updateTrackpad(){
+        private _updateTrackpad() {
             if (this.browserGamepad.axes && (this.browserGamepad.axes[2] != this.trackpad.x || this.browserGamepad.axes[3] != this.trackpad.y)) {
                 this.trackpad.x = this.browserGamepad["axes"][2];
                 this.trackpad.y = this.browserGamepad["axes"][3];
@@ -334,7 +334,6 @@ module BABYLON {
                 filename = GenericController.MODEL_FILENAME;
             }
 
-
             SceneLoader.ImportMesh("", path, filename, scene, (meshes: AbstractMesh[]) => {
                 // glTF files successfully loaded from the remote server, now process them to ensure they are in the right format.
                 this._loadedMeshInfo = this.processModel(scene, meshes);
@@ -348,20 +347,20 @@ module BABYLON {
 
                 if (meshLoaded) {
                     meshLoaded(this._defaultModel);
-                }                    
+                }
             }, null, (scene: Scene, message: string) => {
                 Tools.Log(message);
                 Tools.Warn('Failed to retrieve controller model from the remote server: ' + path + filename);
                 if (!forceDefault) {
                     this.initControllerMesh(scene, meshLoaded, true);
                 }
-            });            
+            });
         }
 
         /**
-         * Takes a list of meshes (as loaded from the glTF file) and finds the root node, as well as nodes that 
+         * Takes a list of meshes (as loaded from the glTF file) and finds the root node, as well as nodes that
          * can be transformed by button presses and axes values, based on this._mapping.
-         * 
+         *
          * @param scene scene in which the meshes exist
          * @param meshes list of meshes that make up the controller model to process
          * @return structured view of the given meshes, with mapping of buttons and axes to meshes that can be transformed.
@@ -476,7 +475,7 @@ module BABYLON {
             loadedMeshInfo.pointingPoseNode = getChildByName(rootNode, this._mapping.pointingPoseMeshName);
             if (!loadedMeshInfo.pointingPoseNode) {
                 Tools.Warn('Missing pointing pose mesh with name: ' + this._mapping.pointingPoseMeshName);
-            }else{
+            }else {
                 this._pointingPoseNode = loadedMeshInfo.pointingPoseNode;
             }
 
@@ -484,11 +483,11 @@ module BABYLON {
 
             // Look through all children recursively. This will return null if no mesh exists with the given name.
             function getChildByName(node: Node, name: string) {
-                return node.getChildMeshes(false, n => n.name === name)[0];
+                return <TransformNode>node.getChildren((n) => n.name === name, false)[0];
             }
             // Look through only immediate children. This will return null if no mesh exists with the given name.
-            function getImmediateChildByName(node: Node, name: string): AbstractMesh {
-                return node.getChildMeshes(true, n => n.name == name)[0];
+            function getImmediateChildByName(node: Node, name: string): TransformNode {
+                return <TransformNode>node.getChildren((n) => n.name == name, true)[0];
             }
         }
 

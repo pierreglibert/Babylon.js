@@ -5,7 +5,6 @@ import { AbstractTreeTool } from "../treetools/AbstractTreeTool";
 import { ISoundInteractions, SoundInteractions } from "../treetools/SoundInteractions";
 import { Adapter } from "./Adapter";
 
-
 export class SoundAdapter
     extends Adapter
     implements ISoundInteractions {
@@ -19,7 +18,7 @@ export class SoundAdapter
         let str = '';
         if (this._obj.name) {
             str = this._obj.name;
-        } // otherwise nothing displayed        
+        } // otherwise nothing displayed
         return str;
     }
 
@@ -46,8 +45,8 @@ export class SoundAdapter
         else {
             (this._obj as Sound).play();
         }
-        (this._obj as Sound).onended = () => {
+        (this._obj as Sound).onEndedObservable.addOnce(() => {
             callback();
-        }
+        });
     }
 }

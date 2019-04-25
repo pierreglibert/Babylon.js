@@ -1,6 +1,8 @@
 import { Control } from "./control";
 import { Measure } from "../measure";
 import { Observable, Vector2 } from "babylonjs";
+import { StackPanel } from "./stackPanel";
+import { TextBlock } from "./textBlock";
 
 /**
  * Class used to represent a 2D checkbox
@@ -105,7 +107,7 @@ export class Checkbox extends Control {
                 context.shadowOffsetY = this.shadowOffsetY;
             }
 
-            context.fillStyle = this._background;
+            context.fillStyle = this._isEnabled ? this._background : this._disabledColor;
             context.fillRect(this._currentMeasure.left + this._thickness / 2, this._currentMeasure.top + this._thickness / 2, actualWidth, actualHeight);
 
             if (this.shadowBlur || this.shadowOffsetX || this.shadowOffsetY) {
@@ -115,7 +117,7 @@ export class Checkbox extends Control {
             }
 
             if (this._isChecked) {
-                context.fillStyle = this.color;
+                context.fillStyle = this._isEnabled ? this.color : this._disabledColor;
                 let offsetWidth = actualWidth * this._checkSizeRatio;
                 let offseHeight = actualHeight * this._checkSizeRatio;
 
@@ -142,4 +144,34 @@ export class Checkbox extends Control {
 
         return true;
     }
-}   
+
+    /**
+     * Utility function to easily create a checkbox with a header
+     * @param title defines the label to use for the header
+     * @param onValueChanged defines the callback to call when value changes
+     * @returns a StackPanel containing the checkbox and a textBlock
+     */
+    public static AddCheckBoxWithHeader(title: string, onValueChanged: (value: boolean) => void): StackPanel {
+        var panel = new StackPanel();
+        panel.isVertical = false;
+        panel.height = "30px";
+
+        var checkbox = new Checkbox();
+        checkbox.width = "20px";
+        checkbox.height = "20px";
+        checkbox.isChecked = true;
+        checkbox.color = "green";
+        checkbox.onIsCheckedChangedObservable.add(onValueChanged);
+        panel.addControl(checkbox);
+
+        var header = new TextBlock();
+        header.text = title;
+        header.width = "180px";
+        header.paddingLeft = "5px";
+        header.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        header.color = "white";
+        panel.addControl(header);
+
+        return panel;
+    }
+}

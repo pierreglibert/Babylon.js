@@ -251,7 +251,17 @@ var BABYLON;
             // Loads through the babylon tools to allow fileInput search.
             BABYLON.Tools.LoadFile(pathOfFile, onSuccess, undefined, undefined, false, function () { console.warn("Error - Unable to load " + pathOfFile); });
         };
-        OBJFileLoader.prototype.importMeshAsync = function (meshesNames, scene, data, rootUrl, onProgress) {
+        /**
+         * Imports one or more meshes from the loaded glTF data and adds them to the scene
+         * @param meshesNames a string or array of strings of the mesh names that should be loaded from the file
+         * @param scene the scene the meshes should be added to
+         * @param data the glTF data to load
+         * @param rootUrl root url to load from
+         * @param onProgress event that fires when loading progress has occured
+         * @param fileName Defines the name of the file to load
+         * @returns a promise containg the loaded meshes, particles, skeletons and animations
+         */
+        OBJFileLoader.prototype.importMeshAsync = function (meshesNames, scene, data, rootUrl, onProgress, fileName) {
             //get the meshes from OBJ file
             return this._parseSolid(meshesNames, scene, data, rootUrl).then(function (meshes) {
                 return {
@@ -262,13 +272,31 @@ var BABYLON;
                 };
             });
         };
-        OBJFileLoader.prototype.loadAsync = function (scene, data, rootUrl, onProgress) {
+        /**
+         * Imports all objects from the loaded glTF data and adds them to the scene
+         * @param scene the scene the objects should be added to
+         * @param data the glTF data to load
+         * @param rootUrl root url to load from
+         * @param onProgress event that fires when loading progress has occured
+         * @param fileName Defines the name of the file to load
+         * @returns a promise which completes when objects have been loaded to the scene
+         */
+        OBJFileLoader.prototype.loadAsync = function (scene, data, rootUrl, onProgress, fileName) {
             //Get the 3D model
             return this.importMeshAsync(null, scene, data, rootUrl, onProgress).then(function () {
                 // return void
             });
         };
-        OBJFileLoader.prototype.loadAssetContainerAsync = function (scene, data, rootUrl, onProgress) {
+        /**
+         * Load into an asset container.
+         * @param scene The scene to load into
+         * @param data The data to import
+         * @param rootUrl The root url for scene and resources
+         * @param onProgress The callback when the load progresses
+         * @param fileName Defines the name of the file to load
+         * @returns The loaded asset container
+         */
+        OBJFileLoader.prototype.loadAssetContainerAsync = function (scene, data, rootUrl, onProgress, fileName) {
             return this.importMeshAsync(null, scene, data, rootUrl).then(function (result) {
                 var container = new BABYLON.AssetContainer(scene);
                 result.meshes.forEach(function (mesh) { return container.meshes.push(mesh); });
@@ -322,14 +350,16 @@ var BABYLON;
              * @returns {boolean}
              */
             var isInArray = function (arr, obj) {
-                if (!arr[obj[0]])
+                if (!arr[obj[0]]) {
                     arr[obj[0]] = { normals: [], idx: [] };
+                }
                 var idx = arr[obj[0]].normals.indexOf(obj[1]);
                 return idx === -1 ? -1 : arr[obj[0]].idx[idx];
             };
             var isInArrayUV = function (arr, obj) {
-                if (!arr[obj[0]])
+                if (!arr[obj[0]]) {
                     arr[obj[0]] = { normals: [], idx: [], uv: [] };
+                }
                 var idx = arr[obj[0]].normals.indexOf(obj[1]);
                 if (idx != 1 && (obj[2] == arr[obj[0]].uv[idx])) {
                     return arr[obj[0]].idx[idx];
@@ -383,8 +413,9 @@ var BABYLON;
                     //Add the tuple in the comparison list
                     tuplePosNorm[indicePositionFromObj].normals.push(indiceNormalFromObj);
                     tuplePosNorm[indicePositionFromObj].idx.push(curPositionInIndices++);
-                    if (OBJFileLoader.OPTIMIZE_WITH_UV)
+                    if (OBJFileLoader.OPTIMIZE_WITH_UV) {
                         tuplePosNorm[indicePositionFromObj].uv.push(indiceUvsFromObj);
+                    }
                 }
                 else {
                     //The tuple already exists

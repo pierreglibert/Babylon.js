@@ -1,4 +1,4 @@
-import { DynamicTexture, Nullable, Observer, Camera, Engine, KeyboardInfoPre, PointerInfoPre, PointerInfo, Layer, Viewport, Scene, Texture, KeyboardEventTypes, Vector3, Matrix, Vector2, Tools, PointerEventTypes, AbstractMesh, StandardMaterial, Color3 } from "babylonjs";
+import { DynamicTexture, Nullable, Observer, Camera, Engine, KeyboardInfoPre, PointerInfoPre, PointerInfo, ClipboardEventTypes, Layer, Viewport, Scene, Texture, KeyboardEventTypes, Vector3, Matrix, Vector2, Tools, PointerEventTypes, AbstractMesh, StandardMaterial, Color3, Observable, ClipboardInfo } from 'babylonjs';
 import { Container } from "./controls/container";
 import { Control } from "./controls/control";
 import { Style } from "./style";
@@ -21,6 +21,12 @@ export interface IFocusableControl {
      * @param evt defines the current keyboard event
      */
     processKeyboard(evt: KeyboardEvent): void;
+
+    /**
+     * Function called to get the list of controls that should not steal the focus from this control
+     * @returns an array of controls
+     */
+    keepsFocusWith(): Nullable<Control[]>;
 }
 
 /**
@@ -61,6 +67,17 @@ export class AdvancedDynamicTexture extends DynamicTexture {
     private _focusedControl: Nullable<IFocusableControl>;
     private _blockNextFocusCheck = false;
     private _renderScale = 1;
+    private _rootCanvas: Nullable<HTMLCanvasElement>;
+    /**
+     * Define type to string to ensure compatibility across browsers
+     * Safari doesn't support DataTransfer constructor
+     */
+    private _clipboardData: string = "";
+
+    /**
+     * Observable event triggered each time an clipboard event is received from the rendering canvas
+     */
+    public onClipboardObservable = new Observable<ClipboardInfo>();
 
     /**
      * Gets or sets a boolean defining if alpha is stored as premultiplied
@@ -230,6 +247,16 @@ export class AdvancedDynamicTexture extends DynamicTexture {
     }
 
     /**
+     * Gets or set information about clipboardData
+     */
+    public get clipboardData(): string {
+        return this._clipboardData;
+    }
+    public set clipboardData(value: string) {
+        this._clipboardData = value;
+    }
+
+     /**
      * Creates a new AdvancedDynamicTexture
      * @param name defines the name of the texture
      * @param width defines the width of the texture
@@ -247,8 +274,10 @@ export class AdvancedDynamicTexture extends DynamicTexture {
             return;
         }
 
+        this._rootCanvas = scene.getEngine()!.getRenderingCanvas()!;
+
         this._renderObserver = scene.onBeforeCameraRenderObservable.add((camera: Camera) => this._checkUpdate(camera));
-        this._preKeyboardObserver = scene.onPreKeyboardObservable.add(info => {
+        this._preKeyboardObserver = scene.onPreKeyboardObservable.add((info) => {
             if (!this._focusedControl) {
                 return;
             }
@@ -282,6 +311,8 @@ export class AdvancedDynamicTexture extends DynamicTexture {
             container = this._rootContainer;
         }
 
+        func(container);
+
         for (var child of container.children) {
             if ((<any>child).children) {
                 this.executeOnAllControls(func, (<Container>child));
@@ -296,12 +327,6 @@ export class AdvancedDynamicTexture extends DynamicTexture {
      */
     public markAsDirty() {
         this._isDirty = true;
-
-        this.executeOnAllControls((control) => {
-            if (control._isFontSizeInPercentage) {
-                control._resetFontCache();
-            }
-        });
     }
 
     /**
@@ -344,6 +369,8 @@ export class AdvancedDynamicTexture extends DynamicTexture {
             return;
         }
 
+        this._rootCanvas = null;
+
         scene.onBeforeCameraRenderObservable.remove(this._renderObserver);
 
         if (this._resizeObserver) {
@@ -373,6 +400,7 @@ export class AdvancedDynamicTexture extends DynamicTexture {
         }
 
         this._rootContainer.dispose();
+        this.onClipboardObservable.clear();
 
         super.dispose();
     }
@@ -514,6 +542,13 @@ export class AdvancedDynamicTexture extends DynamicTexture {
         this._rootContainer._draw(measure, context);
     }
 
+    /** @hidden */
+    public _changeCursor(cursor: string) {
+        if (this._rootCanvas) {
+            this._rootCanvas.style.cursor = cursor;
+        }
+    }
+
     private _doPicking(x: number, y: number, type: number, pointerId: number, buttonIndex: number): void {
         var scene = this.getScene();
 
@@ -535,13 +570,12 @@ export class AdvancedDynamicTexture extends DynamicTexture {
         }
 
         if (!this._rootContainer._processPicking(x, y, type, pointerId, buttonIndex)) {
-
+            this._changeCursor("");
             if (type === PointerEventTypes.POINTERMOVE) {
                 if (this._lastControlOver[pointerId]) {
                     this._lastControlOver[pointerId]._onPointerOut(this._lastControlOver[pointerId]);
+                    delete this._lastControlOver[pointerId];
                 }
-
-                delete this._lastControlOver[pointerId];
             }
         }
 
@@ -583,7 +617,7 @@ export class AdvancedDynamicTexture extends DynamicTexture {
             if (pi.type !== PointerEventTypes.POINTERMOVE
                 && pi.type !== PointerEventTypes.POINTERUP
                 && pi.type !== PointerEventTypes.POINTERDOWN) {
-                return;
+                    return;
             }
 
             if (!scene) {
@@ -601,12 +635,52 @@ export class AdvancedDynamicTexture extends DynamicTexture {
             let y = (scene.pointerY / engine.getHardwareScalingLevel() - viewport.y * engine.getRenderHeight()) / viewport.height;
 
             this._shouldBlockPointer = false;
+            // Do picking modifies _shouldBlockPointer
             this._doPicking(x, y, pi.type, (pi.event as PointerEvent).pointerId || 0, pi.event.button);
 
-            pi.skipOnPointerObservable = this._shouldBlockPointer;
+            // Avoid overwriting a true skipOnPointerObservable to false
+            if (this._shouldBlockPointer) {
+                pi.skipOnPointerObservable = this._shouldBlockPointer;
+            }
         });
 
         this._attachToOnPointerOut(scene);
+    }
+
+    /** @hidden */
+    private onClipboardCopy = (evt: ClipboardEvent) => {
+        let ev = new ClipboardInfo(ClipboardEventTypes.COPY, evt);
+        this.onClipboardObservable.notifyObservers(ev);
+        evt.preventDefault();
+    }
+     /** @hidden */
+    private onClipboardCut = (evt: ClipboardEvent) => {
+        let ev = new ClipboardInfo(ClipboardEventTypes.CUT, evt);
+        this.onClipboardObservable.notifyObservers(ev);
+        evt.preventDefault();
+    }
+    /** @hidden */
+    private onClipboardPaste = (evt: ClipboardEvent) => {
+        let ev = new ClipboardInfo(ClipboardEventTypes.PASTE, evt);
+        this.onClipboardObservable.notifyObservers(ev);
+        evt.preventDefault();
+    }
+
+   /**
+    * Register the clipboard Events onto the canvas
+    */
+    public registerClipboardEvents(): void {
+        self.addEventListener("copy", this.onClipboardCopy, false);
+        self.addEventListener("cut", this.onClipboardCut, false);
+        self.addEventListener("paste", this.onClipboardPaste, false);
+    }
+    /**
+     * Unregister the clipboard Events from the canvas
+     */
+    public unRegisterClipboardEvents(): void {
+        self.removeEventListener("copy", this.onClipboardCopy);
+        self.removeEventListener("cut",  this.onClipboardCut);
+        self.removeEventListener("paste", this.onClipboardPaste);
     }
 
     /**
@@ -640,7 +714,32 @@ export class AdvancedDynamicTexture extends DynamicTexture {
                 }
                 delete this._lastControlDown[pointerId];
 
-                this.focusedControl = null;
+                if (this.focusedControl) {
+                    const friendlyControls = this.focusedControl.keepsFocusWith();
+
+                    let canMoveFocus = true;
+
+                    if (friendlyControls) {
+                        for (var control of friendlyControls) {
+                            // Same host, no need to keep the focus
+                            if (this === control._host) {
+                                continue;
+                            }
+
+                            // Different hosts
+                            const otherHost = control._host;
+
+                            if (otherHost._lastControlOver[pointerId] && otherHost._lastControlOver[pointerId].isAscendant(control)) {
+                                canMoveFocus = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (canMoveFocus) {
+                        this.focusedControl = null;
+                    }
+                }
             } else if (pi.type === PointerEventTypes.POINTERMOVE) {
                 if (this._lastControlOver[pointerId]) {
                     this._lastControlOver[pointerId]._onPointerOut(this._lastControlOver[pointerId]);
@@ -703,17 +802,25 @@ export class AdvancedDynamicTexture extends DynamicTexture {
      * @param width defines the texture width (1024 by default)
      * @param height defines the texture height (1024 by default)
      * @param supportPointerMove defines a boolean indicating if the texture must capture move events (true by default)
+     * @param onlyAlphaTesting defines a boolean indicating that alpha blending will not be used (only alpha testing) (false by default)
      * @returns a new AdvancedDynamicTexture
      */
-    public static CreateForMesh(mesh: AbstractMesh, width = 1024, height = 1024, supportPointerMove = true): AdvancedDynamicTexture {
+    public static CreateForMesh(mesh: AbstractMesh, width = 1024, height = 1024, supportPointerMove = true, onlyAlphaTesting = false): AdvancedDynamicTexture {
         var result = new AdvancedDynamicTexture(mesh.name + " AdvancedDynamicTexture", width, height, mesh.getScene(), true, Texture.TRILINEAR_SAMPLINGMODE);
 
         var material = new StandardMaterial("AdvancedDynamicTextureMaterial", mesh.getScene());
         material.backFaceCulling = false;
         material.diffuseColor = Color3.Black();
         material.specularColor = Color3.Black();
-        material.emissiveTexture = result;
-        material.opacityTexture = result;
+
+        if (onlyAlphaTesting) {
+            material.diffuseTexture = result;
+            material.emissiveTexture = result;
+            result.hasAlpha = true;
+        } else {
+            material.emissiveTexture = result;
+            material.opacityTexture = result;
+        }
 
         mesh.material = material;
 

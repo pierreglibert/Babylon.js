@@ -16,6 +16,7 @@ describe('Babylon Scene Loader', function () {
             .load(function () {
                 // Force apply promise polyfill for consistent behavior between PhantomJS, IE11, and other browsers.
                 BABYLON.PromisePolyfill.Apply(true);
+                BABYLON.Engine.audioEngine = new BABYLON.AudioEngine();
                 done();
             });
     });
@@ -74,7 +75,7 @@ describe('Babylon Scene Loader', function () {
             });
         });
 
-        it('Load TwoQuads with ImporMesh and two node names', () => {
+        it('Load TwoQuads with ImportMesh and two node names', () => {
             const scene = new BABYLON.Scene(subject);
             return BABYLON.SceneLoader.ImportMeshAsync(["node0", "node1"], "http://models.babylonjs.com/Tests/TwoQuads/", "TwoQuads.gltf", scene).then(() => {
                 expect(scene.getMeshByName("node0"), "node0").to.exist;
@@ -86,7 +87,7 @@ describe('Babylon Scene Loader', function () {
             let parsedCount = 0;
             let meshCount = 0;
             let materialCount = 0;
-            let textureCounts: { [name: string]: number } = {};
+            let textureCount = 0;
             let ready = false;
 
             const promises = new Array<Promise<void>>();
@@ -103,8 +104,7 @@ describe('Babylon Scene Loader', function () {
                     materialCount++;
                 };
                 loader.onTextureLoaded = texture => {
-                    textureCounts[texture.name] = textureCounts[texture.name] || 0;
-                    textureCounts[texture.name]++;
+                    textureCount++;
                 };
 
                 promises.push(loader.whenCompleteAsync().then(() => {
@@ -120,16 +120,8 @@ describe('Babylon Scene Loader', function () {
                 expect(meshCount, "meshCount").to.equal(scene.meshes.length);
                 expect(materialCount, "materialCount").to.equal(scene.materials.length);
 
-                const expectedTextureLoadCounts = {
-                    "baseColor": 1,
-                    "occlusionRoughnessMetallic": 2,
-                    "normal": 1,
-                    "emissive": 1
-                };
-                expect(Object.keys(textureCounts), "Object.keys(textureCounts)").to.have.lengthOf(Object.keys(expectedTextureLoadCounts).length);
-                for (const textureName in expectedTextureLoadCounts) {
-                    expect(textureCounts, "textureCounts").to.have.property(textureName, expectedTextureLoadCounts[textureName]);
-                }
+                const filteredTextures = scene.textures.filter((texture) => texture !== scene._environmentBRDFTexture);
+                expect(textureCount, "textureCount").to.equal(filteredTextures.length);
             }));
 
             return Promise.all(promises);
@@ -349,8 +341,9 @@ describe('Babylon Scene Loader', function () {
             const promises = new Array<Promise<void>>();
 
             BABYLON.SceneLoader.OnPluginActivatedObservable.addOnce((loader: BABYLON.GLTFFileLoader) => {
-                loader.onExtensionLoadedObservable.addOnce(extension => {
-                    if (extension instanceof BABYLON.GLTF2.Extensions.MSFT_lod) {
+                const observer = loader.onExtensionLoadedObservable.add(extension => {
+                    if (extension instanceof BABYLON.GLTF2.Loader.Extensions.MSFT_lod) {
+                        loader.onExtensionLoadedObservable.remove(observer);
                         extension.onMaterialLODsLoadedObservable.add(indexLOD => {
                             const expectedMaterialName = `LOD${2 - indexLOD}`;
                             expect(scene.getMeshByName("node0").material.name, "Material for node 0").to.equal(expectedMaterialName);
@@ -374,8 +367,9 @@ describe('Babylon Scene Loader', function () {
             const promises = new Array<Promise<void>>();
 
             BABYLON.SceneLoader.OnPluginActivatedObservable.addOnce((loader: BABYLON.GLTFFileLoader) => {
-                loader.onExtensionLoadedObservable.addOnce(extension => {
-                    if (extension instanceof BABYLON.GLTF2.Extensions.MSFT_lod) {
+                const observer = loader.onExtensionLoadedObservable.add(extension => {
+                    if (extension instanceof BABYLON.GLTF2.Loader.Extensions.MSFT_lod) {
+                        loader.onExtensionLoadedObservable.remove(observer);
                         extension.onMaterialLODsLoadedObservable.add(indexLOD => {
                             expect(indexLOD, "indexLOD").to.equal(0);
                             loader.dispose();
@@ -397,21 +391,31 @@ describe('Babylon Scene Loader', function () {
             return Promise.all(promises);
         });
 
+        it('Load TwoQuadsNoTextures with LODs', () => {
+            const scene = new BABYLON.Scene(subject);
+
+            const promises = new Array<Promise<any>>();
+
+            BABYLON.SceneLoader.OnPluginActivatedObservable.addOnce((loader: BABYLON.GLTFFileLoader) => {
+                promises.push(loader.whenCompleteAsync());
+            });
+
+            promises.push(BABYLON.SceneLoader.AppendAsync("http://models.babylonjs.com/Tests/TwoQuads/", "TwoQuadsNoTextures.gltf", scene));
+
+            return Promise.all(promises);
+        });
+
         it('Load MultiPrimitive', () => {
             const scene = new BABYLON.Scene(subject);
             return BABYLON.SceneLoader.ImportMeshAsync(null, "http://models.babylonjs.com/Tests/MultiPrimitive/", "MultiPrimitive.gltf", scene).then(result => {
-                expect(result.meshes, "meshes").to.have.lengthOf(4);
+                expect(result.meshes, "meshes").to.have.lengthOf(3);
 
-                const node = scene.getMeshByName("node");
+                const node = scene.getNodeByName("node");
                 expect(node, "node").to.exist;
-                expect(node, "node").to.be.an.instanceof(BABYLON.Mesh);
+                expect(node, "node").to.be.an.instanceof(BABYLON.TransformNode);
 
-                const mesh = node as BABYLON.Mesh;
-                expect(mesh.geometry).to.not.exist;
-                expect(mesh.material).to.not.exist;
-
-                expect(mesh.getChildren(), "mesh children").to.have.lengthOf(2);
-                for (const childNode of mesh.getChildren()) {
+                expect(node.getChildren(), "node children").to.have.lengthOf(2);
+                for (const childNode of node.getChildren()) {
                     expect(childNode, "child node").to.be.an.instanceof(BABYLON.Mesh);
                     const childMesh = childNode as BABYLON.Mesh;
                     expect(childMesh.geometry).to.exist;
@@ -425,7 +429,10 @@ describe('Babylon Scene Loader', function () {
             return BABYLON.SceneLoader.ImportMeshAsync(null, "/Playground/scenes/BrainStem/", "BrainStem.gltf", scene).then(result => {
                 expect(result.skeletons, "skeletons").to.have.lengthOf(1);
 
-                const node1 = scene.getMeshByName("node1");
+                const node1 = scene.getNodeByName("node1");
+                expect(node1, "node1").to.exist;
+                expect(node1, "node1").to.be.an.instanceof(BABYLON.TransformNode);
+
                 for (const childMesh of node1.getChildMeshes()) {
                     expect(childMesh.skeleton, "mesh skeleton").to.exist;
                     expect(childMesh.skeleton.name, "mesh skeleton name").to.equal(result.skeletons[0].name);
@@ -490,6 +497,18 @@ describe('Babylon Scene Loader', function () {
                     createTextureSpy.restore();
                     expect(called, "createTextureSpyCalled").to.be.false;
                 });
+            });
+        });
+
+        it('Load UFO with MSFT_audio_emitter', () => {
+            const scene = new BABYLON.Scene(subject);
+            return BABYLON.SceneLoader.ImportMeshAsync(null, "/Playground/scenes/", "ufo.glb", scene).then(result => {
+                expect(result.meshes.length, "meshes.length").to.equal(scene.meshes.length);
+                expect(result.particleSystems.length, "particleSystems.length").to.equal(0);
+                expect(result.animationGroups.length, "animationGroups.length").to.equal(3);
+                expect(scene.soundTracks.length, "scene.soundTracks.length").to.equal(1);
+                expect(scene.soundTracks[0].soundCollection.length, "scene.soundTracks[0].soundCollection.length").to.equal(3);
+                expect(scene.soundTracks[0].soundCollection[0].onEndedObservable.hasObservers(), "scene.soundTracks[0].soundCollection[0].onEndedObservable.hasObservers()").to.be.true;
             });
         });
 

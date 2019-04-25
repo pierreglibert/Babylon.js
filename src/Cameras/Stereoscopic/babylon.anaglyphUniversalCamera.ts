@@ -5,7 +5,8 @@ module BABYLON {
 
     /**
      * Camera used to simulate anaglyphic rendering (based on UniversalCamera)
-     */        
+     * @see http://doc.babylonjs.com/features/cameras#anaglyph-cameras
+     */
     export class AnaglyphUniversalCamera extends UniversalCamera {
         /**
          * Creates a new AnaglyphUniversalCamera
@@ -23,7 +24,7 @@ module BABYLON {
         /**
          * Gets camera class name
          * @returns AnaglyphUniversalCamera
-         */           
+         */
         public getClassName(): string {
             return "AnaglyphUniversalCamera";
         }

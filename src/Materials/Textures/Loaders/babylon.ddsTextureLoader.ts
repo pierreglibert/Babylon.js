@@ -107,12 +107,12 @@ module BABYLON {
          * @param texture defines the BabylonJS internal texture
          * @param callback defines the method to call once ready to upload
          */
-        public loadData(data: ArrayBuffer, texture: InternalTexture, 
+        public loadData(data: ArrayBuffer, texture: InternalTexture,
             callback: (width: number, height: number, loadMipmap: boolean, isCompressed: boolean, done: () => void) => void): void {
             var info = DDSTools.GetDDSInfo(data);
 
             var loadMipmap = (info.isRGB || info.isLuminance || info.mipmapCount > 1) && texture.generateMipMaps && ((info.width >> (info.mipmapCount - 1)) === 1);
-            callback(info.width, info.height, !loadMipmap, info.isFourCC, () => {
+            callback(info.width, info.height, loadMipmap, info.isFourCC, () => {
                 DDSTools.UploadDDSLevels(texture.getEngine(), texture, data, info, loadMipmap, 1);
             });
         }

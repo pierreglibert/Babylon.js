@@ -1,5 +1,4 @@
-import { AbstractMesh, Nullable } from "babylonjs";
-import * as GUI from "babylonjs-gui";
+import { AbstractMesh, Nullable, Engine } from "babylonjs";
 import { BasicElement } from "../gui/BasicElement";
 import { Helpers } from "../helpers/Helpers";
 import { Inspector } from "../Inspector";
@@ -18,7 +17,6 @@ import { StatsTab } from "./StatsTab";
 import { Tab } from "./Tab";
 import { TextureTab } from "./TextureTab";
 import { ToolsTab } from "./ToolsTab";
-
 
 /**
  * A tab bar will contains each view the inspector can have : Canvas2D, Meshes...
@@ -42,7 +40,7 @@ export class TabBar extends BasicElement {
     /** The list of tabs visible, displayed in the tab bar */
     private _visibleTabs: Array<Tab> = [];
 
-    constructor(inspector: Inspector, initialTab?: number) {
+    constructor(inspector: Inspector, initialTab?: number | string) {
         super();
         this._inspector = inspector;
         this._tabs.push(new SceneTab(this, this._inspector));
@@ -56,20 +54,27 @@ export class TabBar extends BasicElement {
         if (GLTFTab.IsSupported) {
             this._tabs.push(new GLTFTab(this, this._inspector));
         }
-        if (GUI) {
+        if (Inspector.GUIObject) {
             this._tabs.push(new GUITab(this, this._inspector));
         }
         this._tabs.push(new PhysicsTab(this, this._inspector));
         this._tabs.push(new CameraTab(this, this._inspector));
-        this._tabs.push(new SoundTab(this, this._inspector));
+        // Only uses sounds if available.
+        if (Engine.audioEngine) {
+            this._tabs.push(new SoundTab(this, this._inspector));
+        }
         this._tabs.push(new ToolsTab(this, this._inspector));
         this._toolBar = new Toolbar(this._inspector);
 
         this._build();
 
-        //Check initialTab is defined and between tabs bounds
-        if (!initialTab || initialTab < 0 || initialTab >= this._tabs.length) {
-            initialTab = 0;
+        if (typeof initialTab === "string") {
+            initialTab = this.getTabIndex(initialTab);
+        } else {
+            //Check initialTab is defined and between tabs bounds
+            if (!initialTab || initialTab < 0 || initialTab >= this._tabs.length) {
+                initialTab = 0;
+            }
         }
 
         this._tabs[initialTab].active(true);
@@ -91,13 +96,12 @@ export class TabBar extends BasicElement {
             this._div.appendChild(tab.toHtml());
         }
 
-
         this._moreTabsIcon = Helpers.CreateElement('i', 'fa fa-angle-double-right more-tabs');
 
         this._moreTabsPanel = Helpers.CreateDiv('more-tabs-panel');
 
         this._moreTabsIcon.addEventListener('click', () => {
-            // Hide the 'more-tabs-panel' if already displayed 
+            // Hide the 'more-tabs-panel' if already displayed
             if (this._moreTabsPanel.style.display == 'flex') {
                 this._moreTabsPanel.style.display = 'none';
             } else {
@@ -118,8 +122,8 @@ export class TabBar extends BasicElement {
         });
     }
 
-    /** 
-     * Add a tab to the 'more-tabs' panel, displayed by clicking on the 
+    /**
+     * Add a tab to the 'more-tabs' panel, displayed by clicking on the
      * 'more-tabs' icon
      */
     private _addInvisibleTabToPanel(tab: Tab) {
@@ -184,12 +188,21 @@ export class TabBar extends BasicElement {
         return 0;
     }
 
+    public getTabIndex(name: string): number {
+        for (let i = 0; i < this._tabs.length; i++) {
+            if (this._tabs[i].name === name) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     public get inspector(): Inspector {
         return this._inspector;
     }
 
-    /** 
-     * Returns the total width in pixel of the tabbar, 
+    /**
+     * Returns the total width in pixel of the tabbar,
      * that corresponds to the sum of the width of each visible tab + toolbar width
     */
     public getPixelWidth(): number {

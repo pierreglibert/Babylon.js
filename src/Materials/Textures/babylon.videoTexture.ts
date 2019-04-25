@@ -1,4 +1,4 @@
-﻿module BABYLON {
+module BABYLON {
     /**
      * Settings for finer control over video usage
      */
@@ -24,6 +24,11 @@
         poster?: string;
     }
 
+    /**
+     * If you want to display a video in your scene, this is the special texture for that.
+     * This special texture works similar to other textures, with the exception of a few parameters.
+     * @see https://doc.babylonjs.com/how_to/video_texture
+     */
     export class VideoTexture extends Texture {
         /**
          * Tells whether textures will be updated automatically or user is required to call `updateTexture` manually
@@ -37,6 +42,10 @@
 
         private _onUserActionRequestedObservable: Nullable<Observable<Texture>> = null;
 
+        /**
+         * Event triggerd when a dom action is required by the user to play the video.
+         * This happens due to recent changes in browser policies preventing video to auto start.
+         */
         public get onUserActionRequestedObservable(): Observable<Texture> {
             if (!this._onUserActionRequestedObservable) {
                 this._onUserActionRequestedObservable = new Observable<Texture>();
@@ -47,18 +56,22 @@
         private _generateMipMaps: boolean;
         private _engine: Engine;
         private _stillImageCaptured = false;
-        private _poster = false;
+        private _displayingPosterTexture = false;
+        private _settings: VideoTextureSettings;
+        private _createInternalTextureOnEvent: string;
 
         /**
          * Creates a video texture.
-         * Sample : https://doc.babylonjs.com/how_to/video_texture
-         * @param {string | null} name optional name, will detect from video source, if not defined
-         * @param {(string | string[] | HTMLVideoElement)} src can be used to provide an url, array of urls or an already setup HTML video element.
-         * @param {BABYLON.Scene} scene is obviously the current scene.
-         * @param {boolean} generateMipMaps can be used to turn on mipmaps (Can be expensive for videoTextures because they are often updated).
-         * @param {boolean} invertY is false by default but can be used to invert video on Y axis
-         * @param {number} samplingMode controls the sampling method and is set to TRILINEAR_SAMPLINGMODE by default
-         * @param {VideoTextureSettings} [settings] allows finer control over video usage
+         * If you want to display a video in your scene, this is the special texture for that.
+         * This special texture works similar to other textures, with the exception of a few parameters.
+         * @see https://doc.babylonjs.com/how_to/video_texture
+         * @param name optional name, will detect from video source, if not defined
+         * @param src can be used to provide an url, array of urls or an already setup HTML video element.
+         * @param scene is obviously the current scene.
+         * @param generateMipMaps can be used to turn on mipmaps (Can be expensive for videoTextures because they are often updated).
+         * @param invertY is false by default but can be used to invert video on Y axis
+         * @param samplingMode controls the sampling method and is set to TRILINEAR_SAMPLINGMODE by default
+         * @param settings allows finer control over video usage
          */
         constructor(
             name: Nullable<string>,
@@ -82,6 +95,8 @@
 
             this.name = name || this._getName(src);
             this.video = this._getVideo(src);
+            this._settings = settings;
+
             if (settings.poster) {
                 this.video.poster = settings.poster;
             }
@@ -94,19 +109,21 @@
             }
 
             this.video.setAttribute("playsinline", "");
-                
-            this.video.addEventListener("canplay", this._createInternalTexture);
+
             this.video.addEventListener("paused", this._updateInternalTexture);
             this.video.addEventListener("seeked", this._updateInternalTexture);
             this.video.addEventListener("emptied", this.reset);
+            this._createInternalTextureOnEvent = (settings.poster && !settings.autoPlay) ? "play" : "canplay";
+            this.video.addEventListener(this._createInternalTextureOnEvent, this._createInternalTexture);
 
-            if (this.video.readyState >= this.video.HAVE_CURRENT_DATA) {
-                this._createInternalTexture();
-            }
-
-            if (settings.poster) {
+            const videoHasEnoughData = (this.video.readyState >= this.video.HAVE_CURRENT_DATA);
+            if (settings.poster &&
+                (!settings.autoPlay || !videoHasEnoughData)) {
                 this._texture = this._engine.createTexture(settings.poster!, false, true, scene);
-                this._poster = true;
+                this._displayingPosterTexture = true;
+            }
+            else if (videoHasEnoughData) {
+                this._createInternalTexture();
             }
         }
 
@@ -114,14 +131,14 @@
             if (src instanceof HTMLVideoElement) {
                 return src.currentSrc;
             }
-    
+
             if (typeof src === "object") {
                 return src.toString();
             }
 
             return src;
-        };
-    
+        }
+
         private _getVideo(src: string | string[] | HTMLVideoElement): HTMLVideoElement {
             if (src instanceof HTMLVideoElement) {
                 Tools.SetCorsBehavior(src.currentSrc, src);
@@ -133,20 +150,20 @@
                 video.src = src;
             } else {
                 Tools.SetCorsBehavior(src[0], video);
-                src.forEach(url => {
+                src.forEach((url) => {
                     const source = document.createElement("source");
                     source.src = url;
                     video.appendChild(source);
                 });
             }
             return video;
-        };
+        }
 
         private _createInternalTexture = (): void => {
             if (this._texture != null) {
-                if (this._poster) {
+                if (this._displayingPosterTexture) {
                     this._texture.dispose();
-                    this._poster = false;
+                    this._displayingPosterTexture = false;
                 }
                 else {
                     return;
@@ -170,7 +187,7 @@
                 this._samplingMode
             );
 
-            if (!this.video.autoplay) {
+            if (!this.video.autoplay && !this._settings.poster) {
                 let oldHandler = this.video.onplaying;
                 let error = false;
                 this.video.onplaying = () => {
@@ -180,7 +197,7 @@
                     if (!error) {
                         this.video.pause();
                     }
-                    if (this._onLoadObservable && this._onLoadObservable.hasObservers()) {
+                    if (this.onLoadObservable.hasObservers()) {
                         this.onLoadObservable.notifyObservers(this);
                     }
                 };
@@ -189,19 +206,19 @@
                     playing.then(() => {
                         // Everything is good.
                     })
-                    .catch(() => {
-                        error = true;
-                        // On Chrome for instance, new policies might prevent playing without user interaction.
-                        if (this._onUserActionRequestedObservable && this._onUserActionRequestedObservable.hasObservers()) {
-                            this._onUserActionRequestedObservable.notifyObservers(this);
-                        }
-                    });
+                        .catch(() => {
+                            error = true;
+                            // On Chrome for instance, new policies might prevent playing without user interaction.
+                            if (this._onUserActionRequestedObservable && this._onUserActionRequestedObservable.hasObservers()) {
+                                this._onUserActionRequestedObservable.notifyObservers(this);
+                            }
+                        });
                 }
                 else {
                     this.video.onplaying = oldHandler;
                     this._texture.isReady = true;
                     this._updateInternalTexture();
-                    if (this._onLoadObservable && this._onLoadObservable.hasObservers()) {
+                    if (this.onLoadObservable.hasObservers()) {
                         this.onLoadObservable.notifyObservers(this);
                     }
                 }
@@ -209,25 +226,25 @@
             else {
                 this._texture.isReady = true;
                 this._updateInternalTexture();
-                if (this._onLoadObservable && this._onLoadObservable.hasObservers()) {
+                if (this.onLoadObservable.hasObservers()) {
                     this.onLoadObservable.notifyObservers(this);
                 }
             }
-        };
+        }
 
         private reset = (): void => {
             if (this._texture == null) {
                 return;
             }
 
-            if (!this._poster) {
+            if (!this._displayingPosterTexture) {
                 this._texture.dispose();
                 this._texture = null;
             }
-        };
+        }
 
         /**
-         * Internal method to initiate `update`.
+         * @hidden Internal method to initiate `update`.
          */
         public _rebuild(): void {
             this.update();
@@ -267,9 +284,12 @@
             if (this.video.readyState < this.video.HAVE_CURRENT_DATA) {
                 return;
             }
+            if (this._displayingPosterTexture) {
+                return;
+            }
 
             this._engine.updateVideoTexture(this._texture, this.video, this._invertY);
-        };
+        }
 
         /**
          * Change video content. Changing video instance or setting multiple urls (as in constructor) is not supported.
@@ -279,21 +299,30 @@
             this.video.src = url;
         }
 
+        /**
+         * Dispose the texture and release its associated resources.
+         */
         public dispose(): void {
             super.dispose();
-            
+
             if (this._onUserActionRequestedObservable) {
                 this._onUserActionRequestedObservable.clear();
                 this._onUserActionRequestedObservable = null;
             }
 
-            this.video.removeEventListener("canplay", this._createInternalTexture);
+            this.video.removeEventListener(this._createInternalTextureOnEvent, this._createInternalTexture);
             this.video.removeEventListener("paused", this._updateInternalTexture);
             this.video.removeEventListener("seeked", this._updateInternalTexture);
             this.video.removeEventListener("emptied", this.reset);
             this.video.pause();
         }
 
+        /**
+         * Creates a video texture straight from your WebCam video feed.
+         * @param scene Define the scene the texture should be created in
+         * @param onReady Define a callback to triggered once the texture will be ready
+         * @param constraints Define the constraints to use to create the web cam feed from WebRTC
+         */
         public static CreateFromWebCam(
             scene: Scene,
             onReady: (videoTexture: VideoTexture) => void,

@@ -132,4 +132,4 @@ export class Rectangle extends Container {
             context.clip();
         }
     }
-}    
+}

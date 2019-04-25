@@ -1,12 +1,33 @@
-﻿module BABYLON {
+module BABYLON {
 
+    /**
+     * Options to create the null engine
+     */
     export class NullEngineOptions {
+        /**
+         * Render width (Default: 512)
+         */
         public renderWidth = 512;
+        /**
+         * Render height (Default: 256)
+         */
         public renderHeight = 256;
 
+        /**
+         * Texture size (Default: 512)
+         */
         public textureSize = 512;
 
+        /**
+         * If delta time between frames should be constant
+         * @see https://doc.babylonjs.com/babylon101/animations#deterministic-lockstep
+         */
         public deterministicLockstep = false;
+
+        /**
+         * Maximum about of steps between frames (Default: 4)
+         * @see https://doc.babylonjs.com/babylon101/animations#deterministic-lockstep
+         */
         public lockstepMaxSteps = 4;
     }
 
@@ -17,14 +38,22 @@
     export class NullEngine extends Engine {
         private _options: NullEngineOptions;
 
+        /**
+         * @see https://doc.babylonjs.com/babylon101/animations#deterministic-lockstep
+         */
         public isDeterministicLockStep(): boolean {
             return this._options.deterministicLockstep;
         }
 
+        /** @see https://doc.babylonjs.com/babylon101/animations#deterministic-lockstep */
         public getLockstepMaxSteps(): number {
             return this._options.lockstepMaxSteps;
         }
 
+        /**
+         * Sets hardware scaling, used to save performance if needed
+         * @see https://doc.babylonjs.com/how_to/how_to_use_sceneoptimizer
+         */
         public getHardwareScalingLevel(): number {
             return 1.0;
         }
@@ -87,18 +116,18 @@
             this._caps.vertexArrayObject = false;
             this._caps.instancedArrays = false;
 
-            Tools.Log("Babylon.js null engine (v" + Engine.Version + ") launched");
+            Tools.Log(`Babylon.js v${Engine.Version} - Null engine`);
 
             // Wrappers
             if (typeof URL === "undefined") {
                 (<any>URL) = {
-                    createObjectURL: function () { },
-                    revokeObjectURL: function () { }
-                }
+                    createObjectURL: function() { },
+                    revokeObjectURL: function() { }
+                };
             }
 
             if (typeof Blob === "undefined") {
-                (<any>Blob) = function () { };
+                (<any>Blob) = function() { };
             }
         }
 
@@ -144,7 +173,8 @@
         public createShaderProgram(vertexCode: string, fragmentCode: string, defines: string, context?: WebGLRenderingContext): WebGLProgram {
             return {
                 transformFeedback: null,
-                __SPECTOR_rebuildProgram: null
+                __SPECTOR_rebuildProgram: null,
+                isParallelCompiled: false
             };
         }
 
@@ -166,7 +196,9 @@
             if (effect.onBind) {
                 effect.onBind(effect);
             }
-            effect.onBindObservable.notifyObservers(effect);
+            if (effect._onBindObservable) {
+                effect._onBindObservable.notifyObservers(effect);
+            }
         }
 
         public setState(culling: boolean, zOffset: number = 0, force?: boolean, reverseSide = false): void {
@@ -286,10 +318,12 @@
         public drawArraysType(fillMode: number, verticesStart: number, verticesCount: number, instancesCount?: number): void {
         }
 
+        /** @hidden */
         public _createTexture(): WebGLTexture {
             return {};
         }
 
+        /** @hidden */
         public _releaseTexture(texture: InternalTexture): void {
         }
 
@@ -392,7 +426,7 @@
                 capacity: 1,
                 references: 1,
                 is32Bits: false
-            }
+            };
 
             return vbo;
         }
@@ -401,7 +435,12 @@
 
         }
 
+        public areAllEffectsReady(): boolean {
+            return true;
+        }
+
         /**
+         * @hidden
          * Get the current error code of the webGL context
          * @returns the error code
          * @see https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getError
@@ -440,6 +479,7 @@
             return false;
         }
 
+        /** @hidden */
         public _bindTexture(channel: number, texture: InternalTexture): void {
             if (channel < 0) {
                 return;
@@ -448,6 +488,7 @@
             this._bindTextureDirectly(0, texture);
         }
 
+        /** @hidden */
         public _releaseBuffer(buffer: WebGLBuffer): boolean {
             buffer.references--;
 

@@ -1,16 +1,16 @@
 import { Control } from "./control";
-import { Nullable, Tools } from "babylonjs";
+import { Nullable, Tools, Observable } from "babylonjs";
 import { Measure } from "../measure";
 
 /**
  * Class used to create 2D images
  */
-class GUIImage extends Control {
+export class Image extends Control {
     private _domImage: HTMLImageElement;
     private _imageWidth: number;
     private _imageHeight: number;
     private _loaded = false;
-    private _stretch = GUIImage.STRETCH_FILL;
+    private _stretch = Image.STRETCH_FILL;
     private _source: Nullable<string>;
     private _autoScale = false;
 
@@ -22,6 +22,18 @@ class GUIImage extends Control {
     private _cellWidth: number = 0;
     private _cellHeight: number = 0;
     private _cellId: number = -1;
+
+    /**
+     * Observable notified when the content is loaded
+     */
+    public onImageLoadedObservable = new Observable<Image>();
+
+    /**
+     * Gets a boolean indicating that the content is loaded
+     */
+    public get isLoaded(): boolean {
+        return this._loaded;
+    }
 
     /**
      * Gets or sets the left coordinate in the source image
@@ -91,8 +103,8 @@ class GUIImage extends Control {
         this._markAsDirty();
     }
 
-    /** 
-     * Gets or sets a boolean indicating if the image can force its container to adapt its size 
+    /**
+     * Gets or sets a boolean indicating if the image can force its container to adapt its size
      * @see http://doc.babylonjs.com/how_to/gui#image
      */
     public get autoScale(): boolean {
@@ -138,7 +150,7 @@ class GUIImage extends Control {
         } else {
             this._domImage.onload = () => {
                 this._onImageLoaded();
-            }
+            };
         }
     }
 
@@ -155,6 +167,8 @@ class GUIImage extends Control {
             this.synchronizeSizeWithContent();
         }
 
+        this.onImageLoadedObservable.notifyObservers(this);
+
         this._markAsDirty();
     }
 
@@ -169,19 +183,19 @@ class GUIImage extends Control {
         this._loaded = false;
         this._source = value;
 
-        this._domImage = new Image();
+        this._domImage = document.createElement("img");
 
         this._domImage.onload = () => {
             this._onImageLoaded();
-        }
+        };
         if (value) {
             Tools.SetCorsBehavior(value, this._domImage);
             this._domImage.src = value;
         }
     }
 
-    /** 
-     * Gets or sets the cell width to use when animation sheet is enabled 
+    /**
+     * Gets or sets the cell width to use when animation sheet is enabled
      * @see http://doc.babylonjs.com/how_to/gui#image
      */
     get cellWidth(): number {
@@ -196,8 +210,8 @@ class GUIImage extends Control {
         this._markAsDirty();
     }
 
-    /** 
-     * Gets or sets the cell height to use when animation sheet is enabled 
+    /**
+     * Gets or sets the cell height to use when animation sheet is enabled
      * @see http://doc.babylonjs.com/how_to/gui#image
      */
     get cellHeight(): number {
@@ -212,7 +226,7 @@ class GUIImage extends Control {
         this._markAsDirty();
     }
 
-    /** 
+    /**
      * Gets or sets the cell id to use (this will turn on the animation sheet mode)
      * @see http://doc.babylonjs.com/how_to/gui#image
      */
@@ -286,15 +300,15 @@ class GUIImage extends Control {
         if (this._processMeasures(parentMeasure, context)) {
             if (this._loaded) {
                 switch (this._stretch) {
-                    case GUIImage.STRETCH_NONE:
+                    case Image.STRETCH_NONE:
                         context.drawImage(this._domImage, x, y, width, height,
                             this._currentMeasure.left, this._currentMeasure.top, this._currentMeasure.width, this._currentMeasure.height);
                         break;
-                    case GUIImage.STRETCH_FILL:
+                    case Image.STRETCH_FILL:
                         context.drawImage(this._domImage, x, y, width, height,
                             this._currentMeasure.left, this._currentMeasure.top, this._currentMeasure.width, this._currentMeasure.height);
                         break;
-                    case GUIImage.STRETCH_UNIFORM:
+                    case Image.STRETCH_UNIFORM:
                         var hRatio = this._currentMeasure.width / width;
                         var vRatio = this._currentMeasure.height / height;
                         var ratio = Math.min(hRatio, vRatio);
@@ -304,7 +318,7 @@ class GUIImage extends Control {
                         context.drawImage(this._domImage, x, y, width, height,
                             this._currentMeasure.left + centerX, this._currentMeasure.top + centerY, width * ratio, height * ratio);
                         break;
-                    case GUIImage.STRETCH_EXTEND:
+                    case Image.STRETCH_EXTEND:
                         context.drawImage(this._domImage, x, y, width, height,
                             this._currentMeasure.left, this._currentMeasure.top, this._currentMeasure.width, this._currentMeasure.height);
                         if (this._autoScale) {
@@ -321,31 +335,18 @@ class GUIImage extends Control {
         context.restore();
     }
 
+    public dispose() {
+        super.dispose();
+        this.onImageLoadedObservable.clear();
+    }
+
     // Static
-    private static _STRETCH_NONE = 0;
-    private static _STRETCH_FILL = 1;
-    private static _STRETCH_UNIFORM = 2;
-    private static _STRETCH_EXTEND = 3;
-
     /** STRETCH_NONE */
-    public static get STRETCH_NONE(): number {
-        return GUIImage._STRETCH_NONE;
-    }
-
+    public static readonly STRETCH_NONE = 0;
     /** STRETCH_FILL */
-    public static get STRETCH_FILL(): number {
-        return GUIImage._STRETCH_FILL;
-    }
-
+    public static readonly STRETCH_FILL = 1;
     /** STRETCH_UNIFORM */
-    public static get STRETCH_UNIFORM(): number {
-        return GUIImage._STRETCH_UNIFORM;
-    }
-
+    public static readonly STRETCH_UNIFORM = 2;
     /** STRETCH_EXTEND */
-    public static get STRETCH_EXTEND(): number {
-        return GUIImage._STRETCH_EXTEND;
-    }
+    public static readonly STRETCH_EXTEND = 3;
 }
-
-export { GUIImage as Image };

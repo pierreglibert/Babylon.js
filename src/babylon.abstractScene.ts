@@ -1,4 +1,4 @@
-﻿module BABYLON {
+module BABYLON {
     /**
      * Defines how the parser contract is defined.
      * These parsers are used to parse a list of specific assets (like particle systems, etc..)
@@ -13,7 +13,7 @@
 
     /**
      * Base class of the scene acting as a container for the different elements composing a scene.
-     * This class is dynamically extended by the different components of the scene increasing 
+     * This class is dynamically extended by the different components of the scene increasing
      * flexibility and reducing coupling
      */
     export abstract class AbstractScene {
@@ -69,7 +69,7 @@
             }
 
             return null;
-        }        
+        }
 
         /**
          * Parser json data and populate both a scene and its associated container object
@@ -85,6 +85,11 @@
                 }
             }
         }
+
+       /**
+        * Gets the list of root nodes (ie. nodes with no parent)
+        */
+       public rootNodes = new Array<Node>();
 
         /** All of the cameras added to this scene
          * @see http://doc.babylonjs.com/babylon101/cameras
@@ -116,7 +121,7 @@
 
         /**
          * Gets a list of Animations associated with the scene
-         */        
+         */
         public animations: Animation[] = [];
 
         /**
@@ -133,6 +138,9 @@
 
         /**
         * All of the materials added to this scene
+        * In the context of a Scene, it is not supposed to be modified manually.
+        * Any addition or removal should be done using the addMaterial and removeMAterial Scene methods.
+        * Note also that the order of the Material wihin the array is not significant and might change.
         * @see http://doc.babylonjs.com/babylon101/materials
         */
         public materials = new Array<Material>();
@@ -142,7 +150,7 @@
          * @see http://doc.babylonjs.com/how_to/how_to_dynamically_morph_a_mesh
          */
         public morphTargetManagers = new Array<MorphTargetManager>();
-        
+
         /**
          * The list of geometries used in the scene.
          */
@@ -150,6 +158,9 @@
 
         /**
         * All of the tranform nodes added to this scene
+        * In the context of a Scene, it is not supposed to be modified manually.
+        * Any addition or removal should be done using the addTransformNode and removeTransformNode Scene methods.
+        * Note also that the order of the TransformNode wihin the array is not significant and might change.
         * @see http://doc.babylonjs.com/how_to/transformnode
         */
         public transformNodes = new Array<TransformNode>();
@@ -158,11 +169,6 @@
          * ActionManagers available on the scene.
          */
         public actionManagers = new Array<ActionManager>();
-
-        /**
-         * Sounds to keep.
-         */
-        public sounds = new Array<Sound>();
 
         /**
          * Textures to keep.

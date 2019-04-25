@@ -1,11 +1,11 @@
-import { AbstractMesh, Nullable, Scene, Tools } from "babylonjs";
-import * as GUI from "babylonjs-gui";
+import { AbstractMesh, Nullable, Scene, Tools, Observable } from "babylonjs";
 import "../sass/main.scss";
 import { Helpers } from "./helpers/Helpers";
 import { loadGUIProperties } from "./properties_gui";
 import { Scheduler } from "./scheduler/Scheduler";
 import { TabBar } from "./tabs/TabBar";
 
+import * as Split from "Split";
 
 export class Inspector {
 
@@ -28,15 +28,19 @@ export class Inspector {
     /** The original canvas style, before applying the inspector*/
     private _canvasStyle: any;
 
-    private _initialTab: number;
+    private _initialTab: number | string;
 
     private _parentElement: Nullable<HTMLElement>;
+
+    public onGUILoaded: Observable<any>;
+
+    public static GUIObject: any; // should be typeof "babylonjs-gui";
 
     /** The inspector is created with the given engine.
      * If the parameter 'popup' is false, the inspector is created as a right panel on the main window.
      * If the parameter 'popup' is true, the inspector is created in another popup.
      */
-    constructor(scene: Scene, popup?: boolean, initialTab: number = 0, parentElement: Nullable<HTMLElement> = null, newColors?: {
+    constructor(scene: Scene, popup?: boolean, initialTab: number | string = 0, parentElement: Nullable<HTMLElement> = null, newColors?: {
         backgroundColor?: string,
         backgroundColorLighter?: string,
         backgroundColorLighter2?: string,
@@ -46,20 +50,27 @@ export class Inspector {
         colorBot?: string
     }) {
 
-        // Load GUI library if not already done
-        if (!GUI) {
-            Tools.LoadScript("https://preview.babylonjs.com/gui/babylon.gui.min.js", () => {
-                //Load properties of GUI objects now as GUI has to be declared before 
-                loadGUIProperties();
-            }, () => {
-                console.warn('Error : loading "babylon.gui.min.js". Please add script https://preview.babylonjs.com/gui/babylon.min.gui.js to the HTML file.');
-            });
-        }
-        else {
-            //Load properties of GUI objects now as GUI has to be declared before 
-            loadGUIProperties();
-        }
+        this.onGUILoaded = new Observable();
 
+        import("babylonjs-gui").then((GUI) => {
+            // Load GUI library if not already done
+            if (!GUI || (typeof GUI !== "undefined" && Object.keys(GUI).indexOf("default") !== -1)) {
+                Tools.LoadScript("https://preview.babylonjs.com/gui/babylon.gui.min.js", () => {
+                    Inspector.GUIObject = (<any>BABYLON).GUI;
+                    this.onGUILoaded.notifyObservers(Inspector.GUIObject);
+                    //Load properties of GUI objects now as GUI has to be declared before
+                    loadGUIProperties(Inspector.GUIObject);
+                }, () => {
+                    console.warn('Error : loading "babylon.gui.min.js". Please add script https://preview.babylonjs.com/gui/babylon.min.gui.js to the HTML file.');
+                });
+            }
+            else {
+                Inspector.GUIObject = GUI;
+                this.onGUILoaded.notifyObservers(Inspector.GUIObject);
+                //Load properties of GUI objects now as GUI has to be declared before
+                loadGUIProperties(Inspector.GUIObject);
+            }
+        });
         //get Tabbar initialTab
         this._initialTab = initialTab;
 
@@ -76,13 +87,13 @@ export class Inspector {
         // POPUP MODE
         if (popup) {
             // Build the inspector in the given parent
-            this.openPopup(true);// set to true in order to NOT dispose the inspector (done in openPopup), as it's not existing yet
+            this.openPopup(true); // set to true in order to NOT dispose the inspector (done in openPopup), as it's not existing yet
         } else {
             // Get canvas and its DOM parent
             let canvas = <HTMLElement>this._scene.getEngine().getRenderingCanvas();
             let canvasParent = canvas.parentElement;
 
-            // get canvas style                
+            // get canvas style
             let canvasComputedStyle = Inspector.WINDOW.getComputedStyle(canvas);
 
             this._canvasStyle = {
@@ -116,11 +127,11 @@ export class Inspector {
                 this._c2diwrapper.style.height = '100%';
                 this._c2diwrapper.style.paddingLeft = '5px';
 
-                // add inspector     
+                // add inspector
                 let inspector = Helpers.CreateDiv('insp-right-panel', this._c2diwrapper);
                 inspector.style.width = '100%';
                 inspector.style.height = '100%';
-                // and build it in the popup  
+                // and build it in the popup
                 this._buildInspector(inspector);
             } else {
                 // Create c2di wrapper
@@ -147,7 +158,6 @@ export class Inspector {
                         this._c2diwrapper.style.maxWidth = `${widthPx - leftPx}px`;
                     }
                 }
-
 
                 // Check if the parent of the canvas is the body page. If yes, the size ratio is computed
                 let parent = this._getRelativeParent(canvas);
@@ -194,7 +204,7 @@ export class Inspector {
                         onDrag: () => {
                             Helpers.SEND_EVENT('resize');
                             if (this._tabbar) {
-                                this._tabbar.updateWidth()
+                                this._tabbar.updateWidth();
                             }
                         }
                     });
@@ -242,17 +252,17 @@ export class Inspector {
                         .replace(/#454545/g, bColorl3) // background-lighter3
                         .replace(/#ccc/g, color) // color
                         .replace(/#f29766/g, colorTop) // color-top
-                        .replace(/#5db0d7/g, colorBot) // color-bot
+                        .replace(/#5db0d7/g, colorBot); // color-bot
                 }
             }
         }
     }
 
     /**
-     * If the given element has a position 'asbolute' or 'relative', 
+     * If the given element has a position 'asbolute' or 'relative',
      * returns the first parent of the given element that has a position 'relative' or 'absolute'.
      * If the given element has no position, returns the first parent
-     * 
+     *
      */
     private _getRelativeParent(elem: HTMLElement, lookForAbsoluteOrRelative?: boolean): HTMLElement {
         // If the elem has no parent, returns himself
@@ -270,7 +280,7 @@ export class Inspector {
                 return this._getRelativeParent(elem.parentElement, true);
             }
         }
-        // looking for the relative parent of the element 
+        // looking for the relative parent of the element
         else {
             if (computedStyle.position == "static") {
                 return elem.parentElement;
@@ -304,7 +314,7 @@ export class Inspector {
         return this._popupMode;
     }
 
-    /**  
+    /**
      * Filter the list of item present in the tree.
      * All item returned should have the given filter contained in the item id.
     */
@@ -355,7 +365,7 @@ export class Inspector {
             for (let prop in this._canvasStyle) {
                 (<any>canvas.style)[prop] = this._canvasStyle[prop];
             }
-            // Get parent of the wrapper 
+            // Get parent of the wrapper
             if (canvas.parentElement) {
                 let canvasParent = canvas.parentElement.parentElement;
 
@@ -384,7 +394,7 @@ export class Inspector {
             return;
         }
         popup.document.title = "js INSPECTOR";
-        // Get the inspector style      
+        // Get the inspector style
         let styles = Inspector.DOCUMENT.querySelectorAll('style');
         for (let s = 0; s < styles.length; s++) {
             popup.document.body.appendChild(styles[s].cloneNode(true));
@@ -394,7 +404,10 @@ export class Inspector {
             let link = popup.document.createElement("link");
             link.rel = "stylesheet";
             link.href = (links[l] as HTMLLinkElement).href;
-            popup.document.head.appendChild(link);
+
+            if (popup.document.head) {
+                popup.document.head.appendChild(link);
+            }
         }
         // Dispose the right panel if existing
         if (!firstTime) {
@@ -407,17 +420,17 @@ export class Inspector {
         Inspector.WINDOW = popup;
         // Build the inspector wrapper
         this._c2diwrapper = Helpers.CreateDiv('insp-wrapper', popup.document.body);
-        // add inspector     
+        // add inspector
         let inspector = Helpers.CreateDiv('insp-right-panel', this._c2diwrapper);
         inspector.classList.add('popupmode');
-        // and build it in the popup  
+        // and build it in the popup
         this._buildInspector(inspector);
         // Rebuild it
         this.refresh();
 
         popup.addEventListener('resize', () => {
             if (this._tabbar) {
-                this._tabbar.updateWidth()
+                this._tabbar.updateWidth();
             }
         });
     }

@@ -20,6 +20,11 @@ module BABYLON {
         constructor(scene: Scene) {
             super();
             this.scene = scene;
+            this["sounds"] = [];
+            this["effectLayers"] = [];
+            this["layers"] = [];
+            this["lensFlareSystems"] = [];
+            this["proceduralTextures"] = [];
         }
 
         /**
@@ -62,17 +67,12 @@ module BABYLON {
             this.actionManagers.forEach((o) => {
                 this.scene.addActionManager(o);
             });
-            this.sounds.forEach((o) => {
-                o.play();
-                o.autoplay = true;
-                this.scene.mainSoundTrack.AddSound(o);
-            });
             this.textures.forEach((o) => {
                 this.scene.addTexture(o);
             });
 
             for (let component of this.scene._serializableComponents) {
-                component.addFromContainer(this.scene);
+                component.addFromContainer(this);
             }
         }
 
@@ -116,17 +116,55 @@ module BABYLON {
             this.actionManagers.forEach((o) => {
                 this.scene.removeActionManager(o);
             });
-            this.sounds.forEach((o) => {
-                o.stop();
-                o.autoplay = false;
-                this.scene.mainSoundTrack.RemoveSound(o);
-            });
             this.textures.forEach((o) => {
                 this.scene.removeTexture(o);
             });
 
             for (let component of this.scene._serializableComponents) {
-                component.removeFromContainer(this.scene);
+                component.removeFromContainer(this);
+            }
+        }
+
+        /**
+         * Disposes all the assets in the container
+         */
+        public dispose() {
+            this.cameras.forEach((o) => {
+                o.dispose();
+            });
+            this.lights.forEach((o) => {
+                o.dispose();
+            });
+            this.meshes.forEach((o) => {
+                o.dispose();
+            });
+            this.skeletons.forEach((o) => {
+                o.dispose();
+            });
+            this.animationGroups.forEach((o) => {
+                o.dispose();
+            });
+            this.multiMaterials.forEach((o) => {
+                o.dispose();
+            });
+            this.materials.forEach((o) => {
+                o.dispose();
+            });
+            this.geometries.forEach((o) => {
+                o.dispose();
+            });
+            this.transformNodes.forEach((o) => {
+                o.dispose();
+            });
+            this.actionManagers.forEach((o) => {
+                o.dispose();
+            });
+            this.textures.forEach((o) => {
+                o.dispose();
+            });
+
+            for (let component of this.scene._serializableComponents) {
+                component.dispose();
             }
         }
 
@@ -176,13 +214,13 @@ module BABYLON {
          * Adds all meshes in the asset container to a root mesh that can be used to position all the contained meshes. The root mesh is then added to the front of the meshes in the assetContainer.
          * @returns the root mesh
          */
-        public createRootMesh(){
+        public createRootMesh() {
             var rootMesh = new BABYLON.Mesh("assetContainerRootMesh", this.scene);
-            this.meshes.forEach((m)=>{
-                if(!m.parent){
+            this.meshes.forEach((m) => {
+                if (!m.parent) {
                     rootMesh.addChild(m);
                 }
-            })
+            });
             this.meshes.unshift(rootMesh);
             return rootMesh;
         }

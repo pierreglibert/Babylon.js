@@ -20,22 +20,22 @@ export class PrintButtonPlugin extends AbstractViewerNavbarButton {
                 let extension = model.configuration.loader || filename.split(".").pop() || "";
                 let printable = false;
                 // not using .some sue to IE11
-                ["gltf", "glb", "obj", "stl"].forEach(ext => {
+                ["gltf", "glb", "obj", "stl"].forEach((ext) => {
                     if (extension.indexOf(ext) !== -1) {
                         printable = true;
                     }
-                })
+                });
                 if (printable) {
                     this._currentModelUrl = baseUrl + filename;
                 }
             }
-        })
+        });
     }
 
     onEvent(event: EventCallback): void {
         if (this._currentModelUrl) {
-            let printUrl = this._currentModelUrl.replace(/https?:\/\//, "com.microsoft.print3d://");
-            window.open(printUrl);
+            let printUrl = this._currentModelUrl.replace(/https?:\/\//, "com.microsoft.builder3d://");
+            window.open(printUrl, "_self");
         }
     }
 

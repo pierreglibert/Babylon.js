@@ -27,6 +27,7 @@ module BABYLON {
          */
         constructor(name: string, size: number = 256, scene: Nullable<Scene> = Engine.LastCreatedScene, fallbackTexture?: Texture, generateMipMaps?: boolean) {
             super(name, size, "noise", scene, fallbackTexture, generateMipMaps);
+            this.autoClear = false;
             this._updateShaderUniforms();
         }
 
@@ -40,9 +41,12 @@ module BABYLON {
             this._time += scene.getAnimationRatio() * this.animationSpeedFactor * 0.01;
 
             this.setFloat("brightness", this.brightness);
-            this.setInt("octaves", this.octaves);
             this.setFloat("persistence", this.persistence);
             this.setFloat("timeScale", this._time);
+        }
+
+        protected _getDefines(): string {
+            return "#define OCTAVES " + (this.octaves | 0);
         }
 
         /** Generate the current state of the procedural texture */
@@ -56,8 +60,15 @@ module BABYLON {
          * @returns a serialized noise procedural texture object
          */
         public serialize(): any {
-            var serializationObject = SerializationHelper.Serialize(this, super.serialize());
+            var serializationObject: any = {};
             serializationObject.customType = "BABYLON.NoiseProceduralTexture";
+
+            serializationObject.brightness = this.brightness;
+            serializationObject.octaves = this.octaves;
+            serializationObject.persistence = this.persistence;
+            serializationObject.animationSpeedFactor = this.animationSpeedFactor;
+            serializationObject.size = this.getSize().width;
+            serializationObject.generateMipMaps = this._generateMipMaps;
 
             return serializationObject;
         }
@@ -70,9 +81,14 @@ module BABYLON {
          * @returns a parsed NoiseProceduralTexture
          */
         public static Parse(parsedTexture: any, scene: Scene, rootUrl: string): NoiseProceduralTexture {
-            var texture = SerializationHelper.Parse(() => new NoiseProceduralTexture(parsedTexture.name, parsedTexture._size, scene, undefined, parsedTexture._generateMipMaps), parsedTexture, scene, rootUrl);
+            var texture = new NoiseProceduralTexture(parsedTexture.name, parsedTexture.size, scene, undefined, parsedTexture.generateMipMaps);
+
+            texture.brightness = parsedTexture.brightness;
+            texture.octaves = parsedTexture.octaves;
+            texture.persistence = parsedTexture.persistence;
+            texture.animationSpeedFactor = parsedTexture.animationSpeedFactor;
 
             return texture;
-        }        
+        }
     }
 }

@@ -6,7 +6,9 @@ let path = require('path');
 let basePath = '../../dist/preview release';
 
 // This can be changed when we have a new major release.
-let minimumDependency = '>=3.2.0-alpha';
+let minimumDependency = '>=3.3.0-rc.4';
+
+process.env.PATH += (path.delimiter + path.join(__dirname, 'node_modules', '.bin'));
 
 let packages = [
     {
@@ -51,7 +53,8 @@ let packages = [
         required: [
             basePath + '/viewer/readme.md',
             basePath + '/viewer/package.json',
-            basePath + '/viewer/babylon.viewer.js'
+            basePath + '/viewer/babylon.viewer.js',
+            basePath + '/viewer/babylon.viewer.max.js'
         ]
     },
     {
@@ -119,7 +122,7 @@ let loginCheck = shelljs.exec('npm whoami');
 if (loginCheck.code === 0) {
     prompt.start();
 
-    prompt.get(['version'], function (err, result) {
+    prompt.get(['version'], function(err, result) {
         let version = result.version;
         updateEngineVersion(version);
         if (process.argv.indexOf('--no-build') === -1) {
@@ -228,7 +231,11 @@ function processViewer(package, version) {
 
     // build the viewer
     console.log("executing " + 'tsc -p ' + projectPath);
-    shelljs.exec('tsc -p ' + projectPath);
+
+    let tscCompile = shelljs.exec('tsc -p ' + projectPath);
+    if (tscCompile.code !== 0) {
+        throw new Error("tsc compilation failed");
+    }
 
     let packageJson = require(buildPath + '/package.json');
 
@@ -251,7 +258,7 @@ function publish(version, packageName, basePath) {
 
     let tagDef = "";
     // check for alpha or beta
-    if (version.indexOf('alpha') !== -1 || version.indexOf('beta') !== -1) {
+    if (version.indexOf('alpha') !== -1 || version.indexOf('beta') !== -1 || version.indexOf('-rc.') !== -1) {
         tagDef = '--tag preview';
     }
 

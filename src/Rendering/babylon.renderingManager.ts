@@ -1,4 +1,4 @@
-﻿module BABYLON {
+module BABYLON {
 
     /**
      * Interface describing the different options available in the rendering manager
@@ -19,6 +19,11 @@
         stencil: boolean;
     }
 
+    /**
+     * This is the manager responsible of all the rendering for meshes sprites and particles.
+     * It is enable to manage the different groups as well as the different necessary sort functions.
+     * This should not be used directly aside of the few static configurations
+     */
     export class RenderingManager {
         /**
          * The max id used for rendering groups (not included)
@@ -36,20 +41,24 @@
         public static AUTOCLEAR = true;
 
         /**
-         * Hidden
+         * @hidden
          */
         public _useSceneAutoClearSetup = false;
 
         private _scene: Scene;
         private _renderingGroups = new Array<RenderingGroup>();
         private _depthStencilBufferAlreadyCleaned: boolean;
-        
+
         private _autoClearDepthStencil: { [id: number]: IRenderingManagerAutoClearSetup } = {};
         private _customOpaqueSortCompareFn: { [id: number]: Nullable<(a: SubMesh, b: SubMesh) => number> } = {};
         private _customAlphaTestSortCompareFn: { [id: number]: Nullable<(a: SubMesh, b: SubMesh) => number> } = {};
         private _customTransparentSortCompareFn: { [id: number]: Nullable<(a: SubMesh, b: SubMesh) => number> } = {};
         private _renderingGroupInfo: Nullable<RenderingGroupInfo> = new RenderingGroupInfo();
 
+        /**
+         * Instantiates a new rendering group for a particular scene
+         * @param scene Defines the scene the groups belongs to
+         */
         constructor(scene: Scene) {
             this._scene = scene;
 
@@ -67,6 +76,10 @@
             this._depthStencilBufferAlreadyCleaned = true;
         }
 
+        /**
+         * Renders the entire managed groups. This is used by the scene or the different rennder targets.
+         * @hidden
+         */
         public render(customRenderFunction: Nullable<(opaqueSubMeshes: SmartArray<SubMesh>, transparentSubMeshes: SmartArray<SubMesh>, alphaTestSubMeshes: SmartArray<SubMesh>, depthOnlySubMeshes: SmartArray<SubMesh>) => void>,
             activeMeshes: Nullable<AbstractMesh[]>, renderParticles: boolean, renderSprites: boolean): void {
 
@@ -76,7 +89,7 @@
             info.camera = this._scene.activeCamera;
 
             // Dispatch sprites
-            if (renderSprites) {
+            if (this._scene.spriteManagers && renderSprites) {
                 for (let index = 0; index < this._scene.spriteManagers.length; index++) {
                     var manager = this._scene.spriteManagers[index];
                     this.dispatchSprites(manager);
@@ -87,8 +100,9 @@
             for (let index = RenderingManager.MIN_RENDERINGGROUPS; index < RenderingManager.MAX_RENDERINGGROUPS; index++) {
                 this._depthStencilBufferAlreadyCleaned = index === RenderingManager.MIN_RENDERINGGROUPS;
                 var renderingGroup = this._renderingGroups[index];
-                if (!renderingGroup)
+                if (!renderingGroup) {
                     continue;
+                }
 
                 let renderingGroupMask = Math.pow(2, index);
                 info.renderingGroupId = index;
@@ -98,7 +112,7 @@
 
                 // Clear depth/stencil if needed
                 if (RenderingManager.AUTOCLEAR) {
-                    const autoClear = this._useSceneAutoClearSetup ? 
+                    const autoClear = this._useSceneAutoClearSetup ?
                         this._scene.getAutoClearDepthStencilSetup(index) :
                         this._autoClearDepthStencil[index];
 
@@ -121,6 +135,10 @@
             }
         }
 
+        /**
+         * Resets the different information of the group to prepare a new frame
+         * @hidden
+         */
         public reset(): void {
             for (let index = RenderingManager.MIN_RENDERINGGROUPS; index < RenderingManager.MAX_RENDERINGGROUPS; index++) {
                 var renderingGroup = this._renderingGroups[index];
@@ -130,6 +148,10 @@
             }
         }
 
+        /**
+         * Dispose and release the group and its associated resources.
+         * @hidden
+         */
         public dispose(): void {
             this.freeRenderingGroups();
             this._renderingGroups.length = 0;
@@ -158,7 +180,11 @@
             }
         }
 
-        public dispatchSprites(spriteManager: SpriteManager) {
+        /**
+         * Add a sprite manager to the rendering manager in order to render it this frame.
+         * @param spriteManager Define the sprite manager to render
+         */
+        public dispatchSprites(spriteManager: ISpriteManager) {
             var renderingGroupId = spriteManager.renderingGroupId || 0;
 
             this._prepareRenderingGroup(renderingGroupId);
@@ -166,6 +192,10 @@
             this._renderingGroups[renderingGroupId].dispatchSprites(spriteManager);
         }
 
+        /**
+         * Add a particle system to the rendering manager in order to render it this frame.
+         * @param particleSystem Define the particle system to render
+         */
         public dispatchParticles(particleSystem: IParticleSystem) {
             var renderingGroupId = particleSystem.renderingGroupId || 0;
 
@@ -175,9 +205,10 @@
         }
 
         /**
+         * Add a submesh to the manager in order to render it this frame
          * @param subMesh The submesh to dispatch
-         * @param [mesh] Optional reference to the submeshes's mesh. Provide if you have an exiting reference to improve performance.
-         * @param [material] Optional reference to the submeshes's material. Provide if you have an exiting reference to improve performance.
+         * @param mesh Optional reference to the submeshes's mesh. Provide if you have an exiting reference to improve performance.
+         * @param material Optional reference to the submeshes's material. Provide if you have an exiting reference to improve performance.
          */
         public dispatch(subMesh: SubMesh, mesh?: AbstractMesh, material?: Nullable<Material>): void {
             if (mesh === undefined) {
@@ -193,7 +224,7 @@
         /**
          * Overrides the default sort function applied in the renderging group to prepare the meshes.
          * This allowed control for front to back rendering or reversly depending of the special needs.
-         * 
+         *
          * @param renderingGroupId The rendering group id corresponding to its index
          * @param opaqueSortCompareFn The opaque queue comparison function use to sort.
          * @param alphaTestSortCompareFn The alpha test queue comparison function use to sort.
@@ -218,7 +249,7 @@
 
         /**
          * Specifies whether or not the stencil and depth buffer are cleared between two rendering groups.
-         * 
+         *
          * @param renderingGroupId The rendering group id corresponding to its index
          * @param autoClearDepthStencil Automatically clears depth and stencil between groups if true.
          * @param depth Automatically clears depth between groups if true and autoClear is true.
@@ -244,4 +275,4 @@
             return this._autoClearDepthStencil[index];
         }
     }
-} 
+}

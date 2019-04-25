@@ -160,20 +160,20 @@ declare module 'babylonjs-viewer/viewer/defaultViewer' {
         * It uses the templating system to render a new canvas and controls.
         */
     export class DefaultViewer extends AbstractViewer {
-            containerElement: HTMLElement;
-            fullscreenElement?: HTMLElement;
+            containerElement: Element;
+            fullscreenElement?: Element;
             /**
                 * Create a new default viewer
                 * @param containerElement the element in which the templates will be rendered
                 * @param initialConfiguration the initial configuration. Defaults to extending the default configuration
                 */
-            constructor(containerElement: HTMLElement, initialConfiguration?: ViewerConfiguration);
+            constructor(containerElement: Element, initialConfiguration?: ViewerConfiguration);
             registerTemplatePlugin(plugin: IViewerTemplatePlugin): void;
             /**
                 * This will be executed when the templates initialize.
                 */
             protected _onTemplatesLoaded(): Promise<AbstractViewer>;
-            toggleVR(): void;
+            protected _initVR(): void;
             /**
                 * Toggle fullscreen of the entire viewer
                 */
@@ -242,11 +242,11 @@ declare module 'babylonjs-viewer/viewer/viewer' {
     import { ViewerModel } from 'babylonjs-viewer/model/viewerModel';
     import { TemplateManager } from 'babylonjs-viewer/templating/templateManager';
     /**
-        * The AbstractViewr is the center of Babylon's viewer.
+        * The AbstractViewer is the center of Babylon's viewer.
         * It is the basic implementation of the default viewer and is responsible of loading and showing the model and the templates
         */
     export abstract class AbstractViewer {
-            containerElement: HTMLElement;
+            containerElement: Element;
             /**
                 * The corresponsing template manager of this viewer.
                 */
@@ -321,6 +321,14 @@ declare module 'babylonjs-viewer/viewer/viewer' {
                 * Functions added to this observable will be executed on each frame rendered.
                 */
             readonly onFrameRenderedObservable: Observable<AbstractViewer>;
+            /**
+                * Observers registered here will be executed when VR more is entered.
+                */
+            readonly onEnteringVRObservable: Observable<AbstractViewer>;
+            /**
+                * Observers registered here will be executed when VR mode is exited.
+                */
+            readonly onExitingVRObservable: Observable<AbstractViewer>;
             observablesManager: ObservablesManager;
             /**
                 * The canvas associated with this viewer
@@ -349,7 +357,7 @@ declare module 'babylonjs-viewer/viewer/viewer' {
             protected _isInit: boolean;
             protected _configurationContainer: ConfigurationContainer;
             readonly configurationContainer: ConfigurationContainer;
-            constructor(containerElement: HTMLElement, initialConfiguration?: ViewerConfiguration);
+            constructor(containerElement: Element, initialConfiguration?: ViewerConfiguration);
             /**
                 * get the baseId of this viewer
                 */
@@ -376,7 +384,9 @@ declare module 'babylonjs-viewer/viewer/viewer' {
             toggleHD(): void;
             protected _vrToggled: boolean;
             protected _vrScale: number;
+            protected _vrInit: boolean;
             toggleVR(): void;
+            protected _initVR(): void;
             /**
                 * The resize function that will be registered with the window object
                 */
@@ -414,7 +424,7 @@ declare module 'babylonjs-viewer/viewer/viewer' {
                 */
             protected _configureObservers(observersConfiguration: IObserversConfiguration): void;
             /**
-                * Dispoe the entire viewer including the scene and the engine
+                * Dispose the entire viewer including the scene and the engine
                 */
             dispose(): void;
             /**
@@ -694,6 +704,7 @@ declare module 'babylonjs-viewer/model/viewerModel' {
             /**
                 * Apply a material configuration to a material
                 * @param material Material to apply configuration to
+                * @hidden
                 */
             _applyModelMaterialConfiguration(material: Material): void;
             /**
@@ -1120,7 +1131,7 @@ declare module 'babylonjs-viewer/templating/templateManager' {
         * The template manager managers a single viewer and can be seen as the collection of all sub-templates of the viewer.
         */
     export class TemplateManager {
-            containerElement: HTMLElement;
+            containerElement: Element;
             /**
                 * Will be triggered when any template is initialized
                 */
@@ -1145,7 +1156,7 @@ declare module 'babylonjs-viewer/templating/templateManager' {
                 * This template manager's event manager. In charge of callback registrations to native event types
                 */
             eventManager: EventManager;
-            constructor(containerElement: HTMLElement);
+            constructor(containerElement: Element);
             /**
                 * Initialize the template(s) for the viewer. Called bay the Viewer class
                 * @param templates the templates to be used to initialize the main template
@@ -1361,6 +1372,14 @@ declare module 'babylonjs-viewer/managers/observablesManager' {
                 * Functions added to this observable will be executed on each frame rendered.
                 */
             onFrameRenderedObservable: Observable<any>;
+            /**
+                * Will notify when VR mode is entered.
+                */
+            onEnteringVRObservable: Observable<any>;
+            /**
+                * Will notify when VR mode is exited.
+                */
+            onExitingVRObservable: Observable<any>;
             constructor();
             dispose(): void;
     }

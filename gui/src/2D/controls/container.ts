@@ -88,6 +88,12 @@ export class Container extends Control {
         return "Container";
     }
 
+    public _flagDescendantsAsMatrixDirty(): void {
+        for (var child of this.children) {
+            child._markMatrixAsDirty();
+        }
+    }
+
     /**
      * Gets a child using its name
      * @param name defines the child name to look for
@@ -154,6 +160,20 @@ export class Container extends Control {
     }
 
     /**
+     * Removes all controls from the current container
+     * @returns the current container
+     */
+    public clearControls(): Container {
+        let children = this._children.slice();
+
+        for (var child of children) {
+            this.removeControl(child);
+        }
+
+        return this;
+    }
+
+    /**
      * Removes a control from the current container
      * @param control defines the control to remove
      * @returns the current container
@@ -196,15 +216,6 @@ export class Container extends Control {
     }
 
     /** @hidden */
-    public _markMatrixAsDirty(): void {
-        super._markMatrixAsDirty();
-
-        for (var index = 0; index < this._children.length; index++) {
-            this._children[index]._markMatrixAsDirty();
-        }
-    }
-
-    /** @hidden */
     public _markAllAsDirty(): void {
         super._markAllAsDirty();
 
@@ -239,7 +250,7 @@ export class Container extends Control {
         super._link(root, host);
 
         for (var child of this._children) {
-            child._link(root, host);
+            child._link(this, host);
         }
     }
 
@@ -253,9 +264,16 @@ export class Container extends Control {
         this._applyStates(context);
 
         if (this._processMeasures(parentMeasure, context)) {
+
+            if (this.onBeforeDrawObservable.hasObservers()) {
+                this.onBeforeDrawObservable.notifyObservers(this);
+            }
+
             this._localDraw(context);
 
-            this._clipForChildren(context);
+            if (this.clipChildren) {
+                this._clipForChildren(context);
+            }
 
             let computedWidth = -1;
             let computedHeight = -1;
@@ -263,6 +281,7 @@ export class Container extends Control {
             for (var child of this._children) {
                 if (child.isVisible && !child.notRenderable) {
                     child._tempParentMeasure.copyFrom(this._measureForChildren);
+
                     child._draw(this._measureForChildren, context);
 
                     if (child.onAfterDrawObservable.hasObservers()) {
@@ -306,6 +325,9 @@ export class Container extends Control {
         for (var index = this._children.length - 1; index >= 0; index--) {
             var child = this._children[index];
             if (child._processPicking(x, y, type, pointerId, buttonIndex)) {
+                if (child.hoverCursor) {
+                    this._host._changeCursor(child.hoverCursor);
+                }
                 return true;
             }
         }
@@ -337,4 +359,4 @@ export class Container extends Control {
             control.dispose();
         }
     }
-}   
+}

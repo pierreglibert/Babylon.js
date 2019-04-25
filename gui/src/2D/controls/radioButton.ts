@@ -1,6 +1,7 @@
 import { Control } from "./control";
 import { Observable, Vector2 } from "babylonjs";
 import { Measure } from "../measure";
+import { StackPanel, TextBlock } from ".";
 
 /**
  * Class used to create radio button controls
@@ -127,7 +128,7 @@ export class RadioButton extends Control {
             Control.drawEllipse(this._currentMeasure.left + this._currentMeasure.width / 2, this._currentMeasure.top + this._currentMeasure.height / 2,
                 this._currentMeasure.width / 2 - this._thickness / 2, this._currentMeasure.height / 2 - this._thickness / 2, context);
 
-            context.fillStyle = this._background;
+            context.fillStyle = this._isEnabled ? this._background : this._disabledColor;
             context.fill();
 
             if (this.shadowBlur || this.shadowOffsetX || this.shadowOffsetY) {
@@ -143,7 +144,7 @@ export class RadioButton extends Control {
 
             // Inner
             if (this._isChecked) {
-                context.fillStyle = this.color;
+                context.fillStyle = this._isEnabled ? this.color : this._disabledColor;
                 let offsetWidth = actualWidth * this._checkSizeRatio;
                 let offseHeight = actualHeight * this._checkSizeRatio;
 
@@ -169,4 +170,37 @@ export class RadioButton extends Control {
 
         return true;
     }
-}   
+
+    /**
+     * Utility function to easily create a radio button with a header
+     * @param title defines the label to use for the header
+     * @param group defines the group to use for the radio button
+     * @param isChecked defines the initial state of the radio button
+     * @param onValueChanged defines the callback to call when value changes
+     * @returns a StackPanel containing the radio button and a textBlock
+     */
+    public static AddRadioButtonWithHeader(title: string, group: string, isChecked: boolean, onValueChanged: (button: RadioButton, value: boolean) => void): StackPanel {
+        var panel = new StackPanel();
+        panel.isVertical = false;
+        panel.height = "30px";
+
+        var radio = new RadioButton();
+        radio.width = "20px";
+        radio.height = "20px";
+        radio.isChecked = isChecked;
+        radio.color = "green";
+        radio.group = group;
+        radio.onIsCheckedChangedObservable.add((value) => onValueChanged(radio, value));
+        panel.addControl(radio);
+
+        var header = new TextBlock();
+        header.text = title;
+        header.width = "180px";
+        header.paddingLeft = "5px";
+        header.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        header.color = "white";
+        panel.addControl(header);
+
+        return panel;
+    }
+}

@@ -1,4 +1,4 @@
-import { CubeTexture, Engine, EnvironmentTextureTools, Nullable, Scene, Tools } from "babylonjs";
+import { CubeTexture, Engine, EnvironmentTextureTools, Nullable, Scene, Tools, VideoRecorder } from "babylonjs";
 import { Helpers } from "../helpers/Helpers";
 import { Inspector } from "../Inspector";
 import { Tab } from "./Tab";
@@ -10,6 +10,8 @@ export class ToolsTab extends Tab {
 
     private _scene: Scene;
 
+    private _videoRecorder: Nullable<VideoRecorder> = null;
+
     constructor(tabbar: TabBar, insp: Inspector) {
         super(tabbar, 'Tools');
 
@@ -19,7 +21,7 @@ export class ToolsTab extends Tab {
 
         // Build the tools panel: a div that will contains all tools
         this._panel = Helpers.CreateDiv('tab-panel') as HTMLDivElement;
-        this._panel.classList.add("tools-panel")
+        this._panel.classList.add("tools-panel");
 
         let title = Helpers.CreateDiv('tool-title1', this._panel);
         let versionSpan = Helpers.CreateElement('span');
@@ -49,7 +51,7 @@ export class ToolsTab extends Tab {
 
                 if (!file) {
                     errorElemm.style.display = "block";
-                    errorElemm.textContent = "Please, select a file first."
+                    errorElemm.textContent = "Please, select a file first.";
                     return;
                 }
 
@@ -57,11 +59,11 @@ export class ToolsTab extends Tab {
                 let isFileEnv = file.name.toLowerCase().indexOf(".env") > 0;
                 if (!isFileDDS && !isFileEnv) {
                     errorElemm.style.display = "block";
-                    errorElemm.textContent = "Please, select a dds or env file."
+                    errorElemm.textContent = "Please, select a dds or env file.";
                     return;
                 }
 
-                Tools.ReadFile(file, data => {
+                Tools.ReadFile(file, (data) => {
                     var blob = new Blob([data], { type: "octet/stream" });
                     var url = URL.createObjectURL(blob);
                     if (isFileDDS) {
@@ -138,6 +140,29 @@ export class ToolsTab extends Tab {
                 }
             };
             elemValue.appendChild(inputElement);
+
+            if (VideoRecorder && VideoRecorder.IsSupported(this._scene.getEngine())) {
+                let videoRecorderElement = Inspector.DOCUMENT.createElement('input');
+                videoRecorderElement.value = "Start Recording Video";
+                videoRecorderElement.type = "button";
+                videoRecorderElement.className = "tool-input";
+                videoRecorderElement.onclick = () => {
+                    if (!this._videoRecorder) {
+                        this._videoRecorder = new VideoRecorder(this._scene.getEngine());
+                    }
+
+                    if (this._videoRecorder!.isRecording) {
+                        this._videoRecorder!.stopRecording();
+                    }
+                    else {
+                        videoRecorderElement.value = "Stop Recording Video";
+                        this._videoRecorder!.startRecording().then(() => {
+                            videoRecorderElement.value = "Start Recording Video";
+                        });
+                    }
+                };
+                elemValue.appendChild(videoRecorderElement);
+            }
         }
     }
 

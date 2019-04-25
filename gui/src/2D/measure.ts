@@ -6,7 +6,7 @@ export class Measure {
     /**
      * Creates a new measure
      * @param left defines left coordinate
-     * @param top defines top coordinate 
+     * @param top defines top coordinate
      * @param width defines width dimension
      * @param height defines height dimension
      */
@@ -31,6 +31,20 @@ export class Measure {
         this.top = other.top;
         this.width = other.width;
         this.height = other.height;
+    }
+
+    /**
+     * Copy from a group of 4 floats
+     * @param left defines left coordinate
+     * @param top defines top coordinate
+     * @param width defines width dimension
+     * @param height defines height dimension
+     */
+    public copyFromFloats(left: number, top: number, width: number, height: number): void {
+        this.left = left;
+        this.top = top;
+        this.width = width;
+        this.height = height;
     }
 
     /**
@@ -66,4 +80,4 @@ export class Measure {
     public static Empty(): Measure {
         return new Measure(0, 0, 0, 0);
     }
-}   
+}
