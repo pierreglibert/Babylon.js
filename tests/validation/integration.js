@@ -12,10 +12,15 @@ xhr.addEventListener("load", function () {
 
         describe("Validation Tests", function () {
             before(function (done) {
+                window.disableWebGL2Support = (window.__karma__.config.args && window.__karma__.config.args.indexOf('--disableWebGL2Support') > -1) ? 
+                    true :
+                    false;
+
                 this.timeout(180000);
                 require = null;
                 BABYLONDEVTOOLS.Loader
                     .require('/tests/validation/validation.js')
+                    .testMode()
                     .useDist()
                     .load(function () {
                         var info = engine.getGlInfo();

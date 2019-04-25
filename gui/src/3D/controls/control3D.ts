@@ -1,4 +1,12 @@
-import { IDisposable, IBehaviorAware, Nullable, TransformNode, Vector3, Observable, Behavior, AbstractMesh, Scene, PointerEventTypes } from "babylonjs";
+import { Nullable } from "babylonjs/types";
+import { Observable } from "babylonjs/Misc/observable";
+import { Vector3 } from "babylonjs/Maths/math";
+import { PointerEventTypes } from "babylonjs/Events/pointerEvents";
+import { TransformNode } from "babylonjs/Meshes/transformNode";
+import { AbstractMesh } from "babylonjs/Meshes/abstractMesh";
+import { IBehaviorAware, Behavior } from "babylonjs/Behaviors/behavior";
+import { IDisposable, Scene } from "babylonjs/scene";
+
 import { GUI3DManager } from "../gui3DManager";
 import { Vector3WithInfo } from "../vector3WithInfo";
 import { Container3D } from "./container3D";
@@ -201,6 +209,14 @@ export class Control3D implements IDisposable, IBehaviorAware<Control3D> {
         return this._getTypeName();
     }
 
+    /**
+     * Get the current class name of the control.
+     * @returns current class name
+     */
+    public getClassName(): string {
+        return this._getTypeName();
+    }
+
     protected _getTypeName(): string {
         return "Control3D";
     }
@@ -317,6 +333,7 @@ export class Control3D implements IDisposable, IBehaviorAware<Control3D> {
     /** @hidden */
     public _onPointerDown(target: Control3D, coordinates: Vector3, pointerId: number, buttonIndex: number): boolean {
         if (this._downCount !== 0) {
+            this._downCount++;
             return false;
         }
 
@@ -335,17 +352,24 @@ export class Control3D implements IDisposable, IBehaviorAware<Control3D> {
 
     /** @hidden */
     public _onPointerUp(target: Control3D, coordinates: Vector3, pointerId: number, buttonIndex: number, notifyClick: boolean): void {
-        this._downCount = 0;
-
+        this._downCount--;
         delete this._downPointerIds[pointerId];
 
-        if (notifyClick && (this._enterCount > 0 || this._enterCount === -1)) {
-            this.onPointerClickObservable.notifyObservers(new Vector3WithInfo(coordinates, buttonIndex), -1, target, this);
+        if (this._downCount < 0) {
+            // Handle if forcePointerUp was called prior to this
+            this._downCount = 0;
+            return;
         }
-        this.onPointerUpObservable.notifyObservers(new Vector3WithInfo(coordinates, buttonIndex), -1, target, this);
 
-        if (this.pointerUpAnimation) {
-            this.pointerUpAnimation();
+        if (this._downCount == 0) {
+            if (notifyClick && (this._enterCount > 0 || this._enterCount === -1)) {
+                this.onPointerClickObservable.notifyObservers(new Vector3WithInfo(coordinates, buttonIndex), -1, target, this);
+            }
+            this.onPointerUpObservable.notifyObservers(new Vector3WithInfo(coordinates, buttonIndex), -1, target, this);
+
+            if (this.pointerUpAnimation) {
+                this.pointerUpAnimation();
+            }
         }
     }
 
@@ -357,6 +381,11 @@ export class Control3D implements IDisposable, IBehaviorAware<Control3D> {
             for (var key in this._downPointerIds) {
                 this._onPointerUp(this, Vector3.Zero(), +key as number, 0, true);
             }
+            if (this._downCount > 0) {
+                this._downCount = 1;
+                this._onPointerUp(this, Vector3.Zero(), 0, 0, true);
+            }
+
         }
     }
 

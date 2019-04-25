@@ -1,5 +1,7 @@
+import { Nullable } from "babylonjs/types";
+import { Observable, Observer } from "babylonjs/Misc/observable";
+
 import { StackPanel } from "./stackPanel";
-import { Observable, Nullable, Observer } from "babylonjs";
 import { Button } from "./button";
 import { Container } from "./container";
 import { TextBlock } from "./textBlock";
@@ -108,6 +110,7 @@ export class VirtualKeyboard extends StackPanel {
         panel.isVertical = false;
         panel.isFocusInvisible = true;
 
+        var maxKey: Nullable<Button> = null;
         for (var i = 0; i < keys.length; i++) {
             let properties = null;
 
@@ -115,8 +118,15 @@ export class VirtualKeyboard extends StackPanel {
                 properties = propertySets[i];
             }
 
-            panel.addControl(this._createKey(keys[i], properties));
+            var key = this._createKey(keys[i], properties);
+            if (!maxKey || key.heightInPixels > maxKey.heightInPixels) {
+                maxKey = key;
+            }
+
+            panel.addControl(key);
         }
+
+        panel.height = maxKey ? maxKey.height : this.defaultButtonHeight;
 
         this.addControl(panel);
     }
@@ -263,7 +273,7 @@ export class VirtualKeyboard extends StackPanel {
         }
     }
 
-    private _removeConnectedInputObservables(connectedInputText: ConnectedInputText) : void {
+    private _removeConnectedInputObservables(connectedInputText: ConnectedInputText): void {
         connectedInputText.input._connectedVirtualKeyboard = null;
         connectedInputText.input.onFocusObservable.remove(connectedInputText.onFocusObserver);
         connectedInputText.input.onBlurObservable.remove(connectedInputText.onBlurObserver);

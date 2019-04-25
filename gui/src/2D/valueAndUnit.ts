@@ -57,6 +57,19 @@ export class ValueAndUnit {
     }
 
     /**
+     * Update the current value and unit. This should be done cautiously as the GUi won't be marked as dirty with this function.
+     * @param value defines the value to store
+     * @param unit defines the unit to store
+     * @returns the current ValueAndUnit
+     */
+    public updateInPlace(value: number, unit = ValueAndUnit.UNITMODE_PIXEL): ValueAndUnit {
+        this._value = value;
+        this.unit = unit;
+
+        return this;
+    }
+
+    /**
      * Gets the value accordingly to its unit
      * @param host  defines the root host
      * @returns the value
@@ -92,14 +105,18 @@ export class ValueAndUnit {
     /**
      * Gets a string representation of the value
      * @param host defines the root host
+     * @param decimals defines an optional number of decimals to display
      * @returns a string
      */
-    public toString(host: AdvancedDynamicTexture): string {
+    public toString(host: AdvancedDynamicTexture, decimals?: number): string {
         switch (this.unit) {
             case ValueAndUnit.UNITMODE_PERCENTAGE:
-                return (this.getValue(host) * 100) + "%";
+                let percentage = this.getValue(host) * 100;
+
+                return (decimals ? percentage.toFixed(decimals) : percentage) + "%";
             case ValueAndUnit.UNITMODE_PIXEL:
-                return this.getValue(host) + "px";
+                let pixels = this.getValue(host);
+                return (decimals ? pixels.toFixed(decimals) : pixels) + "px";
         }
 
         return this.unit.toString();

@@ -45,16 +45,56 @@ uniform mat4 bumpMatrix;
 uniform float pointSize;
 #endif
 
-// Refraction
-#ifdef REFRACTION
-    uniform vec4 vRefractionInfos;
-    uniform mat4 refractionMatrix;
-    uniform vec3 vRefractionMicrosurfaceInfos;
-#endif
-
 // Reflection
 #ifdef REFLECTION
     uniform vec2 vReflectionInfos;
     uniform mat4 reflectionMatrix;
-    uniform vec3 vReflectionMicrosurfaceInfos;
 #endif
+
+// Clear Coat
+#ifdef CLEARCOAT
+    #ifdef CLEARCOAT_TEXTURE
+        uniform vec2 vClearCoatInfos;
+        uniform mat4 clearCoatMatrix;
+    #endif
+
+    #ifdef CLEARCOAT_BUMP
+        uniform vec2 vClearCoatBumpInfos;
+        uniform mat4 clearCoatBumpMatrix;
+    #endif
+
+    #ifdef CLEARCOAT_TINT_TEXTURE
+        uniform vec2 vClearCoatTintInfos;
+        uniform mat4 clearCoatTintMatrix;
+    #endif
+#endif
+
+// Anisotropy
+#ifdef ANISOTROPIC
+    #ifdef ANISOTROPIC_TEXTURE
+        uniform vec2 vAnisotropyInfos;
+        uniform mat4 anisotropyMatrix;
+    #endif
+#endif
+
+// Sheen
+#ifdef SHEEN
+    #ifdef SHEEN_TEXTURE
+        uniform vec2 vSheenInfos;
+        uniform mat4 sheenMatrix;
+    #endif
+#endif
+
+// Sub Surface
+#ifdef SUBSURFACE
+    #ifdef SS_REFRACTION
+        uniform vec4 vRefractionInfos;
+        uniform mat4 refractionMatrix;
+    #endif
+
+    #ifdef SS_THICKNESSANDMASK_TEXTURE
+        uniform vec2 vThicknessInfos;
+        uniform mat4 thicknessMatrix;;
+    #endif
+#endif
+

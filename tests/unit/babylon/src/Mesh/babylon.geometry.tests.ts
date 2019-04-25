@@ -7,12 +7,13 @@ describe('Babylon Geometry', () => {
     /**
      * Loads the dependencies.
      */
-    before(function (done) {
+    before(function(done) {
         this.timeout(180000);
         (BABYLONDEVTOOLS).Loader
             .useDist()
-            .load(function () {
-                // Force apply promise polyfill for consistent behavior between PhantomJS, IE11, and other browsers.
+            .testMode()
+            .load(function() {
+                // Force apply promise polyfill for consistent behavior between chrome headless, IE11, and other browsers.
                 BABYLON.PromisePolyfill.Apply(true);
                 done();
             });
@@ -21,7 +22,7 @@ describe('Babylon Geometry', () => {
     /**
      * Create a new engine subject before each test.
      */
-    beforeEach(function () {
+    beforeEach(function() {
         subject = new BABYLON.NullEngine({
             renderHeight: 256,
             renderWidth: 256,

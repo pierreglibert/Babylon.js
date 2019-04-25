@@ -2,18 +2,21 @@
     "tests": [
         {
             "name": "typescript-webpack",
+            "reportName": "ModuleTestsWebpack",
+            "displayName": "Webpack Module Tests",
             "typescript": true,
             "bundler": "webpack"
         },
         {
             "name": "typescript-vanilla",
+            "reportName": "ModuleTestsVanilla",
+            "displayName": "Vanilla Module Tests",
             "typescript": true,
             "tsconfig": "tsconfig.json",
             "dependencies": [
-                "babylon.js",
-                "gui/babylon.gui.min.js",
-                "inspector/babylon.inspector.bundle.js",
-                "loaders/babylonjs.loaders.min.js"
+                "babylon.max.js",
+                "gui/babylon.gui.js",
+                "loaders/babylonjs.loaders.js"
             ]
         }
     ]

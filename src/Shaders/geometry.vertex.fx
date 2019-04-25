@@ -11,10 +11,10 @@ attribute vec3 normal;
 varying vec2 vUV;
 uniform mat4 diffuseMatrix;
 #ifdef UV1
-varying vec2 uv;
+attribute vec2 uv;
 #endif
 #ifdef UV2
-varying vec2 uv2;
+attribute vec2 uv2;
 #endif
 #endif
 
@@ -31,6 +31,7 @@ varying vec3 vPosition;
 
 #ifdef VELOCITY
 uniform mat4 previousWorldViewProjection;
+uniform mat4 currentWorldViewProjection;
 varying vec4 vCurrentPosition;
 varying vec4 vPreviousPosition;
 #endif
@@ -38,6 +39,12 @@ varying vec4 vPreviousPosition;
 void main(void)
 {
 #include<instancesVertex>
+
+	#ifdef VELOCITY
+	// Compute velocity before bones computation
+	vCurrentPosition = currentWorldViewProjection * vec4(position, 1.0);
+	vPreviousPosition = previousWorldViewProjection * vec4(position, 1.0);
+	#endif
 
 #include<bonesVertex>
 	vec4 pos = vec4(finalWorld * vec4(position, 1.0));
@@ -47,11 +54,6 @@ void main(void)
 
 	#ifdef POSITION
 	vPosition = pos.xyz / pos.w;
-	#endif
-
-	#ifdef VELOCITY
-	vCurrentPosition = viewProjection * finalWorld * vec4(position, 1.0);
-	vPreviousPosition = previousWorldViewProjection * vec4(position, 1.0);
 	#endif
 
 	gl_Position = viewProjection * finalWorld * vec4(position, 1.0);
